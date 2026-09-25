@@ -6,7 +6,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 
 export default function NotFound() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-base px-6">
+    <main className="flex min-h-screen items-center justify-center bg-canvas px-6">
       <div className="w-full max-w-md rounded-card border border-line bg-surface">
         <EmptyState
           icon={Compass}

@@ -123,14 +123,14 @@ export function Sidebar({
                     className={cn(
                       "group flex items-center gap-3 rounded-[10px] px-3 py-2.5 text-sm transition-colors",
                       active
-                        ? "bg-base/[0.08] font-medium text-ink"
-                        : "text-ink/55 hover:bg-base/[0.05] hover:text-base/90",
+                        ? "bg-ink/[0.08] font-medium text-ink"
+                        : "text-ink/55 hover:bg-ink/[0.05] hover:text-ink/90",
                     )}
                   >
                     <Icon
                       className={cn(
                         "h-[18px] w-[18px] shrink-0",
-                        active ? "text-brand" : "text-ink/40 group-hover:text-base/70",
+                        active ? "text-brand" : "text-ink/40 group-hover:text-ink/70",
                       )}
                     />
                     <span className="flex-1 truncate">{item.label}</span>
@@ -177,7 +177,7 @@ export function Sidebar({
           <button
             type="button"
             onClick={() => signOut({ callbackUrl: "/login" })}
-            className="mt-3 flex w-full items-center gap-2.5 rounded-[10px] px-3 py-2 text-[13px] text-ink/50 transition-colors hover:bg-base/[0.05] hover:text-base/90"
+            className="mt-3 flex w-full items-center gap-2.5 rounded-[10px] px-3 py-2 text-[13px] text-ink/50 transition-colors hover:bg-ink/[0.05] hover:text-ink/90"
           >
             <LogOut className="h-4 w-4" />
             Sign out

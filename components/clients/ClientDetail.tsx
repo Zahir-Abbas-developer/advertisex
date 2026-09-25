@@ -132,7 +132,7 @@ export function ClientDetail({
                 <span>{client.contactName}</span>
                 <a
                   href={`mailto:${client.email}`}
-                  className="flex items-center gap-1.5 transition-colors hover:text-base"
+                  className="flex items-center gap-1.5 transition-colors hover:text-ink"
                 >
                   <Mail aria-hidden className="h-3.5 w-3.5" />
                   {client.email}

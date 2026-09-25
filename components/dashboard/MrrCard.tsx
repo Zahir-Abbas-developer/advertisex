@@ -63,7 +63,7 @@ export function MrrCard({
                 </span>
                 {(outstanding ?? 0) > 0 && (
                   <span className="inline-flex items-center gap-1.5 text-ink/55">
-                    <span className="h-1.5 w-1.5 rounded-full bg-base/40" />
+                    <span className="h-1.5 w-1.5 rounded-full bg-ink/40" />
                     {formatMoney(outstanding ?? 0, true)} outstanding
                   </span>
                 )}
@@ -75,7 +75,7 @@ export function MrrCard({
             className={cn(
               "inline-flex shrink-0 items-center gap-1 rounded-pill px-2.5 py-1 text-[12px] font-medium tabular-nums",
               flat
-                ? "bg-base/10 text-ink/60"
+                ? "bg-ink/10 text-ink/60"
                 : up
                   ? "bg-brand/25 text-brand-tint"
                   : "bg-danger/25 text-danger-tint",

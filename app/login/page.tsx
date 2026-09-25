@@ -51,7 +51,7 @@ export default async function LoginPage({
         </div>
 
         <div className="relative mt-10 hidden lg:block">
-          <div className="h-px w-full bg-base/10" />
+          <div className="h-px w-full bg-ink/10" />
           <div className="mt-6 flex flex-wrap gap-x-8 gap-y-3">
             {["Appetite Audit", "Growth Sprint", "Creative Studio", "Web & Retention"].map(
               (service) => (
@@ -65,7 +65,7 @@ export default async function LoginPage({
       </section>
 
       {/* Right — the form on warm white */}
-      <section className="flex flex-1 items-center justify-center bg-base px-6 py-12 sm:px-10 lg:py-14">
+      <section className="flex flex-1 items-center justify-center bg-canvas px-6 py-12 sm:px-10 lg:py-14">
         <div className="w-full max-w-[380px]">
           <p className="eyebrow mb-3 text-brand">Welcome back</p>
           <h2 className="font-display text-[28px] font-bold leading-tight tracking-[-0.02em] text-ink">

@@ -168,7 +168,7 @@ export function NewEngagementModal({
                   <span
                     className={cn(
                       "flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-[5px] border",
-                      selected ? "border-brand bg-brand text-base" : "border-line bg-surface",
+                      selected ? "border-brand bg-brand text-canvas" : "border-line bg-surface",
                     )}
                   >
                     {selected && <Check className="h-3 w-3" strokeWidth={3} />}

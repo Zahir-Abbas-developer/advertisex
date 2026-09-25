@@ -36,7 +36,7 @@ export default async function ChangePasswordPage() {
   if (!user?.mustChangePassword) redirect(DEFAULT_LANDING);
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-base px-6 py-12">
+    <main className="flex min-h-screen items-center justify-center bg-canvas px-6 py-12">
       <div className="w-full max-w-[380px]">
         <div className="mb-7 flex items-center gap-2.5">
           <span className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-brand font-display text-sm font-bold text-ink">

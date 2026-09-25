@@ -51,14 +51,14 @@ export function AppShell({
   }, [drawerOpen]);
 
   return (
-    <div className="min-h-screen bg-base">
+    <div className="min-h-screen bg-canvas">
       {/* Desktop rail */}
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-sidebar lg:block">
         <Sidebar user={user} errorBadge={errorBadge} hiddenNavKeys={hiddenNavKeys} />
       </aside>
 
       {/* Mobile top bar */}
-      <div className="no-print sticky top-0 z-20 flex items-center justify-between border-b border-line bg-base/95 px-4 py-3 backdrop-blur lg:hidden">
+      <div className="no-print sticky top-0 z-20 flex items-center justify-between border-b border-line bg-canvas/95 px-4 py-3 backdrop-blur lg:hidden">
         <div className="flex items-center gap-2.5">
           <span className="flex h-7 w-7 items-center justify-center rounded-[8px] bg-brand font-display text-xs font-bold text-ink">
             M
@@ -100,7 +100,7 @@ export function AppShell({
               type="button"
               onClick={() => setDrawerOpen(false)}
               aria-label="Close navigation"
-              className="absolute right-3 top-5 rounded-pill p-2 text-ink/50 transition-colors hover:bg-base/10 hover:text-base"
+              className="absolute right-3 top-5 rounded-pill p-2 text-ink/50 transition-colors hover:bg-ink/10 hover:text-ink"
             >
               <X className="h-4 w-4" />
             </button>
@@ -112,7 +112,7 @@ export function AppShell({
       <div className="lg:pl-sidebar">
         {/* Desktop top bar. Deliberately slim — it exists for the bell, and a
             heavier header would fight the editorial page headings below it. */}
-        <div className="no-print sticky top-0 z-20 hidden items-center justify-end gap-2.5 border-b border-line bg-base/90 px-10 py-3 backdrop-blur lg:flex">
+        <div className="no-print sticky top-0 z-20 hidden items-center justify-end gap-2.5 border-b border-line bg-canvas/90 px-10 py-3 backdrop-blur lg:flex">
           <CommandPalette />
           <NotificationBell />
         </div>

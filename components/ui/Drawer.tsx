@@ -63,7 +63,7 @@ export function Drawer({
       <div
         ref={panelRef}
         className={cn(
-          "absolute inset-y-0 right-0 flex w-full flex-col border-l border-line bg-base",
+          "absolute inset-y-0 right-0 flex w-full flex-col border-l border-line bg-canvas",
           // Slides in on transform alone. Opacity is never animated here, so
           // the panel cannot end up invisible if the animation is skipped.
           "animate-slide-in-right",

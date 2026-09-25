@@ -439,7 +439,7 @@ export function TeamManager({ currentUserId }: { currentUserId: string }) {
                     <TD
                       className={cn(
                         "sticky right-0 z-10 shadow-[-8px_0_8px_-8px_rgba(12,12,10,0.15)]",
-                        member.isActive ? "bg-surface" : "bg-base",
+                        member.isActive ? "bg-surface" : "bg-canvas",
                       )}
                     >
                       {/* Labels from sm up; icons alone below, with the label kept

@@ -59,7 +59,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${display.variable} ${sans.variable}`}>
-      <body className="min-h-screen bg-base text-ink">
+      <body className="min-h-screen bg-canvas text-ink">
         <Providers>{children}</Providers>
       </body>
     </html>

@@ -183,7 +183,7 @@ export function ActivityTimeline({
                   className={cn(
                     "flex items-center gap-1.5 rounded-pill border px-3 py-1.5 text-[13px] transition-colors",
                     active
-                      ? "border-brand bg-brand text-base"
+                      ? "border-brand bg-brand text-canvas"
                       : "border-line bg-surface text-ink/60 hover:border-ink/25 hover:text-ink",
                   )}
                 >
@@ -280,7 +280,7 @@ export function ActivityTimeline({
                     className={cn(
                       "absolute -left-[27px] top-1 flex h-4 w-4 items-center justify-center rounded-full border",
                       activity.isSystem
-                        ? "border-line bg-base text-ink/35"
+                        ? "border-line bg-canvas text-ink/35"
                         : "border-brand bg-brand-tint text-brand",
                     )}
                   >

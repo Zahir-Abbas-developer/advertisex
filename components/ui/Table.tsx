@@ -58,7 +58,7 @@ export function TR({
     <tr
       className={cn(
         "transition-colors hover:bg-surface-2/50",
-        muted && "bg-base/60 text-ink/50",
+        muted && "bg-canvas/60 text-ink/50",
         className,
       )}
     >

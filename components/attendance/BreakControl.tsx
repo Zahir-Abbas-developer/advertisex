@@ -186,7 +186,7 @@ export function BreakControl({ onChange }: { onChange?: () => void }) {
                 className={cn(
                   "rounded-pill border px-3 py-1.5 text-[13px] transition-colors",
                   reason === option
-                    ? "border-brand bg-brand text-base"
+                    ? "border-brand bg-brand text-canvas"
                     : "border-line bg-surface text-ink/55 hover:border-ink/25",
                 )}
               >

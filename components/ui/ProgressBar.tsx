@@ -61,7 +61,7 @@ export function ProgressBar({
         className={cn(
           "w-full overflow-hidden rounded-pill",
           size === "sm" ? "h-1.5" : "h-2",
-          onDark ? "bg-base/10" : "bg-surface-2",
+          onDark ? "bg-ink/10" : "bg-surface-2",
         )}
       >
         <div

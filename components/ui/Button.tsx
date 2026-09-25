@@ -8,13 +8,13 @@ export type ButtonSize = "sm" | "md" | "lg";
 
 const VARIANTS: Record<ButtonVariant, string> = {
   primary:
-    "bg-brand text-base border border-brand hover:bg-brand/90 active:bg-brand disabled:bg-brand/50 disabled:border-brand/50",
+    "bg-brand text-canvas border border-brand hover:bg-brand-hover hover:border-brand-hover active:bg-brand disabled:opacity-50 disabled:hover:bg-brand",
   secondary:
-    "bg-base text-ink border border-line hover:bg-surface-2 active:bg-surface-2 disabled:text-ink/40",
+    "bg-canvas text-ink border border-line hover:bg-surface-2 active:bg-surface-2 disabled:text-ink/40",
   ghost:
     "bg-transparent text-ink/70 border border-transparent hover:bg-surface-2 hover:text-ink disabled:text-ink/30",
   danger:
-    "bg-danger-tint text-danger border border-danger/25 hover:bg-danger hover:text-base hover:border-danger disabled:opacity-50",
+    "bg-danger-tint text-danger border border-danger/25 hover:bg-danger hover:text-ink hover:border-danger disabled:opacity-50",
   dark: "bg-surface-2 text-ink border border-line-strong hover:bg-surface-2/80 disabled:opacity-50",
 };
 
@@ -41,7 +41,7 @@ export const buttonClasses = (
 ) =>
   cn(
     "inline-flex items-center justify-center rounded-pill font-medium transition-colors duration-150",
-    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2 focus-visible:ring-offset-base",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2 focus-visible:ring-offset-canvas",
     "disabled:cursor-not-allowed",
     VARIANTS[variant],
     SIZES[size],

@@ -16,8 +16,12 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        /** Obsidian page background — the ground everything sits on */
-        base: "#0B0B0D",
+        /**
+         * Obsidian page background — the ground everything sits on. Named
+         * `canvas`, not `base`: Tailwind already owns `text-base` (a font size),
+         * and a color token called `base` silently loses to it.
+         */
+        canvas: "#0B0B0D",
         /** Cards */
         surface: { DEFAULT: "#121215", 2: "#18181C" },
         /** Warm white — all foreground text; secondary text via opacity (text-ink/60) */

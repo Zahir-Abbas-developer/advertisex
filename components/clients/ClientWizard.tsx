@@ -567,7 +567,7 @@ export function ClientWizard({
                 <span
                   className={cn(
                     "mt-0.5 flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-[5px] border transition-colors",
-                    selected ? "border-brand bg-brand text-base" : "border-line bg-surface",
+                    selected ? "border-brand bg-brand text-canvas" : "border-line bg-surface",
                   )}
                 >
                   {selected && <Check className="h-3 w-3" strokeWidth={3} />}
@@ -670,7 +670,7 @@ function Stepper({ step }: { step: Step }) {
             <span
               className={cn(
                 "flex h-6 w-6 shrink-0 items-center justify-center rounded-pill text-[11px] font-bold transition-colors",
-                done && "bg-brand text-base",
+                done && "bg-brand text-canvas",
                 active && "bg-brand-tint text-brand",
                 !done && !active && "border border-line bg-surface text-ink/40",
               )}
