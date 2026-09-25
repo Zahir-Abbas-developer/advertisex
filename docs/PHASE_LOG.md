@@ -7,21 +7,28 @@ phase → status → done → next → blockers.*
 
 ## 2026-09-25 — Phase 1: IN PROGRESS
 
-**Phase:** 1 — Identity & Shell (scope: ASSESSMENT §11, approved at the Phase 0 gate)
-**Status:** ▶ in progress
+**Phase:** 1 — Foundation (scope: the founder's Phase 1 prompt, issued 2026-09-25 — now verbatim in `docs/PHASES.md`; it supersedes the ASSESSMENT §11 proposal, see ADR-007)
+**Status:** ▶ in progress — re-baselined mid-phase when the prompt arrived; increments 1–3 below sit inside its scope items 1, 7 and 11 and carry forward
 
 **Approved decisions:** D1 brand→Advertise X (users/data untouched) · D2 departments→service lines for food brands (playbook-derived seed) · D3 full Obsidian & Gold retheme · D4 all modules stay parked (feasibility) · D5 NextAuth stays.
 
 **Task list (increments, each committed green):**
 1. ✅ Rebrand sweep (`7668b4d`) — name, README, manifest, wordmarks, "the agency" strings, package name. Kills R2.
-2. ✅ Obsidian & Gold retheme — §7 tokens in `tailwind.config.ts` (values swapped under the existing class names; 97 files swept), Inter Tight/Inter fonts, dark-theme recharts + email + error-page palettes, gold-A icons, `DESIGN_SYSTEM.md`. Verified: tsc · lint · build · 479/479 · smoke:browser 69 pages × 3 roles · login screenshot. Executes D3.
-3. Service-line seed per D2 — departments, stages, fields, memberships; harnesses re-verified.
-4. Dashboard rewired to `lib/analytics.ts` with filter bar + recharts. Closes audit 8.
-5. Client wizard renders dynamic fields. Closes audit 5.
-6. Migrations baseline (R1) · `seed:prod` with forced password change (R3) · CI running the gate (R6).
-7. Full gate · docs updates · `PHASE_1_REPORT.md` · **STOP** for "Phase 1 approved".
+2. ✅ Obsidian & Gold retheme (`fd0ed54`) — §7 tokens in `tailwind.config.ts` (values swapped under the existing class names; 97 files swept), Inter Tight/Inter fonts, dark-theme recharts + email + error-page palettes, gold-A icons, `DESIGN_SYSTEM.md`. Verified: tsc · lint · build · 479/479 · smoke:browser 69 pages × 3 roles · login screenshot. Executes D3.
+3. ✅ Service-line seed per D2 (`339df3e`) — Appetite Audit · Growth Sprint · Creative Studio · Web & Retention, each with its own pipeline and field set (incl. a MULTISELECT-conditional field); membership matrix with deliberate gaps (scoping tests rely on them); placeholder password `advertisex-change-me`; login-rail copy. Harnesses generalised off BWM slugs: permtest derives a department the probe user is not in, journeytest/fieldtest answer required fields by type, commission check runs wherever a `commission_rate` field exists (skips loudly otherwise). Existing databases keep their BWM departments — the seed creates, never destroys; founder retires them in Settings (per D2 record). Verified: smoke ×2 · permtest · leaks · fieldtest · journeytest 73 · tsc · lint · 479/479.
+4. Schema foundation (scope 3): Organization · ClientAccount (skeleton) · AuditLog · Notification (skeleton) · File (skeleton) · role enum FOUNDER/MANAGER/EMPLOYEE/CLIENT/AI_AGENT (additive mapping per ADR-007) · tenancy keys + FK indexes · **migrations baseline** (kills R1).
+5. RBAC (scope 6): `config/permissions.ts` matrix · `authorize(user, action, resource, scope)` in every handler · roles in session (scope 5) · isolation tests for CLIENT, EMPLOYEE, MANAGER, FOUNDER, AI_AGENT.
+6. Repositories (scope 4): tenant-scoped data access, no raw unscoped queries; audit utility wired into mutations (scope 9).
+7. Module structure (scope 2): incremental behavior-preserving moves into §5 layout, every move recorded, gate green per move.
+8. Design system completion (scope 7): missing primitives (Checkbox, Dropdown, Tooltip, Pagination, KPI tile as component) + dev-only `/design-system` showcase route.
+9. Shells (scope 8): route groups (auth)/(admin)/(team)/(client), client shell with placeholder dashboard, notifications bell skeleton, responsive.
+10. Observability (scope 10): structured logger; existing SystemError log + admin/errors extended as the Sentry-equivalent; error/not-found pages already rethemed.
+11. Seed (scope 11): 1 org · founder · manager · 5 employees · 5 AI-agent users · 3 restaurant client accounts with 1 client user each — layered on the D2 service lines.
+12. Full gate · PRESERVE-list verification · docs updates · `PHASE_1_REPORT.md` · **STOP** for "Phase 1 approved".
 
-**Blockers:** none. `REQUIREMENTS.md`/`PHASES.md` still wanted but no longer blocking (founder ran Phase 0 without them).
+**Deploy preconditions (ADR-008):** before the first Phase 1 production deploy, (1) a Neon branch of production is taken, which serves as backup and clone, (2) the migration rehearsal is repeated against it, (3) `BASELINE_BACKUP_CONFIRMED=1` is set for that one deploy. Role backfill (`npm run roles:backfill`) runs only *after* the new deployment is live.
+
+**Blockers:** none for building. Production backup/clone needs Neon access (the URL is a sensitive Vercel variable, so it can't be pulled locally). `REQUIREMENTS.md` still wanted.
 
 ---
 

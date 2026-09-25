@@ -213,3 +213,111 @@ replacements ship.
 
 **D5 — "no yet."** Read as "not yet" to a hosted auth provider: ADR-002 stands —
 hardened NextAuth credentials, invites and verification built on top in P2/P3.
+
+## ADR-007 — The founder's Phase 1 prompt supersedes the ASSESSMENT §11 proposal
+
+**Date:** 2026-09-25 · **Status:** accepted
+
+**Context.** Phase 0 ran without `docs/PHASES.md`. Its report proposed a lean
+Phase 1 ("Identity & Shell") and the founder approved the gate. Mid-phase, the
+founder issued the real Phase 1 prompt (now recorded verbatim in
+`docs/PHASES.md`): rebrand · modular architecture · multi-tenancy · auth ·
+RBAC · design system · app shells. The founder's prompt is the source of truth
+(CLAUDE.md §2), so the phase re-baselines around it. Work already shipped
+(rebrand, Obsidian & Gold, D2 service-line seed) sits inside its scope items
+1, 7 and 11 and carries forward unchanged.
+
+**What this supersedes.**
+- **ADR-001's "no `src/` move".** Scope 2 explicitly orders the §5 modular
+  structure. That was ADR-001's call to make cheaply and is now the founder's
+  call to make properly. Approach: *incremental, behavior-preserving* — new
+  foundation code (tenancy, rbac, repositories) is born in the final
+  structure; existing feature code moves module by module, each move a
+  commit with the full gate green, every move listed in the phase report.
+  A big-bang tree move of a working 479-test codebase in one commit is the
+  rewrite-by-stealth §3.2 forbids.
+- **Role model.** `ADMIN / SUPPORT_ADMIN / MEMBER` (+ per-department `LEAD`)
+  becomes `FOUNDER / MANAGER / EMPLOYEE / CLIENT / AI_AGENT`. Mapping:
+  ADMIN→FOUNDER, SUPPORT_ADMIN→MANAGER, MEMBER→EMPLOYEE; CLIENT and AI_AGENT
+  are new. Migration is additive-first on the populated production database
+  (new column/values in, backfill, cut over reads, retire old) — never a
+  destructive enum rewrite. Per-department LEAD stays: it is a scope rule
+  ("department"), not a role.
+
+**Sequencing decision.** Schema + permissions matrix + `authorize()` land
+before the module moves; the moves then carry code into a structure that
+already has its foundations, instead of moving twice.
+
+**Alternatives rejected.** Treating the pasted prompt as Phase 2 (it names
+itself Phase 1 and its prerequisite is "Phase 0 approved"); pausing shipped
+work for a from-scratch restart (§3.2).
+
+## ADR-008 — Deploying Phase 1 without risking production
+
+**Date:** 2026-09-25 · **Status:** accepted
+
+Two founder concerns, raised before the Phase 1 commits: the migration
+baseline must not execute SQL against live production, and the role
+vocabulary change must not let old and new code disagree about a role.
+
+### 1. The migration baseline
+
+- **Mechanism.** `scripts/migrate-deploy.mjs` marks `00000000000000_baseline`
+  applied with `prisma migrate resolve --applied`. That writes one row to
+  `_prisma_migrations` and executes none of the baseline's SQL. Only the
+  migrations after it run, and the first one (`advertisex_foundation`) is
+  purely additive: two new tables, five nullable columns, indexes, and
+  foreign keys that allow null.
+- **Gate.** The one-time baseline of a populated database refuses to run
+  unless `BASELINE_BACKUP_CONFIRMED=1` is set. Without it the build exits 1
+  before touching anything, and Vercel keeps serving the previous deployment.
+- **Rehearsal (2026-09-25, local Postgres 18).** Three paths, all passed:
+  (a) a database in production's state, with every table present from `db push`
+  and no ledger: baselined, then only the foundation migration applied;
+  a second run found nothing pending. (b) The same state loaded with the
+  pre-Phase-1 seed (6 accounts, 4 BWM departments): after the full
+  vercel-build database sequence, all 6 accounts kept identical emails, roles
+  and password hashes, every row got its organization, and zero drift from
+  `schema.prisma`. (c) An empty database: baseline and foundation both
+  *executed*, zero drift. The rehearsal caught one real bug, `prisma` not on
+  PATH outside npm scripts (fixed: `npx prisma`).
+- **Not yet done: a clone of production's actual data, and a backup.**
+  Vercel stores `DATABASE_URL` as a sensitive variable and `env pull` returns
+  it redacted, so neither is possible from the development machine. Before
+  the first Phase 1 deploy the founder (or whoever holds Neon access) creates
+  a **Neon branch** of production, which gives a backup and a real clone in one
+  step, and the rehearsal is repeated against that branch's URL. Only then is
+  `BASELINE_BACKUP_CONFIRMED=1` set.
+
+### 2. The role vocabulary: expand, then contract, *not* one deploy
+
+The founder asked that the database backfill and the code sweep ship
+together. The goal is right: old and new code must never read each other's
+role strings. But one Vercel deploy does not achieve it. `vercel-build` runs
+migrations and the seed *before* the new build goes live, while the previous
+deployment is still serving. A backfill inside that build rewrites roles
+under the old code.
+
+Audit of the current code shows what that window would do: every authority
+check has the shape `hasAdminPower(role) ? admin : member` (104 call sites),
+so an unrecognised string falls to *member-level* access. For FOUNDER that is
+fail-closed (admin lost for the length of the window). For **CLIENT and
+AI_AGENT it is fail-open**: old code would treat a restaurant's login as a
+team member.
+
+So the rollout is expand/contract:
+
+1. **Expand (the Phase 1 deploy).** New code reads roles through
+   `normalizeRole()`, which maps both vocabularies (ADMIN→FOUNDER,
+   SUPPORT_ADMIN→MANAGER, MEMBER→EMPLOYEE) and returns `null` for anything
+   else. `null` is **deny**: sign-in is refused, and `authorize()` refuses
+   every action. The database is *not* rewritten, and no CLIENT or AI_AGENT
+   account exists in production, so the old deployment never meets a string
+   it cannot handle.
+2. **Contract (after the new deployment is live and verified).** Run
+   `npm run roles:backfill` once. It rewrites legacy role strings to the new
+   ones and creates the new-role seed accounts. The old code is gone by then.
+   A later phase can drop legacy-name support once production holds none.
+
+Because the new code accepts both vocabularies, the backfill can run at any
+point after step 1 with no behaviour change, and running it twice is harmless.
