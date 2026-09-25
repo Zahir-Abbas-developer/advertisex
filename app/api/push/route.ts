@@ -7,6 +7,7 @@ import { getCurrentUser } from "@/lib/session";
 import { fieldErrors } from "@/lib/validation";
 import { pushConfigured, sendPush } from "@/lib/reach";
 
+import { requireApi } from "@/modules/rbac/server";
 /**
  * Push subscriptions.
  *
@@ -22,6 +23,9 @@ const subscribeSchema = z.object({
 
 /** Tells the client whether push is available and which key to subscribe with. */
 export async function GET() {
+  const access = await requireApi("read", "notification");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 
@@ -35,6 +39,9 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const access = await requireApi("create", "notification");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 
@@ -86,6 +93,9 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE(request: Request) {
+  const access = await requireApi("delete", "notification");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 

@@ -11,6 +11,7 @@ import { evaluateWeek } from "@/lib/targets";
 import { ACTIVITY_BUCKETS, type ActivityBucket } from "@/lib/pipeline-types";
 import { hasAdminPower } from "@/lib/constants";
 
+import { requireApi } from "@/modules/rbac/server";
 const saveSchema = z.object({
   userId: z.string().min(1),
   targets: z
@@ -31,6 +32,9 @@ const saveSchema = z.object({
  * watches all week and the points they end up with cannot disagree.
  */
 export async function GET(request: Request) {
+  const access = await requireApi("read", "analytics");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 
@@ -100,6 +104,9 @@ export async function GET(request: Request) {
 
 /** Setting targets is the owner's job — they're what a member is measured on. */
 export async function PUT(request: Request) {
+  const access = await requireApi("read", "analytics");
+  if (access.response) return access.response;
+
   const { response } = await requireAdminApi();
   if (response) return response;
 

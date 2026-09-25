@@ -22,6 +22,7 @@ import {
   minutesBetween,
 } from "@/lib/attendance-time";
 
+import { storedRoleValues } from "@/config/permissions";
 /**
  * The attendance service: everything that writes.
  *
@@ -610,7 +611,7 @@ export async function runDailyAttendanceSweep(now = new Date()): Promise<DailySw
   // Absent: past the cutoff on a working day, with no clock-in and no leave.
   if (minutes >= settings.absentCutoffMinutes && settings.workdays.includes(karachiWeekday(now))) {
     const members = await prisma.user.findMany({
-      where: { role: "MEMBER", isActive: true },
+      where: { role: { in: storedRoleValues("EMPLOYEE") }, isActive: true },
       select: { id: true },
     });
 
@@ -692,7 +693,7 @@ async function markNonWorkingDay(now: Date, settings: AgencySettings): Promise<v
   const isOff = !settings.workdays.includes(karachiWeekday(now));
 
   const members = await prisma.user.findMany({
-    where: { role: "MEMBER", isActive: true },
+    where: { role: { in: storedRoleValues("EMPLOYEE") }, isActive: true },
     select: { id: true },
   });
 

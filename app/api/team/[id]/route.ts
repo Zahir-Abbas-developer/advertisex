@@ -6,6 +6,7 @@ import { apiError, requireAdminApi } from "@/lib/api";
 import { fieldErrors, updateUserSchema } from "@/lib/validation";
 import { hasAdminPower } from "@/lib/constants";
 
+import { storedRoleValues } from "@/config/permissions";
 const SELECT = {
   id: true,
   name: true,
@@ -48,14 +49,15 @@ export async function PATCH(
   if (isSelf && rest.isActive === false) {
     return apiError("You can't deactivate your own account", 400);
   }
-  if (isSelf && rest.role === "MEMBER") {
+  if (isSelf && rest.role !== undefined && !hasAdminPower(rest.role)) {
     return apiError("You can't remove your own owner access", 400);
   }
 
   // Nor can the company be left with nobody who can administer it.
-  if (hasAdminPower(target.role) && (rest.role === "MEMBER" || rest.isActive === false)) {
+  const losesFounder = rest.role !== undefined && !hasAdminPower(rest.role);
+  if (hasAdminPower(target.role) && (losesFounder || rest.isActive === false)) {
     const otherAdmins = await prisma.user.count({
-      where: { role: "ADMIN", isActive: true, id: { not: target.id } },
+      where: { role: { in: storedRoleValues("FOUNDER") }, isActive: true, id: { not: target.id } },
     });
     if (otherAdmins === 0) {
       return apiError("The company must keep at least one active owner", 400);

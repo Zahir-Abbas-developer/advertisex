@@ -17,6 +17,7 @@ import { autoAssign, leadSignals } from "@/lib/auto-assign";
 import { notify } from "@/lib/notifications";
 import { fieldsFor, validateFieldValues, writeFieldValues } from "@/lib/fields";
 
+import { requireApi } from "@/modules/rbac/server";
 const leadSchema = z.object({
   // The business line this deal belongs to. Also decides which pipeline
   // stages are valid for it.
@@ -48,6 +49,9 @@ const leadSchema = z.object({
  * only *edit* leads they own; that check lives on the write paths.
  */
 export async function GET(request: Request) {
+  const access = await requireApi("read", "lead");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 
@@ -126,6 +130,9 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const access = await requireApi("create", "lead");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 

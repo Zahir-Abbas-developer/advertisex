@@ -13,6 +13,7 @@ import {
   type ActivityType,
 } from "@/lib/constants";
 
+import { requireApi } from "@/modules/rbac/server";
 /**
  * The timeline on a lead or a client.
  *
@@ -51,6 +52,9 @@ async function resolveRecord(searchParams: URLSearchParams | Record<string, stri
 }
 
 export async function GET(request: Request) {
+  const access = await requireApi("read", "activity");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 
@@ -122,6 +126,9 @@ const logSchema = z.object({
  * activity is attributed to them rather than to the owner.
  */
 export async function POST(request: Request) {
+  const access = await requireApi("create", "activity");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 
@@ -176,6 +183,9 @@ export async function POST(request: Request) {
  * would turn the timeline from evidence into a draft.
  */
 export async function DELETE(request: Request) {
+  const access = await requireApi("delete", "activity");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 

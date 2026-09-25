@@ -327,7 +327,7 @@ export function MyTasks({
       <MilestoneDrawer
         milestoneId={openId}
         viewerId={viewerId}
-        viewerRole={isAdmin ? "ADMIN" : "MEMBER"}
+        viewerRole={isAdmin ? "FOUNDER" : "EMPLOYEE"}
         onClose={() => setOpenId(null)}
         onChanged={() => void load()}
       />

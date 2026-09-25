@@ -10,6 +10,8 @@ import { karachiDateString, karachiDay } from "@/lib/attendance-time";
 import { notify } from "@/lib/notifications";
 import { hasAdminPower } from "@/lib/constants";
 
+import { storedRoleValues } from "@/config/permissions";
+import { requireApi } from "@/modules/rbac/server";
 const leaveSchema = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Pick a date"),
   reason: z
@@ -21,6 +23,9 @@ const leaveSchema = z.object({
 
 /** A member's own requests; the owner sees everyone's. */
 export async function GET() {
+  const access = await requireApi("read", "attendance");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 
@@ -49,6 +54,9 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const access = await requireApi("create", "attendance");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 
@@ -81,7 +89,7 @@ export async function POST(request: Request) {
     });
 
     const owners = await prisma.user.findMany({
-      where: { role: "ADMIN", isActive: true },
+      where: { role: { in: storedRoleValues("FOUNDER") }, isActive: true },
       select: { id: true },
     });
 

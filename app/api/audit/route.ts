@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { prisma } from "@/lib/prisma";
-import { requireAdminApi } from "@/lib/api";
+import { requireApi } from "@/modules/rbac/server";
 import { AUDIT_ACTIONS } from "@/lib/audit";
 
 /**
@@ -12,7 +12,7 @@ import { AUDIT_ACTIONS } from "@/lib/audit";
  * would turn every judgement call into a performance.
  */
 export async function GET(request: Request) {
-  const { response } = await requireAdminApi();
+  const { response } = await requireApi("read", "ops");
   if (response) return response;
 
   const { searchParams } = new URL(request.url);

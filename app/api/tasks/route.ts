@@ -13,6 +13,7 @@ import { notify } from "@/lib/notifications";
 import { parseDateInput } from "@/lib/date";
 import { hasAdminPower, TASK_PRIORITIES } from "@/lib/constants";
 
+import { requireApi } from "@/modules/rbac/server";
 /**
  * The daily working surface: everything owed, in buckets.
  *
@@ -20,6 +21,9 @@ import { hasAdminPower, TASK_PRIORITIES } from "@/lib/constants";
  * line's client names — a task title carries one.
  */
 export async function GET(request: Request) {
+  const access = await requireApi("read", "task");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 
@@ -61,6 +65,9 @@ const createSchema = z
   });
 
 export async function POST(request: Request) {
+  const access = await requireApi("create", "task");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 

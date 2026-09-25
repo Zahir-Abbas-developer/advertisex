@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { ShieldCheck } from "lucide-react";
 
-import { requireAdmin } from "@/lib/session";
+import { requirePage } from "@/modules/rbac/server";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { markErrorsSeen, recentErrors } from "@/lib/system-errors";
@@ -19,7 +19,7 @@ export const metadata: Metadata = { title: "Error log" };
  */
 export default async function ErrorsPage() {
   // Middleware blocks members from /admin; this is the server-side backstop.
-  await requireAdmin();
+  await requirePage("read", "ops");
 
   const errors = await recentErrors(100);
   // Read first, then mark — otherwise this render would clear its own badge

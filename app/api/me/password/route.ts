@@ -8,6 +8,7 @@ import { fieldErrors } from "@/lib/validation";
 import { recordAudit } from "@/lib/audit";
 import { hashPassword, passwordMatches } from "@/lib/passwords";
 
+import { requireApi } from "@/modules/rbac/server";
 const schema = z
   .object({
     currentPassword: z.string().min(1, "Enter your current password"),
@@ -35,6 +36,9 @@ const schema = z
  * else was handed the seed credentials.
  */
 export async function POST(request: Request) {
+  const access = await requireApi("update", "profile");
+  if (access.response) return access.response;
+
   const session = await getCurrentUser();
   if (!session) return apiError("You must be signed in", 401);
 

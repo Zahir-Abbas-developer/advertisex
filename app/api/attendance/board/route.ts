@@ -8,6 +8,7 @@ import { adminTally } from "@/lib/attendance-visibility";
 import { breakAllowance, breakMinutesUsed } from "@/lib/fairness-windows";
 import { karachiDay, karachiMinutes, minutesBetween } from "@/lib/attendance-time";
 
+import { storedRoleValues } from "@/config/permissions";
 /** Today's live board: who is actually working right now. */
 export async function GET() {
   const { response } = await requireAdminApi();
@@ -20,7 +21,7 @@ export async function GET() {
   const day = karachiDay(now);
 
   const members = await prisma.user.findMany({
-    where: { role: "MEMBER", isActive: true },
+    where: { role: { in: storedRoleValues("EMPLOYEE") }, isActive: true },
     orderBy: { name: "asc" },
     select: { id: true, name: true, jobTitle: true, avatarColor: true },
   });

@@ -7,6 +7,7 @@ import { fieldErrors } from "@/lib/validation";
 import { breakStateFor, endBreak, startBreak } from "@/lib/attendance";
 import { BREAK_REASONS } from "@/lib/fairness-windows";
 
+import { requireApi } from "@/modules/rbac/server";
 /**
  * Protected break time.
  *
@@ -18,6 +19,9 @@ import { BREAK_REASONS } from "@/lib/fairness-windows";
 const startSchema = z.object({ reason: z.enum(BREAK_REASONS) });
 
 export async function GET() {
+  const access = await requireApi("read", "attendance");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 
@@ -44,6 +48,9 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const access = await requireApi("create", "attendance");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 
@@ -66,6 +73,9 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE() {
+  const access = await requireApi("delete", "attendance");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 

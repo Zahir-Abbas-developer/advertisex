@@ -4,6 +4,7 @@ import { apiError } from "@/lib/api";
 import { getCurrentUser } from "@/lib/session";
 import { candidatesForWeek, loadGrid } from "@/lib/capacity-service";
 
+import { requireApi } from "@/modules/rbac/server";
 /**
  * Who has room, and when.
  *
@@ -16,6 +17,9 @@ import { candidatesForWeek, loadGrid } from "@/lib/capacity-service";
  * is the point — it is what stops work being handed over without a thought.
  */
 export async function GET(request: Request) {
+  const access = await requireApi("read", "delivery");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 

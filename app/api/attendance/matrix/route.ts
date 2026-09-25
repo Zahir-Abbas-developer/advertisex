@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { apiError, requireAdminApi } from "@/lib/api";
 import { karachiDateString } from "@/lib/attendance-time";
 
+import { storedRoleValues } from "@/config/permissions";
 /**
  * Members × days for a month. Returns JSON, or CSV with ?format=csv.
  */
@@ -25,7 +26,7 @@ export async function GET(request: Request) {
   const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
 
   const members = await prisma.user.findMany({
-    where: { role: "MEMBER" },
+    where: { role: { in: storedRoleValues("EMPLOYEE") } },
     orderBy: { name: "asc" },
     select: { id: true, name: true, jobTitle: true, avatarColor: true },
   });

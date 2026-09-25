@@ -9,6 +9,7 @@ import { containsInsensitive } from "@/lib/db-features";
 import { getModuleFlags } from "@/lib/modules";
 import { hasAdminPower } from "@/lib/constants";
 
+import { requireApi } from "@/modules/rbac/server";
 /**
  * Command palette search.
  *
@@ -28,6 +29,9 @@ import { hasAdminPower } from "@/lib/constants";
  * stops matching case in production.
  */
 export async function GET(request: Request) {
+  const access = await requireApi("read", "lead");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 

@@ -8,6 +8,7 @@ import { fieldsFor } from "@/lib/fields";
 import { assignableMembers } from "@/lib/assignment";
 import { FIELD_ENTITIES, hasAdminPower, type FieldEntity } from "@/lib/constants";
 
+import { requireApi } from "@/modules/rbac/server";
 /**
  * Steps 2 and 3 of the creation wizard, for one department.
  *
@@ -25,6 +26,9 @@ import { FIELD_ENTITIES, hasAdminPower, type FieldEntity } from "@/lib/constants
  * them.
  */
 export async function GET(request: Request, { params }: { params: { id: string } }) {
+  const access = await requireApi("read", "department");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 

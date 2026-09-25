@@ -9,6 +9,7 @@ import { logActivity } from "@/lib/pipeline";
 import { ACTIVITY_TYPES } from "@/lib/pipeline-types";
 import { hasAdminPower } from "@/lib/constants";
 
+import { requireApi } from "@/modules/rbac/server";
 const activitySchema = z.object({
   type: z.enum(ACTIVITY_TYPES),
   note: z
@@ -29,6 +30,9 @@ const activitySchema = z.object({
  * from the session rather than from the lead.
  */
 export async function POST(request: Request, { params }: { params: { id: string } }) {
+  const access = await requireApi("create", "activity");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 
@@ -86,6 +90,9 @@ export async function POST(request: Request, { params }: { params: { id: string 
 }
 
 export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+  const access = await requireApi("delete", "activity");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 

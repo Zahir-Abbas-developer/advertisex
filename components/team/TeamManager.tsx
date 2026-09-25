@@ -46,6 +46,7 @@ import { hasAdminPower } from "@/lib/constants";
 import { departmentTone } from "@/components/settings/DepartmentsManager";
 import { MemberDepartmentsModal } from "@/components/team/MemberDepartmentsModal";
 
+import { ROLE_LABEL, normalizeRole } from "@/config/permissions";
 type Status = "loading" | "ready" | "error";
 /**
  * The doctrine's triple is sortable on all three axes, and the default is
@@ -418,11 +419,7 @@ export function TeamManager({ currentUserId }: { currentUserId: string }) {
 
                     <TD>
                       <Badge tone={hasAdminPower(member.role) ? "info" : "neutral"}>
-                        {member.role === "ADMIN"
-                          ? "Owner"
-                          : member.role === "SUPPORT_ADMIN"
-                            ? "Support"
-                            : "Member"}
+                        {ROLE_LABEL[normalizeRole(member.role) ?? "EMPLOYEE"]}
                       </Badge>
                     </TD>
 

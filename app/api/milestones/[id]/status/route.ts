@@ -22,6 +22,7 @@ import { canDecideMilestone } from "@/lib/permissions";
 import { actorFor } from "@/lib/permissions-service";
 import { recordAudit } from "@/lib/audit";
 
+import { requireApi } from "@/modules/rbac/server";
 /**
  * The one place a milestone's status can change, because every scoring
  * consequence hangs off these transitions:
@@ -54,6 +55,9 @@ export async function POST(
   request: Request,
   { params }: { params: { id: string } },
 ) {
+  const access = await requireApi("update", "delivery");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 
@@ -103,7 +107,7 @@ export async function POST(
   if (from === to) return NextResponse.json({ milestone, scored: 0 });
 
   // A lead exercises the admin transition matrix inside their scope.
-  if (!canTransition(canDecide ? "ADMIN" : user.role, from, to)) {
+  if (!canTransition(canDecide ? "FOUNDER" : user.role, from, to)) {
     return apiError(
       canDecide
         ? `A milestone can't go from ${from} to ${to}`

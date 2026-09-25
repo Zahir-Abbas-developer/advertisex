@@ -5,6 +5,7 @@ import { getCurrentUser } from "@/lib/session";
 import { actorFor } from "@/lib/permissions-service";
 import { pendingReviews, reviewStats, reviewTimesByReviewer } from "@/lib/review-sla";
 
+import { requireApi } from "@/modules/rbac/server";
 /**
  * The review queue, scoped to whoever is asking.
  *
@@ -15,6 +16,9 @@ import { pendingReviews, reviewStats, reviewTimesByReviewer } from "@/lib/review
  * else's approvals.
  */
 export async function GET() {
+  const access = await requireApi("read", "delivery");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 

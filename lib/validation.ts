@@ -4,7 +4,6 @@ import {
   CLIENT_STATUSES,
   MILESTONE_STATUSES,
   PROJECT_STATUSES,
-  ROLES,
   WEIGHT_MAX,
   WEIGHT_MIN,
 } from "@/lib/constants";
@@ -40,13 +39,16 @@ const password = z
   .min(MIN_PASSWORD_LENGTH, `Password must be at least ${MIN_PASSWORD_LENGTH} characters`)
   .max(72, "Password must be 72 characters or fewer"); // bcrypt's input ceiling
 
-const role = z.enum(ROLES);
+// The team form creates and edits staff only. CLIENT logins are tied to a
+// ClientAccount and AI_AGENT users to explicit grants; neither is something
+// the team form can express, so it cannot mint them.
+const role = z.enum(["FOUNDER", "MANAGER", "EMPLOYEE"]);
 
 export const createUserSchema = z.object({
   name,
   email,
   jobTitle,
-  role: role.default("MEMBER"),
+  role: role.default("EMPLOYEE"),
   password,
 });
 

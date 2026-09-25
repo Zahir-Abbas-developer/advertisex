@@ -40,6 +40,7 @@ import { segmentMentions } from "@/lib/mentions";
 import { ACTIVITY_TONE, type ActivityType } from "@/lib/activity";
 import { cn, formatBytes } from "@/lib/utils";
 
+import { hasAdminPower } from "@/lib/constants";
 type Detail = {
   milestone: {
     id: string;
@@ -436,7 +437,7 @@ export function MilestoneDrawer({
                 </Row>
                 <Row label="Workstream">{milestone.moduleName}</Row>
                 <Row label="Engagement">
-                  {viewerRole === "ADMIN" ? (
+                  {hasAdminPower(viewerRole) ? (
                     <Link
                       href={`/projects/${milestone.projectId}`}
                       className="text-ink hover:text-brand"
@@ -464,7 +465,7 @@ export function MilestoneDrawer({
                   </Row>
                 )}
                 {/* The owner's own clock, shown only to the owner. */}
-                {viewerRole === "ADMIN" && milestone.adminReviewMinutes !== null && (
+                {hasAdminPower(viewerRole) && milestone.adminReviewMinutes !== null && (
                   <Row label="Your review took">
                     {milestone.adminReviewMinutes < 60
                       ? `${milestone.adminReviewMinutes} min`
@@ -484,7 +485,7 @@ export function MilestoneDrawer({
                     blockedNote={milestone.blockedNote}
                     blockedMinutes={milestone.blockedMinutes}
                     dueDate={milestone.dueDate}
-                    viewerIsAdmin={viewerRole === "ADMIN"}
+                    viewerIsAdmin={hasAdminPower(viewerRole)}
                     onChanged={() => {
                       void load();
                       onChanged();
@@ -626,7 +627,7 @@ export function MilestoneDrawer({
                         </p>
                       </div>
 
-                      {(viewerRole === "ADMIN" || attachment.uploader.id === viewerId) && (
+                      {(hasAdminPower(viewerRole) || attachment.uploader.id === viewerId) && (
                         <button
                           type="button"
                           disabled={busy}

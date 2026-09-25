@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
+import { requireApi } from "@/modules/rbac/server";
 import { getCurrentUser } from "@/lib/session";
-import { hasAdminPower } from "@/lib/constants";
 
 /** Shape every API error shares, so clients can render one code path. */
 export type ApiError = {
@@ -23,18 +23,10 @@ export function apiError(
  * its UI is hidden.
  */
 export async function requireAdminApi() {
+  const gate = await requireApi("manage", "admin", "Only the founder can do that");
+  if (gate.response) return { user: null, response: gate.response };
+
   const user = await getCurrentUser();
-
-  if (!user) {
-    return { user: null, response: apiError("You must be signed in", 401) };
-  }
-
-  if (!hasAdminPower(user.role)) {
-    return {
-      user: null,
-      response: apiError("Only the founder can manage the team", 403),
-    };
-  }
-
+  if (!user) return { user: null, response: apiError("You must be signed in", 401) };
   return { user, response: null };
 }

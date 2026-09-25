@@ -28,7 +28,7 @@ function bail(message) {
 
 async function main() {
   const owners = await prisma.user.findMany({
-    where: { role: "ADMIN", isActive: true },
+    where: { role: { in: ["ADMIN", "FOUNDER"] }, isActive: true },
     orderBy: { name: "asc" },
     select: { id: true, name: true, email: true },
   });
@@ -48,25 +48,25 @@ async function main() {
   if (!user) return bail(`No account with the email ${email}.`);
 
   if (!demote) {
-    if (user.role === "ADMIN") return bail(`${user.name} is already an owner.`);
+    if (user.role === "ADMIN" || user.role === "FOUNDER") return bail(`${user.name} is already an owner.`);
     if (!user.isActive) return bail(`${user.name} is deactivated — reactivate them first.`);
 
-    await prisma.user.update({ where: { id: user.id }, data: { role: "ADMIN" } });
-    await audit(user, "MEMBER", "ADMIN");
+    await prisma.user.update({ where: { id: user.id }, data: { role: "FOUNDER" } });
+    await audit(user, user.role, "FOUNDER");
 
     console.log(`\n  ${user.name} is now an owner. ${owners.length + 1} active owners.\n`);
     return;
   }
 
-  if (user.role !== "ADMIN") return bail(`${user.name} is not an owner.`);
+  if (user.role !== "ADMIN" && user.role !== "FOUNDER") return bail(`${user.name} is not an owner.`);
 
   // The same guard the team API enforces: an agency with no owner is locked out.
   if (owners.length <= 1) {
     return bail("That's the last active owner. Promote someone else first.");
   }
 
-  await prisma.user.update({ where: { id: user.id }, data: { role: "MEMBER" } });
-  await audit(user, "ADMIN", "MEMBER");
+  await prisma.user.update({ where: { id: user.id }, data: { role: "EMPLOYEE" } });
+  await audit(user, user.role, "EMPLOYEE");
 
   console.log(`\n  ${user.name} is now a member. ${owners.length - 1} active owners.\n`);
 }

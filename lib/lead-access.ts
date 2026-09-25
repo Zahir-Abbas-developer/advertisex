@@ -1,4 +1,4 @@
-import { hasAdminPower } from "@/lib/constants";
+import { normalizeRole } from "@/config/permissions";
 
 /**
  * Who may change what on a lead.
@@ -22,12 +22,22 @@ import { hasAdminPower } from "@/lib/constants";
 type Actor = { id: string; role: string };
 type LeadRef = { ownerId: string | null; createdById?: string | null };
 
+/**
+ * FOUNDER and MANAGER hold `lead:update` over every lead they can see (the
+ * matrix scopes a MANAGER to their departments; callers have already applied
+ * that). EMPLOYEE authority is per lead, below.
+ */
+function managesLeads(role: string): boolean {
+  const normalized = normalizeRole(role);
+  return normalized === "FOUNDER" || normalized === "MANAGER";
+}
+
 export function canEditLeadDetails(actor: Actor, lead: LeadRef): boolean {
-  if (hasAdminPower(actor.role)) return true;
+  if (managesLeads(actor.role)) return true;
   if (lead.ownerId === actor.id) return true;
   return Boolean(lead.createdById) && lead.createdById === actor.id;
 }
 
 export function canMoveLead(actor: Actor, lead: LeadRef): boolean {
-  return hasAdminPower(actor.role) || lead.ownerId === actor.id;
+  return managesLeads(actor.role) || lead.ownerId === actor.id;
 }

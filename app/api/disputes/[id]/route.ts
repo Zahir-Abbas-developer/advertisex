@@ -9,6 +9,7 @@ import { resolveDispute } from "@/lib/disputes";
 import { canResolveDispute } from "@/lib/permissions";
 import { actorFor, podMemberIds } from "@/lib/permissions-service";
 
+import { requireApi } from "@/modules/rbac/server";
 const rulingSchema = z.object({
   status: z.enum(["UPHELD", "REVERSED"]),
   responseNote: z
@@ -25,6 +26,9 @@ const rulingSchema = z.object({
  * silence is exactly the behaviour formal disputes exist to replace.
  */
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+  const access = await requireApi("update", "attendance");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 

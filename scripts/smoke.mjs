@@ -31,12 +31,12 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 /**
- * Roles carrying full administrative capability. Mirrors ADMIN_ROLES in
- * lib/constants.ts — SUPPORT_ADMIN is the maintainer and has the same reach as
- * the owner, so treating it as a non-owner here would report every legitimate
- * admin payload it receives as a leak.
+ * Every stored spelling of FOUNDER — the one role with owner reach (mirrors
+ * hasAdminPower in lib/constants.ts). MANAGER is deliberately absent: a
+ * manager is department-scoped, so this harness probes them like any other
+ * non-owner, and an owner-only value reaching them *is* a leak.
  */
-const ADMIN_ROLES = ["ADMIN", "SUPPORT_ADMIN"];
+const ADMIN_ROLES = ["ADMIN", "FOUNDER"];
 const isAdminRole = (role) => ADMIN_ROLES.includes(role);
 
 /** Seeded accounts share one placeholder password; SEED_PASSWORD overrides it. */
@@ -216,9 +216,9 @@ export async function prepareDatabase(databaseUrl) {
     });
   };
 
-  await ensure(ADMIN, "ADMIN", "Smoke owner");
-  await ensure(MEMBER, "MEMBER", "Smoke member");
-  const lead = await ensure(LEAD, "MEMBER", "Smoke service lead");
+  await ensure(ADMIN, "FOUNDER", "Smoke owner");
+  await ensure(MEMBER, "EMPLOYEE", "Smoke member");
+  const lead = await ensure(LEAD, "EMPLOYEE", "Smoke service lead");
 
   // The lead role only exists if the person actually leads a service, so give
   // them one — otherwise "SERVICE_LEAD" in the report would be a plain member

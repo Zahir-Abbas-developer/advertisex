@@ -8,6 +8,7 @@ import { visibleChecks, visibleTally } from "@/lib/attendance-visibility";
 import { karachiDateString } from "@/lib/attendance-time";
 import { hasAdminPower } from "@/lib/constants";
 
+import { requireApi } from "@/modules/rbac/server";
 /**
  * A member's month, for the calendar.
  *
@@ -15,6 +16,9 @@ import { hasAdminPower } from "@/lib/constants";
  * forced regardless of what they send.
  */
 export async function GET(request: Request) {
+  const access = await requireApi("read", "attendance");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 

@@ -11,6 +11,7 @@ import { actorFor, podMemberIds } from "@/lib/permissions-service";
 import { getSettings } from "@/lib/settings";
 import { hasAdminPower } from "@/lib/constants";
 
+import { requireApi } from "@/modules/rbac/server";
 const fileSchema = z.object({
   scoreEventId: z.string().min(1),
   reason: z
@@ -29,6 +30,9 @@ const fileSchema = z.object({
  * conflict one step removed.
  */
 export async function GET() {
+  const access = await requireApi("read", "attendance");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 
@@ -107,6 +111,9 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const access = await requireApi("create", "attendance");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 

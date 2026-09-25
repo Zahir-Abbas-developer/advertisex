@@ -4,8 +4,12 @@ import { prisma } from "@/lib/prisma";
 import { apiError } from "@/lib/api";
 import { getCurrentUser } from "@/lib/session";
 
+import { requireApi } from "@/modules/rbac/server";
 /** Every milestone assigned to the signed-in member, across all projects. */
 export async function GET() {
+  const access = await requireApi("read", "delivery");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 

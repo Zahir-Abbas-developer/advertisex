@@ -41,12 +41,13 @@ async function clearForcedPasswordChange(prisma, emails) {
 
 
 /**
- * Roles carrying full administrative capability. Mirrors ADMIN_ROLES in
- * lib/constants.ts — SUPPORT_ADMIN is the maintainer and has the same reach as
- * the owner, so treating it as a non-owner here would report every legitimate
- * admin payload it receives as a leak.
+ * Every stored spelling of FOUNDER — the one role with owner reach (mirrors
+ * hasAdminPower in lib/constants.ts). MANAGER is deliberately absent: a
+ * manager is department-scoped, so this harness probes them like any other
+ * non-owner, and an owner-only value reaching them *is* a leak.
  */
-const ADMIN_ROLES = ["ADMIN", "SUPPORT_ADMIN"];
+const ADMIN_ROLES = ["ADMIN", "FOUNDER"];
+const isManagerRole = (role) => role === "MANAGER" || role === "SUPPORT_ADMIN";
 const isAdminRole = (role) => ADMIN_ROLES.includes(role);
 
 /** Seeded accounts share one placeholder password; SEED_PASSWORD overrides it. */
@@ -85,7 +86,7 @@ async function main() {
     select: { businessName: true, estimatedMonthlyValue: true, owner: { select: { email: true } } },
   });
   const members = await prisma.user.findMany({
-    where: { role: "MEMBER" },
+    where: { role: { in: ["MEMBER", "EMPLOYEE"] } },
     select: { id: true, name: true, email: true },
   });
 
@@ -158,8 +159,9 @@ async function main() {
   await clearForcedPasswordChange(prisma, accounts.map((a) => a.email));
 
   const roles = nonOwners.map((account) => ({
-    name:
-      account.leadsServices.length > 0
+    name: isManagerRole(account.role)
+      ? "MANAGER"
+      : account.leadsServices.length > 0
         ? "SERVICE_LEAD"
         : account.isBusinessDev
           ? "MEMBER(BD)"

@@ -63,6 +63,7 @@ import { TargetBar } from "@/components/pipeline/TargetBar";
 import { formatMoney } from "@/lib/pipeline-types";
 import { MILESTONE_STATUS_LABEL, MILESTONE_STATUS_TONE, type MilestoneStatus, hasAdminPower } from "@/lib/constants";
 
+import { storedRoleValues } from "@/config/permissions";
 export const metadata: Metadata = {
   title: "Dashboard",
 };
@@ -117,7 +118,7 @@ export default async function DashboardPage({
       select: { dueDate: true, completedAt: true },
     }),
     prisma.user.findMany({
-      where: { isActive: true, role: "MEMBER" },
+      where: { isActive: true, role: { in: storedRoleValues("EMPLOYEE") } },
       select: { id: true, name: true, jobTitle: true, avatarColor: true },
     }),
     prisma.milestone.findMany({
@@ -157,7 +158,7 @@ export default async function DashboardPage({
   // change somebody's score.
   const todayDays = isAdmin
     ? await prisma.attendanceDay.findMany({
-        where: { date: karachiDay(now), user: { role: "MEMBER", isActive: true } },
+        where: { date: karachiDay(now), user: { role: { in: storedRoleValues("EMPLOYEE") }, isActive: true } },
         select: { clockInAt: true, clockOutAt: true },
       })
     : [];

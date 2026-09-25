@@ -5,6 +5,7 @@ import { getCurrentUser } from "@/lib/session";
 import { creatableDepartments } from "@/lib/departments";
 import { hasAdminPower } from "@/lib/constants";
 
+import { requireApi } from "@/modules/rbac/server";
 /**
  * Step 1 of the creation wizard: which business lines this viewer may file
  * under.
@@ -18,6 +19,9 @@ import { hasAdminPower } from "@/lib/constants";
  * component, absent from the payload.
  */
 export async function GET() {
+  const access = await requireApi("read", "department");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 

@@ -10,6 +10,7 @@ import { notify } from "@/lib/notifications";
 import { recordComment } from "@/lib/activity";
 import { hasAdminPower } from "@/lib/constants";
 
+import { requireApi } from "@/modules/rbac/server";
 const commentSchema = z.object({
   body: z
     .string()
@@ -24,6 +25,9 @@ export async function POST(
   request: Request,
   { params }: { params: { id: string } },
 ) {
+  const access = await requireApi("update", "delivery");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 

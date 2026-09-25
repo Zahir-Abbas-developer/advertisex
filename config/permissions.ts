@@ -1,0 +1,231 @@
+/**
+ * The permissions matrix — resource × action × role → scope (CLAUDE.md §5).
+ *
+ * One table decides who may do what. `modules/rbac/authorize.ts` reads it;
+ * nothing else encodes a permission. A cell that is absent is a refusal:
+ * there is no default-allow anywhere in this file, and a role this file does
+ * not know — a typo, a legacy string nobody mapped, a value written by a
+ * future version — reaches no cell at all.
+ *
+ * Scopes say *which rows* a granted role may touch:
+ *
+ *   all          every row in the organization
+ *   department   rows in a department the person belongs to
+ *   assigned     rows the person owns or has work on
+ *   own          rows that are the person themselves (their profile, their
+ *                notifications, their attendance)
+ *   client-own   rows belonging to the one ClientAccount a CLIENT login is
+ *                scoped to
+ *   grant        AI_AGENT only: allowed exactly when an explicit grant for
+ *                this resource and action exists (see `AgentGrant` usage in
+ *                modules/rbac/authorize.ts) — never implied by the role
+ *
+ * Organization isolation sits above every scope: a principal never touches a
+ * row from another organization, whatever the cell says.
+ */
+
+// ---------------------------------------------------------------------------
+// Roles
+// ---------------------------------------------------------------------------
+
+export const ROLES = ["FOUNDER", "MANAGER", "EMPLOYEE", "CLIENT", "AI_AGENT"] as const;
+export type Role = (typeof ROLES)[number];
+
+export const ROLE_LABEL: Record<Role, string> = {
+  FOUNDER: "Founder",
+  MANAGER: "Manager",
+  EMPLOYEE: "Team member",
+  CLIENT: "Client",
+  AI_AGENT: "AI agent",
+};
+
+/**
+ * Role strings written before the Advertise X role model, and what they now
+ * mean. Kept while production still holds them (ADR-008: expand, then
+ * contract) — reads accept both vocabularies so no deploy ordering can make
+ * old and new strings disagree.
+ */
+export const LEGACY_ROLES: Readonly<Record<string, Role>> = {
+  ADMIN: "FOUNDER",
+  SUPPORT_ADMIN: "MANAGER",
+  MEMBER: "EMPLOYEE",
+};
+
+/**
+ * The one way to read a stored or session role. Returns null for anything it
+ * does not recognise, and every caller treats null as *deny*: sign-in is
+ * refused and `authorize()` refuses every action.
+ */
+export function normalizeRole(raw: unknown): Role | null {
+  if (typeof raw !== "string") return null;
+  if ((ROLES as readonly string[]).includes(raw)) return raw as Role;
+  return LEGACY_ROLES[raw] ?? null;
+}
+
+/**
+ * Every stored spelling of a role, for database filters. `where: { role:
+ * "EMPLOYEE" }` would silently skip rows still holding "MEMBER" until the
+ * backfill runs; `where: { role: { in: storedRoleValues("EMPLOYEE") } }`
+ * matches both.
+ */
+export function storedRoleValues(role: Role): string[] {
+  return [
+    role,
+    ...Object.entries(LEGACY_ROLES)
+      .filter(([, mapped]) => mapped === role)
+      .map(([legacy]) => legacy),
+  ];
+}
+
+/** Roles that sign in to the team product (the admin and team shells). */
+export const STAFF_ROLES: readonly Role[] = ["FOUNDER", "MANAGER", "EMPLOYEE"];
+
+/** Roles that may sign in with a password at all. AI agents never do. */
+export const INTERACTIVE_ROLES: readonly Role[] = ["FOUNDER", "MANAGER", "EMPLOYEE", "CLIENT"];
+
+// ---------------------------------------------------------------------------
+// The matrix
+// ---------------------------------------------------------------------------
+
+export const ACTIONS = ["read", "create", "update", "delete", "manage"] as const;
+export type Action = (typeof ACTIONS)[number];
+
+export type Scope = "all" | "department" | "assigned" | "own" | "client-own" | "grant";
+
+export const RESOURCES = [
+  /** Founder-only configuration: team, settings, services, departments, money. */
+  "admin",
+  /** Operational oversight: error log, audit trail. */
+  "ops",
+  "lead",
+  "client",
+  "clientAccount",
+  "task",
+  "activity",
+  "department",
+  "delivery",
+  "attendance",
+  "analytics",
+  "report",
+  "notification",
+  "profile",
+  "file",
+] as const;
+export type Resource = (typeof RESOURCES)[number];
+
+type Row = Partial<Record<Role, Scope>>;
+type Matrix = Record<Resource, Partial<Record<Action, Row>>>;
+
+const FOUNDER_ONLY: Row = { FOUNDER: "all" };
+
+export const PERMISSIONS: Matrix = {
+  admin: {
+    read: FOUNDER_ONLY,
+    create: FOUNDER_ONLY,
+    update: FOUNDER_ONLY,
+    delete: FOUNDER_ONLY,
+    manage: FOUNDER_ONLY,
+  },
+
+  ops: {
+    read: { FOUNDER: "all", MANAGER: "all" },
+    // Reporting a crash from one's own session (the error boundary's POST).
+    create: { FOUNDER: "own", MANAGER: "own", EMPLOYEE: "own", CLIENT: "own" },
+  },
+
+  // Sales pipeline. Department-scoped for everyone below the founder, as it
+  // has been since the BWM doctrine (ADR-006).
+  lead: {
+    read: { FOUNDER: "all", MANAGER: "department", EMPLOYEE: "department", AI_AGENT: "grant" },
+    create: { FOUNDER: "all", MANAGER: "department", EMPLOYEE: "department", AI_AGENT: "grant" },
+    update: { FOUNDER: "all", MANAGER: "department", EMPLOYEE: "department", AI_AGENT: "grant" },
+    delete: { FOUNDER: "all", MANAGER: "department" },
+  },
+
+  // A client's CRM record. Employees see the clients they own or work on; a
+  // CLIENT sees only its own account's records.
+  client: {
+    read: {
+      FOUNDER: "all",
+      MANAGER: "department",
+      EMPLOYEE: "assigned",
+      CLIENT: "client-own",
+      AI_AGENT: "grant",
+    },
+    create: { FOUNDER: "all", MANAGER: "department" },
+    update: { FOUNDER: "all", MANAGER: "department", EMPLOYEE: "assigned" },
+    delete: FOUNDER_ONLY,
+  },
+
+  // The restaurant's portal tenant (skeleton in Phase 1).
+  clientAccount: {
+    read: { FOUNDER: "all", MANAGER: "all", CLIENT: "client-own" },
+    create: FOUNDER_ONLY,
+    update: FOUNDER_ONLY,
+    delete: FOUNDER_ONLY,
+  },
+
+  task: {
+    read: { FOUNDER: "all", MANAGER: "department", EMPLOYEE: "department", AI_AGENT: "grant" },
+    create: { FOUNDER: "all", MANAGER: "department", EMPLOYEE: "department", AI_AGENT: "grant" },
+    update: { FOUNDER: "all", MANAGER: "department", EMPLOYEE: "department", AI_AGENT: "grant" },
+    delete: { FOUNDER: "all", MANAGER: "department", EMPLOYEE: "department" },
+  },
+
+  // The activity timeline on leads and clients.
+  activity: {
+    read: { FOUNDER: "all", MANAGER: "department", EMPLOYEE: "department", AI_AGENT: "grant" },
+    create: { FOUNDER: "all", MANAGER: "department", EMPLOYEE: "department", AI_AGENT: "grant" },
+    delete: { FOUNDER: "all", MANAGER: "department", EMPLOYEE: "own" },
+  },
+
+  // Reading a department's shape (its form, its stages) to work in it.
+  department: {
+    read: { FOUNDER: "all", MANAGER: "department", EMPLOYEE: "department" },
+  },
+
+  // Projects, milestones, the board, capacity — the parked delivery module.
+  delivery: {
+    read: { FOUNDER: "all", MANAGER: "all", EMPLOYEE: "assigned" },
+    update: { FOUNDER: "all", MANAGER: "all", EMPLOYEE: "assigned" },
+  },
+
+  // A person's own attendance, breaks, leave, outages, disputes.
+  attendance: {
+    read: { FOUNDER: "all", MANAGER: "all", EMPLOYEE: "own" },
+    create: { FOUNDER: "all", MANAGER: "all", EMPLOYEE: "own" },
+    update: { FOUNDER: "all", MANAGER: "all", EMPLOYEE: "own" },
+  },
+
+  analytics: {
+    read: { FOUNDER: "all", MANAGER: "department", EMPLOYEE: "department" },
+  },
+
+  report: {
+    read: { FOUNDER: "all", MANAGER: "all", EMPLOYEE: "own", CLIENT: "client-own" },
+    create: FOUNDER_ONLY,
+  },
+
+  notification: {
+    read: { FOUNDER: "own", MANAGER: "own", EMPLOYEE: "own", CLIENT: "own" },
+    update: { FOUNDER: "own", MANAGER: "own", EMPLOYEE: "own", CLIENT: "own" },
+    create: { FOUNDER: "own", MANAGER: "own", EMPLOYEE: "own", CLIENT: "own" },
+    delete: { FOUNDER: "own", MANAGER: "own", EMPLOYEE: "own", CLIENT: "own" },
+  },
+
+  profile: {
+    read: { FOUNDER: "own", MANAGER: "own", EMPLOYEE: "own", CLIENT: "own" },
+    update: { FOUNDER: "own", MANAGER: "own", EMPLOYEE: "own", CLIENT: "own" },
+  },
+
+  file: {
+    read: { FOUNDER: "all", MANAGER: "all", EMPLOYEE: "assigned", CLIENT: "client-own" },
+    create: { FOUNDER: "all", MANAGER: "all", EMPLOYEE: "assigned" },
+    delete: { FOUNDER: "all", MANAGER: "all", EMPLOYEE: "own" },
+  },
+};
+
+/** The scope a role holds for an action on a resource, or null for refusal. */
+export function scopeFor(role: Role, action: Action, resource: Resource): Scope | null {
+  return PERMISSIONS[resource]?.[action]?.[role] ?? null;
+}

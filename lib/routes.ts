@@ -1,4 +1,4 @@
-import type { Role } from "@/lib/constants";
+import { normalizeRole, STAFF_ROLES, type Role } from "@/config/permissions";
 
 /**
  * Route map shared by the middleware (edge runtime) and the sidebar. Keeping
@@ -55,12 +55,14 @@ export type NavItem = {
 };
 
 /**
- * SUPPORT_ADMIN reaches everything ADMIN reaches. Spelling it out per item
- * would mean every future nav entry silently locking the maintainer out, so
- * the two admin roles are written once here.
+ * Who may open each screen of the team product. These lists mirror the
+ * permissions matrix (config/permissions.ts): founder configuration is
+ * FOUNDER-only, the ops logs add MANAGER, everything else is staff-wide.
+ * CLIENT and AI_AGENT appear nowhere here — the team product is not theirs.
  */
-const ADMINS: readonly Role[] = ["ADMIN", "SUPPORT_ADMIN"];
-const EVERYONE: readonly Role[] = ["ADMIN", "SUPPORT_ADMIN", "MEMBER"];
+const ADMINS: readonly Role[] = ["FOUNDER"];
+const OPS: readonly Role[] = ["FOUNDER", "MANAGER"];
+const EVERYONE: readonly Role[] = STAFF_ROLES;
 
 export const NAV_ITEMS: readonly NavItem[] = [
   { key: "dashboard", label: "Dashboard", href: "/dashboard", roles: EVERYONE },
@@ -108,8 +110,8 @@ export const NAV_ITEMS: readonly NavItem[] = [
     roles: EVERYONE,
   },
   { key: "settings", label: "Settings", href: "/settings", roles: ADMINS },
-  { key: "audit", label: "Audit log", href: "/admin/audit", roles: ADMINS, hidden: true },
-  { key: "errors", label: "Error log", href: "/admin/errors", roles: ADMINS, hidden: true },
+  { key: "audit", label: "Audit log", href: "/admin/audit", roles: OPS, hidden: true },
+  { key: "errors", label: "Error log", href: "/admin/errors", roles: OPS, hidden: true },
   {
     key: "reports",
     label: "Reports",
@@ -122,11 +124,10 @@ export const NAV_ITEMS: readonly NavItem[] = [
 ];
 
 /**
- * Admin-only means "a MEMBER may not open it" — not "exactly one role is
- * listed". Deriving it from the absence of MEMBER is what lets SUPPORT_ADMIN
- * be added to an item without that item quietly losing its guard.
+ * Restricted means "an EMPLOYEE may not open it" — derived from each item's
+ * own role list, so adding a role to an item can never quietly strip its guard.
  */
-const ADMIN_ONLY = NAV_ITEMS.filter((item) => !item.roles.includes("MEMBER"));
+const ADMIN_ONLY = NAV_ITEMS.filter((item) => !item.roles.includes("EMPLOYEE"));
 
 /** Route prefixes only an admin may open, subtree included. */
 export const ADMIN_ROUTE_PREFIXES = ADMIN_ONLY.filter(
@@ -137,6 +138,27 @@ export const ADMIN_ROUTE_PREFIXES = ADMIN_ONLY.filter(
 export const ADMIN_EXACT_ROUTES = ADMIN_ONLY.filter(
   (item) => item.scope === "exact",
 ).map((item) => item.href);
+
+/** The nav item that governs a path, if any: exact routes first, then prefixes. */
+function itemForPath(pathname: string): NavItem | undefined {
+  const exact = NAV_ITEMS.find((item) => item.scope === "exact" && item.href === pathname);
+  if (exact) return exact;
+  return NAV_ITEMS.filter((item) => item.scope !== "exact")
+    .filter((item) => pathname === item.href || pathname.startsWith(`${item.href}/`))
+    .sort((a, b) => b.href.length - a.href.length)[0];
+}
+
+/**
+ * May this role open this page? Reads both role vocabularies; an
+ * unrecognised role may open nothing. Paths no nav item governs are left to
+ * the page's own guard.
+ */
+export function canOpenRoute(pathname: string, rawRole: unknown): boolean {
+  const role = normalizeRole(rawRole);
+  if (!role) return false;
+  const item = itemForPath(pathname);
+  return item ? item.roles.includes(role) : true;
+}
 
 export function isAdminRoute(pathname: string): boolean {
   if (ADMIN_EXACT_ROUTES.includes(pathname)) return true;
@@ -153,7 +175,9 @@ export function isAdminRoute(pathname: string): boolean {
  * filtered here rather than in the component so that the rail, and anything
  * else that lists navigation, cannot disagree about what is switched off.
  */
-export function navItemsForRole(role: Role, hiddenKeys: readonly NavKey[] = []): NavItem[] {
+export function navItemsForRole(rawRole: unknown, hiddenKeys: readonly NavKey[] = []): NavItem[] {
+  const role = normalizeRole(rawRole);
+  if (!role) return [];
   return NAV_ITEMS.filter(
     (item) => item.roles.includes(role) && !item.hidden && !hiddenKeys.includes(item.key),
   );
@@ -161,4 +185,6 @@ export function navItemsForRole(role: Role, hiddenKeys: readonly NavKey[] = []):
 
 /** Where a user lands after signing in. */
 export const DEFAULT_LANDING = "/dashboard";
+/** Where a CLIENT lands — the client portal shell. */
+export const CLIENT_LANDING = "/portal";
 export const LOGIN_ROUTE = "/login";

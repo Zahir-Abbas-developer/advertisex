@@ -4,11 +4,15 @@ import { apiError } from "@/lib/api";
 import { getCurrentUser } from "@/lib/session";
 import { respondToCheck } from "@/lib/attendance";
 
+import { requireApi } from "@/modules/rbac/server";
 /** "I'm available" — the one action that passes a check. */
 export async function POST(
   _request: Request,
   { params }: { params: { id: string } },
 ) {
+  const access = await requireApi("update", "attendance");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 

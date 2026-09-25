@@ -8,6 +8,7 @@ import {
   type BlockReason,
 } from "@/lib/fairness-types";
 
+import { storedRoleValues } from "@/config/permissions";
 // Re-exported so server callers keep importing from one place.
 export * from "@/lib/fairness-types";
 
@@ -271,7 +272,7 @@ export async function releaseDependents(
 
 async function admins() {
   return prisma.user.findMany({
-    where: { role: "ADMIN", isActive: true },
+    where: { role: { in: storedRoleValues("FOUNDER") }, isActive: true },
     select: { id: true },
   });
 }

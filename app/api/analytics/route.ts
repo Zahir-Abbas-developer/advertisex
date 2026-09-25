@@ -5,6 +5,7 @@ import { getCurrentUser } from "@/lib/session";
 import { viewerFor } from "@/lib/viewer";
 import { metricsFor, RANGE_PRESETS, type RangePreset } from "@/lib/analytics";
 
+import { requireApi } from "@/modules/rbac/server";
 /**
  * The dashboard's figures.
  *
@@ -18,6 +19,9 @@ import { metricsFor, RANGE_PRESETS, type RangePreset } from "@/lib/analytics";
  * a query string is not a permission.
  */
 export async function GET(request: Request) {
+  const access = await requireApi("read", "analytics");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 

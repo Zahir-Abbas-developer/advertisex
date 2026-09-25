@@ -10,6 +10,7 @@ import { canBeAssigned } from "@/lib/assignment";
 import { parseDateInput } from "@/lib/date";
 import { hasAdminPower, TASK_PRIORITIES, TASK_STATUSES } from "@/lib/constants";
 
+import { requireApi } from "@/modules/rbac/server";
 const patchSchema = z.object({
   title: z.string().trim().min(2).max(160).optional(),
   note: z.string().trim().max(2000).nullish(),
@@ -27,6 +28,9 @@ const patchSchema = z.object({
  * an edit form must not be able to disagree about what "done" means.
  */
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+  const access = await requireApi("update", "task");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 
@@ -102,6 +106,9 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 }
 
 export async function DELETE(_request: Request, { params }: { params: { id: string } }) {
+  const access = await requireApi("delete", "task");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 

@@ -1,5 +1,5 @@
 import type { DefaultSession } from "next-auth";
-import type { Role } from "@/lib/constants";
+import type { Role } from "@/config/permissions";
 
 /**
  * The session carries role, jobTitle and avatarColor so the shell can render

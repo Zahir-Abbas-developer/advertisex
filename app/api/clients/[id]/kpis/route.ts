@@ -7,6 +7,7 @@ import { getCurrentUser } from "@/lib/session";
 import { fieldErrors } from "@/lib/validation";
 import { kpisForClient, saveKpiWeek } from "@/lib/kpi-service";
 
+import { requireApi } from "@/modules/rbac/server";
 const entrySchema = z.object({
   /** Any date in the week; the service normalises it to the Monday. */
   weekStart: z.string().min(8),
@@ -26,6 +27,9 @@ const entrySchema = z.object({
  * every performance question into a request.
  */
 export async function GET(request: Request, { params }: { params: { id: string } }) {
+  const access = await requireApi("read", "client");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 
@@ -73,6 +77,9 @@ export async function GET(request: Request, { params }: { params: { id: string }
  * stale or missing entirely.
  */
 export async function POST(request: Request, { params }: { params: { id: string } }) {
+  const access = await requireApi("update", "client");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 
@@ -118,6 +125,9 @@ export async function POST(request: Request, { params }: { params: { id: string 
 
 /** Removing a week is the owner's call — the charts and alerts read from it. */
 export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+  const access = await requireApi("update", "client");
+  if (access.response) return access.response;
+
   const { response } = await requireAdminApi();
   if (response) return response;
 

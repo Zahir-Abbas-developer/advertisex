@@ -9,6 +9,7 @@ import { fileOutage, outageQuotaFor } from "@/lib/outages";
 import { OUTAGE_TYPES } from "@/lib/fairness-windows";
 import { hasAdminPower } from "@/lib/constants";
 
+import { requireApi } from "@/modules/rbac/server";
 const fileSchema = z.object({
   type: z.enum(OUTAGE_TYPES),
   startsAt: z.string().datetime({ offset: true }).or(z.string().datetime()),
@@ -25,6 +26,9 @@ const fileSchema = z.object({
  * many they have left this month.
  */
 export async function GET() {
+  const access = await requireApi("read", "attendance");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 
@@ -62,6 +66,9 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const access = await requireApi("create", "attendance");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 

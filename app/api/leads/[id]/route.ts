@@ -21,6 +21,7 @@ import { canSeeDealValue } from "@/lib/visibility";
 import { LEAD_SOURCES, LOST_REASONS } from "@/lib/pipeline-types";
 import { hasAdminPower } from "@/lib/constants";
 
+import { requireApi } from "@/modules/rbac/server";
 const patchSchema = z.object({
   businessName: z.string().trim().min(2, "Give the business a name").max(120).optional(),
   contactName: z.string().trim().min(2, "Who are we talking to?").max(120).optional(),
@@ -57,6 +58,9 @@ const EDITED_LABEL: Record<string, string> = {
 
 /** One lead with its whole activity history — the drawer's payload. */
 export async function GET(_request: Request, { params }: { params: { id: string } }) {
+  const access = await requireApi("read", "lead");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 
@@ -132,6 +136,9 @@ export async function GET(_request: Request, { params }: { params: { id: string 
 }
 
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+  const access = await requireApi("update", "lead");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 
@@ -332,6 +339,9 @@ export async function PATCH(request: Request, { params }: { params: { id: string
  * a won lead is the provenance of a client.
  */
 export async function DELETE(_request: Request, { params }: { params: { id: string } }) {
+  const access = await requireApi("delete", "lead");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
   if (!hasAdminPower(user.role)) return apiError("Only the founder can delete a lead", 403);

@@ -10,6 +10,7 @@ import { creatableDepartments } from "@/lib/departments";
 import { commissionsFor, stagesFor } from "@/lib/stages";
 import { hasAdminPower } from "@/lib/constants";
 
+import { requireApi } from "@/modules/rbac/server";
 /**
  * One department's board.
  *
@@ -23,6 +24,9 @@ import { hasAdminPower } from "@/lib/constants";
  * line never has to choose.
  */
 export async function GET(request: Request) {
+  const access = await requireApi("read", "lead");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 

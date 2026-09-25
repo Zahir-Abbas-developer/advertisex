@@ -8,6 +8,7 @@ import { getSettings } from "@/lib/settings";
 import { visibleChecks, visibleTally } from "@/lib/attendance-visibility";
 import { karachiDay, karachiMinutes } from "@/lib/attendance-time";
 
+import { requireApi } from "@/modules/rbac/server";
 /**
  * The member's own day: state, clock-in, clock-out.
  *
@@ -16,6 +17,9 @@ import { karachiDay, karachiMinutes } from "@/lib/attendance-time";
  * guarantee and it is enforced here, not in the component.
  */
 export async function GET() {
+  const access = await requireApi("read", "attendance");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 
@@ -74,6 +78,9 @@ export async function GET() {
 
 /** Clock in or out. The action is in the body so one route owns the day. */
 export async function POST(request: Request) {
+  const access = await requireApi("create", "attendance");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 

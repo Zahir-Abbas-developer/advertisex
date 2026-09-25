@@ -8,6 +8,7 @@ import { fieldErrors } from "@/lib/validation";
 import { BLOCK_REASONS, blockMilestone, unblockMilestone } from "@/lib/blocking";
 import { hasAdminPower } from "@/lib/constants";
 
+import { requireApi } from "@/modules/rbac/server";
 /**
  * Blocking and unblocking. Separate from the status route because the clock
  * has to be opened and closed atomically with the status change — dragging a
@@ -32,6 +33,9 @@ const unblockSchema = z.object({
 });
 
 export async function POST(request: Request, { params }: { params: { id: string } }) {
+  const access = await requireApi("update", "delivery");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 
@@ -73,6 +77,9 @@ export async function POST(request: Request, { params }: { params: { id: string 
 }
 
 export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+  const access = await requireApi("update", "delivery");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 

@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { prisma } from "@/lib/prisma";
 import { apiError, requireAdminApi } from "@/lib/api";
+import { requireApi } from "@/modules/rbac/server";
 import { fieldErrors } from "@/lib/validation";
 import { allServiceLeads } from "@/lib/permissions-service";
 import { recordAudit } from "@/lib/audit";
@@ -28,8 +29,14 @@ const saveSchema = z.object({
   serviceIds: z.array(z.string().min(1)).max(20),
 });
 
-/** Who leads what. Readable by anyone so members know who approves their work. */
+/**
+ * Who leads what. Readable by all staff so members know who approves their
+ * work — staff only: the member list is not a client's business.
+ */
 export async function GET() {
+  const access = await requireApi("read", "department");
+  if (access.response) return access.response;
+
   const leads = await allServiceLeads();
   const services = await prisma.serviceCatalog.findMany({
     where: { isActive: true },

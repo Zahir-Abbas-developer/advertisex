@@ -2,8 +2,9 @@ import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
 import { prisma } from "@/lib/prisma";
+import { INTERACTIVE_ROLES, normalizeRole } from "@/config/permissions";
 import { passwordMatches } from "@/lib/passwords";
-import { THROTTLED_ERROR, type Role } from "@/lib/constants";
+import { THROTTLED_ERROR } from "@/lib/constants";
 import { LOGIN_ROUTE } from "@/lib/routes";
 import {
   LOGIN_IP_LIMIT,
@@ -82,6 +83,11 @@ export const authOptions: NextAuthOptions = {
 
         if (!(await passwordMatches(password, user.passwordHash))) return null;
 
+        // A role this build does not recognise signs in to nothing, and AI
+        // agents never sign in with a password at all (ADR-008).
+        const role = normalizeRole(user.role);
+        if (!role || !INTERACTIVE_ROLES.includes(role)) return null;
+
         // A good password clears the account bucket, so someone who mistyped
         // a few times isn't locked out once they get it right.
         reset(`login:user:${email}`);
@@ -91,7 +97,7 @@ export const authOptions: NextAuthOptions = {
           id: user.id,
           name: user.name,
           email: user.email,
-          role: user.role as Role,
+          role,
           jobTitle: user.jobTitle,
           avatarColor: user.avatarColor,
         };
@@ -112,10 +118,11 @@ export const authOptions: NextAuthOptions = {
       // effect without the user having to sign out and back in.
       if (trigger === "update" && token.id) {
         const fresh = await prisma.user.findUnique({ where: { id: token.id } });
-        if (fresh && fresh.isActive) {
+        const freshRole = normalizeRole(fresh?.role);
+        if (fresh && fresh.isActive && freshRole) {
           token.name = fresh.name;
           token.email = fresh.email;
-          token.role = fresh.role as Role;
+          token.role = freshRole;
           token.jobTitle = fresh.jobTitle;
           token.avatarColor = fresh.avatarColor;
         }
@@ -126,7 +133,9 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id;
-        session.user.role = token.role;
+        // Tokens issued before the role rename carry legacy strings; the
+        // session always speaks the current vocabulary.
+        session.user.role = normalizeRole(token.role) ?? token.role;
         session.user.jobTitle = token.jobTitle;
         session.user.avatarColor = token.avatarColor;
       }

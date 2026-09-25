@@ -172,7 +172,7 @@ export function BoardView({ role, userId }: { role: Role; userId: string }) {
           ? "Open the milestone to block it — a block needs a reason and a note."
           : milestone.status === "BLOCKED"
             ? "Open the milestone to unblock it, so the paused time is banked."
-            : role === "MEMBER" && target === "COMPLETED"
+            : !hasAdminPower(role) && target === "COMPLETED"
               ? "Only the founder can approve work."
               : `A milestone can't move from ${MILESTONE_STATUS_LABEL[milestone.status]} to ${MILESTONE_STATUS_LABEL[target]}.`,
       );

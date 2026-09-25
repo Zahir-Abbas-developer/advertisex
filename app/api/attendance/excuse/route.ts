@@ -12,6 +12,7 @@ import { companyYearMonth } from "@/lib/date";
 import { notify } from "@/lib/notifications";
 import { SCORE_EVENT_LABEL, isAttendanceEvent, type ScoreEventType } from "@/lib/scoring";
 
+import { requireApi } from "@/modules/rbac/server";
 const excuseSchema = z.object({
   /** The attendance ScoreEvent being excused. */
   scoreEventId: z.string().min(1),
@@ -32,6 +33,9 @@ const excuseSchema = z.object({
  * was late, and with it any pattern worth noticing.
  */
 export async function POST(request: Request) {
+  const access = await requireApi("update", "attendance");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 

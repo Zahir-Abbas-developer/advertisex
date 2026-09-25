@@ -4,6 +4,7 @@ import { getCurrentUser } from "@/lib/session";
 import { read } from "@/lib/uploads";
 import { hasAdminPower } from "@/lib/constants";
 
+import { requireApi } from "@/modules/rbac/server";
 /**
  * Serves an uploaded file.
  *
@@ -17,6 +18,9 @@ export async function GET(
   _request: Request,
   { params }: { params: { id: string } },
 ) {
+  const access = await requireApi("read", "file");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 

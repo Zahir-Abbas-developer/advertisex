@@ -9,29 +9,25 @@ import type { BadgeTone } from "@/components/ui/Badge";
  * Postgres later requires no change to any of it.
  */
 
-export const ROLES = ["ADMIN", "SUPPORT_ADMIN", "MEMBER"] as const;
-export type Role = (typeof ROLES)[number];
-
-export const ROLE_LABEL: Record<Role, string> = {
-  ADMIN: "Owner",
-  SUPPORT_ADMIN: "Support",
-  MEMBER: "Team member",
-};
+// Roles live in config/permissions.ts with the matrix that gives them
+// meaning; re-exported here so existing imports keep one source of truth.
+import { normalizeRole, type Role } from "@/config/permissions";
+export {
+  ROLES,
+  ROLE_LABEL,
+  normalizeRole,
+  storedRoleValues,
+  type Role,
+} from "@/config/permissions";
 
 /**
- * Roles carrying full administrative capability.
+ * Roles carrying the founder's administrative capability.
  *
- * SUPPORT_ADMIN is the system maintainer. It is deliberately identical to
- * ADMIN in what it may do, and differs only in what the UI calls it, so the
- * maintainer stays distinguishable from the business owner in audit logs and
- * user lists.
- *
- * Every authority check must go through `hasAdminPower` rather than comparing
- * against "ADMIN" directly. A stray `role === "ADMIN"` silently locks the
- * maintainer out of the thing it guards, and does so quietly enough that
- * nobody finds out until they need it.
+ * Every authority check goes through `hasAdminPower`, never a string
+ * comparison: stored roles may still be spelled the legacy way ("ADMIN")
+ * until the backfill runs (ADR-008), and `hasAdminPower` reads both.
  */
-export const ADMIN_ROLES: readonly Role[] = ["ADMIN", "SUPPORT_ADMIN"];
+export const ADMIN_ROLES = ["FOUNDER"] as const;
 
 /**
  * A person's role *inside* one department. Distinct from the global Role: a
@@ -219,8 +215,12 @@ export const DEPARTMENT_COLOR_LABEL: Record<DepartmentColorToken, string> = {
   neutral: "Neutral",
 };
 
-export function hasAdminPower(role: Role | string): boolean {
-  return role === "ADMIN" || role === "SUPPORT_ADMIN";
+/**
+ * The founder's authority. Reads both role vocabularies; anything
+ * unrecognised is false — never admin by accident.
+ */
+export function hasAdminPower(role: unknown): boolean {
+  return normalizeRole(role) === "FOUNDER";
 }
 
 /**

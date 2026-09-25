@@ -5,6 +5,7 @@ import { apiError } from "@/lib/api";
 import { getCurrentUser } from "@/lib/session";
 import { recordSystemError } from "@/lib/system-errors";
 
+import { requireApi } from "@/modules/rbac/server";
 /**
  * Where the error boundaries report to.
  *
@@ -29,6 +30,9 @@ const reportSchema = z.object({
 });
 
 export async function POST(request: Request) {
+  const access = await requireApi("create", "ops");
+  if (access.response) return access.response;
+
   // Authenticated only. This endpoint writes rows, and an open one is a way to
   // fill the owner's error page with noise.
   const user = await getCurrentUser();

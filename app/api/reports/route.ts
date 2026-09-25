@@ -9,8 +9,12 @@ import { REPORT_TYPES, generateReports, parsePayload } from "@/lib/reports";
 import { parseDateInput } from "@/lib/date";
 import { hasAdminPower } from "@/lib/constants";
 
+import { requireApi } from "@/modules/rbac/server";
 /** Members only ever see their own; admins see everything, filterable. */
 export async function GET(request: Request) {
+  const access = await requireApi("read", "report");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 
@@ -72,6 +76,9 @@ const generateSchema = z.object({
 });
 
 export async function POST(request: Request) {
+  const access = await requireApi("create", "report");
+  if (access.response) return access.response;
+
   const { response } = await requireAdminApi();
   if (response) return response;
 

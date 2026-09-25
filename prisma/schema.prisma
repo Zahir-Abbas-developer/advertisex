@@ -48,6 +48,7 @@ model Organization {
   departments    Department[]
   clients        Client[]
   clientAccounts ClientAccount[]
+  agentGrants    AgentGrant[]
 }
 
 /// A restaurant client as a *portal tenant* — the thing a CLIENT login is
@@ -71,6 +72,32 @@ model ClientAccount {
   clients      Client[]
 
   @@index([organizationId])
+}
+
+/// One explicit permission held by an AI_AGENT user (CLAUDE.md §5: "AI agents
+/// are users of type AI_AGENT with explicit permissions"). The permissions
+/// matrix gives AI_AGENT the `grant` scope on a few resources; a cell with
+/// that scope allows the action only when a row here names that exact
+/// resource and action. No row, no access — the role alone grants nothing.
+model AgentGrant {
+  id             String   @id @default(cuid())
+  organizationId String
+  agentId        String
+  /// A Resource from config/permissions.ts, e.g. "lead".
+  resource       String
+  /// An Action from config/permissions.ts, e.g. "read".
+  action         String
+  /// Who approved it — every grant is a human decision.
+  grantedById    String?
+  createdAt      DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  agent        User         @relation("AgentGrants", fields: [agentId], references: [id], onDelete: Cascade)
+  grantedBy    User?        @relation("AgentGrantsIssued", fields: [grantedById], references: [id], onDelete: SetNull)
+
+  @@unique([agentId, resource, action])
+  @@index([organizationId])
+  @@index([grantedById])
 }
 
 /// A person who can sign in — a team member, the founder, a client contact or
@@ -149,6 +176,8 @@ model User {
   clientsOwned   Client[]               @relation("ClientAssignee")
   organization   Organization?          @relation(fields: [organizationId], references: [id], onDelete: SetNull)
   clientAccount  ClientAccount?         @relation(fields: [clientAccountId], references: [id], onDelete: SetNull)
+  agentGrants    AgentGrant[]           @relation("AgentGrants")
+  grantsIssued   AgentGrant[]           @relation("AgentGrantsIssued")
   tasksAssigned  Task[]                 @relation("TaskAssignee")
   tasksCreated   Task[]                 @relation("TaskCreator")
 

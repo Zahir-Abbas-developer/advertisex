@@ -6,6 +6,7 @@ import { getCurrentUser } from "@/lib/session";
 import { liveBlockedMinutes } from "@/lib/blocking";
 import { hasAdminPower } from "@/lib/constants";
 
+import { requireApi } from "@/modules/rbac/server";
 /**
  * Every milestone the viewer is allowed to see, shaped for the board.
  *
@@ -14,6 +15,9 @@ import { hasAdminPower } from "@/lib/constants";
  * browser that then hides them.
  */
 export async function GET(request: Request) {
+  const access = await requireApi("read", "delivery");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 

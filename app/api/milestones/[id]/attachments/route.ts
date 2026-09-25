@@ -8,11 +8,15 @@ import { MAX_UPLOAD_BYTES, isAllowedType, save } from "@/lib/uploads";
 import { formatBytes } from "@/lib/utils";
 import { hasAdminPower } from "@/lib/constants";
 
+import { requireApi } from "@/modules/rbac/server";
 /** Upload a file against a milestone. */
 export async function POST(
   request: Request,
   { params }: { params: { id: string } },
 ) {
+  const access = await requireApi("update", "delivery");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 

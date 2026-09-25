@@ -10,6 +10,7 @@ import { recordAudit } from "@/lib/audit";
 import { fieldErrors } from "@/lib/validation";
 import { reviewOutage } from "@/lib/outages";
 
+import { requireApi } from "@/modules/rbac/server";
 const reviewSchema = z.object({
   status: z.enum(["APPROVED", "REJECTED"]),
   adminNote: z.string().trim().max(500).nullish(),
@@ -17,6 +18,9 @@ const reviewSchema = z.object({
 
 /** The owner's decision on an outage report. */
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+  const access = await requireApi("update", "attendance");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 

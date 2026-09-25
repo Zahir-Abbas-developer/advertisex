@@ -9,6 +9,7 @@ import { moveLeadStage } from "@/lib/stages";
 import { canMoveLead } from "@/lib/lead-access";
 import { hasAdminPower } from "@/lib/constants";
 
+import { requireApi } from "@/modules/rbac/server";
 /**
  * Move a lead to another stage.
  *
@@ -25,6 +26,9 @@ const bodySchema = z.object({
 });
 
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+  const access = await requireApi("update", "lead");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 

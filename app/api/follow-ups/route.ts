@@ -13,6 +13,7 @@ import {
   type ActivityType,
 } from "@/lib/constants";
 
+import { requireApi } from "@/modules/rbac/server";
 /**
  * What happens when a follow-up comes due.
  *
@@ -56,6 +57,9 @@ const bodySchema = z
   );
 
 export async function PATCH(request: Request) {
+  const access = await requireApi("update", "lead");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 

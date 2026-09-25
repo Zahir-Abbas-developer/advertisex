@@ -5,11 +5,15 @@ import { apiError } from "@/lib/api";
 import { getCurrentUser } from "@/lib/session";
 import { hasAdminPower } from "@/lib/constants";
 
+import { requireApi } from "@/modules/rbac/server";
 /** Remove an attachment. The uploader or the owner may do it. */
 export async function DELETE(
   _request: Request,
   { params }: { params: { id: string } },
 ) {
+  const access = await requireApi("delete", "file");
+  if (access.response) return access.response;
+
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 
