@@ -5,6 +5,26 @@ phase → status → done → next → blockers.*
 
 ---
 
+## 2026-09-25 — Phase 1: IN PROGRESS
+
+**Phase:** 1 — Identity & Shell (scope: ASSESSMENT §11, approved at the Phase 0 gate)
+**Status:** ▶ in progress
+
+**Approved decisions:** D1 brand→Advertise X (users/data untouched) · D2 departments→service lines for food brands (playbook-derived seed) · D3 full Obsidian & Gold retheme · D4 all modules stay parked (feasibility) · D5 NextAuth stays.
+
+**Task list (increments, each committed green):**
+1. Rebrand sweep — name, README, manifest, wordmarks, "the agency" strings, package name. Kills R2.
+2. Obsidian & Gold tokens + fonts + literal-color sweep + `DESIGN_SYSTEM.md`. Executes D3.
+3. Service-line seed per D2 — departments, stages, fields, memberships; harnesses re-verified.
+4. Dashboard rewired to `lib/analytics.ts` with filter bar + recharts. Closes audit 8.
+5. Client wizard renders dynamic fields. Closes audit 5.
+6. Migrations baseline (R1) · `seed:prod` with forced password change (R3) · CI running the gate (R6).
+7. Full gate · docs updates · `PHASE_1_REPORT.md` · **STOP** for "Phase 1 approved".
+
+**Blockers:** none. `REQUIREMENTS.md`/`PHASES.md` still wanted but no longer blocking (founder ran Phase 0 without them).
+
+---
+
 ## 2026-09-25 — Phase 0: DELIVERED, awaiting gate
 
 **Phase:** 0 — Deep Analysis & Blueprint

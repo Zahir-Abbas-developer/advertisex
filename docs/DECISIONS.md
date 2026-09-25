@@ -8,7 +8,7 @@ ADR requires a new ADR, never an edit.*
 
 ## ADR-001 — Stack continuity over the doctrine's default stack
 
-**Status:** Proposed (Phase 0)
+**Status:** Accepted (founder, 2026-09-25)
 
 **Context.** CLAUDE.md §5 lists a default stack (pnpm-flavored commands, shadcn/ui,
 `src/modules/`, tRPC option, Inngest) but states: *"adopt only where it doesn't
@@ -37,7 +37,7 @@ back into un-extracted `lib/` internals, only the reverse.
 
 ## ADR-002 — Auth: harden NextAuth credentials; defer providers
 
-**Status:** Proposed
+**Status:** Accepted (founder, 2026-09-25)
 
 **Context.** §5 offers Auth.js/Clerk/Supabase. Today: NextAuth v4 credentials,
 bcrypt, login rate limiting, forced first-login change, admin resets — all tested
@@ -62,7 +62,7 @@ proving it. Invite-only lands with tenancy (P2/P3), not before.
 
 ## ADR-003 — ORM & migrations: Prisma stays; `db push` is demoted
 
-**Status:** Proposed
+**Status:** Accepted (founder, 2026-09-25)
 
 **Context.** Prisma 5.22 throughout; dev on SQLite, prod on Neon Postgres, provider
 flipped by script. There is **no migration history** — prod evolved by `db push`
@@ -86,7 +86,7 @@ being the schema mechanism.
 
 ## ADR-004 — Jobs: Vercel cron behind a `jobs/` interface; queue when earned
 
-**Status:** Proposed
+**Status:** Accepted (founder, 2026-09-25)
 
 **Context.** 4 crons exist, bearer-authed. The Hobby plan's daily-only limit
 already forced the follow-ups cron into an 8–10am window compromise. §5 wants
@@ -105,7 +105,7 @@ workload exists — over-engineering past the two-phase horizon).
 
 ## ADR-005 — Tenancy: shared schema, scoped repositories, RLS second
 
-**Status:** Proposed
+**Status:** Accepted (founder, 2026-09-25)
 
 **Context.** §5 mandates Organization/ClientAccount from day one; today nothing is
 tenancy-keyed and one aggregate has already leaked once by bypassing the scope
@@ -128,8 +128,7 @@ stage; shared-schema + RLS is the industry default for this shape) · RLS-only
 
 ## ADR-006 — Reconciling the BWM doctrine (docs/legacy/BWM_CLAUDE.md)
 
-**Status:** Proposed — the founder-decision items are folded into the Phase 0
-report's decision list.
+**Status:** Accepted (founder, 2026-09-25 — D1–D5 recorded below)
 
 **Context.** The codebase was built under `docs/legacy/BWM_CLAUDE.md`. The new
 CLAUDE.md replaces it. Four load-bearing BWM rules need explicit disposition, not
@@ -173,3 +172,44 @@ agnostic engineering truths:** config-lives-in-the-database; off-is-invisible;
 designed empty states; never diagnose from the browser; errors recorded to
 `/api/system-errors`; the converge seed; forced password change on placeholder
 credentials.
+
+
+---
+
+## Founder decisions — Phase 0 gate (2026-09-25)
+
+Recorded verbatim with the working interpretation each one is being executed
+under. If an interpretation is wrong, correcting it is a one-line reply and the
+docs update before the affected code does.
+
+**"phase 0 approved"** — gate passed; Phase 1 authorized per ASSESSMENT §11.
+
+**D1 — "bwm replaces with AdvertiseX."** Option (b): the product and the live
+instance become Advertise X; the BWM brand is retired everywhere. Interpretation:
+*brand and copy* change; the six existing user accounts, their emails and their
+data stay untouched (changing seed emails would orphan real logins — the converge
+seed matches users by email). `ServiceCatalog`/`ServiceLead`/`isBusinessDev`
+deletion is unblocked but scheduled for P2 alongside the repository extraction,
+not rushed into P1.
+
+**D2 — "departments our services and food businesses."** Departments remain the
+mechanism and become **Advertise X's service lines serving food & drink brands**.
+Seed replaced with service lines derived from the founder's own playbook
+(Appetite Audit entry offer, 90-Day Growth Sprint core): Appetite Audits · Paid
+Ads — Growth Sprint · Creative Studio · Web & Retention — each with its own
+pipeline stages and field sets. Existing BWM departments are not deleted from
+production data (the seed converges, never destroys); the founder deactivates
+them in Settings when ready.
+
+**D3 — "continue with yours choice."** Full Obsidian & Gold token swap in Phase 1
+(ADR-006.1), plus `docs/DESIGN_SYSTEM.md` which then becomes law exactly as the
+BWM freeze was.
+
+**D4 — "use which is feasible."** Feasibility delegated. Execution: all four
+modules stay parked through Phase 1 (zero cost, zero risk); attendance + scoring
+unpark and adapt when the Team OS phase arrives (P6); retainer cycles and client
+KPIs treated as superseded per ADR-006.4 and deleted only after their
+replacements ship.
+
+**D5 — "no yet."** Read as "not yet" to a hosted auth provider: ADR-002 stands —
+hardened NextAuth credentials, invites and verification built on top in P2/P3.
