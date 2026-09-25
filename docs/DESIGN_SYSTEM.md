@@ -11,7 +11,8 @@
 | Tokens | `tailwind.config.ts` | Colors, fonts, radii, glow gradients — the only place a color value is defined |
 | Base styles | `app/globals.css` | Page background, selection, focus ring, `.surface-dark`, scrollbars |
 | Fonts | `app/layout.tsx` | Inter Tight (display) + Inter (body) via `next/font`, exposed as `--font-display` / `--font-sans` |
-| Primitives | `components/ui/*` | Button, Card, Badge, Input, Modal, Table, Tabs, Toast, EmptyState, Skeleton… |
+| Primitives | `components/ui/*` | Button, Card, Badge, Input, Select, Textarea, Checkbox, Modal (dialog), Drawer (sheet), Dropdown, Tooltip, Table, Tabs, Toast, StatCard (KPI tile), Pagination, EmptyState, Skeleton, Avatar… |
+| Showcase | `/design-system` (dev-only route) | Every token and primitive rendered live; if the page and this file disagree, one has a bug |
 | Charts | `components/kpis/KpiCharts.tsx` | The recharts theme constants (data-series hexes live here, mirrored from the tokens) |
 | Emails | `lib/email/templates.ts` | Inline-styled palette — deliberately light-canvas (see below) |
 | Icons | `scripts/generate-icons.mjs` | PWA/touch icons: gold "A" on obsidian |
@@ -23,7 +24,7 @@ kept so seven hundred call sites didn't churn — but every **value** is §7's.
 
 | Tailwind token | Value | §7 name | Use |
 |---|---|---|---|
-| `base` | `#0B0B0D` | `--bg` | Page background (`bg-base`); also text on gold (`bg-brand text-base`) |
+| `canvas` | `#0B0B0D` | `--bg` | Page background (`bg-canvas`); also text on gold (`bg-brand text-canvas`). **Not** `base`: Tailwind owns `text-base` as a font size, and a color token of that name silently loses to it |
 | `surface` | `#121215` | `--surface-1` | Cards |
 | `surface-2` | `#18181C` | `--surface-2` | Elevated: hovers, popovers, inset panels |
 | `ink` | `#F5F3EE` | `--text` | All foreground text. Secondary/muted text is opacity, not a second token: `text-ink/60`, `text-ink/45` |
@@ -36,7 +37,7 @@ Recurring compositions:
 
 - **Active/selected chip:** `border-brand/50 bg-brand-tint text-brand` (was the
   old solid-ink chip — gold-soft is the selected state everywhere now).
-- **Gold CTA:** `bg-brand text-base hover:bg-brand-hover` — dark text on gold,
+- **Gold CTA:** `bg-brand text-canvas hover:bg-brand-hover` — dark text on gold,
   never white on gold.
 - **Overlay scrims** (Modal, Drawer, command palette): `bg-black/60` — true
   black, not a token, because the scrim must darken regardless of theme.
