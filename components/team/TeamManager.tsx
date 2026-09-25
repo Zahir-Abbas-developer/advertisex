@@ -283,7 +283,7 @@ export function TeamManager({ currentUserId }: { currentUserId: string }) {
                     a phone the actions sat far off-screen behind a sideways
                     scroll, and the only way to reset a password looked like it
                     did not exist. */}
-                <TH className="sticky right-0 z-10 bg-cream text-right shadow-[-8px_0_8px_-8px_rgba(12,12,10,0.15)]">
+                <TH className="sticky right-0 z-10 bg-surface-2 text-right shadow-[-8px_0_8px_-8px_rgba(12,12,10,0.15)]">
                   Actions
                 </TH>
               </TR>
@@ -439,7 +439,7 @@ export function TeamManager({ currentUserId }: { currentUserId: string }) {
                     <TD
                       className={cn(
                         "sticky right-0 z-10 shadow-[-8px_0_8px_-8px_rgba(12,12,10,0.15)]",
-                        member.isActive ? "bg-white" : "bg-paper",
+                        member.isActive ? "bg-surface" : "bg-base",
                       )}
                     >
                       {/* Labels from sm up; icons alone below, with the label kept

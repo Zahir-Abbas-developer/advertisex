@@ -128,11 +128,11 @@ export function CommandPalette() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="hidden items-center gap-2 rounded-[10px] border border-line bg-white px-3 py-2 text-[13px] text-ink/45 transition-colors hover:border-ink/25 hover:text-ink/70 sm:flex"
+        className="hidden items-center gap-2 rounded-[10px] border border-line bg-surface px-3 py-2 text-[13px] text-ink/45 transition-colors hover:border-ink/25 hover:text-ink/70 sm:flex"
       >
         <Search className="h-3.5 w-3.5" />
         Search
-        <kbd className="ml-2 rounded border border-line bg-cream px-1.5 py-0.5 font-sans text-[10px] font-medium text-ink/45">
+        <kbd className="ml-2 rounded border border-line bg-surface-2 px-1.5 py-0.5 font-sans text-[10px] font-medium text-ink/45">
           ⌘K
         </kbd>
       </button>
@@ -144,14 +144,14 @@ export function CommandPalette() {
               type="button"
               aria-label="Close search"
               onClick={() => setOpen(false)}
-              className="absolute inset-0 h-full w-full cursor-default bg-ink/40 animate-fade-in backdrop-blur-[2px]"
+              className="absolute inset-0 h-full w-full cursor-default bg-black/60 animate-fade-in backdrop-blur-[2px]"
             />
 
             <div
               role="dialog"
               aria-modal="true"
               aria-label="Search"
-              className="relative w-full max-w-lg animate-scale-in overflow-hidden rounded-card border border-line bg-white"
+              className="relative w-full max-w-lg animate-scale-in overflow-hidden rounded-card border border-line bg-surface"
             >
               <div className="flex items-center gap-3 border-b border-line px-4">
                 <Search className="h-4 w-4 shrink-0 text-ink/35" />
@@ -212,10 +212,10 @@ export function CommandPalette() {
                                 onClick={() => go(result)}
                                 className={cn(
                                   "flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors",
-                                  index === highlight ? "bg-cream" : "hover:bg-cream/60",
+                                  index === highlight ? "bg-surface-2" : "hover:bg-surface-2/60",
                                 )}
                               >
-                                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[8px] border border-line bg-white text-ink/50">
+                                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[8px] border border-line bg-surface text-ink/50">
                                   <Icon className="h-3.5 w-3.5" />
                                 </span>
                                 <span className="min-w-0 flex-1">
@@ -239,7 +239,7 @@ export function CommandPalette() {
                 )}
               </div>
 
-              <div className="flex items-center justify-between border-t border-line bg-cream/60 px-4 py-2 text-[11px] text-ink/40">
+              <div className="flex items-center justify-between border-t border-line bg-surface-2/60 px-4 py-2 text-[11px] text-ink/40">
                 <span>↑↓ to move · ⏎ to open</span>
                 <span>esc to close</span>
               </div>

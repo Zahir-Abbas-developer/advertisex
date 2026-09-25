@@ -194,7 +194,7 @@ export function ServiceLeadPanel() {
                     "flex w-full items-center justify-between gap-3 rounded-[10px] border px-3.5 py-2.5 text-left text-[13px] transition-colors",
                     active
                       ? "border-brand bg-brand-tint/50 text-ink"
-                      : "border-line bg-white text-ink/60 hover:border-ink/25",
+                      : "border-line bg-surface text-ink/60 hover:border-ink/25",
                   )}
                 >
                   {service.name}

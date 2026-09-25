@@ -310,8 +310,8 @@ export function PipelineBoard() {
                 className={cn(
                   "rounded-pill border px-3 py-1.5 text-[13px] transition-colors",
                   active
-                    ? "border-brand bg-brand text-paper"
-                    : "border-line bg-white text-ink/60 hover:border-ink/25 hover:text-ink",
+                    ? "border-brand bg-brand text-base"
+                    : "border-line bg-surface text-ink/60 hover:border-ink/25 hover:text-ink",
                 )}
               >
                 {option.shortLabel}

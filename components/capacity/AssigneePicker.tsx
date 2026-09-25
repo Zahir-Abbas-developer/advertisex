@@ -147,7 +147,7 @@ export function AssigneePicker({
                   "flex w-full items-center gap-3 rounded-[10px] border p-2.5 text-left transition-colors",
                   selected
                     ? "border-brand bg-brand-tint/50"
-                    : "border-line bg-white hover:border-ink/25",
+                    : "border-line bg-surface hover:border-ink/25",
                 )}
               >
                 <Avatar name={candidate.name} color={candidate.avatarColor} size="sm" />
@@ -156,13 +156,13 @@ export function AssigneePicker({
                   <p className="flex items-center gap-1.5 truncate text-[13px] font-medium text-ink">
                     {candidate.name}
                     {candidate.qualified && (
-                      <span className="rounded-pill bg-cream px-1.5 py-0.5 text-[10px] font-normal text-ink/50">
+                      <span className="rounded-pill bg-surface-2 px-1.5 py-0.5 text-[10px] font-normal text-ink/50">
                         fits
                       </span>
                     )}
                   </p>
 
-                  <div className="mt-1.5 h-1.5 overflow-hidden rounded-pill bg-cream">
+                  <div className="mt-1.5 h-1.5 overflow-hidden rounded-pill bg-surface-2">
                     <div
                       className={cn(
                         "h-full rounded-pill transition-[width]",

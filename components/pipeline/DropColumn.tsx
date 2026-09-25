@@ -38,7 +38,7 @@ export function DropColumn({
       ref={setNodeRef}
       className={cn(
         "rounded-card border transition-colors",
-        compact ? "border-dashed" : "border-line bg-cream/40",
+        compact ? "border-dashed" : "border-line bg-surface-2/40",
         tone === "success" && "border-brand/30 bg-brand-tint/40",
         tone === "danger" && "border-danger/25 bg-danger-tint/40",
         !tone && compact && "border-line",
@@ -70,7 +70,7 @@ export function DropColumn({
         </div>
 
         {!compact && (
-          <span className="shrink-0 rounded-pill bg-white px-2 py-0.5 text-[11px] font-medium tabular-nums text-ink/50">
+          <span className="shrink-0 rounded-pill bg-surface px-2 py-0.5 text-[11px] font-medium tabular-nums text-ink/50">
             {count}
           </span>
         )}

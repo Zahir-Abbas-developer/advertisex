@@ -30,8 +30,8 @@ const CELL_STYLE: Record<string, string> = {
   PRESENT: "bg-brand-tint text-brand",
   LATE: "bg-warn-tint text-warn",
   ABSENT: "bg-danger-tint text-danger",
-  LEAVE: "bg-cream text-ink/40",
-  OFF: "bg-cream/50 text-ink/25",
+  LEAVE: "bg-surface-2 text-ink/40",
+  OFF: "bg-surface-2/50 text-ink/25",
 };
 
 const CELL_LETTER: Record<string, string> = {
@@ -136,7 +136,7 @@ export function AttendanceMatrix() {
           />
           <a
             href={`/api/attendance/matrix?year=${period.year}&month=${period.month}&format=csv`}
-            className="ml-1 inline-flex items-center gap-1.5 rounded-pill border border-line bg-white px-3 py-1.5 text-[13px] text-ink/70 transition-colors hover:border-ink/25 hover:text-ink"
+            className="ml-1 inline-flex items-center gap-1.5 rounded-pill border border-line bg-surface px-3 py-1.5 text-[13px] text-ink/70 transition-colors hover:border-ink/25 hover:text-ink"
           >
             <Download className="h-3.5 w-3.5" />
             CSV
@@ -153,11 +153,11 @@ export function AttendanceMatrix() {
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full min-w-[880px] border-collapse text-sm">
-            <thead className="bg-cream">
+            <thead className="bg-surface-2">
               <tr>
                 <th
                   scope="col"
-                  className="eyebrow sticky left-0 z-10 border-b border-line bg-cream px-4 py-3 text-left text-ink/50"
+                  className="eyebrow sticky left-0 z-10 border-b border-line bg-surface-2 px-4 py-3 text-left text-ink/50"
                 >
                   Member
                 </th>
@@ -178,7 +178,7 @@ export function AttendanceMatrix() {
                 <tr key={row.member.id}>
                   <th
                     scope="row"
-                    className="sticky left-0 z-10 whitespace-nowrap border-r border-line bg-white px-4 py-2.5 text-left"
+                    className="sticky left-0 z-10 whitespace-nowrap border-r border-line bg-surface px-4 py-2.5 text-left"
                   >
                     <span className="block text-[13px] font-medium text-ink">
                       {row.member.name}

@@ -51,7 +51,7 @@ const TONE_CLASSES: Record<string, string> = {
   warning: "border-warn/20 bg-warn-tint text-warn",
   danger: "border-danger/20 bg-danger-tint text-danger",
   success: "border-brand/20 bg-brand-tint text-brand",
-  neutral: "border-line bg-cream text-ink/60",
+  neutral: "border-line bg-surface-2 text-ink/60",
 };
 
 /**
@@ -135,18 +135,18 @@ export function NotificationBell() {
         onClick={() => setOpen((value) => !value)}
         aria-label={unread > 0 ? `Notifications, ${unread} unread` : "Notifications"}
         aria-expanded={open}
-        className="relative rounded-[10px] border border-line bg-white p-2 text-ink/60 transition-colors hover:border-ink/25 hover:text-ink"
+        className="relative rounded-[10px] border border-line bg-surface p-2 text-ink/60 transition-colors hover:border-ink/25 hover:text-ink"
       >
         <Bell className="h-4 w-4" />
         {unread > 0 && (
-          <span className="absolute -right-1 -top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-pill bg-danger px-1 text-[10px] font-bold text-paper">
+          <span className="absolute -right-1 -top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-pill bg-danger px-1 text-[10px] font-bold text-ink">
             {unread > 9 ? "9+" : unread}
           </span>
         )}
       </button>
 
       {open && (
-        <div className="absolute right-0 z-40 mt-2 w-[min(384px,calc(100vw-2rem))] animate-scale-in overflow-hidden rounded-card border border-line bg-white">
+        <div className="absolute right-0 z-40 mt-2 w-[min(384px,calc(100vw-2rem))] animate-scale-in overflow-hidden rounded-card border border-line bg-surface">
           <div className="flex items-center justify-between gap-3 border-b border-line px-4 py-3">
             <div>
               <p className="font-display text-sm font-bold tracking-tight text-ink">
@@ -161,7 +161,7 @@ export function NotificationBell() {
               <button
                 type="button"
                 onClick={markAllRead}
-                className="flex items-center gap-1.5 rounded-pill px-2.5 py-1 text-[12px] text-ink/55 transition-colors hover:bg-cream hover:text-ink"
+                className="flex items-center gap-1.5 rounded-pill px-2.5 py-1 text-[12px] text-ink/55 transition-colors hover:bg-surface-2 hover:text-ink"
               >
                 <CheckCheck className="h-3.5 w-3.5" />
                 Mark all read
@@ -191,7 +191,7 @@ export function NotificationBell() {
                         type="button"
                         onClick={() => openOne(row)}
                         className={cn(
-                          "flex w-full items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-cream/60",
+                          "flex w-full items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-surface-2/60",
                           !row.readAt && "bg-brand-tint/30",
                         )}
                       >
@@ -231,7 +231,7 @@ export function NotificationBell() {
             )}
           </div>
 
-          <div className="border-t border-line bg-cream/60 px-4 py-2.5 text-center">
+          <div className="border-t border-line bg-surface-2/60 px-4 py-2.5 text-center">
             <Link
               href="/my-reports"
               onClick={() => setOpen(false)}

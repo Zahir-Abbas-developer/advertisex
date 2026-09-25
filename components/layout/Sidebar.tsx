@@ -96,10 +96,10 @@ export function Sidebar({
             onClick={onNavigate}
             className="flex items-center gap-2.5 rounded-[10px]"
           >
-            <span className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-brand font-display text-sm font-extrabold text-paper">
+            <span className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-brand font-display text-sm font-bold text-ink">
               A
             </span>
-            <span className="font-display text-[15px] font-extrabold tracking-[-0.01em] text-paper">
+            <span className="font-display text-[15px] font-bold tracking-[-0.01em] text-ink">
               Advertise X
             </span>
           </Link>
@@ -107,7 +107,7 @@ export function Sidebar({
 
         {/* Navigation */}
         <nav className="scrollbar-thin flex-1 overflow-y-auto px-3">
-          <p className="eyebrow mb-2 px-2 text-paper/30">Workspace</p>
+          <p className="eyebrow mb-2 px-2 text-ink/30">Workspace</p>
           <ul className="space-y-0.5">
             {items.map((item) => {
               const Icon = ICONS[item.key];
@@ -123,27 +123,27 @@ export function Sidebar({
                     className={cn(
                       "group flex items-center gap-3 rounded-[10px] px-3 py-2.5 text-sm transition-colors",
                       active
-                        ? "bg-paper/[0.08] font-medium text-paper"
-                        : "text-paper/55 hover:bg-paper/[0.05] hover:text-paper/90",
+                        ? "bg-base/[0.08] font-medium text-ink"
+                        : "text-ink/55 hover:bg-base/[0.05] hover:text-base/90",
                     )}
                   >
                     <Icon
                       className={cn(
                         "h-[18px] w-[18px] shrink-0",
-                        active ? "text-brand" : "text-paper/40 group-hover:text-paper/70",
+                        active ? "text-brand" : "text-ink/40 group-hover:text-base/70",
                       )}
                     />
                     <span className="flex-1 truncate">{item.label}</span>
                     {item.key === "errors" && errorBadge > 0 && (
                       <span
                         aria-label={`${errorBadge} new`}
-                        className="rounded-pill bg-danger px-1.5 py-0.5 text-[10px] font-semibold tabular-nums text-paper"
+                        className="rounded-pill bg-danger px-1.5 py-0.5 text-[10px] font-semibold tabular-nums text-ink"
                       >
                         {errorBadge > 99 ? "99+" : errorBadge}
                       </span>
                     )}
                     {item.comingSoon && (
-                      <span className="rounded-pill border border-paper/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-paper/30">
+                      <span className="rounded-pill border border-ink/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-ink/30">
                         Soon
                       </span>
                     )}
@@ -155,20 +155,20 @@ export function Sidebar({
         </nav>
 
         {/* Identity + sign out */}
-        <div className="mt-4 border-t border-paper/10 px-4 py-4">
+        <div className="mt-4 border-t border-ink/10 px-4 py-4">
           <div className="flex items-center gap-3">
             {/* The ring keeps the chip legible even against the dark rail. */}
             <Avatar
               name={user.name}
               color={user.avatarColor}
               size="md"
-              className="ring-1 ring-paper/15"
+              className="ring-1 ring-ink/15"
             />
             <div className="min-w-0 flex-1">
-              <p className="truncate text-[13px] font-medium text-paper">
+              <p className="truncate text-[13px] font-medium text-ink">
                 {user.name}
               </p>
-              <p className="truncate text-[11px] text-paper/45">
+              <p className="truncate text-[11px] text-ink/45">
                 {ROLE_LABEL[user.role]} · {user.jobTitle}
               </p>
             </div>
@@ -177,7 +177,7 @@ export function Sidebar({
           <button
             type="button"
             onClick={() => signOut({ callbackUrl: "/login" })}
-            className="mt-3 flex w-full items-center gap-2.5 rounded-[10px] px-3 py-2 text-[13px] text-paper/50 transition-colors hover:bg-paper/[0.05] hover:text-paper/90"
+            className="mt-3 flex w-full items-center gap-2.5 rounded-[10px] px-3 py-2 text-[13px] text-ink/50 transition-colors hover:bg-base/[0.05] hover:text-base/90"
           >
             <LogOut className="h-4 w-4" />
             Sign out

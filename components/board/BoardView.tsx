@@ -360,7 +360,7 @@ function Column({
       ref={setNodeRef}
       className={cn(
         "flex min-h-[220px] flex-col rounded-card border p-3 transition-colors",
-        isOver && canDropHere ? "border-brand bg-brand-tint/40" : "border-line bg-cream/50",
+        isOver && canDropHere ? "border-brand bg-brand-tint/40" : "border-line bg-surface-2/50",
         // A column that would reject the drop says so before it is attempted.
         isDragging && !canDropHere && "opacity-45",
       )}

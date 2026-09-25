@@ -234,7 +234,7 @@ export function MyTasks({
                   type="button"
                   onClick={() => setOpenId(task.id)}
                   className={cn(
-                    "flex flex-col rounded-card border bg-white p-4 text-left transition-colors hover:border-ink/25",
+                    "flex flex-col rounded-card border bg-surface p-4 text-left transition-colors hover:border-ink/25",
                     urgency === "overdue" ? "border-danger/30" : "border-line",
                   )}
                 >
@@ -255,7 +255,7 @@ export function MyTasks({
                         "rounded-pill border px-2 py-0.5 text-[11px]",
                         urgency === "overdue" && "border-danger/25 bg-danger-tint font-medium text-danger",
                         urgency === "soon" && "border-warn/25 bg-warn-tint font-medium text-warn",
-                        urgency === "normal" && "border-line bg-white text-ink/50",
+                        urgency === "normal" && "border-line bg-surface text-ink/50",
                       )}
                     >
                       {urgency === "overdue" ? "Overdue" : formatDate(task.dueDate)}
@@ -295,7 +295,7 @@ export function MyTasks({
                         "ml-2 rounded-pill px-2 py-0.5 text-[12px] font-medium tabular-nums",
                         group.key === "overdue"
                           ? "bg-danger-tint text-danger"
-                          : "bg-cream text-ink/50",
+                          : "bg-surface-2 text-ink/50",
                       )}
                     >
                       {group.tasks.length}
@@ -357,7 +357,7 @@ function TaskCard({
   return (
     <div
       className={cn(
-        "rounded-card border bg-white p-4 transition-colors sm:p-5",
+        "rounded-card border bg-surface p-4 transition-colors sm:p-5",
         busy && "opacity-60",
         urgency === "overdue" ? "border-danger/30" : "border-line",
       )}
@@ -387,7 +387,7 @@ function TaskCard({
                 "flex items-center gap-1.5 rounded-pill border px-2.5 py-1 text-[12px]",
                 urgency === "overdue" && "border-danger/25 bg-danger-tint font-medium text-danger",
                 urgency === "soon" && "border-warn/25 bg-warn-tint font-medium text-warn",
-                urgency === "normal" && "border-line bg-white text-ink/55",
+                urgency === "normal" && "border-line bg-surface text-ink/55",
               )}
             >
               <Clock aria-hidden className="h-3 w-3" />

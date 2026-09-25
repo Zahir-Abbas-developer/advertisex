@@ -119,14 +119,14 @@ export function ModulesManager() {
                     onClick={() => void toggle(mod.key, !on)}
                     className={cn(
                       "relative mt-0.5 h-6 w-11 shrink-0 rounded-pill border transition-colors",
-                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2 focus-visible:ring-offset-paper",
-                      on ? "border-brand bg-brand" : "border-line bg-cream",
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2 focus-visible:ring-offset-base",
+                      on ? "border-brand bg-brand" : "border-line bg-surface-2",
                       saving === mod.key && "opacity-60",
                     )}
                   >
                     <span
                       className={cn(
-                        "absolute top-[3px] h-4 w-4 rounded-pill bg-paper shadow-sm transition-all",
+                        "absolute top-[3px] h-4 w-4 rounded-pill bg-base shadow-sm transition-all",
                         on ? "left-[25px]" : "left-[3px]",
                       )}
                     />

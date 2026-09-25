@@ -57,7 +57,7 @@ export function ScoreRing({
             r={radius}
             fill="none"
             strokeWidth={stroke}
-            className={onDark ? "stroke-paper/15" : "stroke-line"}
+            className={onDark ? "stroke-ink/15" : "stroke-line"}
           />
           <circle
             cx={box / 2}
@@ -75,9 +75,9 @@ export function ScoreRing({
         {showValue && (
           <span
             className={cn(
-              "absolute inset-0 flex items-center justify-center font-display font-extrabold tabular-nums",
+              "absolute inset-0 flex items-center justify-center font-display font-bold tabular-nums",
               value,
-              onDark ? "text-paper" : "text-ink",
+              onDark ? "text-ink" : "text-ink",
             )}
           >
             {Math.round(score)}

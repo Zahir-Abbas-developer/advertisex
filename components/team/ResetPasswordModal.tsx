@@ -124,7 +124,7 @@ export function ResetPasswordModal({
             <p className="text-[13px] text-ink/55">{issued.email}</p>
           </div>
 
-          <div className="rounded-card border border-line bg-cream px-4 py-3 text-center">
+          <div className="rounded-card border border-line bg-surface-2 px-4 py-3 text-center">
             <p className="eyebrow mb-1 text-ink/40">Temporary password</p>
             <p
               data-testid="issued-password"

@@ -116,7 +116,7 @@ export function FollowUpDialog({
                 disabled={saving}
                 onClick={() => void send({ action: "snooze", days: option.days })}
                 className={cn(
-                  "rounded-pill border border-line bg-white px-3 py-1.5 text-[13px] text-ink/60 transition-colors",
+                  "rounded-pill border border-line bg-surface px-3 py-1.5 text-[13px] text-ink/60 transition-colors",
                   "hover:border-ink/25 hover:text-ink disabled:opacity-50",
                 )}
               >

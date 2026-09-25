@@ -36,7 +36,7 @@ export function WeightDots({
                   ? "bg-warn"
                   : "bg-brand"
               : onDark
-                ? "bg-paper/15"
+                ? "bg-base/15"
                 : "bg-line",
           )}
         />

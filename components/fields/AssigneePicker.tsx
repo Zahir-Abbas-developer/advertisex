@@ -62,12 +62,12 @@ export function AssigneePicker({
     <fieldset>
       <legend className="mb-2 text-[13px] font-medium text-ink/80">{label}</legend>
 
-      <div className="divide-y divide-line overflow-hidden rounded-card border border-line bg-white">
+      <div className="divide-y divide-line overflow-hidden rounded-card border border-line bg-surface">
         {allowAuto && (
           <label
             className={cn(
               "flex cursor-pointer items-center gap-3 px-3.5 py-2.5 transition-colors",
-              value === "" ? "bg-brand-tint" : "hover:bg-cream",
+              value === "" ? "bg-brand-tint" : "hover:bg-surface-2",
             )}
           >
             <input
@@ -78,7 +78,7 @@ export function AssigneePicker({
               onChange={() => onChange("")}
             />
 
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-line bg-cream">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-line bg-surface-2">
               <Sparkles aria-hidden className="h-3.5 w-3.5 text-brand" />
             </span>
 
@@ -101,7 +101,7 @@ export function AssigneePicker({
               key={member.userId}
               className={cn(
                 "flex cursor-pointer items-center gap-3 px-3.5 py-2.5 transition-colors",
-                selected ? "bg-brand-tint" : "hover:bg-cream",
+                selected ? "bg-brand-tint" : "hover:bg-surface-2",
               )}
             >
               <input

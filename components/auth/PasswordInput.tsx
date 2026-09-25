@@ -40,7 +40,7 @@ export const PasswordInput = forwardRef<HTMLInputElement, Omit<InputProps, "type
             disabled={disabled}
             aria-label={visible ? "Hide password" : "Show password"}
             aria-pressed={visible}
-            className="flex h-8 w-8 items-center justify-center rounded-[8px] text-ink/40 transition-colors hover:bg-cream hover:text-ink disabled:opacity-40"
+            className="flex h-8 w-8 items-center justify-center rounded-[8px] text-ink/40 transition-colors hover:bg-surface-2 hover:text-ink disabled:opacity-40"
           >
             {visible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
           </button>

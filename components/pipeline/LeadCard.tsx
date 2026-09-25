@@ -41,7 +41,7 @@ export function LeadCard({
         overlay ? undefined : { transform: CSS.Transform.toString(transform), transition }
       }
       className={cn(
-        "group rounded-card border bg-white p-3 transition-colors",
+        "group rounded-card border bg-surface p-3 transition-colors",
         overlay
           ? "rotate-1 border-brand shadow-[0_14px_32px_-16px_rgba(12,12,10,0.5)]"
           : "border-line hover:border-ink/20",

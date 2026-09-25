@@ -237,7 +237,7 @@ export function ClientEditModal({
         {/* The escape hatch for bespoke schedules and retainers being wound
             down. On by default, because the whole point of Phase 9 is that
             the 1st of the month runs itself. */}
-        <label className="flex cursor-pointer items-start gap-3 rounded-card border border-line bg-white p-4">
+        <label className="flex cursor-pointer items-start gap-3 rounded-card border border-line bg-surface p-4">
           <input
             type="checkbox"
             checked={draft.autoRenew}

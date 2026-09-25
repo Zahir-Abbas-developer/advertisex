@@ -16,13 +16,13 @@ const SIZES = {
 };
 
 /** Initial-based avatar chip — no image uploads anywhere in the product. */
-export function Avatar({ name, color = "#1A6B3A", size = "md", className }: AvatarProps) {
+export function Avatar({ name, color = "#D4AF37", size = "md", className }: AvatarProps) {
   return (
     <span
       aria-hidden
       style={{ backgroundColor: color }}
       className={cn(
-        "inline-flex shrink-0 items-center justify-center rounded-pill font-display font-bold uppercase tracking-wide text-paper",
+        "inline-flex shrink-0 items-center justify-center rounded-pill font-display font-bold uppercase tracking-wide text-ink",
         SIZES[size],
         className,
       )}

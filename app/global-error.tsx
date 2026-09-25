@@ -37,8 +37,8 @@ export default function GlobalError({
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: "#FAFAF7",
-          color: "#0C0C0A",
+          backgroundColor: "#0B0B0D",
+          color: "#F5F3EE",
           fontFamily: "ui-sans-serif, system-ui, -apple-system, sans-serif",
           padding: "24px",
         }}
@@ -50,7 +50,7 @@ export default function GlobalError({
               fontSize: "11px",
               letterSpacing: "0.14em",
               textTransform: "uppercase",
-              color: "rgba(12,12,10,0.45)",
+              color: "rgba(245,243,238,0.45)",
             }}
           >
             Advertise X
@@ -73,9 +73,9 @@ export default function GlobalError({
               marginTop: "20px",
               padding: "9px 18px",
               borderRadius: "999px",
-              border: "1px solid #0C0C0A",
-              background: "#0C0C0A",
-              color: "#FAFAF7",
+              border: "1px solid #D4AF37",
+              background: "#D4AF37",
+              color: "#0B0B0D",
               fontSize: "13px",
               cursor: "pointer",
             }}

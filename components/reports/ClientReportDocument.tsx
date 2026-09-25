@@ -29,24 +29,24 @@ export function ClientReportDocument({
 }) {
   return (
     <article className="report-document space-y-6">
-      <header className="report-header surface-dark overflow-hidden rounded-card border border-ink">
+      <header className="report-header surface-dark overflow-hidden rounded-card border border-line-strong">
         <div className="relative px-7 py-8 sm:px-10 sm:py-10">
           <p className="eyebrow mb-3 text-brand-tint/70">
             {REPORT_TYPE_LABEL.CLIENT_WEEKLY} · {payload.period.label}
           </p>
 
-          <h1 className="font-display text-[28px] font-extrabold leading-tight tracking-[-0.02em] text-paper sm:text-[34px]">
+          <h1 className="font-display text-[28px] font-bold leading-tight tracking-[-0.02em] text-ink sm:text-[34px]">
             {payload.client.name}
           </h1>
 
           {payload.project && (
-            <p className="mt-2 text-[13px] text-paper/50">
+            <p className="mt-2 text-[13px] text-ink/50">
               {payload.project.title} · {formatDate(payload.project.startDate)} –{" "}
               {formatDate(payload.project.endDate)}
             </p>
           )}
 
-          <p className="mt-7 max-w-2xl text-[15px] leading-relaxed text-paper/75">
+          <p className="mt-7 max-w-2xl text-[15px] leading-relaxed text-ink/75">
             {payload.narrative}
           </p>
 
@@ -97,7 +97,7 @@ export function ClientReportDocument({
       </Section>
 
       {payload.kpis?.week && (
-        <section className="report-section rounded-card border border-line bg-white">
+        <section className="report-section rounded-card border border-line bg-surface">
           <div className="flex flex-wrap items-baseline justify-between gap-3 border-b border-line px-6 py-4">
             <div>
               <h2 className="font-display text-base font-bold tracking-tight text-ink">
@@ -234,11 +234,11 @@ function KpiCell({
   const good = invert ? !up : up;
 
   return (
-    <div className="bg-white px-6 py-5">
+    <div className="bg-surface px-6 py-5">
       <p className="eyebrow text-ink/45">{label}</p>
       <p
         className={cn(
-          "mt-2.5 font-display text-2xl font-extrabold tabular-nums",
+          "mt-2.5 font-display text-2xl font-bold tabular-nums",
           tone === "good" ? "text-brand" : tone === "bad" ? "text-danger" : "text-ink",
         )}
       >
@@ -281,7 +281,7 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="report-section rounded-card border border-line bg-white">
+    <section className="report-section rounded-card border border-line bg-surface">
       <div className="flex items-center justify-between gap-3 border-b border-line px-6 py-4">
         <h2 className="flex items-center gap-2.5 font-display text-base font-bold tracking-tight text-ink">
           <Icon className={tone === "bad" ? "h-4 w-4 text-danger" : "h-4 w-4 text-brand"} />

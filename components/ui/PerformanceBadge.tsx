@@ -49,7 +49,7 @@ export function PerformanceBadge({
     >
       <span
         className={cn(
-          "font-display font-extrabold leading-none tracking-[-0.02em] tabular-nums",
+          "font-display font-bold leading-none tracking-[-0.02em] tabular-nums",
           scoreSize,
         )}
         style={{ color: band.color }}

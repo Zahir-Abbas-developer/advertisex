@@ -40,7 +40,7 @@ type Grid = {
  * everybody is on the same axis.
  */
 const CELL: Record<LoadBand, string> = {
-  LIGHT: "bg-cream text-ink/40",
+  LIGHT: "bg-surface-2 text-ink/40",
   HEALTHY: "bg-brand-tint text-brand",
   TIGHT: "bg-warn-tint text-warn",
   OVER: "bg-danger-tint text-danger",
@@ -132,11 +132,11 @@ export function UtilizationGrid() {
         <>
           <div className="overflow-x-auto">
             <table className="w-full min-w-[720px] border-collapse text-sm">
-              <thead className="bg-cream">
+              <thead className="bg-surface-2">
                 <tr>
                   <th
                     scope="col"
-                    className="eyebrow sticky left-0 z-10 border-b border-line bg-cream px-4 py-3 text-left text-ink/50"
+                    className="eyebrow sticky left-0 z-10 border-b border-line bg-surface-2 px-4 py-3 text-left text-ink/50"
                   >
                     Member
                   </th>
@@ -157,7 +157,7 @@ export function UtilizationGrid() {
                   <tr key={member.userId}>
                     <th
                       scope="row"
-                      className="sticky left-0 z-10 whitespace-nowrap border-r border-line bg-white px-4 py-2.5 text-left"
+                      className="sticky left-0 z-10 whitespace-nowrap border-r border-line bg-surface px-4 py-2.5 text-left"
                     >
                       <span className="flex items-center gap-2.5">
                         <Avatar
@@ -185,7 +185,7 @@ export function UtilizationGrid() {
                           } — ${LOAD_BAND_LABEL[week.band]}`}
                           className={cn(
                             "flex h-9 flex-col items-center justify-center rounded-[6px] text-[11px] font-semibold tabular-nums",
-                            week.milestones === 0 ? "bg-white text-ink/15" : CELL[week.band],
+                            week.milestones === 0 ? "bg-surface text-ink/15" : CELL[week.band],
                           )}
                         >
                           {week.milestones === 0 ? "–" : `${week.percent}%`}

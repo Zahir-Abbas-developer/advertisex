@@ -27,13 +27,13 @@ const ICONS: Record<ActivityType, typeof ActivityIcon> = {
 };
 
 const TONES: Record<ActivityType, string> = {
-  MILESTONE_CREATED: "border-line bg-cream text-ink/55",
+  MILESTONE_CREATED: "border-line bg-surface-2 text-ink/55",
   STATUS_CHANGED: "border-info/20 bg-info-tint text-info",
   REASSIGNED: "border-info/20 bg-info-tint text-info",
   DUE_DATE_CHANGED: "border-warn/20 bg-warn-tint text-warn",
   SCORE_EVENT: "border-danger/20 bg-danger-tint text-danger",
-  COMMENT_ADDED: "border-line bg-cream text-ink/55",
-  ATTACHMENT_ADDED: "border-line bg-cream text-ink/55",
+  COMMENT_ADDED: "border-line bg-surface-2 text-ink/55",
+  ATTACHMENT_ADDED: "border-line bg-surface-2 text-ink/55",
 };
 
 /** The workspace feed — everything that happened, newest first. */

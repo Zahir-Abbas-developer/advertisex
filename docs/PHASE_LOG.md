@@ -13,8 +13,8 @@ phase → status → done → next → blockers.*
 **Approved decisions:** D1 brand→Advertise X (users/data untouched) · D2 departments→service lines for food brands (playbook-derived seed) · D3 full Obsidian & Gold retheme · D4 all modules stay parked (feasibility) · D5 NextAuth stays.
 
 **Task list (increments, each committed green):**
-1. Rebrand sweep — name, README, manifest, wordmarks, "the agency" strings, package name. Kills R2.
-2. Obsidian & Gold tokens + fonts + literal-color sweep + `DESIGN_SYSTEM.md`. Executes D3.
+1. ✅ Rebrand sweep (`7668b4d`) — name, README, manifest, wordmarks, "the agency" strings, package name. Kills R2.
+2. ✅ Obsidian & Gold retheme — §7 tokens in `tailwind.config.ts` (values swapped under the existing class names; 97 files swept), Inter Tight/Inter fonts, dark-theme recharts + email + error-page palettes, gold-A icons, `DESIGN_SYSTEM.md`. Verified: tsc · lint · build · 479/479 · smoke:browser 69 pages × 3 roles · login screenshot. Executes D3.
 3. Service-line seed per D2 — departments, stages, fields, memberships; harnesses re-verified.
 4. Dashboard rewired to `lib/analytics.ts` with filter bar + recharts. Closes audit 8.
 5. Client wizard renders dynamic fields. Closes audit 5.

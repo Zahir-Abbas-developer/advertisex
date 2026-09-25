@@ -229,7 +229,7 @@ export function DepartmentFieldsModal({
             {rows.map((row, index) => (
               <div
                 key={row.id ?? `new-${index}`}
-                className="rounded-card border border-line bg-white p-4"
+                className="rounded-card border border-line bg-surface p-4"
               >
                 <div className="grid gap-3 sm:grid-cols-2">
                   <Input
@@ -322,7 +322,7 @@ export function DepartmentFieldsModal({
                       aria-label={`Move ${row.label || "field"} up`}
                       disabled={index === 0}
                       onClick={() => move(index, -1)}
-                      className="rounded-[8px] border border-line p-1.5 text-ink/60 transition-colors hover:bg-cream disabled:opacity-30"
+                      className="rounded-[8px] border border-line p-1.5 text-ink/60 transition-colors hover:bg-surface-2 disabled:opacity-30"
                     >
                       <ArrowUp className="h-3.5 w-3.5" />
                     </button>
@@ -331,7 +331,7 @@ export function DepartmentFieldsModal({
                       aria-label={`Move ${row.label || "field"} down`}
                       disabled={index === rows.length - 1}
                       onClick={() => move(index, 1)}
-                      className="rounded-[8px] border border-line p-1.5 text-ink/60 transition-colors hover:bg-cream disabled:opacity-30"
+                      className="rounded-[8px] border border-line p-1.5 text-ink/60 transition-colors hover:bg-surface-2 disabled:opacity-30"
                     >
                       <ArrowDown className="h-3.5 w-3.5" />
                     </button>

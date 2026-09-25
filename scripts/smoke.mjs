@@ -210,7 +210,7 @@ export async function prepareDatabase(databaseUrl) {
         passwordHash,
         role,
         jobTitle,
-        avatarColor: "#1A6B3A",
+        avatarColor: "#2DD4BF",
         isActive: true,
       },
     });

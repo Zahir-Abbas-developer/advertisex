@@ -46,14 +46,14 @@ export function AttendanceCard() {
             <p className="eyebrow mb-2 text-brand-tint/70">
               {state.dayKind === "LEAVE" ? "Approved leave" : "Rest day"}
             </p>
-            <h2 className="font-display text-[22px] font-extrabold tracking-[-0.02em] text-paper">
+            <h2 className="font-display text-[22px] font-bold tracking-[-0.02em] text-ink">
               {state.dayKind === "LEAVE" ? "You're off today" : "Today is a day off"}
             </h2>
-            <p className="mt-1.5 text-[13px] text-paper/55">
+            <p className="mt-1.5 text-[13px] text-ink/55">
               No availability checks, no attendance impact.
             </p>
           </div>
-          <Moon aria-hidden className="h-8 w-8 text-paper/25" />
+          <Moon aria-hidden className="h-8 w-8 text-ink/25" />
         </div>
       </Card>
     );
@@ -67,10 +67,10 @@ export function AttendanceCard() {
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <p className="eyebrow mb-2 text-brand-tint/70">Day complete</p>
-              <h2 className="font-display text-[22px] font-extrabold tracking-[-0.02em] text-paper">
+              <h2 className="font-display text-[22px] font-bold tracking-[-0.02em] text-ink">
                 {formatDuration(day.totalMinutes ?? 0)} worked
               </h2>
-              <p className="mt-1.5 text-[13px] text-paper/55">
+              <p className="mt-1.5 text-[13px] text-ink/55">
                 {formatKarachiTime(new Date(day.clockInAt!))} –{" "}
                 {formatKarachiTime(new Date(day.clockOutAt))}
                 {day.autoClosed && " · closed automatically at the end of the shift"}
@@ -78,17 +78,17 @@ export function AttendanceCard() {
             </div>
 
             <div className="text-right">
-              <p className="eyebrow text-paper/35">Availability</p>
+              <p className="eyebrow text-ink/35">Availability</p>
               <p
                 className={cn(
-                  "mt-1 font-display text-2xl font-extrabold tabular-nums",
+                  "mt-1 font-display text-2xl font-bold tabular-nums",
                   state.tally.missed > 0 ? "text-danger" : "text-brand",
                 )}
               >
                 {state.tally.passed}/{state.tally.resolved}
                 {state.tally.missed === 0 && state.tally.resolved > 0 && " ✓"}
               </p>
-              <p className="mt-0.5 text-[12px] text-paper/45">checks passed</p>
+              <p className="mt-0.5 text-[12px] text-ink/45">checks passed</p>
             </div>
           </div>
         </div>
@@ -116,7 +116,7 @@ export function AttendanceCard() {
                 Working since {formatKarachiTime(new Date(day.clockInAt))}
               </p>
 
-              <h2 className="font-display text-[34px] font-extrabold leading-none tracking-[-0.03em] text-paper tabular-nums">
+              <h2 className="font-display text-[34px] font-bold leading-none tracking-[-0.03em] text-ink tabular-nums">
                 {formatDuration(elapsed)}
               </h2>
 
@@ -136,8 +136,8 @@ export function AttendanceCard() {
 
             <div className="flex flex-col items-end gap-3">
               <div className="text-right">
-                <p className="eyebrow text-paper/35">Karachi</p>
-                <p className="mt-1 font-display text-lg font-bold tabular-nums text-paper/85">
+                <p className="eyebrow text-ink/35">Karachi</p>
+                <p className="mt-1 font-display text-lg font-bold tabular-nums text-ink/85">
                   {formatKarachiClock(nowMinutes)}
                 </p>
               </div>
@@ -186,11 +186,11 @@ export function AttendanceCard() {
               }).format(now)}
             </p>
 
-            <h2 className="font-display text-[26px] font-extrabold tracking-[-0.02em] text-paper">
+            <h2 className="font-display text-[26px] font-bold tracking-[-0.02em] text-ink">
               {day?.status === "ABSENT" ? "Marked absent" : "Ready when you are"}
             </h2>
 
-            <p className="mt-2 max-w-md text-[13px] leading-relaxed text-paper/55">
+            <p className="mt-2 max-w-md text-[13px] leading-relaxed text-ink/55">
               {day?.status === "ABSENT"
                 ? `No clock-in by ${formatKarachiClock(settings.absentCutoffMinutes)}. Ask the owner to excuse today if that's wrong.`
                 : tooEarly
@@ -203,8 +203,8 @@ export function AttendanceCard() {
 
           <div className="flex flex-col items-end gap-3">
             <div className="text-right">
-              <p className="eyebrow text-paper/35">Karachi time</p>
-              <p className="mt-1 font-display text-[28px] font-extrabold leading-none tabular-nums text-paper">
+              <p className="eyebrow text-ink/35">Karachi time</p>
+              <p className="mt-1 font-display text-[28px] font-bold leading-none tabular-nums text-ink">
                 {formatKarachiClock(nowMinutes)}
               </p>
             </div>
@@ -235,13 +235,13 @@ export function AttendanceCard() {
         </div>
 
         {state.tally.resolved > 0 && (
-          <div className="mt-5 flex items-center gap-2 border-t border-paper/10 pt-4">
+          <div className="mt-5 flex items-center gap-2 border-t border-ink/10 pt-4">
             {state.tally.missed > 0 ? (
               <XCircle aria-hidden className="h-3.5 w-3.5 text-danger" />
             ) : (
               <CheckCircle2 aria-hidden className="h-3.5 w-3.5 text-brand" />
             )}
-            <p className="text-[12px] text-paper/50">
+            <p className="text-[12px] text-ink/50">
               {state.tally.passed} of {state.tally.resolved} availability checks passed today
             </p>
           </div>

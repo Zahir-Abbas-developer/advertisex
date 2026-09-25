@@ -5,19 +5,21 @@ import { COMPANY_TIMEZONE } from "@/lib/date";
  *
  * Written as inline-styled tables rather than with the app's Tailwind classes,
  * because email clients support neither stylesheets nor modern CSS. The palette
- * and the type hierarchy are the same as the app's — dark header, green
- * accents, generous space, hairline rules instead of shadows — so a message
- * looks like it came from the same product.
+ * and the type hierarchy follow the app's — obsidian header, gold accents,
+ * generous space, hairline rules instead of shadows — so a message looks like
+ * it came from the same product. Emails keep a light canvas deliberately:
+ * dark-themed HTML is what email clients mangle most.
  *
  * Everything interpolated goes through `escape()`. A member's name is not a
  * trusted source of markup.
  */
 
-const INK = "#0C0C0A";
+const INK = "#0B0B0D";
+const GOLD = "#D4AF37";
 const PAPER = "#FAFAF7";
 const CREAM = "#F5F2EB";
-const BRAND = "#1A6B3A";
-const BRAND_TINT = "#E8F5EE";
+const BRAND = "#8C6D1F"; // deep gold — legible on the light canvas
+const BRAND_TINT = "#F7F0DC";
 const LINE = "#E2E0D8";
 const DANGER = "#C0392B";
 const DANGER_TINT = "#FDECEA";
@@ -50,7 +52,7 @@ function shell({ eyebrow, title, intro, body, cta, footnote }: ShellOptions): st
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>${escape(title)}</title>
 </head>
-<body style="margin:0;padding:0;background:${PAPER};font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;color:${INK};">
+<body style="margin:0;padding:0;background:${PAPER};font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;color:${INK};">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${PAPER};padding:24px 12px;">
     <tr><td align="center">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;border:1px solid ${LINE};border-radius:14px;overflow:hidden;background:#ffffff;">
@@ -66,7 +68,7 @@ function shell({ eyebrow, title, intro, body, cta, footnote }: ShellOptions): st
         ${
           cta
             ? `<tr><td style="padding:0 32px 28px;">
-                 <a href="${escape(cta.href)}" style="display:inline-block;background:${BRAND};color:${PAPER};text-decoration:none;font-size:14px;font-weight:600;padding:12px 22px;border-radius:999px;">${escape(cta.label)}</a>
+                 <a href="${escape(cta.href)}" style="display:inline-block;background:${INK};color:${GOLD};text-decoration:none;font-size:14px;font-weight:600;padding:12px 22px;border-radius:999px;">${escape(cta.label)}</a>
                </td></tr>`
             : ""
         }
@@ -121,7 +123,7 @@ export function welcomeEmail(input: {
       You've been added to Advertise X as <strong>${escape(input.jobTitle)}</strong>.
       This is where your milestones, deadlines and monthly performance live.
     </p>
-    <div style="background:${BRAND_TINT};border:1px solid rgba(26,107,58,0.2);border-radius:10px;padding:16px 18px;margin:0 0 18px;">
+    <div style="background:${BRAND_TINT};border:1px solid rgba(212,175,55,0.35);border-radius:10px;padding:16px 18px;margin:0 0 18px;">
       ${table(row("Email", input.email) + row("Temporary password", input.password))}
     </div>
     <p style="margin:0;font-size:13px;line-height:1.65;color:rgba(12,12,10,0.55);">
@@ -307,7 +309,7 @@ export function renewalDigestEmail(input: {
     input.renewed.filter((entry) => entry.unassigned > 0).length + input.skipped.length;
 
   const body = `
-    <div style="background:${BRAND_TINT};border:1px solid rgba(26,107,58,0.2);border-radius:10px;padding:14px 16px;margin:0 0 20px;">
+    <div style="background:${BRAND_TINT};border:1px solid rgba(212,175,55,0.35);border-radius:10px;padding:14px 16px;margin:0 0 20px;">
       <p style="margin:0;font-size:14px;font-weight:600;color:${BRAND};">
         ${input.renewed.length} cycle${input.renewed.length === 1 ? "" : "s"} opened${
           input.totalCarriedOver > 0

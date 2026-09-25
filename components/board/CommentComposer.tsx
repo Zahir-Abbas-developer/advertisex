@@ -145,14 +145,14 @@ export function CommentComposer({
           }
         }}
         className={cn(
-          "w-full rounded-[10px] border border-line bg-white px-3.5 py-2.5 text-sm leading-relaxed text-ink transition-colors",
+          "w-full rounded-[10px] border border-line bg-surface px-3.5 py-2.5 text-sm leading-relaxed text-ink transition-colors",
           "placeholder:text-ink/35 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/25",
-          "disabled:cursor-not-allowed disabled:bg-cream disabled:text-ink/40",
+          "disabled:cursor-not-allowed disabled:bg-surface-2 disabled:text-ink/40",
         )}
       />
 
       {matches.length > 0 && (
-        <ul className="absolute bottom-full left-0 z-10 mb-1 w-64 overflow-hidden rounded-card border border-line bg-white">
+        <ul className="absolute bottom-full left-0 z-10 mb-1 w-64 overflow-hidden rounded-card border border-line bg-surface">
           {matches.map((member, index) => (
             <li key={member.id}>
               <button
@@ -164,7 +164,7 @@ export function CommentComposer({
                 }}
                 className={cn(
                   "flex w-full items-center gap-2.5 px-3 py-2 text-left transition-colors",
-                  index === highlight ? "bg-brand-tint" : "hover:bg-cream",
+                  index === highlight ? "bg-brand-tint" : "hover:bg-surface-2",
                 )}
               >
                 <Avatar name={member.name} color={member.avatarColor} size="sm" className="h-6 w-6 text-[9px]" />

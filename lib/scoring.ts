@@ -238,10 +238,10 @@ export type ScoreBand = {
 };
 
 export const SCORE_BANDS: readonly ScoreBand[] = [
-  { key: "EXCELLENT", label: "Excellent", tone: "success", color: "#1A6B3A", min: 90 },
-  { key: "GOOD", label: "Good", tone: "info", color: "#1A4FA0", min: 75 },
-  { key: "ATTENTION", label: "Needs attention", tone: "warning", color: "#C4730A", min: 60 },
-  { key: "CRITICAL", label: "Critical", tone: "danger", color: "#C0392B", min: 0 },
+  { key: "EXCELLENT", label: "Excellent", tone: "success", color: "#22C55E", min: 90 },
+  { key: "GOOD", label: "Good", tone: "info", color: "#38BDF8", min: 75 },
+  { key: "ATTENTION", label: "Needs attention", tone: "warning", color: "#F59E0B", min: 60 },
+  { key: "CRITICAL", label: "Critical", tone: "danger", color: "#EF4444", min: 0 },
 ];
 
 export function scoreBand(score: number): ScoreBand {

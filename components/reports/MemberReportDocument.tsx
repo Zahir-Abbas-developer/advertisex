@@ -65,7 +65,7 @@ export function MemberReportDocument({
   return (
     <article className="report-document space-y-6">
       {/* Dark editorial masthead */}
-      <header className="report-header surface-dark overflow-hidden rounded-card border border-ink">
+      <header className="report-header surface-dark overflow-hidden rounded-card border border-line-strong">
         <div className="relative px-7 py-8 sm:px-10 sm:py-10">
           <div className="flex flex-wrap items-start justify-between gap-6">
             <div className="min-w-0">
@@ -78,13 +78,13 @@ export function MemberReportDocument({
                   name={payload.member.name}
                   color={payload.member.avatarColor}
                   size="lg"
-                  className="ring-1 ring-paper/15"
+                  className="ring-1 ring-ink/15"
                 />
                 <div className="min-w-0">
-                  <h1 className="font-display text-[28px] font-extrabold leading-tight tracking-[-0.02em] text-paper sm:text-[34px]">
+                  <h1 className="font-display text-[28px] font-bold leading-tight tracking-[-0.02em] text-ink sm:text-[34px]">
                     {payload.member.name}
                   </h1>
-                  <p className="mt-0.5 text-[13px] text-paper/50">
+                  <p className="mt-0.5 text-[13px] text-ink/50">
                     {payload.member.jobTitle}
                   </p>
                 </div>
@@ -96,8 +96,8 @@ export function MemberReportDocument({
               <div className="space-y-3">
                 <Delta delta={score.delta} phrase={payload.period.phrase} />
                 <div>
-                  <p className="eyebrow text-paper/35">On-time rate</p>
-                  <p className="mt-1 font-display text-lg font-bold tabular-nums text-paper/85">
+                  <p className="eyebrow text-ink/35">On-time rate</p>
+                  <p className="mt-1 font-display text-lg font-bold tabular-nums text-ink/85">
                     {payload.load && payload.load.count === 0
                       ? "—"
                       : `${payload.onTimeRate}%`}
@@ -107,7 +107,7 @@ export function MemberReportDocument({
             </div>
           </div>
 
-          <p className="mt-8 max-w-2xl text-[15px] leading-relaxed text-paper/75">
+          <p className="mt-8 max-w-2xl text-[15px] leading-relaxed text-ink/75">
             {narrative}
           </p>
         </div>
@@ -214,7 +214,7 @@ export function MemberReportDocument({
           </div>
 
           {payload.businessDevelopment.byBucket.length > 0 && (
-            <div className="rounded-card border border-line bg-white px-6 py-4">
+            <div className="rounded-card border border-line bg-surface px-6 py-4">
               <p className="eyebrow mb-3 text-ink/45">Activity mix</p>
               <ul className="grid gap-2 sm:grid-cols-2">
                 {payload.businessDevelopment.byBucket.map((entry) => (
@@ -231,7 +231,7 @@ export function MemberReportDocument({
           )}
 
           {payload.businessDevelopment.stageConversion.some((row) => row.entered > 0) && (
-            <div className="rounded-card border border-line bg-white px-6 py-4">
+            <div className="rounded-card border border-line bg-surface px-6 py-4">
               <p className="eyebrow mb-3 text-ink/45">Pipeline carried, by stage</p>
               <ul className="space-y-2">
                 {payload.businessDevelopment.stageConversion
@@ -312,7 +312,7 @@ export function MemberReportDocument({
       )}
 
       {/* Points */}
-      <section className="report-section rounded-card border border-line bg-white">
+      <section className="report-section rounded-card border border-line bg-surface">
         <div className="border-b border-line px-6 py-4">
           <h2 className="font-display text-base font-bold tracking-tight text-ink">
             Points this period
@@ -330,7 +330,7 @@ export function MemberReportDocument({
       </section>
 
       {/* Ledger */}
-      <section className="report-section rounded-card border border-line bg-white">
+      <section className="report-section rounded-card border border-line bg-surface">
         <div className="border-b border-line px-6 py-4">
           <h2 className="font-display text-base font-bold tracking-tight text-ink">
             What changed the score
@@ -410,8 +410,8 @@ function Delta({ delta, phrase }: { delta: number | null; phrase: string }) {
   if (delta === null) {
     return (
       <div>
-        <p className="eyebrow text-paper/35">vs last {phrase}</p>
-        <p className="mt-1 text-sm text-paper/50">No history</p>
+        <p className="eyebrow text-ink/35">vs last {phrase}</p>
+        <p className="mt-1 text-sm text-ink/50">No history</p>
       </div>
     );
   }
@@ -421,11 +421,11 @@ function Delta({ delta, phrase }: { delta: number | null; phrase: string }) {
 
   return (
     <div>
-      <p className="eyebrow text-paper/35">vs last {phrase}</p>
+      <p className="eyebrow text-ink/35">vs last {phrase}</p>
       <p
         className={cn(
           "mt-1 flex items-center gap-1 font-display text-lg font-bold tabular-nums",
-          flat && "text-paper/60",
+          flat && "text-ink/60",
           !flat && delta > 0 && "text-brand",
           !flat && delta < 0 && "text-danger",
         )}
@@ -450,11 +450,11 @@ function Figure({
   tone?: "good" | "bad";
 }) {
   return (
-    <div className="rounded-card border border-line bg-white p-5">
+    <div className="rounded-card border border-line bg-surface p-5">
       <p className="eyebrow text-ink/45">{label}</p>
       <p
         className={cn(
-          "mt-4 font-display text-[32px] font-extrabold leading-none tracking-[-0.03em] tabular-nums",
+          "mt-4 font-display text-[32px] font-bold leading-none tracking-[-0.03em] tabular-nums",
           tone === "good" && "text-brand",
           tone === "bad" && "text-danger",
           !tone && "text-ink",
@@ -506,11 +506,11 @@ function PointsCell({
   tone: "good" | "bad";
 }) {
   return (
-    <div className="bg-white px-6 py-5">
+    <div className="bg-surface px-6 py-5">
       <p className="eyebrow text-ink/45">{label}</p>
       <p
         className={cn(
-          "mt-3 font-display text-2xl font-extrabold tabular-nums",
+          "mt-3 font-display text-2xl font-bold tabular-nums",
           value === 0 ? "text-ink/40" : tone === "good" ? "text-brand" : "text-danger",
         )}
       >

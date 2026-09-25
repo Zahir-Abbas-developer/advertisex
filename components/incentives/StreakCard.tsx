@@ -61,7 +61,7 @@ export function StreakCard({
               key={index}
               className={cn(
                 "h-2.5 w-8 rounded-pill transition-colors",
-                filled ? "bg-brand" : "bg-cream",
+                filled ? "bg-brand" : "bg-surface-2",
               )}
             />
           ))}

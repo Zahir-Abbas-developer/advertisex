@@ -36,21 +36,21 @@ export default async function ChangePasswordPage() {
   if (!user?.mustChangePassword) redirect(DEFAULT_LANDING);
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-paper px-6 py-12">
+    <main className="flex min-h-screen items-center justify-center bg-base px-6 py-12">
       <div className="w-full max-w-[380px]">
         <div className="mb-7 flex items-center gap-2.5">
-          <span className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-brand font-display text-sm font-extrabold text-paper">
+          <span className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-brand font-display text-sm font-bold text-ink">
             M
           </span>
           <span className="eyebrow text-ink/45">Advertise X</span>
         </div>
 
-        <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-card border border-line bg-cream">
+        <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-card border border-line bg-surface-2">
           <KeyRound className="h-5 w-5 text-brand" />
         </div>
 
         <p className="eyebrow mb-3 text-brand">First sign-in</p>
-        <h1 className="font-display text-[28px] font-extrabold leading-tight tracking-[-0.02em] text-ink">
+        <h1 className="font-display text-[28px] font-bold leading-tight tracking-[-0.02em] text-ink">
           Set your own password
         </h1>
         <p className="mt-2.5 text-sm leading-relaxed text-ink/55">

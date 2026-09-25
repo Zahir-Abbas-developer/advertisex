@@ -24,7 +24,7 @@ export default function AppError({
   }, [error, pathname]);
 
   return (
-    <div className="rounded-card border border-line bg-white">
+    <div className="rounded-card border border-line bg-surface">
       <ErrorState
         title="This page didn't load"
         description="An unexpected error interrupted the page. It has been logged for the owner — try again, and if it keeps happening it will be waiting in the error log."

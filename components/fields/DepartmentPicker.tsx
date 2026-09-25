@@ -51,7 +51,7 @@ export function DepartmentPicker({
               "rounded-card border p-4 text-left transition-colors",
               selected
                 ? "border-brand bg-brand-tint"
-                : "border-line bg-white hover:border-ink/25",
+                : "border-line bg-surface hover:border-ink/25",
             )}
           >
             <div className="flex items-start justify-between gap-3">
@@ -79,7 +79,7 @@ export function DepartmentPicker({
                     name={member.name}
                     color={member.avatarColor}
                     size="sm"
-                    className="ring-2 ring-white"
+                    className="ring-2 ring-surface"
                   />
                 ))}
               </div>

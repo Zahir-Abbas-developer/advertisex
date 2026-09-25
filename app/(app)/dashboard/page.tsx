@@ -566,7 +566,7 @@ export default async function DashboardPage({
                   <li key={member.id}>
                     <Link
                       href={`/team/${member.id}`}
-                      className="flex items-center gap-3.5 px-5 py-3 transition-colors hover:bg-cream/50"
+                      className="flex items-center gap-3.5 px-5 py-3 transition-colors hover:bg-surface-2/50"
                     >
                       <span className="w-4 shrink-0 font-display text-sm font-bold tabular-nums text-ink/30">
                         {index + 1}
@@ -739,9 +739,9 @@ function lateness(overdue: boolean, days: number): string {
 
 function HeroStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-[10px] border border-paper/10 bg-paper/[0.04] px-4 py-3">
-      <p className="eyebrow text-paper/35">{label}</p>
-      <p className="mt-1.5 text-sm font-medium text-paper/85">{value}</p>
+    <div className="rounded-[10px] border border-ink/10 bg-ink/[0.04] px-4 py-3">
+      <p className="eyebrow text-ink/35">{label}</p>
+      <p className="mt-1.5 text-sm font-medium text-ink/85">{value}</p>
     </div>
   );
 }

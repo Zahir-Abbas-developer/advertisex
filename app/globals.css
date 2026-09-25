@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    color-scheme: light;
+    color-scheme: dark;
   }
 
   html {
@@ -14,7 +14,7 @@
   }
 
   body {
-    @apply bg-paper text-ink font-sans antialiased;
+    @apply bg-base text-ink font-sans antialiased;
   }
 
   /* Headings are always Syne, never body type. */
@@ -27,13 +27,13 @@
   }
 
   ::selection {
-    background-color: #e8f5ee;
-    color: #0c0c0a;
+    background-color: rgba(212, 175, 55, 0.25);
+    color: #f5f3ee;
   }
 
   /* Focus rings follow the brand rather than the browser default. */
   :focus-visible {
-    @apply outline-none ring-2 ring-brand/40 ring-offset-2 ring-offset-paper;
+    @apply outline-none ring-2 ring-brand/40 ring-offset-2 ring-offset-base;
   }
 
   /* Remove the number-input spinners — every numeric field here is typed. */
@@ -57,9 +57,10 @@
 }
 
 @layer utilities {
-  /* Dark surfaces get the radial green glow described in CLAUDE.md. */
+  /* Hero panels sit a step *below* the page — near-true black under the one
+     permitted gold glow (CLAUDE.md §7). */
   .surface-dark {
-    @apply relative bg-ink text-paper;
+    @apply relative bg-[#08080A] text-ink;
   }
 
   .surface-dark::before {
@@ -154,7 +155,7 @@
   .report-document [class*="bg-danger"],
   .report-document [class*="bg-warn"],
   .report-document [class*="bg-info"],
-  .report-document [class*="bg-cream"],
+  .report-document [class*="bg-surface-2"],
   .report-document svg {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;

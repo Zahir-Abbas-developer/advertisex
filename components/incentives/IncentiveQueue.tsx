@@ -215,10 +215,10 @@ export function IncentiveQueue() {
                             className={cn(
                               "rounded-pill border px-2 py-0.5 text-[11px] tabular-nums",
                               !month.active
-                                ? "border-line bg-white text-ink/30"
+                                ? "border-line bg-surface text-ink/30"
                                 : month.score < 60
                                   ? "border-danger/25 bg-danger-tint text-danger"
-                                  : "border-line bg-white text-ink/55",
+                                  : "border-line bg-surface text-ink/55",
                             )}
                           >
                             {monthLabel(month.year, month.month)} {month.active ? month.score : "—"}

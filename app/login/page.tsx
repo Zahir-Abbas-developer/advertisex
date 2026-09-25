@@ -27,35 +27,35 @@ export default async function LoginPage({
 
   return (
     <main className="flex min-h-screen flex-col lg:flex-row">
-      {/* Left — dark editorial panel with the radial green glow */}
+      {/* Left — obsidian editorial panel under the gold glow */}
       <section className="surface-dark flex min-h-[38vh] flex-col justify-between overflow-hidden px-7 py-10 sm:px-12 lg:min-h-screen lg:w-[46%] lg:px-14 lg:py-14">
         <div className="relative">
           <div className="flex items-center gap-2.5">
-            <span className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-brand font-display text-sm font-extrabold text-paper">
+            <span className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-brand font-display text-sm font-bold text-ink">
               A
             </span>
-            <span className="eyebrow text-paper/50">Internal platform</span>
+            <span className="eyebrow text-ink/50">Internal platform</span>
           </div>
         </div>
 
         <div className="relative mt-10 lg:mt-0">
-          <h1 className="font-display text-[42px] font-extrabold leading-[0.95] tracking-[-0.035em] text-paper sm:text-[58px] lg:text-[64px]">
+          <h1 className="font-display text-[42px] font-bold leading-[0.95] tracking-[-0.035em] text-ink sm:text-[58px] lg:text-[64px]">
             ADVERTISE
             <br />
             X
           </h1>
-          <p className="mt-6 max-w-sm text-[15px] leading-relaxed text-paper/55">
+          <p className="mt-6 max-w-sm text-[15px] leading-relaxed text-ink/55">
             AI marketing for food &amp; drink brands — every lead, client and
             campaign in one place, so nothing is carried in someone&rsquo;s head.
           </p>
         </div>
 
         <div className="relative mt-10 hidden lg:block">
-          <div className="h-px w-full bg-paper/10" />
+          <div className="h-px w-full bg-base/10" />
           <div className="mt-6 flex flex-wrap gap-x-8 gap-y-3">
             {["Pilot Cars", "Life & Health", "Affiliates", "Culture Plus"].map(
               (service) => (
-                <span key={service} className="eyebrow text-paper/35">
+                <span key={service} className="eyebrow text-ink/35">
                   {service}
                 </span>
               ),
@@ -65,10 +65,10 @@ export default async function LoginPage({
       </section>
 
       {/* Right — the form on warm white */}
-      <section className="flex flex-1 items-center justify-center bg-paper px-6 py-12 sm:px-10 lg:py-14">
+      <section className="flex flex-1 items-center justify-center bg-base px-6 py-12 sm:px-10 lg:py-14">
         <div className="w-full max-w-[380px]">
           <p className="eyebrow mb-3 text-brand">Welcome back</p>
-          <h2 className="font-display text-[28px] font-extrabold leading-tight tracking-[-0.02em] text-ink">
+          <h2 className="font-display text-[28px] font-bold leading-tight tracking-[-0.02em] text-ink">
             Sign in to your workspace
           </h2>
           <p className="mt-2.5 text-sm leading-relaxed text-ink/55">
@@ -80,7 +80,7 @@ export default async function LoginPage({
           </div>
 
           {process.env.NODE_ENV !== "production" && (
-            <div className="mt-8 rounded-card border border-line bg-cream px-4 py-3.5">
+            <div className="mt-8 rounded-card border border-line bg-surface-2 px-4 py-3.5">
               <p className="eyebrow mb-2 text-ink/40">Development</p>
               <p className="text-[13px] leading-relaxed text-ink/60">
                 Seeded accounts use the shared placeholder password and are

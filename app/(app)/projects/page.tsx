@@ -84,7 +84,7 @@ export default async function ProjectsPage() {
               <Link
                 key={project.id}
                 href={`/projects/${project.id}`}
-                className="block rounded-card border border-line bg-white p-5 transition-colors hover:border-ink/20"
+                className="block rounded-card border border-line bg-surface p-5 transition-colors hover:border-ink/20"
               >
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div className="min-w-0">

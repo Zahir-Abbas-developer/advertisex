@@ -154,7 +154,7 @@ export function ServiceCatalogModal({
                 key={service.id}
                 className={cn(
                   "flex items-center gap-3 px-4 py-3",
-                  !service.isActive && "bg-paper/60",
+                  !service.isActive && "bg-base/60",
                   busy && "opacity-60",
                 )}
               >

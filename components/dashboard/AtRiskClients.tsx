@@ -47,7 +47,7 @@ export function AtRiskClients({ rows }: { rows: AtRiskRow[] }) {
             <li key={row.clientId}>
               <Link
                 href={`/clients/${row.clientId}`}
-                className="flex items-center gap-3.5 px-5 py-3.5 transition-colors hover:bg-cream/50"
+                className="flex items-center gap-3.5 px-5 py-3.5 transition-colors hover:bg-surface-2/50"
               >
                 <span
                   className="h-2.5 w-2.5 shrink-0 rounded-full"

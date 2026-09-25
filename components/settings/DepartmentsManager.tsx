@@ -209,7 +209,7 @@ export function DepartmentsManager() {
                         aria-label={`Move ${dept.shortLabel} up`}
                         disabled={index === 0 || reordering}
                         onClick={() => void move(index, -1)}
-                        className="rounded-[8px] border border-line p-1.5 text-ink/60 transition-colors hover:bg-cream disabled:opacity-30"
+                        className="rounded-[8px] border border-line p-1.5 text-ink/60 transition-colors hover:bg-surface-2 disabled:opacity-30"
                       >
                         <ArrowUp className="h-3.5 w-3.5" />
                       </button>
@@ -218,7 +218,7 @@ export function DepartmentsManager() {
                         aria-label={`Move ${dept.shortLabel} down`}
                         disabled={index === departments.length - 1 || reordering}
                         onClick={() => void move(index, 1)}
-                        className="rounded-[8px] border border-line p-1.5 text-ink/60 transition-colors hover:bg-cream disabled:opacity-30"
+                        className="rounded-[8px] border border-line p-1.5 text-ink/60 transition-colors hover:bg-surface-2 disabled:opacity-30"
                       >
                         <ArrowDown className="h-3.5 w-3.5" />
                       </button>

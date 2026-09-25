@@ -201,8 +201,8 @@ export function OutagePanel({ onChange }: { onChange?: () => void }) {
                   className={cn(
                     "rounded-pill border px-3.5 py-1.5 text-[13px] transition-colors",
                     type === option
-                      ? "border-brand bg-brand text-paper"
-                      : "border-line bg-white text-ink/55 hover:border-ink/25",
+                      ? "border-brand bg-brand text-base"
+                      : "border-line bg-surface text-ink/55 hover:border-ink/25",
                   )}
                 >
                   {OUTAGE_TYPE_LABEL[option]}

@@ -57,20 +57,20 @@ export function Drawer({
         type="button"
         aria-label="Close panel"
         onClick={onClose}
-        className="absolute inset-0 h-full w-full cursor-default bg-ink/35 animate-fade-in backdrop-blur-[2px]"
+        className="absolute inset-0 h-full w-full cursor-default bg-black/60 animate-fade-in backdrop-blur-[2px]"
       />
 
       <div
         ref={panelRef}
         className={cn(
-          "absolute inset-y-0 right-0 flex w-full flex-col border-l border-line bg-paper",
+          "absolute inset-y-0 right-0 flex w-full flex-col border-l border-line bg-base",
           // Slides in on transform alone. Opacity is never animated here, so
           // the panel cannot end up invisible if the animation is skipped.
           "animate-slide-in-right",
           width === "lg" ? "sm:w-[560px]" : "sm:w-[440px]",
         )}
       >
-        <header className="flex items-start justify-between gap-4 border-b border-line bg-white px-5 py-4">
+        <header className="flex items-start justify-between gap-4 border-b border-line bg-surface px-5 py-4">
           <div className="min-w-0">
             {eyebrow && <p className="eyebrow mb-1.5 text-brand">{eyebrow}</p>}
             <h2 className="break-words font-display text-lg font-bold leading-snug tracking-tight text-ink">
@@ -82,7 +82,7 @@ export function Drawer({
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="-mr-1 -mt-1 rounded-pill p-2 text-ink/40 transition-colors hover:bg-cream hover:text-ink"
+            className="-mr-1 -mt-1 rounded-pill p-2 text-ink/40 transition-colors hover:bg-surface-2 hover:text-ink"
           >
             <X className="h-4 w-4" />
           </button>
@@ -91,7 +91,7 @@ export function Drawer({
         <div className="scrollbar-thin flex-1 overflow-y-auto">{children}</div>
 
         {footer && (
-          <div className="border-t border-line bg-white px-5 py-3.5">{footer}</div>
+          <div className="border-t border-line bg-surface px-5 py-3.5">{footer}</div>
         )}
       </div>
     </div>,

@@ -16,7 +16,7 @@ export function TableShell({
   className?: string;
 }) {
   return (
-    <div className={cn("overflow-hidden rounded-card border border-line bg-white", className)}>
+    <div className={cn("overflow-hidden rounded-card border border-line bg-surface", className)}>
       <div className="overflow-x-auto">{children}</div>
     </div>
   );
@@ -37,7 +37,7 @@ export function Table({
 }
 
 export function THead({ children }: { children: ReactNode }) {
-  return <thead className="bg-cream">{children}</thead>;
+  return <thead className="bg-surface-2">{children}</thead>;
 }
 
 export function TBody({ children }: { children: ReactNode }) {
@@ -57,8 +57,8 @@ export function TR({
   return (
     <tr
       className={cn(
-        "transition-colors hover:bg-cream/50",
-        muted && "bg-paper/60 text-ink/50",
+        "transition-colors hover:bg-surface-2/50",
+        muted && "bg-base/60 text-ink/50",
         className,
       )}
     >

@@ -35,7 +35,7 @@ export default async function ErrorsPage() {
       />
 
       {errors.length === 0 ? (
-        <div className="rounded-card border border-line bg-white">
+        <div className="rounded-card border border-line bg-surface">
           <EmptyState
             icon={ShieldCheck}
             eyebrow="Nothing to report"

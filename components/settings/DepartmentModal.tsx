@@ -149,7 +149,7 @@ export function DepartmentModal({
         />
 
         {department && (
-          <div className="rounded-card border border-line bg-cream px-4 py-3.5">
+          <div className="rounded-card border border-line bg-surface-2 px-4 py-3.5">
             <label className="flex items-start gap-2.5">
               <input
                 type="checkbox"

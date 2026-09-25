@@ -89,7 +89,7 @@ export function TargetBar({ userId }: { userId: string }) {
         <div className="text-right">
           <p
             className={cn(
-              "font-display text-2xl font-extrabold tabular-nums leading-none",
+              "font-display text-2xl font-bold tabular-nums leading-none",
               outcome.points > 0 ? "text-brand" : outcome.points < 0 ? "text-danger" : "text-ink",
             )}
           >
@@ -125,7 +125,7 @@ export function TargetBar({ userId }: { userId: string }) {
               </span>
             </div>
 
-            <div className="h-2 overflow-hidden rounded-pill bg-cream">
+            <div className="h-2 overflow-hidden rounded-pill bg-surface-2">
               <div
                 className={cn(
                   "h-full rounded-pill transition-[width] duration-500",

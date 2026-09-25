@@ -1,23 +1,21 @@
 import type { Metadata, Viewport } from "next";
-import { DM_Sans, Syne } from "next/font/google";
+import { Inter, Inter_Tight } from "next/font/google";
 
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 
 /** Display face — headings, wordmark, eyebrow labels, stat figures. */
-const syne = Syne({
+const display = Inter_Tight({
   subsets: ["latin"],
-  weight: ["600", "700", "800"],
-  variable: "--font-syne",
-  display: "swap",
+  weight: ["500", "600", "700"],
+  variable: "--font-display",
 });
 
 /** Body face — everything else. */
-const dmSans = DM_Sans({
+const sans = Inter({
   subsets: ["latin"],
   weight: ["400", "500", "600"],
-  variable: "--font-dm-sans",
-  display: "swap",
+  variable: "--font-sans",
 });
 
 export const metadata: Metadata = {
@@ -46,7 +44,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0C0C0A",
+  themeColor: "#0B0B0D",
   // The app is a real working surface on a phone; letting iOS zoom the layout
   // on an input focus makes answering a check fiddly.
   width: "device-width",
@@ -60,8 +58,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${syne.variable} ${dmSans.variable}`}>
-      <body className="min-h-screen bg-paper text-ink">
+    <html lang="en" className={`${display.variable} ${sans.variable}`}>
+      <body className="min-h-screen bg-base text-ink">
         <Providers>{children}</Providers>
       </body>
     </html>

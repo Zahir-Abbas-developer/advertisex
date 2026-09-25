@@ -147,15 +147,15 @@ export function ClientsBrowser({
                 className={cn(
                   "flex items-center gap-1.5 rounded-pill border px-3 py-1.5 text-[13px] transition-colors",
                   active
-                    ? "border-brand bg-brand text-paper"
-                    : "border-line bg-white text-ink/60 hover:border-ink/25 hover:text-ink",
+                    ? "border-brand bg-brand text-base"
+                    : "border-line bg-surface text-ink/60 hover:border-ink/25 hover:text-ink",
                 )}
               >
                 {option.shortLabel}
                 <span
                   className={cn(
                     "text-[11px] tabular-nums",
-                    active ? "text-paper/60" : "text-ink/35",
+                    active ? "text-ink/60" : "text-ink/35",
                   )}
                 >
                   {count}
@@ -180,12 +180,12 @@ export function ClientsBrowser({
                 className={cn(
                   "flex items-center gap-1.5 rounded-pill border px-3 py-1.5 text-[13px] transition-colors",
                   active
-                    ? "border-ink bg-ink text-paper"
-                    : "border-line bg-white text-ink/60 hover:border-ink/25 hover:text-ink",
+                    ? "border-brand/50 bg-brand-tint text-brand"
+                    : "border-line bg-surface text-ink/60 hover:border-ink/25 hover:text-ink",
                 )}
               >
                 {value === "ALL" ? "All" : CLIENT_STATUS_LABEL[value]}
-                <span className={cn("text-[11px] tabular-nums", active ? "text-paper/50" : "text-ink/35")}>
+                <span className={cn("text-[11px] tabular-nums", active ? "text-ink/50" : "text-ink/35")}>
                   {count}
                 </span>
               </button>
@@ -213,7 +213,7 @@ export function ClientsBrowser({
       )}
 
       {status === "error" && (
-        <div className="rounded-card border border-line bg-white">
+        <div className="rounded-card border border-line bg-surface">
           <ErrorState
             title="Couldn't load your clients"
             description="The client list didn't come back. This is usually temporary."
@@ -223,7 +223,7 @@ export function ClientsBrowser({
       )}
 
       {status === "ready" && clients.length === 0 && (
-        <div className="rounded-card border border-line bg-white">
+        <div className="rounded-card border border-line bg-surface">
           <EmptyState
             icon={Building2}
             eyebrow="No clients yet"
@@ -239,7 +239,7 @@ export function ClientsBrowser({
       )}
 
       {status === "ready" && clients.length > 0 && visible.length === 0 && (
-        <div className="rounded-card border border-line bg-white">
+        <div className="rounded-card border border-line bg-surface">
           <EmptyState
             icon={SlidersHorizontal}
             eyebrow="No matches"

@@ -216,16 +216,16 @@ export function ReportsBrowser({
             <Link
               key={report.id}
               href={`/reports/${report.id}`}
-              className="flex items-start gap-4 rounded-card border border-line bg-white p-5 transition-colors hover:border-ink/20"
+              className="flex items-start gap-4 rounded-card border border-line bg-surface p-5 transition-colors hover:border-ink/20"
             >
               {report.subject.kind === "MEMBER" ? (
                 <Avatar
                   name={report.subject.name}
-                  color={report.subject.color ?? "#1A6B3A"}
+                  color={report.subject.color ?? "#D4AF37"}
                   size="md"
                 />
               ) : (
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] border border-line bg-cream text-ink/50">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] border border-line bg-surface-2 text-ink/50">
                   <FileText className="h-4 w-4" />
                 </span>
               )}

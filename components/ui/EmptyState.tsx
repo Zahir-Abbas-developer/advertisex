@@ -16,7 +16,7 @@ export interface EmptyStateProps {
 }
 
 /**
- * The empty state is a designed screen, never a blank panel — cream medallion,
+ * The empty state is a designed screen, never a blank panel — soft medallion,
  * eyebrow, Syne title, one line of guidance and a way forward.
  */
 export function EmptyState({
@@ -40,7 +40,7 @@ export function EmptyState({
       <div
         className={cn(
           "mb-5 flex h-14 w-14 items-center justify-center rounded-card border",
-          danger ? "border-danger/20 bg-danger-tint" : "border-line bg-cream",
+          danger ? "border-danger/20 bg-danger-tint" : "border-line bg-surface-2",
         )}
       >
         <Icon className={cn("h-6 w-6", danger ? "text-danger" : "text-brand")} />

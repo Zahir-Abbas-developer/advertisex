@@ -143,10 +143,10 @@ export function ProjectPlanner({
           <div className="flex flex-wrap items-start justify-between gap-5">
             <div className="min-w-0">
               <p className="eyebrow mb-3 text-brand-tint/70">{project.clientName}</p>
-              <h1 className="font-display text-[30px] font-extrabold leading-[1.05] tracking-[-0.02em] text-paper sm:text-[38px]">
+              <h1 className="font-display text-[30px] font-bold leading-[1.05] tracking-[-0.02em] text-ink sm:text-[38px]">
                 {project.title}
               </h1>
-              <p className="mt-3 text-[15px] text-paper/55">
+              <p className="mt-3 text-[15px] text-ink/55">
                 {formatDate(project.startDate)} – {formatDate(project.endDate)}
               </p>
 
@@ -154,7 +154,7 @@ export function ProjectPlanner({
                 {project.services.map((service) => (
                   <span
                     key={service.id}
-                    className="rounded-pill border border-paper/15 px-2.5 py-1 text-[11px] text-paper/60"
+                    className="rounded-pill border border-ink/15 px-2.5 py-1 text-[11px] text-ink/60"
                   >
                     {service.name}
                   </span>
@@ -167,10 +167,10 @@ export function ProjectPlanner({
                 {PROJECT_STATUS_LABEL[project.status]}
               </Badge>
               <div className="text-right">
-                <p className="font-display text-[40px] font-extrabold leading-none tracking-[-0.03em] text-paper">
+                <p className="font-display text-[40px] font-bold leading-none tracking-[-0.03em] text-ink">
                   {Math.abs(daysRemaining)}
                 </p>
-                <p className="eyebrow mt-1.5 text-paper/40">
+                <p className="eyebrow mt-1.5 text-ink/40">
                   {daysRemaining < 0 ? "days overdue" : "days remaining"}
                 </p>
               </div>
@@ -322,13 +322,13 @@ export function ProjectPlanner({
         <button
           type="button"
           onClick={() => setNewWorkstream("")}
-          className="flex w-full items-center justify-center gap-2 rounded-card border border-dashed border-line px-5 py-4 text-[13px] text-ink/45 transition-colors hover:border-ink/25 hover:bg-cream/50 hover:text-ink"
+          className="flex w-full items-center justify-center gap-2 rounded-card border border-dashed border-line px-5 py-4 text-[13px] text-ink/45 transition-colors hover:border-ink/25 hover:bg-surface-2/50 hover:text-ink"
         >
           <FolderPlus className="h-4 w-4" />
           Add a workstream
         </button>
       ) : (
-        <div className="flex flex-wrap items-end gap-2.5 rounded-card border border-line bg-white p-4">
+        <div className="flex flex-wrap items-end gap-2.5 rounded-card border border-line bg-surface p-4">
           <Input
             autoFocus
             label="Workstream name"
@@ -417,15 +417,15 @@ function HeaderStat({
   tone?: "warn" | "danger";
 }) {
   return (
-    <div className="rounded-[10px] border border-paper/10 bg-paper/[0.04] px-4 py-3">
-      <p className="eyebrow text-paper/35">{label}</p>
+    <div className="rounded-[10px] border border-ink/10 bg-ink/[0.04] px-4 py-3">
+      <p className="eyebrow text-ink/35">{label}</p>
       <p
         className={cn(
           "mt-1.5 font-display text-lg font-bold",
-          value === 0 && "text-paper/50",
+          value === 0 && "text-ink/50",
           value > 0 && tone === "warn" && "text-warn",
           value > 0 && tone === "danger" && "text-danger",
-          value > 0 && !tone && "text-paper/85",
+          value > 0 && !tone && "text-ink/85",
         )}
       >
         {value}

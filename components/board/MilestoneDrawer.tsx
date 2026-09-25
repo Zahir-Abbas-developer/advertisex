@@ -360,7 +360,7 @@ export function MilestoneDrawer({
 
       {state === "ready" && data && milestone && (
         <>
-          <div className="border-b border-line bg-white px-5 pb-0 pt-1">
+          <div className="border-b border-line bg-surface px-5 pb-0 pt-1">
             <Tabs
               items={[
                 { key: "details", label: "Details" },
@@ -387,7 +387,7 @@ export function MilestoneDrawer({
                       ? "border-danger/25 bg-danger-tint font-medium text-danger"
                       : dueUrgency(milestone.dueDate) === "soon" && milestone.status !== "COMPLETED"
                         ? "border-warn/25 bg-warn-tint font-medium text-warn"
-                        : "border-line bg-white text-ink/55",
+                        : "border-line bg-surface text-ink/55",
                   )}
                 >
                   Due {formatDate(milestone.dueDate)}
@@ -412,7 +412,7 @@ export function MilestoneDrawer({
                 </p>
               )}
 
-              <dl className="space-y-3 rounded-card border border-line bg-white p-4 text-sm">
+              <dl className="space-y-3 rounded-card border border-line bg-surface p-4 text-sm">
                 <Row label="Assignee">
                   {milestone.assignee ? (
                     <span className="flex items-center gap-2">
@@ -513,7 +513,7 @@ export function MilestoneDrawer({
               ) : (
                 <ul className="space-y-4">
                   {threads.map(({ root, replies }) => (
-                    <li key={root.id} className="rounded-card border border-line bg-white p-4">
+                    <li key={root.id} className="rounded-card border border-line bg-surface p-4">
                       <CommentBody comment={root} members={data.members} viewerId={viewerId} />
 
                       {replies.length > 0 && (
@@ -573,7 +573,7 @@ export function MilestoneDrawer({
                 type="button"
                 disabled={busy}
                 onClick={() => fileInput.current?.click()}
-                className="flex w-full flex-col items-center gap-2 rounded-card border border-dashed border-line px-4 py-7 text-center transition-colors hover:border-ink/25 hover:bg-cream/50 disabled:opacity-50"
+                className="flex w-full flex-col items-center gap-2 rounded-card border border-dashed border-line px-4 py-7 text-center transition-colors hover:border-ink/25 hover:bg-surface-2/50 disabled:opacity-50"
               >
                 <Upload className="h-5 w-5 text-ink/35" />
                 <span className="text-[13px] font-medium text-ink/70">
@@ -596,7 +596,7 @@ export function MilestoneDrawer({
                   {data.attachments.map((attachment) => (
                     <li
                       key={attachment.id}
-                      className="flex items-center gap-3 rounded-card border border-line bg-white p-3"
+                      className="flex items-center gap-3 rounded-card border border-line bg-surface p-3"
                     >
                       {attachment.isImage ? (
                         // eslint-disable-next-line @next/next/no-img-element
@@ -606,7 +606,7 @@ export function MilestoneDrawer({
                           className="h-12 w-12 shrink-0 rounded-[8px] border border-line object-cover"
                         />
                       ) : (
-                        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[8px] border border-line bg-cream text-ink/45">
+                        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[8px] border border-line bg-surface-2 text-ink/45">
                           <FileText className="h-5 w-5" />
                         </span>
                       )}

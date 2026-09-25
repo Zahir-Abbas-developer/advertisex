@@ -5,15 +5,15 @@ import { cn } from "@/lib/utils";
 export type BadgeTone = "success" | "warning" | "danger" | "info" | "neutral";
 
 const TONES: Record<BadgeTone, string> = {
-  success: "bg-brand-tint text-brand border-brand/20",
+  success: "bg-success-tint text-success border-success/25",
   warning: "bg-warn-tint text-warn border-warn/20",
   danger: "bg-danger-tint text-danger border-danger/20",
   info: "bg-info-tint text-info border-info/20",
-  neutral: "bg-cream text-ink/70 border-line",
+  neutral: "bg-surface-2 text-ink/70 border-line",
 };
 
 const DOTS: Record<BadgeTone, string> = {
-  success: "bg-brand",
+  success: "bg-success",
   warning: "bg-warn",
   danger: "bg-danger",
   info: "bg-info",

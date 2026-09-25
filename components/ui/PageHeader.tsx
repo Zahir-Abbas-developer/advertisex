@@ -8,7 +8,7 @@ export interface PageHeaderProps {
   title: ReactNode;
   description?: ReactNode;
   actions?: ReactNode;
-  /** Dark hero treatment with a radial green glow, for landing screens. */
+  /** Dark hero treatment under the gold glow, for landing screens. */
   variant?: "light" | "dark";
   children?: ReactNode;
   className?: string;
@@ -43,9 +43,9 @@ export function PageHeader({
 
             <h1
               className={cn(
-                "font-display font-extrabold leading-[1.08] tracking-[-0.02em]",
+                "font-display font-bold leading-[1.08] tracking-[-0.02em]",
                 dark
-                  ? "text-2xl text-paper sm:text-[34px]"
+                  ? "text-2xl text-ink sm:text-[34px]"
                   : "text-2xl text-ink sm:text-3xl",
               )}
             >
@@ -56,7 +56,7 @@ export function PageHeader({
               <p
                 className={cn(
                   "mt-3 text-[15px] leading-relaxed",
-                  dark ? "text-paper/60" : "text-ink/60",
+                  dark ? "text-ink/60" : "text-ink/60",
                 )}
               >
                 {description}

@@ -5,8 +5,8 @@ import { cn } from "@/lib/utils";
 export interface CardProps {
   children: ReactNode;
   className?: string;
-  /** `cream` for inset panels, `dark` for hero-style blocks with a green glow. */
-  surface?: "paper" | "cream" | "dark";
+  /** `inset` for sunken panels, `dark` for hero-style blocks with the gold glow. */
+  surface?: "card" | "inset" | "dark";
   padded?: boolean;
 }
 
@@ -14,16 +14,16 @@ export interface CardProps {
 export function Card({
   children,
   className,
-  surface = "paper",
+  surface = "card",
   padded = true,
 }: CardProps) {
   return (
     <div
       className={cn(
         "rounded-card border",
-        surface === "paper" && "border-line bg-white",
-        surface === "cream" && "border-line bg-cream",
-        surface === "dark" && "surface-dark overflow-hidden border-ink",
+        surface === "card" && "border-line bg-surface",
+        surface === "inset" && "border-line bg-surface-2",
+        surface === "dark" && "surface-dark overflow-hidden border-line-strong",
         padded && "p-5 sm:p-6",
         className,
       )}

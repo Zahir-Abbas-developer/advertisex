@@ -43,7 +43,7 @@ export function ComingSoon({
         />
       </Card>
 
-      <Card surface="cream">
+      <Card surface="inset">
         <p className="eyebrow mb-3 text-ink/40">What lands here</p>
         <ul className="space-y-2.5">
           {bullets.map((bullet) => (

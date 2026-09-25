@@ -252,14 +252,14 @@ export const JOB_TITLES = [
  * Avatar chips. Every value is an accent token from the fixed palette, so
  * member avatars can never drift outside the product's identity.
  *
- * Near-black is deliberately excluded: it's the sidebar's own background, and
+ * Obsidian is deliberately excluded: it's the page's own background, and
  * a chip using it vanishes against the dark rail.
  */
 export const AVATAR_COLORS = [
-  "#1A6B3A", // primary green
-  "#1A4FA0", // info blue
-  "#C4730A", // amber
-  "#C0392B", // red
+  "#D4AF37", // champagne gold
+  "#2DD4BF", // teal
+  "#818CF8", // indigo
+  "#F472B6", // rose
 ] as const;
 
 export type AvatarColor = (typeof AVATAR_COLORS)[number];

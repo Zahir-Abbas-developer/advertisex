@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 export type StatTone = "neutral" | "success" | "warning" | "danger" | "info";
 
 const ICON_TONES: Record<StatTone, string> = {
-  neutral: "bg-cream text-ink/60 border-line",
+  neutral: "bg-surface-2 text-ink/60 border-line",
   success: "bg-brand-tint text-brand border-brand/15",
   warning: "bg-warn-tint text-warn border-warn/15",
   danger: "bg-danger-tint text-danger border-danger/15",
@@ -40,7 +40,7 @@ export function StatCard({
   return (
     <div
       className={cn(
-        "rounded-card border border-line bg-white p-5 transition-colors hover:border-ink/15",
+        "rounded-card border border-line bg-surface p-5 transition-colors hover:border-ink/15",
         className,
       )}
     >
@@ -60,12 +60,12 @@ export function StatCard({
 
       <div className="mt-5 flex items-baseline gap-1.5">
         {loading ? (
-          <span className="relative block h-9 w-20 overflow-hidden rounded-md bg-cream">
+          <span className="relative block h-9 w-20 overflow-hidden rounded-md bg-surface-2">
             <span className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/70 to-transparent" />
           </span>
         ) : (
           <>
-            <span className="font-display text-[34px] font-extrabold leading-none tracking-[-0.03em] text-ink">
+            <span className="font-display text-[34px] font-bold leading-none tracking-[-0.03em] text-ink">
               {value}
             </span>
             {unit && (

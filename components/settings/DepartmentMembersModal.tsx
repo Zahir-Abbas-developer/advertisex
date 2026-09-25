@@ -157,7 +157,7 @@ export function DepartmentMembersModal({
                 key={person.id}
                 className={cn(
                   "rounded-card border px-4 py-3 transition-colors",
-                  active ? "border-brand/25 bg-brand-tint/40" : "border-line bg-paper",
+                  active ? "border-brand/25 bg-brand-tint/40" : "border-line bg-base",
                 )}
               >
                 <label className="flex items-center gap-3">
@@ -189,7 +189,7 @@ export function DepartmentMembersModal({
                           ),
                         )
                       }
-                      className="rounded-[8px] border border-line bg-paper px-2 py-1 text-[12px] text-ink/70"
+                      className="rounded-[8px] border border-line bg-base px-2 py-1 text-[12px] text-ink/70"
                     >
                       {DEPT_ROLES.map((r) => (
                         <option key={r} value={r}>
@@ -206,7 +206,7 @@ export function DepartmentMembersModal({
                       {draft!.skills.map((skill) => (
                         <span
                           key={skill}
-                          className="inline-flex items-center gap-1 rounded-pill border border-line bg-paper px-2 py-0.5 text-[12px] text-ink/70"
+                          className="inline-flex items-center gap-1 rounded-pill border border-line bg-base px-2 py-0.5 text-[12px] text-ink/70"
                         >
                           {skill}
                           <button

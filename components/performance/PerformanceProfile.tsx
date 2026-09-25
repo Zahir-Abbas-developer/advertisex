@@ -114,19 +114,19 @@ export function PerformanceProfile({
                   name={member.name}
                   color={member.avatarColor}
                   size="lg"
-                  className="ring-1 ring-paper/15"
+                  className="ring-1 ring-ink/15"
                 />
                 <div className="min-w-0">
-                  <h1 className="font-display text-[26px] font-extrabold leading-tight tracking-[-0.02em] text-paper sm:text-[32px]">
+                  <h1 className="font-display text-[26px] font-bold leading-tight tracking-[-0.02em] text-ink sm:text-[32px]">
                     {isSelf ? "Your performance" : member.name}
                   </h1>
-                  <p className="mt-0.5 text-[13px] text-paper/50">
+                  <p className="mt-0.5 text-[13px] text-ink/50">
                     {isSelf ? member.name : member.jobTitle}
                   </p>
                 </div>
               </div>
 
-              <p className="mt-5 max-w-md text-[13px] leading-relaxed text-paper/50">
+              <p className="mt-5 max-w-md text-[13px] leading-relaxed text-ink/50">
                 Everyone starts each month at {MONTHLY_BASELINE} points. Points come off for
                 late and missed deadlines and for rejected work, and early
                 delivery earns them back.
@@ -139,8 +139,8 @@ export function PerformanceProfile({
               <div className="space-y-4">
                 <TrendBlock trend={score.trend} />
                 <div>
-                  <p className="eyebrow text-paper/35">This month</p>
-                  <p className="mt-1 text-sm text-paper/70">
+                  <p className="eyebrow text-ink/35">This month</p>
+                  <p className="mt-1 text-sm text-ink/70">
                     {score.eventCount} event{score.eventCount === 1 ? "" : "s"}
                   </p>
                 </div>
@@ -269,7 +269,7 @@ export function PerformanceProfile({
                     "flex items-start gap-3.5 px-5 py-4 sm:px-6",
                     // Manual adjustments read differently on purpose — they are
                     // a human decision, not an automatic rule firing.
-                    manual && "bg-cream/60",
+                    manual && "bg-surface-2/60",
                   )}
                 >
                   <span
@@ -289,7 +289,7 @@ export function PerformanceProfile({
                         {entry.milestoneTitle ?? SCORE_EVENT_LABEL[type]}
                       </p>
                       {manual && (
-                        <span className="rounded-pill border border-line bg-white px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-ink/50">
+                        <span className="rounded-pill border border-line bg-surface px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-ink/50">
                           Manual
                         </span>
                       )}
@@ -343,8 +343,8 @@ function TrendBlock({ trend }: { trend: number | null }) {
   if (trend === null) {
     return (
       <div>
-        <p className="eyebrow text-paper/35">vs last month</p>
-        <p className="mt-1 text-sm text-paper/50">No history</p>
+        <p className="eyebrow text-ink/35">vs last month</p>
+        <p className="mt-1 text-sm text-ink/50">No history</p>
       </div>
     );
   }
@@ -354,11 +354,11 @@ function TrendBlock({ trend }: { trend: number | null }) {
 
   return (
     <div>
-      <p className="eyebrow text-paper/35">vs last month</p>
+      <p className="eyebrow text-ink/35">vs last month</p>
       <p
         className={cn(
           "mt-1 flex items-center gap-1 font-display text-lg font-bold tabular-nums",
-          flat && "text-paper/60",
+          flat && "text-ink/60",
           !flat && trend > 0 && "text-brand",
           !flat && trend < 0 && "text-danger",
         )}

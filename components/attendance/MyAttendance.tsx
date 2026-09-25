@@ -60,8 +60,8 @@ const STATUS_STYLE: Record<string, string> = {
   PRESENT: "border-brand/25 bg-brand-tint text-brand",
   LATE: "border-warn/25 bg-warn-tint text-warn",
   ABSENT: "border-danger/25 bg-danger-tint text-danger",
-  LEAVE: "border-line bg-cream text-ink/45",
-  OFF: "border-line bg-cream/60 text-ink/30",
+  LEAVE: "border-line bg-surface-2 text-ink/45",
+  OFF: "border-line bg-surface-2/60 text-ink/30",
 };
 
 const STATUS_LABEL: Record<string, string> = {
@@ -290,7 +290,7 @@ export function MyAttendance() {
 
                   const day = byDate.get(date);
                   const dayNumber = Number(date.slice(-2));
-                  const style = day ? STATUS_STYLE[day.status] : "border-line bg-white";
+                  const style = day ? STATUS_STYLE[day.status] : "border-line bg-surface";
                   const pending = pendingLeave.has(date);
 
                   return (
@@ -387,7 +387,7 @@ export function MyAttendance() {
                     {detail.checks.map((check) => (
                       <li
                         key={check.id}
-                        className="flex items-center justify-between gap-3 rounded-[10px] border border-line bg-white px-3.5 py-2.5"
+                        className="flex items-center justify-between gap-3 rounded-[10px] border border-line bg-surface px-3.5 py-2.5"
                       >
                         <span className="text-[13px] text-ink/70">
                           {formatKarachiTime(new Date(check.scheduledAt))}

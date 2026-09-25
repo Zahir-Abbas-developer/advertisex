@@ -58,7 +58,7 @@ export function BoardCard({
       className={cn(
         "group rounded-card border p-3.5 transition-colors",
         // Muted, not alarming: a block is a paused clock, not a failure.
-        blocked ? "border-dashed border-line bg-cream/50" : "bg-white",
+        blocked ? "border-dashed border-line bg-surface-2/50" : "bg-surface",
         overlay
           ? "rotate-1 border-brand shadow-[0_14px_32px_-16px_rgba(12,12,10,0.5)]"
           : "border-line hover:border-ink/20",
@@ -99,7 +99,7 @@ export function BoardCard({
 
       {blocked && milestone.blockedReason && (
         <p className="mt-2.5 flex flex-wrap items-center gap-1.5 pl-1">
-          <span className="rounded-pill border border-line bg-white px-2 py-0.5 text-[10px] font-medium text-ink/60">
+          <span className="rounded-pill border border-line bg-surface px-2 py-0.5 text-[10px] font-medium text-ink/60">
             {BLOCK_REASON_LABEL[milestone.blockedReason as BlockReason] ??
               milestone.blockedReason}
           </span>
@@ -119,7 +119,7 @@ export function BoardCard({
               "whitespace-nowrap rounded-pill border px-2 py-0.5 text-[11px] tabular-nums",
               urgency === "overdue" && "border-danger/25 bg-danger-tint font-medium text-danger",
               urgency === "soon" && "border-warn/25 bg-warn-tint font-medium text-warn",
-              urgency === "normal" && "border-line bg-white text-ink/50",
+              urgency === "normal" && "border-line bg-surface text-ink/50",
             )}
           >
             {formatDate(milestone.dueDate)}

@@ -69,7 +69,7 @@ export function RejectModal({
     >
       <div className="space-y-4">
         {milestone && (
-          <div className="flex items-center justify-between gap-4 rounded-[10px] border border-line bg-cream px-3.5 py-3">
+          <div className="flex items-center justify-between gap-4 rounded-[10px] border border-line bg-surface-2 px-3.5 py-3">
             <div className="flex items-center gap-2.5">
               <WeightDots weight={milestone.weight} />
               <span className="text-[13px] text-ink/60">

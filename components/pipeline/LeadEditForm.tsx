@@ -318,8 +318,8 @@ export function LeadEditForm({
                   className={cn(
                     "rounded-pill border px-3 py-1.5 text-[13px] transition-colors",
                     active
-                      ? "border-brand bg-brand text-paper"
-                      : "border-line bg-white text-ink/55 hover:border-ink/25",
+                      ? "border-brand bg-brand text-base"
+                      : "border-line bg-surface text-ink/55 hover:border-ink/25",
                   )}
                 >
                   {service.name}

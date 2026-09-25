@@ -221,11 +221,11 @@ export function LeadDrawer({
       {state === "ready" && data && lead && !editing && (
         <div className="space-y-6 p-5">
           {/* Facts */}
-          <div className="rounded-card border border-line bg-white p-4">
+          <div className="rounded-card border border-line bg-surface p-4">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="min-w-0">
                 {data.canSeeMoney && typeof lead.estimatedMonthlyValue === "number" && (
-                  <p className="mb-1.5 font-display text-2xl font-extrabold tabular-nums leading-none text-ink">
+                  <p className="mb-1.5 font-display text-2xl font-bold tabular-nums leading-none text-ink">
                     {formatMoney(lead.estimatedMonthlyValue)}
                     <span className="ml-1 text-[13px] font-medium text-ink/40">/month</span>
                   </p>

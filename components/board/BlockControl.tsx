@@ -113,7 +113,7 @@ export function BlockControl({
       <div
         className={cn(
           "rounded-card border p-4",
-          blocked ? "border-line bg-cream/60" : "border-line bg-white",
+          blocked ? "border-line bg-surface-2/60" : "border-line bg-surface",
         )}
       >
         {blocked ? (
@@ -199,8 +199,8 @@ export function BlockControl({
                   className={cn(
                     "rounded-pill border px-3 py-1.5 text-[13px] transition-colors",
                     reason === option
-                      ? "border-brand bg-brand text-paper"
-                      : "border-line bg-white text-ink/55 hover:border-ink/25",
+                      ? "border-brand bg-brand text-base"
+                      : "border-line bg-surface text-ink/55 hover:border-ink/25",
                   )}
                 >
                   {BLOCK_REASON_LABEL[option]}

@@ -206,7 +206,7 @@ export function KpiPanel({ clientId, canEdit }: { clientId: string; canEdit: boo
 
             <div className="overflow-x-auto">
               <table className="w-full min-w-[720px] border-collapse text-sm">
-                <thead className="bg-cream">
+                <thead className="bg-surface-2">
                   <tr>
                     {["Week", "Spend", "Revenue", "ROAS", "Orders", "CVR", "AOV"].map((label) => (
                       <th

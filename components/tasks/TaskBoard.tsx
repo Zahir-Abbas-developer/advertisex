@@ -187,8 +187,8 @@ export function TaskBoard() {
               className={cn(
                 "rounded-pill border px-3 py-1.5 text-[13px] transition-colors",
                 mineOnly === option.key
-                  ? "border-ink bg-ink text-paper"
-                  : "border-line bg-white text-ink/60 hover:border-ink/25 hover:text-ink",
+                  ? "border-brand/50 bg-brand-tint text-brand"
+                  : "border-line bg-surface text-ink/60 hover:border-ink/25 hover:text-ink",
               )}
             >
               {option.label}
@@ -285,7 +285,7 @@ export function TaskBoard() {
                 </Badge>
               </div>
 
-              <div className="divide-y divide-line overflow-hidden rounded-card border border-line bg-white">
+              <div className="divide-y divide-line overflow-hidden rounded-card border border-line bg-surface">
                 {rows.map((task) => (
                   <div key={task.id} className="flex items-start gap-3 px-4 py-3">
                     {/* A follow-up has no checkbox: clearing it without saying

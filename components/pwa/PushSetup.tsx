@@ -132,7 +132,7 @@ export function PushSetup() {
   if (!prompt) return null;
 
   return (
-    <div className="rounded-card border border-line bg-white p-4 sm:flex sm:items-center sm:gap-4">
+    <div className="rounded-card border border-line bg-surface p-4 sm:flex sm:items-center sm:gap-4">
       <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[11px] border border-brand/20 bg-brand-tint text-brand">
         <BellRing className="h-[18px] w-[18px]" />
       </span>
@@ -154,7 +154,7 @@ export function PushSetup() {
           type="button"
           onClick={dismiss}
           aria-label="Not now"
-          className="rounded-[9px] p-2 text-ink/35 transition-colors hover:bg-cream hover:text-ink/70"
+          className="rounded-[9px] p-2 text-ink/35 transition-colors hover:bg-surface-2 hover:text-ink/70"
         >
           <X className="h-4 w-4" />
         </button>

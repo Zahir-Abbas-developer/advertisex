@@ -25,19 +25,20 @@ import type { KpiWeekRow } from "@/components/kpis/KpiPanel";
  * draw any two series as though they move together, which is exactly the
  * misreading a client conversation doesn't need.
  *
- * The palette comes from CLAUDE.md rather than recharts' defaults, so these
- * look like part of the product instead of like a library dropped into it.
+ * The palette comes from CLAUDE.md §7 rather than recharts' defaults: series
+ * draw with the data-* tokens — never gold, which is reserved for identity —
+ * so these look like part of the product instead of a library dropped into it.
  */
 
-const INK = "#0C0C0A";
-const BRAND = "#1A6B3A";
-const LINE = "#E2E0D8";
-const DANGER = "#C0392B";
-const INFO = "#1A4FA0";
-const WARN = "#C4730A";
+const INK = "#F5F3EE";
+const DATA_PRIMARY = "#2DD4BF";
+const LINE = "rgba(255,255,255,0.08)";
+const DANGER = "#EF4444";
+const DATA_SECONDARY = "#818CF8";
+const WARN = "#F59E0B";
 
 const AXIS = {
-  stroke: "#0C0C0A",
+  stroke: "#F5F3EE",
   strokeOpacity: 0.25,
   tick: { fill: INK, fillOpacity: 0.45, fontSize: 11 },
   tickLine: false,
@@ -81,8 +82,8 @@ export function KpiCharts({
                 formatter={(value, name) => [formatMoney(Number(value ?? 0)), String(name)]}
               />
               <Legend wrapperStyle={LEGEND} />
-              <Bar dataKey="spend" name="Ad spend" fill={INFO} radius={[3, 3, 0, 0]} />
-              <Bar dataKey="revenue" name="Revenue" fill={BRAND} radius={[3, 3, 0, 0]} />
+              <Bar dataKey="spend" name="Ad spend" fill={DATA_SECONDARY} radius={[3, 3, 0, 0]} />
+              <Bar dataKey="revenue" name="Revenue" fill={DATA_PRIMARY} radius={[3, 3, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -113,12 +114,12 @@ export function KpiCharts({
                 type="monotone"
                 dataKey="roas"
                 name="ROAS"
-                stroke={BRAND}
+                stroke={DATA_PRIMARY}
                 strokeWidth={2}
                 // A week with no spend has no ROAS. Connecting across the gap
                 // would draw a trend through a week nobody ran ads in.
                 connectNulls={false}
-                dot={{ r: 3, fill: BRAND, strokeWidth: 0 }}
+                dot={{ r: 3, fill: DATA_PRIMARY, strokeWidth: 0 }}
                 activeDot={{ r: 5 }}
               />
             </LineChart>
@@ -139,7 +140,7 @@ export function KpiCharts({
                 contentStyle={TOOLTIP}
                 formatter={(value) => [String(value ?? 0), "Orders"]}
               />
-              <Bar dataKey="orders" name="Orders" fill={INK} fillOpacity={0.75} radius={[3, 3, 0, 0]} />
+              <Bar dataKey="orders" name="Orders" fill={DATA_PRIMARY} fillOpacity={0.75} radius={[3, 3, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -149,9 +150,9 @@ export function KpiCharts({
 }
 
 const TOOLTIP = {
-  border: `1px solid ${LINE}`,
+  border: "1px solid rgba(255,255,255,0.14)",
   borderRadius: 10,
-  background: "#FFFFFF",
+  background: "#18181C",
   boxShadow: "0 14px 32px -18px rgba(12,12,10,0.4)",
   fontSize: 13,
   color: INK,

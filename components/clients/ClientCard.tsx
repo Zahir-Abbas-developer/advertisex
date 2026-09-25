@@ -29,7 +29,7 @@ export function ClientCard({ client }: { client: ClientSummary }) {
        sideways, and the `truncate` below never got the chance to truncate. */
     <Link
       href={`/clients/${client.id}`}
-      className="group flex min-w-0 flex-col rounded-card border border-line bg-white p-5 transition-colors hover:border-ink/20 focus-visible:border-ink/20"
+      className="group flex min-w-0 flex-col rounded-card border border-line bg-surface p-5 transition-colors hover:border-ink/20 focus-visible:border-ink/20"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
@@ -78,7 +78,7 @@ export function ClientCard({ client }: { client: ClientSummary }) {
                 "rounded-pill border px-2 py-0.5 text-[10px] font-medium",
                 project.paymentStatus === "OVERDUE"
                   ? "border-danger/25 bg-danger-tint text-danger"
-                  : "border-line bg-white text-ink/45",
+                  : "border-line bg-surface text-ink/45",
               )}
             >
               {project.paymentStatus === "OVERDUE" ? "Payment overdue" : "Awaiting payment"}

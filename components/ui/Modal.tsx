@@ -114,14 +114,14 @@ export function Modal({
         aria-label="Close dialog"
         data-modal-close
         onClick={() => !busy && onClose()}
-        className="fixed inset-0 h-full w-full cursor-default bg-ink/40 animate-fade-in backdrop-blur-[2px]"
+        className="fixed inset-0 h-full w-full cursor-default bg-black/60 animate-fade-in backdrop-blur-[2px]"
       />
 
       <div className="flex min-h-full items-end justify-center sm:items-center sm:p-6">
         <div
           ref={panelRef}
           className={cn(
-            "relative w-full animate-scale-in rounded-t-card border border-line bg-white sm:rounded-card",
+            "relative w-full animate-scale-in rounded-t-card border border-line bg-surface sm:rounded-card",
             SIZES[size],
           )}
         >
@@ -148,7 +148,7 @@ export function Modal({
               onClick={onClose}
               disabled={busy}
               aria-label="Close"
-              className="-mr-1 -mt-1 rounded-pill p-2 text-ink/40 transition-colors hover:bg-cream hover:text-ink disabled:opacity-40"
+              className="-mr-1 -mt-1 rounded-pill p-2 text-ink/40 transition-colors hover:bg-surface-2 hover:text-ink disabled:opacity-40"
             >
               <X className="h-4 w-4" />
             </button>
@@ -161,7 +161,7 @@ export function Modal({
                reach at the bottom of the screen while a long form scrolls
                underneath, rather than waiting at the very end of it. The
                background is opaque so fields do not show through. */
-            <div className="sticky bottom-0 z-10 flex flex-wrap items-center justify-end gap-2.5 border-t border-line bg-cream px-5 py-4 sm:rounded-b-card sm:px-6">
+            <div className="sticky bottom-0 z-10 flex flex-wrap items-center justify-end gap-2.5 border-t border-line bg-surface-2 px-5 py-4 sm:rounded-b-card sm:px-6">
               {footer}
             </div>
           )}

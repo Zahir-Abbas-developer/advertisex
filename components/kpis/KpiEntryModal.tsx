@@ -208,7 +208,7 @@ export function KpiEntryModal({
 
 function Derived({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="bg-white px-4 py-3">
+    <div className="bg-surface px-4 py-3">
       <p className="eyebrow text-ink/40">{label}</p>
       <p className="mt-1 font-display text-lg font-bold tabular-nums text-ink">{value}</p>
     </div>

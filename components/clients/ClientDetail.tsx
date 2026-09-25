@@ -124,15 +124,15 @@ export function ClientDetail({
               </p>
               {/* break-words: at this size a single long word in a business
                   name is wider than a phone, and the dark card clips it. */}
-              <h1 className="break-words font-display text-[30px] font-extrabold leading-[1.05] tracking-[-0.02em] text-paper sm:text-[38px]">
+              <h1 className="break-words font-display text-[30px] font-bold leading-[1.05] tracking-[-0.02em] text-ink sm:text-[38px]">
                 {client.businessName}
               </h1>
 
-              <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-[13px] text-paper/55">
+              <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-[13px] text-ink/55">
                 <span>{client.contactName}</span>
                 <a
                   href={`mailto:${client.email}`}
-                  className="flex items-center gap-1.5 transition-colors hover:text-paper"
+                  className="flex items-center gap-1.5 transition-colors hover:text-base"
                 >
                   <Mail aria-hidden className="h-3.5 w-3.5" />
                   {client.email}
@@ -225,7 +225,7 @@ export function ClientDetail({
                   </p>
                 </div>
 
-                <p className="font-display text-3xl font-extrabold tabular-nums leading-none text-ink">
+                <p className="font-display text-3xl font-bold tabular-nums leading-none text-ink">
                   {health.score}
                 </p>
               </div>
@@ -282,7 +282,7 @@ export function ClientDetail({
                 </div>
 
                 <div className="text-right">
-                  <p className="font-display text-2xl font-extrabold tabular-nums leading-none text-warn">
+                  <p className="font-display text-2xl font-bold tabular-nums leading-none text-warn">
                     {waiting.totalDays}
                     <span className="ml-1 text-[13px] font-medium text-ink/40">
                       {waiting.totalDays === 1 ? "day" : "days"}
@@ -417,7 +417,7 @@ export function ClientDetail({
               <Link
                 key={project.id}
                 href={`/projects/${project.id}`}
-                className="block rounded-card border border-line bg-white p-5 transition-colors hover:border-ink/20"
+                className="block rounded-card border border-line bg-surface p-5 transition-colors hover:border-ink/20"
               >
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0">
@@ -507,9 +507,9 @@ export function ClientDetail({
 
 function HeaderStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-[10px] border border-paper/10 bg-paper/[0.04] px-4 py-3">
-      <p className="eyebrow text-paper/35">{label}</p>
-      <p className="mt-1.5 text-sm font-medium text-paper/85">{value}</p>
+    <div className="rounded-[10px] border border-ink/10 bg-ink/[0.04] px-4 py-3">
+      <p className="eyebrow text-ink/35">{label}</p>
+      <p className="mt-1.5 text-sm font-medium text-ink/85">{value}</p>
     </div>
   );
 }

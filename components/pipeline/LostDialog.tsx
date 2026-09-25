@@ -57,8 +57,8 @@ export function LostDialog({
               className={cn(
                 "rounded-pill border px-3 py-1.5 text-[13px] transition-colors",
                 reason === option
-                  ? "border-ink bg-ink text-paper"
-                  : "border-line bg-white text-ink/55 hover:border-ink/25",
+                  ? "border-brand/50 bg-brand-tint text-brand"
+                  : "border-line bg-surface text-ink/55 hover:border-ink/25",
               )}
             >
               {LOST_REASON_LABEL[option]}

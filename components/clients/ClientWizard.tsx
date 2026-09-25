@@ -532,7 +532,7 @@ export function ClientWizard({
           {services.length === 0 && (
             <div
               role="alert"
-              className="rounded-card border border-line bg-cream p-4 text-[13px] leading-relaxed text-ink/70"
+              className="rounded-card border border-line bg-surface-2 p-4 text-[13px] leading-relaxed text-ink/70"
             >
               There are no services in the catalogue yet, and a client needs at
               least one. Close this, open <strong>Services</strong> at the top of
@@ -561,13 +561,13 @@ export function ClientWizard({
                   "flex w-full items-start gap-3.5 rounded-card border p-4 text-left transition-colors",
                   selected
                     ? "border-brand bg-brand-tint"
-                    : "border-line bg-white hover:border-ink/20",
+                    : "border-line bg-surface hover:border-ink/20",
                 )}
               >
                 <span
                   className={cn(
                     "mt-0.5 flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-[5px] border transition-colors",
-                    selected ? "border-brand bg-brand text-paper" : "border-line bg-white",
+                    selected ? "border-brand bg-brand text-base" : "border-line bg-surface",
                   )}
                 >
                   {selected && <Check className="h-3 w-3" strokeWidth={3} />}
@@ -619,7 +619,7 @@ export function ClientWizard({
             }
           />
 
-          <div className="rounded-card border border-line bg-cream p-4">
+          <div className="rounded-card border border-line bg-surface-2 p-4">
             <p className="eyebrow mb-3 flex items-center gap-1.5 text-brand">
               <Sparkles aria-hidden className="h-3.5 w-3.5" />
               What gets created
@@ -670,9 +670,9 @@ function Stepper({ step }: { step: Step }) {
             <span
               className={cn(
                 "flex h-6 w-6 shrink-0 items-center justify-center rounded-pill text-[11px] font-bold transition-colors",
-                done && "bg-brand text-paper",
-                active && "bg-ink text-paper",
-                !done && !active && "border border-line bg-white text-ink/40",
+                done && "bg-brand text-base",
+                active && "bg-brand-tint text-brand",
+                !done && !active && "border border-line bg-surface text-ink/40",
               )}
             >
               {done ? <Check className="h-3 w-3" strokeWidth={3} /> : item.step}

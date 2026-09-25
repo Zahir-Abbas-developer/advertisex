@@ -162,13 +162,13 @@ export function NewEngagementModal({
                     "flex w-full items-center gap-3 rounded-[10px] border px-3.5 py-3 text-left transition-colors",
                     selected
                       ? "border-brand bg-brand-tint"
-                      : "border-line bg-white hover:border-ink/20",
+                      : "border-line bg-surface hover:border-ink/20",
                   )}
                 >
                   <span
                     className={cn(
                       "flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-[5px] border",
-                      selected ? "border-brand bg-brand text-paper" : "border-line bg-white",
+                      selected ? "border-brand bg-brand text-base" : "border-line bg-surface",
                     )}
                   >
                     {selected && <Check className="h-3 w-3" strokeWidth={3} />}

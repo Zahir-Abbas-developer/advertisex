@@ -112,7 +112,7 @@ export function MilestoneRowItem({
                 onAssign(event.target.value || null);
                 setAssigning(false);
               }}
-              className="h-8 rounded-pill border border-line bg-white px-2.5 text-[12px] text-ink focus:border-brand focus:outline-none"
+              className="h-8 rounded-pill border border-line bg-surface px-2.5 text-[12px] text-ink focus:border-brand focus:outline-none"
             >
               <option value="">Unassigned</option>
               {members.map((member) => (
@@ -130,7 +130,7 @@ export function MilestoneRowItem({
               className={cn(
                 "flex h-8 items-center gap-2 rounded-pill border px-2 pr-3 text-[12px] transition-colors",
                 milestone.assignee
-                  ? "border-line bg-white text-ink/70 hover:border-ink/25"
+                  ? "border-line bg-surface text-ink/70 hover:border-ink/25"
                   : "border-dashed border-line text-ink/40 hover:border-ink/25 hover:text-ink/70",
               )}
             >
@@ -159,7 +159,7 @@ export function MilestoneRowItem({
             "whitespace-nowrap rounded-pill border px-2.5 py-1 text-[12px] tabular-nums",
             urgency === "overdue" && "border-danger/25 bg-danger-tint font-medium text-danger",
             urgency === "soon" && "border-warn/25 bg-warn-tint font-medium text-warn",
-            urgency === "normal" && "border-line bg-white text-ink/55",
+            urgency === "normal" && "border-line bg-surface text-ink/55",
           )}
           title={
             urgency === "overdue"
@@ -279,7 +279,7 @@ function IconButton({
         "rounded-[7px] p-1.5 transition-colors disabled:opacity-30",
         tone === "danger"
           ? "text-ink/40 hover:bg-danger-tint hover:text-danger"
-          : "text-ink/40 hover:bg-cream hover:text-ink",
+          : "text-ink/40 hover:bg-surface-2 hover:text-ink",
       )}
     >
       {children}

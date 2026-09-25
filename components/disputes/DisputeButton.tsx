@@ -39,7 +39,7 @@ export function DisputeButton({
 
   if (existingStatus) {
     return (
-      <span className="shrink-0 rounded-pill border border-line bg-white px-2 py-0.5 text-[10px] font-medium text-ink/50">
+      <span className="shrink-0 rounded-pill border border-line bg-surface px-2 py-0.5 text-[10px] font-medium text-ink/50">
         {existingStatus === "OPEN"
           ? "Disputed"
           : existingStatus === "REVERSED"
@@ -78,14 +78,14 @@ export function DisputeButton({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="shrink-0 rounded-pill border border-line bg-white px-2 py-0.5 text-[10px] font-medium text-ink/45 transition-colors hover:border-ink/25 hover:text-ink"
+        className="shrink-0 rounded-pill border border-line bg-surface px-2 py-0.5 text-[10px] font-medium text-ink/45 transition-colors hover:border-ink/25 hover:text-ink"
       >
         Dispute
       </button>
 
       <Modal open={open} onClose={() => setOpen(false)} title="Dispute this charge">
         <div className="space-y-4">
-          <div className="flex items-start gap-2.5 rounded-card border border-line bg-cream/50 px-4 py-3">
+          <div className="flex items-start gap-2.5 rounded-card border border-line bg-surface-2/50 px-4 py-3">
             <Scale className="mt-0.5 h-4 w-4 shrink-0 text-ink/40" />
             <div className="min-w-0">
               <p className="text-[13px] font-medium text-ink">
