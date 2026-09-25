@@ -241,10 +241,31 @@ Mock data on real paths · permission checks only in the UI · queries without t
 ---
 
 ## 11. Commands
-*(Fill in during Phase 0 to match the repository's actual scripts.)*
+*(Filled in Phase 0 — this repository uses npm; see ADR-001.)*
 ```
-pnpm dev · pnpm typecheck · pnpm lint · pnpm test · pnpm build
-pnpm db:migrate · pnpm db:seed · pnpm db:studio
+npm run dev            # Next.js dev server on :3000
+npm run typecheck      # tsc --noEmit
+npm run lint           # next lint
+npm test               # unit tests (node:test via tsx)
+npm run build          # production build (prebuild regenerates the Prisma client)
+
+npm run db:push        # sync schema to the local SQLite db (prototyping only — ADR-003)
+npm run db:seed        # converge-seed: departments, stages, fields, roster
+npm run db:seed:admin  # production owner + service catalogue (see R3 before relying on it)
+npm run db:studio      # Prisma Studio
+npm run db:reset       # wipe local db and reseed
+
+# The HTTP gate (server on :3000 → export SMOKE_BASE=http://localhost:3000)
+npm run smoke          # every route × every role
+npm run smoke:empty    # same, against an empty database
+npm run permtest       # forbidden fields/mutations refused; cross-department isolation; rendered pages
+npm run leaks          # owner-only values never reach a non-owner (both directions)
+npm run fieldtest      # field engine: right fields, right people, per department
+npm run journeytest    # one full pipeline journey per department, over HTTP
+npm run smoke:browser  # real-browser hydration pass (run when renders change)
+
+npm run set-passwords  # issue a distinct password per account (prints once)
+npm run share          # tunnel the local app for a demo
 ```
 
 ---
