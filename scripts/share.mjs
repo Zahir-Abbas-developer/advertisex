@@ -198,7 +198,7 @@ async function main() {
                   cam@bwm.local      cheryl@bwm.local
                   rajazain@bwm.local      (support)
 
-     Password     ${process.env.SEED_PASSWORD ?? "bwm-change-me"}
+     Password     ${process.env.SEED_PASSWORD ?? "advertisex-change-me"}
                   — changed on first sign-in, 10 characters minimum
 
      This is your machine, served over a public address, holding

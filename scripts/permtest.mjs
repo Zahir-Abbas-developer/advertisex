@@ -56,7 +56,7 @@ const ADMIN_ROLES = ["ADMIN", "SUPPORT_ADMIN"];
 const isAdminRole = (role) => ADMIN_ROLES.includes(role);
 
 /** Seeded accounts share one placeholder password; SEED_PASSWORD overrides it. */
-const SEED_PASSWORD = process.env.SEED_PASSWORD ?? "bwm-change-me";
+const SEED_PASSWORD = process.env.SEED_PASSWORD ?? "advertisex-change-me";
 
 
 loadEnv();
@@ -448,13 +448,15 @@ async function main() {
 
       // --- mutation across a department boundary -----------------------------
       const tayyabaDepts = await membershipsOf(tayyaba.id);
-      const affiliates = departments.find((d) => d.slug === "affiliates");
+      // Any department she is not a member of will do — deriving it keeps this
+      // check alive across reorganisations of the service lines.
+      const foreign = departments.find((d) => !tayyabaDepts.includes(d.id));
 
-      if (affiliates && !tayyabaDepts.includes(affiliates.id)) {
+      if (foreign) {
         const other = new Session("tayyaba");
         await other.signIn(tayyaba.email, SEED_PASSWORD);
 
-        const target = planted.find((p) => p.dept.id === affiliates.id);
+        const target = planted.find((p) => p.dept.id === foreign.id);
 
         const stageMove = await other.fetch(`/api/leads/${target.leadId}/stage`, {
           method: "PATCH",
@@ -462,7 +464,7 @@ async function main() {
           body: JSON.stringify({ stage: "QUALIFIED" }),
         });
         check(
-          "Tayyaba cannot move an Affiliates lead",
+          `Tayyaba cannot move a ${foreign.shortLabel} lead`,
           stageMove.status === 403,
           `got ${stageMove.status}`,
         );
@@ -473,7 +475,7 @@ async function main() {
           body: JSON.stringify({ businessName: "Should not persist" }),
         });
         check(
-          "Tayyaba cannot edit an Affiliates lead",
+          `Tayyaba cannot edit a ${foreign.shortLabel} lead`,
           edit.status === 403,
           `got ${edit.status}`,
         );
@@ -488,7 +490,7 @@ async function main() {
           }),
         });
         check(
-          "Tayyaba cannot log activity on an Affiliates lead",
+          `Tayyaba cannot log activity on a ${foreign.shortLabel} lead`,
           logged.status === 403,
           `got ${logged.status}`,
         );
@@ -498,8 +500,8 @@ async function main() {
           select: { businessName: true },
         });
         check(
-          "the Affiliates lead was not modified",
-          after?.businessName === `Scopeprobe ${affiliates.slug}`,
+          `the ${foreign.shortLabel} lead was not modified`,
+          after?.businessName === `Scopeprobe ${foreign.slug}`,
           after?.businessName,
         );
       }

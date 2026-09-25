@@ -22,7 +22,7 @@ import { loadEnv, Session, waitForServer } from "./smoke.mjs";
 
 loadEnv();
 
-const SEED_PASSWORD = process.env.SEED_PASSWORD ?? "bwm-change-me";
+const SEED_PASSWORD = process.env.SEED_PASSWORD ?? "advertisex-change-me";
 
 const ADMIN = "coachd@bwm.local";
 /** Two departments: Pilot Cars and Life & Health. Not Affiliates, not Culture Plus. */
@@ -107,12 +107,32 @@ async function main() {
         `${department.shortLabel}: has pipeline stages`,
       );
 
-      // 3. Create a lead, answering every required field.
+      // 3. Create a lead, answering every required field with a value its
+      // type accepts — a CURRENCY field refuses `check-…` strings.
+      const answerFor = (field) => {
+        switch (field.type) {
+          case "SELECT":
+          case "MULTISELECT":
+            return field.options[0] ?? "";
+          case "NUMBER":
+          case "CURRENCY":
+            return "1500";
+          case "DATE":
+            return new Date().toISOString().slice(0, 10);
+          case "CHECKBOX":
+            return "true";
+          case "EMAIL":
+            return "check@bwm.local";
+          case "PHONE":
+            return "555-0100";
+          default:
+            return `check-${field.key}`;
+        }
+      };
       const fieldValues = {};
       for (const field of form.fields ?? []) {
         if (!field.required) continue;
-        fieldValues[field.key] =
-          field.type === "SELECT" ? (field.options[0] ?? "") : `check-${field.key}`;
+        fieldValues[field.key] = answerFor(field);
       }
 
       const response = await admin.fetch("/api/leads", {

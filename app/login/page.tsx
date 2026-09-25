@@ -53,7 +53,7 @@ export default async function LoginPage({
         <div className="relative mt-10 hidden lg:block">
           <div className="h-px w-full bg-base/10" />
           <div className="mt-6 flex flex-wrap gap-x-8 gap-y-3">
-            {["Pilot Cars", "Life & Health", "Affiliates", "Culture Plus"].map(
+            {["Appetite Audit", "Growth Sprint", "Creative Studio", "Web & Retention"].map(
               (service) => (
                 <span key={service} className="eyebrow text-ink/35">
                   {service}

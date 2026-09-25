@@ -20,7 +20,7 @@ import { loadEnv, Session, waitForServer } from "./smoke.mjs";
 
 loadEnv();
 
-const SEED_PASSWORD = process.env.SEED_PASSWORD ?? "bwm-change-me";
+const SEED_PASSWORD = process.env.SEED_PASSWORD ?? "advertisex-change-me";
 const ADMIN = "coachd@bwm.local";
 const MEMBER = "tayyaba@bwm.local";
 
@@ -60,8 +60,30 @@ function journeyFor(stages) {
 }
 
 const DEAL_VALUE = 12_000;
-/** Affiliates' commission_rate answer, as a percentage. */
+/** The `commission_rate` answer, as a percentage, where a department has one. */
 const COMMISSION_RATE = "12.5";
+
+/** A valid answer for a required field, whatever its type. */
+function answerFor(field) {
+  switch (field.type) {
+    case "SELECT":
+    case "MULTISELECT":
+      return field.options[0] ?? "";
+    case "NUMBER":
+    case "CURRENCY":
+      return "2500";
+    case "DATE":
+      return new Date().toISOString().slice(0, 10);
+    case "CHECKBOX":
+      return "true";
+    case "EMAIL":
+      return "journey@bwm.local";
+    case "PHONE":
+      return "555-0100";
+    default:
+      return `journey-${field.key}`;
+  }
+}
 
 async function main() {
   await waitForServer();
@@ -86,10 +108,16 @@ async function main() {
       orderBy: { order: "asc" },
     });
 
+    /** Departments whose lead form defines `commission_rate` — checked below. */
+    const commissionDepts = [];
+
     for (const department of departments) {
       const form = await (
         await admin.fetch(`/api/departments/${department.id}/form?entity=LEAD`)
       ).json();
+      if ((form.fields ?? []).some((field) => field.key === "commission_rate")) {
+        commissionDepts.push(department);
+      }
 
       const journey = journeyFor(form.stages ?? []);
       if (
@@ -111,8 +139,7 @@ async function main() {
           continue;
         }
         if (!field.required) continue;
-        fieldValues[field.key] =
-          field.type === "SELECT" ? (field.options[0] ?? "") : `journey-${field.key}`;
+        fieldValues[field.key] = answerFor(field);
       }
 
       const createRes = await admin.fetch("/api/leads", {
@@ -197,20 +224,27 @@ async function main() {
     }
 
     // ------------------------------------------------------------ commission --
-    const affiliates = departments.find((d) => d.slug === "affiliates");
-    if (affiliates) {
+    //
+    // Commissions are derived wherever a department defines a `commission_rate`
+    // field (lib/stages.ts), so the check runs against whichever departments do.
+    // None of the seeded service lines carries one today; the feature stays
+    // covered by unit tests, and this re-arms the moment an admin adds the field.
+    if (commissionDepts.length === 0) {
+      console.log("  (no department defines commission_rate — commission check skipped)");
+    }
+    for (const dept of commissionDepts) {
       const board = await (
-        await admin.fetch(`/api/pipeline?departmentId=${affiliates.id}`)
+        await admin.fetch(`/api/pipeline?departmentId=${dept.id}`)
       ).json();
 
       const row = (board.commissions ?? []).find(
-        (entry) => entry.businessName === `Journey ${affiliates.shortLabel}`,
+        (entry) => entry.businessName === `Journey ${dept.shortLabel}`,
       );
-      if (check(Boolean(row), "Affiliates: commission row present")) {
+      if (check(Boolean(row), `${dept.shortLabel}: commission row present`)) {
         const expected = Math.round((DEAL_VALUE * Number(COMMISSION_RATE)) / 100);
         check(
           row.amount === expected,
-          "Affiliates: commission computed from value × rate",
+          `${dept.shortLabel}: commission computed from value × rate`,
           `got ${row.amount}, expected ${expected}`,
         );
       }
@@ -218,7 +252,7 @@ async function main() {
       // Commission is money, so a viewer who may not see deal values gets none.
       check(
         (board.commissions ?? []).length > 0,
-        "Affiliates: admin receives the commissions table",
+        `${dept.shortLabel}: admin receives the commissions table`,
       );
     }
 

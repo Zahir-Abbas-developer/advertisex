@@ -16,7 +16,8 @@ import { serializeSkills } from "../lib/skills";
  * The agency fork seeded five clients and fifty-five milestones so its screens
  * looked populated; every figure the team sees must come from real work, so this
  * seeds structure and people and stops there. The old file is kept as
- * `prisma/seed.agency.archive` for reference.
+ * `prisma/seed.agency.archive` for reference, and the BWM-era service lines
+ * this file seeded before decision D2 live on in git history.
  *
  * Placeholder passwords are paired with `mustChangePassword: true`, so a
  * seeded credential cannot survive first contact with a real user. Override
@@ -54,179 +55,186 @@ import { serializeSkills } from "../lib/skills";
 
 const prisma = new PrismaClient();
 
-const PLACEHOLDER_PASSWORD = process.env.SEED_PASSWORD ?? "bwm-change-me";
+const PLACEHOLDER_PASSWORD = process.env.SEED_PASSWORD ?? "advertisex-change-me";
 
-/** The service lines seeded today (replaced per D2 in increment 3). */
+/**
+ * The service lines, per founder decision D2 (docs/DECISIONS.md): departments
+ * are Advertise X's services for food & drink brands, derived from the
+ * playbook — the Appetite Audit entry offer, the 90-day paid-ads Growth
+ * Sprint core, and the studio and retention work around them.
+ *
+ * The BWM-era departments this replaces are not deleted from databases that
+ * already have them (this file creates, never destroys); the founder retires
+ * them in Settings → Departments when ready.
+ */
 const DEPARTMENTS = [
   {
-    slug: "pilot-cars",
-    name: "BWM — Pilot Cars Sales & Dispatch",
-    shortLabel: "Pilot Cars",
+    slug: "appetite-audit",
+    name: "Appetite Audit",
+    shortLabel: "Appetite Audit",
     colorToken: "success",
     description:
-      "Sales, quotes, dispatch coordination, scheduling and job management for pilot car work.",
+      "The entry offer: a paid teardown of a food business's ads, listings and funnel, delivered as a call — and the doorway to a Growth Sprint.",
     order: 1,
     stages: [
       { key: "NEW_INQUIRY", label: "New Inquiry", sortOrder: 1, kind: "OPEN", colorToken: "neutral" },
       { key: "QUALIFIED", label: "Qualified", sortOrder: 2, kind: "OPEN", colorToken: "info" },
-      { key: "QUOTE", label: "Quote", sortOrder: 3, kind: "OPEN", colorToken: "info" },
-      { key: "SCHEDULED", label: "Scheduled", sortOrder: 4, kind: "OPEN", colorToken: "warning" },
-      { key: "DISPATCHED", label: "Dispatched", sortOrder: 5, kind: "OPEN", colorToken: "warning" },
-      { key: "COMPLETED", label: "Completed", sortOrder: 6, kind: "WON", colorToken: "success" },
-      // Kept, though the T3 list omits it. The spec says "add Lost" for two of
-      // the other three departments, so its absence here reads as the same
-      // oversight rather than an intent — and without it a dead inquiry has
-      // nowhere to go, which is how a board silently fills with stale cards.
-      { key: "LOST", label: "Lost", sortOrder: 7, kind: "LOST", colorToken: "danger" },
-    ],
-    fields: [
-      { key: "pickup_location", label: "Pickup location", type: "TEXT", order: 1, required: true },
-      { key: "destination", label: "Destination", type: "TEXT", order: 2, required: true },
-      {
-        key: "service_requirements",
-        label: "Service requirements",
-        type: "TEXTAREA",
-        order: 3,
-      },
-      {
-        key: "dispatch_requirements",
-        label: "Dispatch requirements",
-        type: "TEXTAREA",
-        order: 4,
-      },
-      {
-        key: "vehicle_job_details",
-        label: "Vehicle / job details",
-        type: "TEXTAREA",
-        order: 5,
-      },
-      { key: "quote", label: "Quote", type: "CURRENCY", order: 6 },
-    ],
-  },
-  {
-    slug: "life-health-insurance",
-    name: "BWM — Life & Health Insurance",
-    shortLabel: "Life & Health",
-    colorToken: "info",
-    description: "Insurance leads, qualification, policies and conversion.",
-    order: 2,
-    stages: [
-      { key: "NEW_LEAD", label: "New Lead", sortOrder: 1, kind: "OPEN", colorToken: "neutral" },
-      { key: "QUALIFIED", label: "Qualified", sortOrder: 2, kind: "OPEN", colorToken: "info" },
-      { key: "CONTACTED", label: "Contacted", sortOrder: 3, kind: "OPEN", colorToken: "info" },
-      { key: "PROPOSAL", label: "Application / Proposal", sortOrder: 4, kind: "OPEN", colorToken: "warning" },
-      { key: "CONVERTED", label: "Converted", sortOrder: 5, kind: "WON", colorToken: "success" },
+      { key: "AUDIT_BOOKED", label: "Audit Booked", sortOrder: 3, kind: "OPEN", colorToken: "info" },
+      { key: "AUDIT_DELIVERED", label: "Audit Delivered", sortOrder: 4, kind: "OPEN", colorToken: "warning" },
+      { key: "WON", label: "Won — Engagement", sortOrder: 5, kind: "WON", colorToken: "success" },
       { key: "ACTIVE_CLIENT", label: "Active Client", sortOrder: 6, kind: "ACTIVE_CLIENT", colorToken: "info" },
       { key: "LOST", label: "Lost", sortOrder: 7, kind: "LOST", colorToken: "danger" },
     ],
     fields: [
       {
-        key: "insurance_type",
-        label: "Insurance type",
+        key: "business_type",
+        label: "Business type",
         type: "SELECT",
-        options: "Life,Health,Both",
+        options: "Restaurant,Cafe,Bar,Bakery,Food Truck,Ghost Kitchen,Other",
         order: 1,
         required: true,
       },
+      { key: "cuisine", label: "Cuisine / concept", type: "TEXT", order: 2 },
+      { key: "locations", label: "Locations", type: "NUMBER", order: 3 },
+      { key: "avg_ticket", label: "Average ticket", type: "CURRENCY", order: 4 },
+      { key: "monthly_ad_spend", label: "Current monthly ad spend", type: "CURRENCY", order: 5 },
       {
-        key: "qualification_info",
-        label: "Qualification info",
-        type: "TEXTAREA",
-        order: 2,
+        key: "channels_in_use",
+        label: "Channels in use",
+        type: "MULTISELECT",
+        options: "Google Ads,Meta Ads,TikTok,Email/SMS,Organic social,None",
+        order: 6,
       },
-      {
-        key: "coverage_requirements",
-        label: "Coverage requirements",
-        type: "TEXTAREA",
-        order: 3,
-      },
+      { key: "audit_focus", label: "What they want looked at", type: "TEXTAREA", order: 7 },
     ],
   },
   {
-    slug: "affiliates",
-    name: "BWM — Affiliates",
-    shortLabel: "Affiliates",
-    colorToken: "warning",
-    description: "Partner onboarding, referral tracking and commission tracking.",
-    order: 3,
-    stages: [
-      { key: "NEW_PARTNER", label: "New Partner", sortOrder: 1, kind: "OPEN", colorToken: "neutral" },
-      { key: "QUALIFIED", label: "Qualified", sortOrder: 2, kind: "OPEN", colorToken: "info" },
-      { key: "ONBOARDING", label: "Onboarding", sortOrder: 3, kind: "OPEN", colorToken: "warning" },
-      { key: "ACTIVE", label: "Active", sortOrder: 4, kind: "WON", colorToken: "success" },
-      // Referral and Commission come *after* the win: they are what an active
-      // partner is doing, not a deal still being chased. ACTIVE_CLIENT is the
-      // kind for exactly that — converted and ongoing.
-      { key: "REFERRAL", label: "Referral", sortOrder: 5, kind: "ACTIVE_CLIENT", colorToken: "info" },
-      { key: "COMMISSION", label: "Commission", sortOrder: 6, kind: "ACTIVE_CLIENT", colorToken: "info" },
-      { key: "LOST", label: "Lost", sortOrder: 7, kind: "LOST", colorToken: "danger" },
-    ],
-    fields: [
-      { key: "affiliate_type", label: "Affiliate type", type: "TEXT", order: 1 },
-      { key: "referral_info", label: "Referral info", type: "TEXTAREA", order: 2 },
-      {
-        key: "commission_rate",
-        label: "Commission rate (%)",
-        type: "NUMBER",
-        helpText: "A percentage — 12.5 means 12.5%.",
-        order: 3,
-      },
-      { key: "commission_notes", label: "Commission notes", type: "TEXTAREA", order: 4 },
-    ],
-  },
-  {
-    slug: "culture-plus-network",
-    name: "Culture Plus Network",
-    shortLabel: "Culture Plus",
-    colorToken: "neutral",
-    description: "Sales, Cam, and Life & Health Insurance under the Culture Plus Network brand.",
-    order: 4,
+    slug: "growth-sprint",
+    name: "Paid Ads — Growth Sprint",
+    shortLabel: "Growth Sprint",
+    colorToken: "info",
+    description:
+      "The core offer: 90 days of managed Google and Meta ads against one stated goal, then rolling retention.",
+    order: 2,
     stages: [
       { key: "NEW_LEAD", label: "New Lead", sortOrder: 1, kind: "OPEN", colorToken: "neutral" },
       { key: "QUALIFIED", label: "Qualified", sortOrder: 2, kind: "OPEN", colorToken: "info" },
-      { key: "CONTACTED", label: "Contacted", sortOrder: 3, kind: "OPEN", colorToken: "info" },
+      { key: "STRATEGY_CALL", label: "Strategy Call", sortOrder: 3, kind: "OPEN", colorToken: "info" },
       { key: "PROPOSAL", label: "Proposal", sortOrder: 4, kind: "OPEN", colorToken: "warning" },
-      { key: "NEGOTIATION", label: "Negotiation", sortOrder: 5, kind: "OPEN", colorToken: "warning" },
-      { key: "WON", label: "Won", sortOrder: 6, kind: "WON", colorToken: "success" },
-      { key: "ACTIVE_CLIENT", label: "Active Client", sortOrder: 7, kind: "ACTIVE_CLIENT", colorToken: "info" },
+      { key: "WON", label: "Won — Sprint Signed", sortOrder: 5, kind: "WON", colorToken: "success" },
+      // Two flavours of converted-and-ongoing, so the board says which
+      // clients are inside their 90 days and which have rolled over.
+      { key: "LIVE_SPRINT", label: "Live Sprint", sortOrder: 6, kind: "ACTIVE_CLIENT", colorToken: "info" },
+      { key: "RETAINED", label: "Retained", sortOrder: 7, kind: "ACTIVE_CLIENT", colorToken: "info" },
       { key: "LOST", label: "Lost", sortOrder: 8, kind: "LOST", colorToken: "danger" },
     ],
     fields: [
       {
-        key: "service_interest",
-        label: "Service / product interest",
-        type: "TEXT",
+        key: "monthly_ad_budget",
+        label: "Monthly ad budget",
+        type: "CURRENCY",
+        helpText: "Media spend, not our fee.",
         order: 1,
-      },
-      {
-        // "Cam" is a sales/service category here, not the team member of the
-        // same name. Cam the person is not a member of this department.
-        key: "sales_category",
-        label: "Sales category",
-        type: "SELECT",
-        options: "Sales,Cam,Life Insurance,Health Insurance",
-        order: 2,
         required: true,
       },
       {
-        // Asking every question of every lead is how a form stops being filled
-        // in honestly, so the two specialist blocks below appear only for the
-        // category they belong to.
-        key: "insurance_info",
-        label: "Insurance info",
-        type: "TEXTAREA",
-        order: 3,
-        showIfKey: "sales_category",
-        showIfValues: "Life Insurance,Health Insurance",
+        key: "platforms",
+        label: "Platforms",
+        type: "MULTISELECT",
+        options: "Google Ads,Meta Ads,TikTok Ads",
+        order: 2,
       },
       {
-        key: "cam_info",
-        label: "Cam details",
-        type: "TEXTAREA",
-        order: 4,
-        showIfKey: "sales_category",
-        showIfValues: "Cam",
+        key: "sprint_goal",
+        label: "Sprint goal",
+        type: "SELECT",
+        options: "More bookings,More delivery orders,More footfall,Catering leads,New location launch",
+        order: 3,
       },
+      {
+        key: "current_agency",
+        label: "Who runs their ads today",
+        type: "SELECT",
+        options: "Nobody,In-house,Another agency",
+        order: 4,
+      },
+      { key: "sprint_start", label: "Target start date", type: "DATE", order: 5 },
+    ],
+  },
+  {
+    slug: "creative-studio",
+    name: "Creative Studio",
+    shortLabel: "Creative Studio",
+    colorToken: "warning",
+    description:
+      "Food photography, video, menus and brand work — sold on its own or feeding the ads.",
+    order: 3,
+    stages: [
+      { key: "NEW_REQUEST", label: "New Request", sortOrder: 1, kind: "OPEN", colorToken: "neutral" },
+      { key: "QUALIFIED", label: "Qualified", sortOrder: 2, kind: "OPEN", colorToken: "info" },
+      { key: "SCOPING", label: "Scoping", sortOrder: 3, kind: "OPEN", colorToken: "info" },
+      { key: "PROPOSAL", label: "Proposal", sortOrder: 4, kind: "OPEN", colorToken: "warning" },
+      { key: "WON", label: "Won — Booked", sortOrder: 5, kind: "WON", colorToken: "success" },
+      { key: "IN_PRODUCTION", label: "In Production", sortOrder: 6, kind: "ACTIVE_CLIENT", colorToken: "info" },
+      { key: "LOST", label: "Lost", sortOrder: 7, kind: "LOST", colorToken: "danger" },
+    ],
+    fields: [
+      {
+        key: "deliverables",
+        label: "Deliverables",
+        type: "MULTISELECT",
+        options: "Food photography,Video / Reels,Menu design,Brand identity,UGC package",
+        order: 1,
+      },
+      { key: "shoot_location", label: "Shoot location", type: "TEXT", order: 2 },
+      { key: "needed_by", label: "Needed by", type: "DATE", order: 3 },
+      { key: "budget", label: "Budget", type: "CURRENCY", order: 4 },
+      { key: "creative_brief", label: "Creative brief", type: "TEXTAREA", order: 5 },
+    ],
+  },
+  {
+    slug: "web-retention",
+    name: "Web & Retention",
+    shortLabel: "Web & Retention",
+    colorToken: "neutral",
+    description:
+      "Websites, online ordering and booking funnels, plus the email/SMS and loyalty programs that keep guests coming back.",
+    order: 4,
+    stages: [
+      { key: "NEW_LEAD", label: "New Lead", sortOrder: 1, kind: "OPEN", colorToken: "neutral" },
+      { key: "QUALIFIED", label: "Qualified", sortOrder: 2, kind: "OPEN", colorToken: "info" },
+      { key: "DISCOVERY", label: "Discovery", sortOrder: 3, kind: "OPEN", colorToken: "info" },
+      { key: "PROPOSAL", label: "Proposal", sortOrder: 4, kind: "OPEN", colorToken: "warning" },
+      { key: "WON", label: "Won — Signed", sortOrder: 5, kind: "WON", colorToken: "success" },
+      { key: "LIVE", label: "Live & Retained", sortOrder: 6, kind: "ACTIVE_CLIENT", colorToken: "info" },
+      { key: "LOST", label: "Lost", sortOrder: 7, kind: "LOST", colorToken: "danger" },
+    ],
+    fields: [
+      { key: "current_website", label: "Current website", type: "TEXT", order: 1 },
+      {
+        key: "pos_system",
+        label: "POS system",
+        type: "SELECT",
+        options: "Toast,Square,Clover,Lightspeed,Other,None",
+        order: 2,
+      },
+      {
+        key: "services_needed",
+        label: "Services needed",
+        type: "MULTISELECT",
+        options: "Website,Online ordering,Booking funnel,Email/SMS,Loyalty program",
+        order: 3,
+      },
+      {
+        // Only worth asking once retention work is on the table.
+        key: "list_size",
+        label: "Email/SMS list size",
+        type: "NUMBER",
+        order: 4,
+        showIfKey: "services_needed",
+        showIfValues: "Email/SMS,Loyalty program",
+      },
+      { key: "launch_by", label: "Launch by", type: "DATE", order: 5 },
     ],
   },
 ] as const;
@@ -234,13 +242,21 @@ const DEPARTMENTS = [
 /**
  * The only users.
  *
- * `departments` carries the membership matrix from CLAUDE.md, and per-department
- * skills describing what that person actually does in that business line.
- * Skills are free-text strings, not an enum: a department can need a speciality
- * nobody anticipated, and an enum would put that behind a deploy.
+ * The same six humans as before D2 — these emails are live credentials, and
+ * because this file never rewrites an existing account, renaming one here
+ * would create a duplicate person on any database that already has the team.
+ * Moving the roster to an @advertisex domain is a founder decision and a
+ * deliberate migration, not a seed edit.
  *
- * `jobTitle` is legacy from the agency fork and is kept only because the column
- * is required. Department membership below is the real mapping.
+ * `departments` carries each person's service lines, with per-line skills.
+ * Skills are free-text strings, not an enum: a line can need a speciality
+ * nobody anticipated, and an enum would put that behind a deploy. The matrix
+ * is a starting point the founder reshapes in Settings — deliberately not
+ * everyone-everywhere, because department scoping is the security model and
+ * the tests prove isolation using the gaps.
+ *
+ * `jobTitle` is legacy from the agency fork and is kept only because the
+ * column is required. Department membership below is the real mapping.
  */
 const TEAM = [
   {
@@ -249,10 +265,10 @@ const TEAM = [
     role: "ADMIN",
     jobTitle: "Owner",
     departments: [
-      { slug: "pilot-cars", roleInDept: "LEAD", skills: ["sales", "dispatch", "closing"] },
-      { slug: "life-health-insurance", roleInDept: "LEAD", skills: ["insurance", "closing"] },
-      { slug: "affiliates", roleInDept: "LEAD", skills: ["affiliates", "partnerships"] },
-      { slug: "culture-plus-network", roleInDept: "LEAD", skills: ["sales", "insurance", "closing"] },
+      { slug: "appetite-audit", roleInDept: "LEAD", skills: ["audits", "closing"] },
+      { slug: "growth-sprint", roleInDept: "LEAD", skills: ["strategy", "closing"] },
+      { slug: "creative-studio", roleInDept: "LEAD", skills: ["creative direction"] },
+      { slug: "web-retention", roleInDept: "LEAD", skills: ["strategy", "retention"] },
     ],
   },
   {
@@ -261,8 +277,8 @@ const TEAM = [
     role: "MEMBER",
     jobTitle: "Sales & Insurance",
     departments: [
-      { slug: "pilot-cars", roleInDept: "MEMBER", skills: ["sales", "quotes", "scheduling"] },
-      { slug: "life-health-insurance", roleInDept: "MEMBER", skills: ["insurance", "qualification"] },
+      { slug: "appetite-audit", roleInDept: "MEMBER", skills: ["qualification", "audits"] },
+      { slug: "growth-sprint", roleInDept: "MEMBER", skills: ["media buying", "reporting"] },
     ],
   },
   {
@@ -271,9 +287,9 @@ const TEAM = [
     role: "MEMBER",
     jobTitle: "Sales & Insurance",
     departments: [
-      { slug: "pilot-cars", roleInDept: "MEMBER", skills: ["sales", "dispatch", "scheduling"] },
-      { slug: "life-health-insurance", roleInDept: "MEMBER", skills: ["insurance", "policies"] },
-      { slug: "culture-plus-network", roleInDept: "MEMBER", skills: ["sales", "insurance"] },
+      { slug: "appetite-audit", roleInDept: "MEMBER", skills: ["audits", "follow-up"] },
+      { slug: "growth-sprint", roleInDept: "MEMBER", skills: ["media buying"] },
+      { slug: "web-retention", roleInDept: "MEMBER", skills: ["email/sms", "funnels"] },
     ],
   },
   {
@@ -282,9 +298,8 @@ const TEAM = [
     role: "MEMBER",
     jobTitle: "Sales & Affiliates",
     departments: [
-      { slug: "pilot-cars", roleInDept: "MEMBER", skills: ["sales", "dispatch"] },
-      { slug: "life-health-insurance", roleInDept: "MEMBER", skills: ["insurance", "qualification"] },
-      { slug: "affiliates", roleInDept: "LEAD", skills: ["affiliates", "referrals", "commissions"] },
+      { slug: "growth-sprint", roleInDept: "MEMBER", skills: ["creative testing"] },
+      { slug: "creative-studio", roleInDept: "LEAD", skills: ["photo", "video", "menus"] },
     ],
   },
   {
@@ -293,7 +308,8 @@ const TEAM = [
     role: "MEMBER",
     jobTitle: "Culture Plus Network",
     departments: [
-      { slug: "culture-plus-network", roleInDept: "MEMBER", skills: ["sales", "insurance", "follow-up"] },
+      { slug: "creative-studio", roleInDept: "MEMBER", skills: ["ugc", "scheduling"] },
+      { slug: "web-retention", roleInDept: "MEMBER", skills: ["loyalty", "follow-up"] },
     ],
   },
   {
@@ -302,10 +318,10 @@ const TEAM = [
     role: "SUPPORT_ADMIN",
     jobTitle: "System Maintainer",
     departments: [
-      { slug: "pilot-cars", roleInDept: "MEMBER", skills: ["support"] },
-      { slug: "life-health-insurance", roleInDept: "MEMBER", skills: ["support"] },
-      { slug: "affiliates", roleInDept: "MEMBER", skills: ["support"] },
-      { slug: "culture-plus-network", roleInDept: "MEMBER", skills: ["support"] },
+      { slug: "appetite-audit", roleInDept: "MEMBER", skills: ["support"] },
+      { slug: "growth-sprint", roleInDept: "MEMBER", skills: ["support"] },
+      { slug: "creative-studio", roleInDept: "MEMBER", skills: ["support"] },
+      { slug: "web-retention", roleInDept: "MEMBER", skills: ["support"] },
     ],
   },
 ] as const;

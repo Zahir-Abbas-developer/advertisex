@@ -40,7 +40,7 @@ const ADMIN_ROLES = ["ADMIN", "SUPPORT_ADMIN"];
 const isAdminRole = (role) => ADMIN_ROLES.includes(role);
 
 /** Seeded accounts share one placeholder password; SEED_PASSWORD overrides it. */
-const SEED_PASSWORD = process.env.SEED_PASSWORD ?? "bwm-change-me";
+const SEED_PASSWORD = process.env.SEED_PASSWORD ?? "advertisex-change-me";
 
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");

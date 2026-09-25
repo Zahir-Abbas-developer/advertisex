@@ -10,7 +10,7 @@ import {
  * The dynamic field engine.
  *
  * Departments track different facts — Pilot Cars needs pickup and destination,
- * Insurance needs policy type and coverage, Affiliates needs commission terms.
+ * the Growth Sprint needs an ad budget and platforms, the Creative Studio needs deliverables and a brief.
  * Widening `Client` and `Lead` with every department's columns would give each
  * department a table full of other people's nulls, so each department declares
  * its own `FieldDefinition` rows and the answers live in `FieldValue`.
