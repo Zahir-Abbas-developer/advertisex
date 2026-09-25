@@ -1196,10 +1196,10 @@ model Settings {
   /// Hours since the last successful backup before the owner is warned.
   backupWarnHours Int @default(26)
 
-  // --- BWM fork: company settings ------------------------------------------
+  // --- Advertise X fork: company settings ------------------------------------------
   /// IANA timezone the whole app reasons in: due dates, "today", the boundary
   /// of a day. A setting rather than a constant because the fork inherited
-  /// Asia/Karachi and BWM operates US-based.
+  /// Asia/Karachi and Advertise X operates US-based.
   timezone String @default("America/New_York")
 
   // --- Automatic routing ----------------------------------------------------
@@ -1214,8 +1214,8 @@ model Settings {
   /// a routing rule nobody trusts.
   autoAssignEnabled Boolean @default(true)
 
-  // --- BWM fork: parked module flags ---------------------------------------
-  /// Modules inherited from the agency fork that BWM did not request. All
+  // --- Advertise X fork: parked module flags ---------------------------------------
+  /// Modules inherited from the agency fork that Advertise X did not request. All
   /// default off, and off means the feature *disappears* — no nav item, no
   /// dashboard card, no cron run, no reachable route — rather than rendering
   /// an empty panel. The code stays so a flag can switch it back on.
@@ -1262,11 +1262,11 @@ model SystemError {
 }
 
 // ---------------------------------------------------------------------------
-// BWM fork — departments
+// Advertise X fork — departments
 //
-// A department is a business line. BWM seeds four, but nothing in the schema,
+// A department is a business line. Advertise X seeds four, but nothing in the schema,
 // a constant or a component may assume that number or those names: departments
-// are records an admin edits, and the seed is BWM's starting shape rather than
+// are records an admin edits, and the seed is Advertise X's starting shape rather than
 // the system's definition.
 // ---------------------------------------------------------------------------
 
@@ -1277,7 +1277,7 @@ model Department {
   slug        String  @unique
   name        String
   /// Compact name for badges, pills and narrow table columns, where the full
-  /// "BWM — Pilot Cars Sales & Dispatch" will not fit.
+  /// "Paid Ads — 90-Day Growth Sprint" will not fit.
   shortLabel  String
   /// Semantic token name from theme (e.g. "brand", "info"), never a raw hex.
   /// Null renders the neutral tone, so a department without a colour is a

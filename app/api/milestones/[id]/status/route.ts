@@ -111,7 +111,7 @@ export async function POST(
           // own work" for a lead's own milestone, rather than the generic
           // role message, which is exactly the case they need explaining.
           (decision.reason ??
-            "Only the agency owner or the service lead can approve or close a milestone"),
+            "Only the founder or the service lead can approve or close a milestone"),
       403,
     );
   }

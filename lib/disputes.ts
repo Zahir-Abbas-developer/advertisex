@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { agencyYearMonth } from "@/lib/date";
+import { companyYearMonth } from "@/lib/date";
 import { notify } from "@/lib/notifications";
 import { sendPush } from "@/lib/reach";
 import { getSettings } from "@/lib/settings";
@@ -146,7 +146,7 @@ export async function resolveDispute(options: {
 
   if (!options.uphold) {
     const original = dispute.scoreEvent;
-    const cycle = agencyYearMonth(original.createdAt);
+    const cycle = companyYearMonth(original.createdAt);
 
     try {
       const reversal = await prisma.scoreEvent.create({
@@ -258,7 +258,7 @@ export async function chaseOpenDisputes(now = new Date()): Promise<number> {
 
 /** This month's dispute picture, with the insight text. */
 export async function monthlyDisputeStats(now = new Date()) {
-  const cycle = agencyYearMonth(now);
+  const cycle = companyYearMonth(now);
   const from = new Date(Date.UTC(cycle.year, cycle.month - 1, 1));
   const to = new Date(Date.UTC(cycle.year, cycle.month, 1));
 

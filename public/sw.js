@@ -1,5 +1,5 @@
 /**
- * BWM service worker.
+ * Advertise X service worker.
  *
  * Two jobs, and deliberately no third:
  *
@@ -69,7 +69,7 @@ self.addEventListener("fetch", (event) => {
 
 self.addEventListener("push", (event) => {
   let payload = {
-    title: "Metroctopus",
+    title: "Advertise X",
     body: "You have a new notification.",
     url: "/dashboard",
   };

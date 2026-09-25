@@ -100,7 +100,7 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
   }
 
   if (parsed.data.veto && !isAdmin) {
-    return apiError("Only the agency owner can overrule a block", 403);
+    return apiError("Only the founder can overrule a block", 403);
   }
   if (parsed.data.veto && (parsed.data.vetoNote?.trim().length ?? 0) < 5) {
     return apiError("Say why the block doesn't stand — it goes to the member", 422, {

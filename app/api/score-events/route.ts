@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { apiError, requireAdminApi } from "@/lib/api";
 import { fieldErrors, manualAdjustSchema } from "@/lib/validation";
-import { agencyYearMonth } from "@/lib/date";
+import { companyYearMonth } from "@/lib/date";
 
 /**
  * A manual adjustment to someone's score.
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
   if (!target) return apiError("That team member no longer exists", 404);
 
   const now = new Date();
-  const cycle = agencyYearMonth(now);
+  const cycle = companyYearMonth(now);
 
   try {
     const event = await prisma.scoreEvent.create({

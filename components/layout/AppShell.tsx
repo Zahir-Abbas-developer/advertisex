@@ -64,7 +64,7 @@ export function AppShell({
             M
           </span>
           <span className="font-display text-sm font-extrabold tracking-[-0.01em] text-ink">
-            Metroctopus
+            Advertise X
           </span>
         </div>
         <div className="flex items-center gap-2">

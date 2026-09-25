@@ -29,7 +29,7 @@ export interface BadgeProps {
   children: ReactNode;
 }
 
-/** Rounded pill badge — the standard way statuses are shown across BWM. */
+/** Rounded pill badge — the standard way statuses are shown across the product. */
 export function Badge({
   tone = "neutral",
   dot = false,

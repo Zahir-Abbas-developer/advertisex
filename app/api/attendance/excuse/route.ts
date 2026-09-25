@@ -8,7 +8,7 @@ import { canDecideAttendance } from "@/lib/permissions";
 import { actorFor, podMemberIds } from "@/lib/permissions-service";
 import { recordAudit } from "@/lib/audit";
 import { fieldErrors } from "@/lib/validation";
-import { agencyYearMonth } from "@/lib/date";
+import { companyYearMonth } from "@/lib/date";
 import { notify } from "@/lib/notifications";
 import { SCORE_EVENT_LABEL, isAttendanceEvent, type ScoreEventType } from "@/lib/scoring";
 
@@ -80,7 +80,7 @@ export async function POST(request: Request) {
     return apiError("That penalty has already been excused", 409);
   }
 
-  const cycle = agencyYearMonth(original.createdAt);
+  const cycle = companyYearMonth(original.createdAt);
   const label = SCORE_EVENT_LABEL[original.type as ScoreEventType];
 
   const reversal = await prisma.scoreEvent.create({

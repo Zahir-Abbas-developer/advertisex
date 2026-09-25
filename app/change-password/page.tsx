@@ -42,7 +42,7 @@ export default async function ChangePasswordPage() {
           <span className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-brand font-display text-sm font-extrabold text-paper">
             M
           </span>
-          <span className="eyebrow text-ink/45">Metroctopus</span>
+          <span className="eyebrow text-ink/45">Advertise X</span>
         </div>
 
         <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-card border border-line bg-cream">

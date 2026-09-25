@@ -94,7 +94,7 @@ describe("canDecideMilestone", () => {
       serviceId: "shopify",
     });
     assert.equal(decision.allowed, false);
-    assert.match(decision.reason ?? "", /owner or the service lead/);
+    assert.match(decision.reason ?? "", /founder or the service lead/);
   });
 
   it("is admin-only for a module with no service", () => {

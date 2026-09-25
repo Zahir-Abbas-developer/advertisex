@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { applyEvents } from "@/lib/score-service";
-import { agencyYearMonth } from "@/lib/date";
+import { companyYearMonth } from "@/lib/date";
 import { notify } from "@/lib/notifications";
 import { getSettings } from "@/lib/settings";
 import { karachiDay } from "@/lib/attendance-time";
@@ -61,7 +61,7 @@ export async function fileOutage(options: {
     };
   }
 
-  const cycle = agencyYearMonth(now);
+  const cycle = companyYearMonth(now);
   const monthStart = new Date(Date.UTC(cycle.year, cycle.month - 1, 1));
   const monthEnd = new Date(Date.UTC(cycle.year, cycle.month, 1));
 
@@ -175,7 +175,7 @@ export async function reviewOutage(options: {
         where: { dedupeKey: `check:${check.id}:MISS` },
       });
       if (original && original.points < 0) {
-        const cycle = agencyYearMonth(original.createdAt);
+        const cycle = companyYearMonth(original.createdAt);
         try {
           await prisma.scoreEvent.create({
             data: {
@@ -243,7 +243,7 @@ export async function reviewOutage(options: {
 /** How many reports a member has left this month. */
 export async function outageQuotaFor(userId: string, now = new Date()) {
   const settings = await getSettings();
-  const cycle = agencyYearMonth(now);
+  const cycle = companyYearMonth(now);
   const monthStart = new Date(Date.UTC(cycle.year, cycle.month - 1, 1));
   const monthEnd = new Date(Date.UTC(cycle.year, cycle.month, 1));
 

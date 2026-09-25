@@ -3,7 +3,7 @@ import { describe, it } from "node:test";
 
 import {
   canSeeAdminTooling,
-  canSeeAgencyMoney,
+  canSeeCompanyMoney,
   canSeeClientBrief,
   canSeeClientKpis,
   canSeeClientPhone,
@@ -127,15 +127,15 @@ describe("client contact and money", () => {
   });
 });
 
-describe("agency money and admin tooling", () => {
+describe("company money and admin tooling", () => {
   it("is owner-only in every case", () => {
     for (const viewer of [lead, bd, member]) {
-      assert.equal(canSeeAgencyMoney(viewer), false);
+      assert.equal(canSeeCompanyMoney(viewer), false);
       assert.equal(canSeeAdminTooling(viewer), false);
       assert.equal(canSeeIncentiveAmounts(viewer), false);
       assert.equal(canSeePipelineTotals(viewer), false);
     }
-    assert.equal(canSeeAgencyMoney(owner), true);
+    assert.equal(canSeeCompanyMoney(owner), true);
     assert.equal(canSeeAdminTooling(owner), true);
     assert.equal(canSeeIncentiveAmounts(owner), true);
     assert.equal(canSeePipelineTotals(owner), true);

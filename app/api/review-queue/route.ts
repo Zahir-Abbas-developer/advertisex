@@ -9,7 +9,7 @@ import { pendingReviews, reviewStats, reviewTimesByReviewer } from "@/lib/review
  * The review queue, scoped to whoever is asking.
  *
  * The owner sees everything and every reviewer's average time. A service lead
- * sees their own lines and their own queue — not the whole agency's, and not
+ * sees their own lines and their own queue — not the whole company's, and not
  * anyone else's average, because average review time is a tool for keeping the
  * person holding the queue honest, not a stick for arguing about someone
  * else's approvals.
@@ -23,7 +23,7 @@ export async function GET() {
   const viewerId = actor.role === "ADMIN" ? undefined : user.id;
 
   if (actor.role !== "ADMIN" && actor.leadServiceIds.length === 0) {
-    return apiError("Only the agency owner or a service lead has a review queue", 403);
+    return apiError("Only the founder or a service lead has a review queue", 403);
   }
 
   const now = new Date();

@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { getSettings } from "@/lib/settings";
-import { agencyYearMonth, dueDeadline, previousYearMonth } from "@/lib/date";
+import { companyYearMonth, dueDeadline, previousYearMonth } from "@/lib/date";
 import {
   MONTHLY_BASELINE,
   effectiveDeadline,
@@ -21,7 +21,7 @@ import {
 export type Cycle = { year: number; month: number };
 
 export function currentCycle(now: Date = new Date()): Cycle {
-  return agencyYearMonth(now);
+  return companyYearMonth(now);
 }
 
 /**
@@ -41,7 +41,7 @@ export async function applyEvents(
 
   for (const proposal of proposals) {
     const at = options.at ?? new Date();
-    const cycle = agencyYearMonth(at);
+    const cycle = companyYearMonth(at);
 
     try {
       await prisma.scoreEvent.create({
@@ -294,7 +294,7 @@ export async function performanceContext(
   for (const milestone of due) {
     if (!milestone.assigneeId) continue;
 
-    const cycleOf = agencyYearMonth(milestone.dueDate);
+    const cycleOf = companyYearMonth(milestone.dueDate);
     if (cycleOf.year !== cycle.year || cycleOf.month !== cycle.month) continue;
 
     const entry = result.get(milestone.assigneeId);

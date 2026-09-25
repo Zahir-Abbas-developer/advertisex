@@ -10,8 +10,8 @@ export const metadata: Metadata = {
 };
 
 export default async function PipelinePage() {
-  // Visible to everyone. A five-person agency where only the owner knows what
-  // is coming is a five-person agency that gets surprised — and members can
+  // Visible to everyone. A five-person company where only the founder knows what
+  // is coming is a five-person company that gets surprised — and members can
   // only edit the leads they own, which the API enforces.
   await requireUser();
 

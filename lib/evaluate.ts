@@ -2,8 +2,8 @@ import { prisma } from "@/lib/prisma";
 import {
   agencyToday,
   dueDeadline,
-  isAgencyFirstOfMonth,
-  isAgencyMonday,
+  isCompanyFirstOfMonth,
+  isCompanyMonday,
 } from "@/lib/date";
 import { applyEvents } from "@/lib/score-service";
 import { evaluateCompletion, evaluateMissed, type MilestoneFacts } from "@/lib/scoring";
@@ -94,7 +94,7 @@ export async function runEvaluation(
   // Weekly targets settle on Monday, for the week that just closed. Members
   // are told on the same schedule reports arrive, so the ledger and the
   // report they read agree.
-  const targets = options.settleTargets || isAgencyMonday(now)
+  const targets = options.settleTargets || isCompanyMonday(now)
     ? await runWeeklyTargets(now)
     : null;
 
@@ -103,17 +103,17 @@ export async function runEvaluation(
   // The month close. Runs on the 1st against the month that just finished, so
   // a streak is evaluated on complete months rather than one with a day in it.
   const incentives =
-    options.closeMonth || isAgencyFirstOfMonth(now) ? await runIncentives(now) : null;
+    options.closeMonth || isCompanyFirstOfMonth(now) ? await runIncentives(now) : null;
 
   const disputeChases = await chaseOpenDisputes(now);
 
   // Reporting cadence: weekly on Mondays, monthly on the 1st, both in agency
   // time. `generateReports: true` forces a run for a manual trigger.
   const due: ReportType[] = [];
-  if (options.generateReports || isAgencyMonday(now)) {
+  if (options.generateReports || isCompanyMonday(now)) {
     due.push("MEMBER_WEEKLY", "CLIENT_WEEKLY");
   }
-  if (options.generateReports || isAgencyFirstOfMonth(now)) {
+  if (options.generateReports || isCompanyFirstOfMonth(now)) {
     due.push("MEMBER_MONTHLY");
   }
 

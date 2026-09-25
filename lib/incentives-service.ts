@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { agencyYearMonth, previousYearMonth } from "@/lib/date";
+import { companyYearMonth, previousYearMonth } from "@/lib/date";
 import type { Cycle } from "@/lib/score-service";
 import { monthlyScore } from "@/lib/scoring";
 import { notify } from "@/lib/notifications";
@@ -100,7 +100,7 @@ function monthKey(date: Date): string {
 /** A member's live streak, for their own dashboard. */
 export async function streakFor(userId: string, now = new Date()): Promise<StreakState> {
   const settings = await getSettings();
-  const cycle = agencyYearMonth(now);
+  const cycle = companyYearMonth(now);
   const months = await monthlyScores(userId, cycle, settings.bonusStreakMonths + 3);
 
   return excellenceStreak(months, incentiveConfigFrom(settings));
@@ -129,7 +129,7 @@ export async function runIncentives(now = new Date()): Promise<IncentiveRun> {
   const config = incentiveConfigFrom(settings);
 
   // The month that just closed.
-  const cycle = previousYearMonth(agencyYearMonth(now));
+  const cycle = previousYearMonth(companyYearMonth(now));
 
   const members = await prisma.user.findMany({
     where: { role: "MEMBER", isActive: true },

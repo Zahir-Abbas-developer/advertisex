@@ -1,5 +1,5 @@
 /**
- * The single date utility for BWM (CLAUDE.md convention).
+ * The single date utility for Advertise X (CLAUDE.md convention).
  *
  * Everything is stored in UTC and displayed in the company's working timezone.
  * No component should call `toLocaleDateString` or construct a date format
@@ -18,9 +18,6 @@
 
 export const COMPANY_TIMEZONE = "America/New_York";
 
-/** @deprecated Use COMPANY_TIMEZONE. Kept so no import breaks silently. */
-export const AGENCY_TIMEZONE = COMPANY_TIMEZONE;
-
 type DateInput = Date | string | number;
 
 function toDate(value: DateInput): Date {
@@ -35,7 +32,7 @@ function format(value: DateInput, options: Intl.DateTimeFormatOptions): string {
   const date = toDate(value);
   if (!isValid(date)) return "—";
   return new Intl.DateTimeFormat("en-GB", {
-    timeZone: AGENCY_TIMEZONE,
+    timeZone: COMPANY_TIMEZONE,
     ...options,
   }).format(date);
 }
@@ -89,11 +86,8 @@ export function companyHour(
 }
 
 /** "Good morning" | "Good afternoon" | "Good evening", in agency time. */
-/** @deprecated Use companyHour. */
-export const agencyHour = companyHour;
-
 export function greeting(now: DateInput = new Date()): string {
-  const hour = agencyHour(now);
+  const hour = companyHour(now);
   if (hour < 12) return "Good morning";
   if (hour < 17) return "Good afternoon";
   return "Good evening";
@@ -330,12 +324,12 @@ export function endOfAgencyMonth(value: DateInput = new Date()): Date {
 }
 
 /** True when `value` falls on a Monday in agency time. */
-export function isAgencyMonday(value: DateInput = new Date()): boolean {
+export function isCompanyMonday(value: DateInput = new Date()): boolean {
   return agencyDay(value).getUTCDay() === 1;
 }
 
 /** True when `value` is the first of the month in agency time. */
-export function isAgencyFirstOfMonth(value: DateInput = new Date()): boolean {
+export function isCompanyFirstOfMonth(value: DateInput = new Date()): boolean {
   return agencyDay(value).getUTCDate() === 1;
 }
 
@@ -355,7 +349,7 @@ export function formatPeriod(start: DateInput, end: DateInput): string {
 
   if (sameMonth) {
     const day = new Intl.DateTimeFormat("en-GB", {
-      timeZone: AGENCY_TIMEZONE,
+      timeZone: COMPANY_TIMEZONE,
       day: "numeric",
     }).format(from);
     return `${day} – ${formatDate(to)}`;
@@ -365,12 +359,12 @@ export function formatPeriod(start: DateInput, end: DateInput): string {
 }
 
 /** The calendar month a score cycle belongs to, in agency time. */
-export function agencyYearMonth(value: DateInput = new Date()): {
+export function companyYearMonth(value: DateInput = new Date()): {
   year: number;
   month: number;
 } {
   const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone: AGENCY_TIMEZONE,
+    timeZone: COMPANY_TIMEZONE,
     year: "numeric",
     month: "2-digit",
   }).formatToParts(toDate(value));
@@ -398,7 +392,7 @@ export function formatCycle(cycle: { year: number; month: number }): string {
 /** Today's date in agency time as an ISO `YYYY-MM-DD` string. */
 export function agencyToday(now: DateInput = new Date()): string {
   const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone: AGENCY_TIMEZONE,
+    timeZone: COMPANY_TIMEZONE,
     year: "numeric",
     month: "2-digit",
     day: "2-digit",

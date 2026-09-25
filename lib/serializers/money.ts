@@ -1,26 +1,26 @@
 import type { Viewer } from "@/lib/visibility";
-import { canSeeAgencyMoney, canSeeIncentiveAmounts, canSeeOwnStreak } from "@/lib/visibility";
+import { canSeeCompanyMoney, canSeeIncentiveAmounts, canSeeOwnStreak } from "@/lib/visibility";
 
 /**
- * Agency money: retainer payments, collections, MRR, bonus amounts.
+ * Company money: retainer payments, collections, MRR, bonus amounts.
  *
  * There is no partial view of these. Unlike a client record, which splits into
  * "who they are" and "what they pay", a payment row *is* the money — so these
  * serializers return null for a non-owner and the caller renders nothing.
  * Returning an emptied object would invite a component to draw an MRR chart
- * with no data in it, which reads as "the agency earned nothing".
+ * with no data in it, which reads as "the company earned nothing".
  */
 
 export function serializePayment<T>(payment: T, viewer: Viewer): T | null {
-  return canSeeAgencyMoney(viewer) ? payment : null;
+  return canSeeCompanyMoney(viewer) ? payment : null;
 }
 
 export function serializePayments<T>(payments: readonly T[], viewer: Viewer): T[] {
-  return canSeeAgencyMoney(viewer) ? [...payments] : [];
+  return canSeeCompanyMoney(viewer) ? [...payments] : [];
 }
 
 export function serializeMrr<T>(snapshot: T, viewer: Viewer): T | null {
-  return canSeeAgencyMoney(viewer) ? snapshot : null;
+  return canSeeCompanyMoney(viewer) ? snapshot : null;
 }
 
 export type IncentiveSource = {

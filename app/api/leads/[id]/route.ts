@@ -334,7 +334,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 export async function DELETE(_request: Request, { params }: { params: { id: string } }) {
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
-  if (!hasAdminPower(user.role)) return apiError("Only the agency owner can delete a lead", 403);
+  if (!hasAdminPower(user.role)) return apiError("Only the founder can delete a lead", 403);
 
   const lead = await prisma.lead.findUnique({
     where: { id: params.id },

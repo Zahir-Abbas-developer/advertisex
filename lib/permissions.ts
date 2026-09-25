@@ -66,7 +66,7 @@ const DENIED_SCOPE: Decision = {
 const DENIED_ROLE: Decision = {
   allowed: false,
   as: "NONE",
-  reason: "Only the agency owner or the service lead can do that.",
+  reason: "Only the founder or the service lead can do that.",
 };
 
 export function isAdmin(actor: Actor): boolean {

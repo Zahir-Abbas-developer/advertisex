@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import type { NavKey } from "@/lib/routes";
 
 /**
- * Parked modules — the agency features BWM did not request.
+ * Parked modules — the agency features Advertise X did not request.
  *
  * Doctrine 5: a flag that is off must make the feature *disappear*. Not an
  * empty panel, not a heading with nothing under it, not a route that throws —
@@ -65,7 +65,7 @@ export const MODULES = [
 export type ModuleKey = (typeof MODULES)[number]["key"];
 export type ModuleFlags = Record<ModuleKey, boolean>;
 
-/** Everything off — the shape a fresh BWM database starts in. */
+/** Everything off — the shape a fresh Advertise X database starts in. */
 export const ALL_MODULES_OFF: ModuleFlags = {
   attendance: false,
   scoring: false,

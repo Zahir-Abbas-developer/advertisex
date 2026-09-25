@@ -669,7 +669,7 @@ export function MilestoneDrawer({
                       <div className="min-w-0 flex-1">
                         <p className="text-[13px] leading-snug text-ink/80">
                           <span className="font-medium text-ink">
-                            {entry.actor?.name ?? "Metroctopus"}
+                            {entry.actor?.name ?? "Advertise X"}
                           </span>{" "}
                           {entry.summary}
                         </p>

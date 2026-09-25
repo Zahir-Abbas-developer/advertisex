@@ -32,7 +32,7 @@ export async function requireAdminApi() {
   if (!hasAdminPower(user.role)) {
     return {
       user: null,
-      response: apiError("Only the agency owner can manage the team", 403),
+      response: apiError("Only the founder can manage the team", 403),
     };
   }
 

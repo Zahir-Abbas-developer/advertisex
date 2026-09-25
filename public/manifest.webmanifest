@@ -1,7 +1,7 @@
 {
-  "name": "Metroctopus",
-  "short_name": "Metroctopus",
-  "description": "Leads, clients, deals and follow-ups across every Metroctopus business line.",
+  "name": "Advertise X",
+  "short_name": "Advertise X",
+  "description": "Leads, clients, deals and follow-ups across every Advertise X business line.",
   "start_url": "/dashboard",
   "scope": "/",
   "display": "standalone",

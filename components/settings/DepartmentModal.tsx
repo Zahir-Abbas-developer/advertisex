@@ -115,7 +115,7 @@ export function DepartmentModal({
           value={name}
           error={errors.name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="BWM — Pilot Cars Sales & Dispatch"
+          placeholder="Paid Ads — Growth Sprint"
         />
 
         <Input

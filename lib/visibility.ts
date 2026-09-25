@@ -14,7 +14,7 @@
  * pass a row through the relevant `visible*` function and serialise the result;
  * they do not pass the row and hide it later.
  *
- * **Operational numbers are not agency money.** Ad spend, revenue and ROAS
+ * **Operational numbers are not company money.** Ad spend, revenue and ROAS
  * belong to the people doing the work — you cannot run a campaign you are not
  * allowed to measure. What the client pays us, what we bill, what the pipeline
  * is worth and what a bonus comes to is the owner's business. The matrix is
@@ -73,11 +73,11 @@ export function inViewerDepartments(viewer: Viewer, departmentId: string): boole
 /* ------------------------------------------------------------- predicates -- */
 
 /**
- * Agency money: what clients pay us, what we have collected, what the pipeline
+ * Company money: what clients pay us, what we have collected, what the pipeline
  * is worth in aggregate, what bonuses come to. Owner only, without exception —
  * a service lead's extra authority is over work, not over the books.
  */
-export const canSeeAgencyMoney = (viewer: Viewer): boolean => isOwner(viewer);
+export const canSeeCompanyMoney = (viewer: Viewer): boolean => isOwner(viewer);
 
 /** A client's phone number. Owner only. */
 export const canSeeClientPhone = (viewer: Viewer): boolean => isOwner(viewer);

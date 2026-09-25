@@ -4,7 +4,7 @@ import { z } from "zod";
 import { apiError } from "@/lib/api";
 import { authorizeCron } from "@/lib/cron-auth";
 import { REPORT_TYPES, generateReports, type ReportType } from "@/lib/reports";
-import { isAgencyFirstOfMonth, isAgencyMonday } from "@/lib/date";
+import { isCompanyFirstOfMonth, isCompanyMonday } from "@/lib/date";
 
 const querySchema = z.object({
   /** Omit to let the calendar decide what is due today. */
@@ -15,7 +15,7 @@ const querySchema = z.object({
  * Report generation on a schedule.
  *
  * Called daily; it decides for itself what is due — weeklies on Monday,
- * monthlies on the 1st, both in agency time. That way the schedule can be a
+ * monthlies on the 1st, both in company time. That way the schedule can be a
  * single daily entry and the calendar logic lives in one place rather than in
  * a cron expression.
  *
@@ -38,8 +38,8 @@ export async function POST(request: Request) {
   const due: ReportType[] =
     requested ??
     [
-      ...(isAgencyMonday(now) ? (["MEMBER_WEEKLY", "CLIENT_WEEKLY"] as const) : []),
-      ...(isAgencyFirstOfMonth(now) ? (["MEMBER_MONTHLY"] as const) : []),
+      ...(isCompanyMonday(now) ? (["MEMBER_WEEKLY", "CLIENT_WEEKLY"] as const) : []),
+      ...(isCompanyFirstOfMonth(now) ? (["MEMBER_MONTHLY"] as const) : []),
     ];
 
   if (due.length === 0) {

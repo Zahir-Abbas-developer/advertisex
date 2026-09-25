@@ -63,7 +63,7 @@ export function ClientEditModal({
       status: draft.status,
       notes: draft.notes || undefined,
       autoRenew: draft.autoRenew,
-      // Blank means "use the agency default", which is null — not zero.
+      // Blank means "use the company default", which is null — not zero.
       targetRoas: draft.targetRoas === "" ? null : Number(draft.targetRoas),
     });
 
@@ -231,7 +231,7 @@ export function ClientEditModal({
           onChange={(event) => set("targetRoas", event.target.value)}
           error={errors.targetRoas}
           disabled={saving}
-          hint="What their campaigns are held to. Blank uses the agency default."
+          hint="What their campaigns are held to. Blank uses the company default."
         />
 
         {/* The escape hatch for bespoke schedules and retainers being wound

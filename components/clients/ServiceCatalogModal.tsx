@@ -19,7 +19,7 @@ export type CatalogService = {
 };
 
 /**
- * The agency's offerings, editable by the owner.
+ * The company's offerings, editable by the founder.
  *
  * Renaming is safe: the `slug` keys the built-in planning template and never
  * changes, so "Google Ads Management" can become anything without orphaning

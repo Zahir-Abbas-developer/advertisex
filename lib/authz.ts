@@ -1,7 +1,7 @@
 import type { Viewer } from "@/lib/visibility";
 import {
   canSeeAdminTooling,
-  canSeeAgencyMoney,
+  canSeeCompanyMoney,
   canSeeClientBrief,
 } from "@/lib/visibility";
 
@@ -90,7 +90,7 @@ export function can(viewer: Viewer, action: Action, resource: Resource = { kind:
   const isOwner = viewer.role === "ADMIN";
 
   if (OWNER_ONLY.has(action)) {
-    return isOwner ? ALLOW : deny("Only the agency owner can do that");
+    return isOwner ? ALLOW : deny("Only the founder can do that");
   }
 
   switch (action) {
@@ -100,13 +100,13 @@ export function can(viewer: Viewer, action: Action, resource: Resource = { kind:
       return ALLOW;
 
     case "money:read":
-      return canSeeAgencyMoney(viewer)
+      return canSeeCompanyMoney(viewer)
         ? ALLOW
         : deny("Agency financials are visible to the owner only");
 
     case "client:update":
       if (isOwner) return ALLOW;
-      return deny("Only the agency owner can edit a client");
+      return deny("Only the founder can edit a client");
 
     case "project:create":
     case "project:update":
@@ -116,7 +116,7 @@ export function can(viewer: Viewer, action: Action, resource: Resource = { kind:
           ? ALLOW
           : deny("That client isn't in your service lines");
       }
-      return deny("Only the agency owner or a service lead can change a project plan");
+      return deny("Only the founder or a service lead can change a project plan");
 
     case "milestone:create":
     case "milestone:update":

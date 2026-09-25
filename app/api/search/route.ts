@@ -12,7 +12,7 @@ import { hasAdminPower } from "@/lib/constants";
 /**
  * Command palette search.
  *
- * Two things changed here for BWM. It now searches **leads**, which it did not
+ * Two things changed here for Advertise X. It now searches **leads**, which it did not
  * before — the pipeline was invisible to the one control meant to find
  * anything. And every record query is department-scoped through the same
  * `departmentScope` the lists use, so a hit can never surface a record the

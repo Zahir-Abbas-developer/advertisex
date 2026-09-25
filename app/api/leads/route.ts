@@ -43,15 +43,15 @@ const leadSchema = z.object({
 /**
  * The pipeline board.
  *
- * Everyone can see the pipeline — a five-person agency where only the owner
- * knows what's coming is a five-person agency that gets surprised. Members can
+ * Everyone can see the pipeline — a five-person company where only the founder
+ * knows what's coming is a five-person company that gets surprised. Members can
  * only *edit* leads they own; that check lives on the write paths.
  */
 export async function GET(request: Request) {
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 
-  /* Deal values are agency money. Before this, every signed-in person received
+  /* Deal values are company money. Before this, every signed-in person received
      the whole pipeline — per-stage totals, open value, average deal size and a
      figure against every lead — regardless of whether they had anything to do
      with sales. The component showed less than the response carried, which is

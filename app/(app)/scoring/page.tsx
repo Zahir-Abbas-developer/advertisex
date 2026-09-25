@@ -31,7 +31,7 @@ export default async function ScoringPage() {
       <PageHeader
         eyebrow="No folklore"
         title="How scoring &amp; incentives work"
-        description="Every number on this page is read live from the agency's settings, so it always describes what the system actually does."
+        description="Every number on this page is read live from the company settings, so it always describes what the system actually does."
       />
 
       <Section

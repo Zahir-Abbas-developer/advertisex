@@ -95,56 +95,52 @@ function inTriangle(px, py, [ax, ay], [bx, by], [cx, cy]) {
 }
 
 /**
- * The "M" from the Metroctopus wordmark: two upright stems and two diagonals
- * meeting in a V, drawn as polygons so it scales cleanly to any size.
+ * The "A" of the Advertise X wordmark: two legs meeting at an apex with a
+ * crossbar, drawn as polygons so it scales cleanly to any size.
  *
- * It replaces an "A" inherited from the agency fork. The sidebar, the login
- * panel and the mobile bar all show an "M" tile, and an installed app whose
- * home-screen icon carries a different letter from the app it opens reads as
- * two different products.
+ * It replaces the "M" of the Metroctopus era. The sidebar, the login panel and the mobile
+ * bar all show an "A" tile, and an installed app whose home-screen icon carries
+ * a different letter from the app it opens reads as two different products.
  */
 function inGlyph(x, y, size, inset) {
   const s = size - inset * 2;
   const u = (v) => inset + v * s;
 
-  const top = u(0.18);
-  const foot = u(0.82);
-  const left = u(0.17);
-  const right = u(0.83);
-  const stem = 0.15 * s;
+  const top = u(0.16);
+  const foot = u(0.84);
+  const left = u(0.16);
+  const right = u(0.84);
+  const stem = 0.16 * s;
 
-  // The two stems.
-  if (inRoundedRect(x, y, left, top, left + stem, foot, stem * 0.12)) return true;
-  if (inRoundedRect(x, y, right - stem, top, right, foot, stem * 0.12)) return true;
+  const apexX = u(0.5);
+  const apexHalf = stem * 0.48; // slightly narrower at the point
+  const footW = stem * 1.12;    // slightly wider at the feet
 
-  // The two diagonals, each a quadrilateral split into two triangles. They
-  // start at the full width of a stem's top edge and narrow slightly into the
-  // point of the V, which sits a little above the middle so the letter does
-  // not look like a W turned over.
-  const vX = u(0.5);
-  const vY = u(0.64);
-  const vHalf = stem * 0.5;
-
-  const diagonals = [
+  // Each leg is a quadrilateral from the shared apex band down to its foot,
+  // split into two triangles for the point-in test.
+  const legs = [
     [
-      [left, top],
-      [left + stem, top],
-      [vX + vHalf, vY],
-      [vX - vHalf, vY],
+      [apexX - apexHalf, top],
+      [apexX + apexHalf, top],
+      [left + footW, foot],
+      [left, foot],
     ],
     [
-      [right - stem, top],
-      [right, top],
-      [vX + vHalf, vY],
-      [vX - vHalf, vY],
+      [apexX - apexHalf, top],
+      [apexX + apexHalf, top],
+      [right, foot],
+      [right - footW, foot],
     ],
   ];
 
-  for (const [p0, p1, p2, p3] of diagonals) {
+  for (const [p0, p1, p2, p3] of legs) {
     if (inTriangle(x, y, p0, p1, p2) || inTriangle(x, y, p0, p2, p3)) return true;
   }
 
-  return false;
+  // The crossbar. Its ends tuck under the legs, so any small overshoot is
+  // swallowed by the filled shapes rather than visible.
+  const barTop = u(0.60);
+  return inRoundedRect(x, y, u(0.31), barTop, u(0.69), barTop + stem * 0.72, stem * 0.1);
 }
 
 /**

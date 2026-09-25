@@ -52,7 +52,7 @@ export default async function ProjectsPage() {
       <PageHeader
         eyebrow="Delivery"
         title="Engagements"
-        description="Every retainer cycle across the agency, and how each one is tracking against its deadlines."
+        description="Every retainer cycle across Advertise X, and how each one is tracking against its deadlines."
       />
 
       {projects.length === 0 ? (
@@ -61,7 +61,7 @@ export default async function ProjectsPage() {
             icon={Layers}
             eyebrow="Nothing running"
             title="No engagements yet"
-            description="Onboard a client and Metroctopus lays out their first month of work automatically."
+            description="Onboard a client and Advertise X lays out their first month of work automatically."
             action={
               <Link href="/clients" className={buttonClasses("primary", "md")}>
                 Go to clients

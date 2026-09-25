@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import {
   addDays,
-  agencyYearMonth,
+  companyYearMonth,
   dueDeadline,
   endOfAgencyMonth,
   endOfAgencyWeek,
@@ -63,7 +63,7 @@ async function buildMemberPayload(
   // The score cycle is monthly by definition, so a weekly report reports the
   // score of the cycle its week sits in — not a "weekly score", which would be
   // a different and undefined thing.
-  const cycle = agencyYearMonth(periodEnd);
+  const cycle = companyYearMonth(periodEnd);
   const previousCycle = previousYearMonth(cycle);
 
   const rangeEnd = new Date(periodEnd.getTime() + 24 * 60 * 60 * 1000);

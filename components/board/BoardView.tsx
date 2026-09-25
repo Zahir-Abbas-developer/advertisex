@@ -173,7 +173,7 @@ export function BoardView({ role, userId }: { role: Role; userId: string }) {
           : milestone.status === "BLOCKED"
             ? "Open the milestone to unblock it, so the paused time is banked."
             : role === "MEMBER" && target === "COMPLETED"
-              ? "Only the agency owner can approve work."
+              ? "Only the founder can approve work."
               : `A milestone can't move from ${MILESTONE_STATUS_LABEL[milestone.status]} to ${MILESTONE_STATUS_LABEL[target]}.`,
       );
       return;
@@ -216,7 +216,7 @@ export function BoardView({ role, userId }: { role: Role; userId: string }) {
         title="Board"
         description={
           isAdmin
-            ? "Every milestone across the agency. Drag a card to move it; approvals stay yours alone."
+            ? "Every milestone across Advertise X. Drag a card to move it; approvals stay yours alone."
             : "Your work, by stage. Move a card as you go — the owner approves the last step."
         }
       />

@@ -60,7 +60,7 @@ export function ResetPasswordModal({
 
   const message = issued
     ? [
-        "Your Metroctopus login",
+        "Your Advertise X login",
         `Link: ${typeof window === "undefined" ? "" : `${window.location.origin}/login`}`,
         `Email: ${issued.email}`,
         `Temporary password: ${issued.password}`,

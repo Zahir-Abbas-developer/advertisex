@@ -1,12 +1,12 @@
-# Agency OS
+# Advertise X
 
-Internal management platform for a remote 360° digital marketing agency —
-clients, monthly engagements, milestones, an automatic performance score, and
-the reports and collaboration around them.
+AI marketing operations platform for food & drink brands — and the internal
+system that runs Advertise X itself: leads, clients, per-service pipelines,
+tasks, follow-ups and team performance in one place.
 
-Built for one owner and six team members. Everything in it exists to answer
-three questions that a chat thread cannot: who is doing what, what is late, and
-how is the team actually performing.
+Built from a department-based CRM and evolving into a multi-tenant SaaS
+(see `CLAUDE.md` and `docs/` — the assessment, architecture, data model and
+phase plan live there and are kept current).
 
 ---
 
@@ -14,14 +14,14 @@ how is the team actually performing.
 
 | Area | |
 | --- | --- |
-| **Clients** | Onboarding wizard, service catalogue, per-client engagement history |
-| **Engagements** | One monthly cycle per client, expanded from planning templates into modules and dated milestones |
-| **Board** | Drag-and-drop kanban with per-role permissions, filters, and a detail drawer per milestone |
-| **Collaboration** | Threaded comments with @mentions, file attachments, and an audit trail on every milestone |
-| **Routing** | A lead or task filed without an assignee goes to the person in that department whose skills or job title name the work — a Shopify job to the Shopify developer — and to the lightest workload when nothing matches. A choice made by hand always wins |
-| **Scoring** | Everyone starts each month at 100; points come off for late, missed and rejected work, and back for early delivery |
-| **Reports** | Weekly and monthly member reports, plus a client weekly — frozen snapshots, printable to A4 |
-| **Notifications** | In-app bell plus optional email: welcome, weekly digest, report ready, overdue alert |
+| **Service lines** | Admin-editable departments, each with its own pipeline stages, its own lead/client field definitions, and its own team with skills |
+| **Pipeline** | Per-service kanban with deal values, loss reasons, win side-effects and commissions — one stage-move path for every surface |
+| **Leads & clients** | Department-first creation with dynamic fields, skill-ranked assignment, automatic routing when no assignee is chosen |
+| **Tasks & follow-ups** | Today / Upcoming / Overdue on the company clock (DST-correct); follow-ups project from the record itself and can never be silently cleared |
+| **Activity** | One timeline per record — human entries and system entries marked apart, system entries undeletable |
+| **Search** | ⌘K across leads, clients and people, with partial phone/email matching, permission-scoped |
+| **Analytics** | A scoped metric layer where every number traces to a query (`lib/analytics.ts`, `docs/METRICS.md`) |
+| **Parked modules** | Attendance, scoring, retainer cycles and client KPIs from the fork — feature-flagged off, invisible until enabled |
 
 ---
 
@@ -36,7 +36,7 @@ how is the team actually performing.
 ## Local setup
 
 ```bash
-git clone <your-repo> agency-os && cd agency-os
+git clone <your-repo> advertisex && cd advertisex
 npm install
 
 cp .env.example .env
@@ -44,12 +44,14 @@ cp .env.example .env
 # Leave DATABASE_URL as file:./dev.db for SQLite
 
 npm run db:push     # creates the SQLite database from the schema
-npm run db:seed     # demo agency: 7 people, 5 clients, 55 milestones
+npm run db:seed     # service lines, stages, field definitions, the team — no fake business data
 npm run dev
 ```
 
-Open <http://localhost:3000>. The seed prints its credentials; the owner is
-`admin@agency.local` / `admin123`.
+Open <http://localhost:3000>. Seeded accounts share one placeholder password
+(printed by the seed) and **every account must change it on first sign-in** —
+placeholder credentials never survive first contact with a real user. To issue a
+distinct password per person instead, run `npm run set-passwords`.
 
 ### Everyday commands
 
@@ -132,7 +134,7 @@ npx web-push generate-vapid-keys
 ```
 
 Set `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` and `VAPID_SUBJECT` (a
-`mailto:you@agency.com` URL). With any of them unset, `/api/push` reports
+`mailto:you@advertisex.example` URL). With any of them unset, `/api/push` reports
 `configured: false`, members are never prompted, and every other part of the
 app behaves normally.
 
@@ -167,13 +169,13 @@ DATABASE_URL="<production-url>" npm run db:deploy
 
 ```bash
 DATABASE_URL="<production-url>" \
-ADMIN_EMAIL="you@youragency.com" \
+ADMIN_EMAIL="you@advertisex.example" \
 ADMIN_PASSWORD="<16+ characters>" \
 ADMIN_NAME="Your Name" \
   npm run db:seed:admin
 ```
 
-This creates the owner and the five services — **not** the demo agency. It
+This creates the owner and the service catalogue — no demo business data. It
 refuses passwords under 12 characters and known defaults like `admin123`. Sign
 in, then add your team from `/team`; each member gets a welcome email with
 their credentials if SMTP is configured.
@@ -207,12 +209,12 @@ hypothesis.
 # 1. Stop writes — put the app in maintenance or pause the deployment.
 
 # 2. Restore into a NEW database first, never over the live one.
-createdb agencyos_restore
-pg_restore --no-owner --no-privileges --dbname=agencyos_restore backup.dump
+createdb advertisex_restore
+pg_restore --no-owner --no-privileges --dbname=advertisex_restore backup.dump
 
 # 3. Check it's the database you think it is.
-psql agencyos_restore -c 'select count(*) from "ScoreEvent";'
-psql agencyos_restore -c 'select max("createdAt") from "AuditLog";'
+psql advertisex_restore -c 'select count(*) from "ScoreEvent";'
+psql advertisex_restore -c 'select max("createdAt") from "AuditLog";'
 
 # 4. Point DATABASE_URL at the restored database and redeploy.
 ```
@@ -252,8 +254,8 @@ existing owner cannot sign in — so promotion is a script, not just a button:
 
 ```bash
 npm run promote -- --list
-npm run promote -- someone@agency.local
-npm run promote -- someone@agency.local --demote
+npm run promote -- someone@example.com
+npm run promote -- someone@example.com --demote
 ```
 
 It refuses to remove the last active owner, and records the change in the audit
@@ -261,7 +263,7 @@ log like any other role change.
 
 ### 8. Scheduled jobs
 
-`vercel.json` registers three crons. Vercel schedules in **UTC**; the agency
+`vercel.json` registers three crons. Vercel schedules in **UTC**; the company
 works in Asia/Karachi (UTC+5):
 
 | Path | Schedule (UTC) | Karachi | |
@@ -329,7 +331,7 @@ produces no double-charges and no duplicate reports.
   keys on score events, reports and notifications mean re-running any job is a
   no-op.
 - **All dates go through `lib/date.ts`** (Asia/Karachi). Date-only fields are
-  stored at UTC midnight; a deadline is the end of that day in agency time.
+  stored at UTC midnight; a deadline is the end of that day in company time.
 - **`lib/scoring.ts`, `lib/narrative.ts` and `lib/mentions.ts` are pure** — no
   database, no clock — which is what makes them exhaustively testable.
 

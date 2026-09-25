@@ -86,7 +86,7 @@ export default async function DashboardPage({
   const cycle = currentCycle();
   const now = new Date();
 
-  // An admin sees the whole agency; a member sees only their own work.
+  // An admin sees the whole company; a member sees only their own work.
   const scope = isAdmin ? {} : { assigneeId: user.id };
 
   // Read through taskBoard so this number and the page it links to are computed
@@ -126,7 +126,7 @@ export default async function DashboardPage({
         status: { in: OPEN_STATUSES },
         // Anything due inside the next 48 hours, plus anything already past due.
         // Filtered exactly below — the deadline is the end of the due day in
-        // agency time, which SQL can't express here.
+        // company time, which SQL can't express here.
         dueDate: { lte: new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000) },
       },
       orderBy: { dueDate: "asc" },
@@ -270,7 +270,7 @@ export default async function DashboardPage({
         >
           <ShieldAlert aria-hidden className="mt-0.5 h-4 w-4 shrink-0" />
           <span>
-            That area is limited to the agency owner. You&rsquo;ve been returned
+            That area is limited to the founder. You&rsquo;ve been returned
             to your dashboard.
           </span>
         </div>
@@ -282,7 +282,7 @@ export default async function DashboardPage({
         title={`${greeting()}, ${firstName}`}
         description={
           isAdmin
-            ? "Where the agency stands today — delivery, deadlines and how the team is scoring."
+            ? "Where Advertise X stands today — delivery, deadlines and how the team is scoring."
             : "Your work at a glance, and how this month's score is tracking."
         }
       >
@@ -329,7 +329,7 @@ export default async function DashboardPage({
       <section>
         <div className="mb-4 flex flex-wrap items-baseline justify-between gap-4">
           <h2 className="font-display text-lg font-bold tracking-tight text-ink">
-            {isAdmin ? "Metroctopus at a glance" : "Your month"}
+            {isAdmin ? "Advertise X at a glance" : "Your month"}
           </h2>
           {isAdmin && (flags.scoring || flags.attendance || flags.retainerProjects) && (
             <RunEvaluationButton />

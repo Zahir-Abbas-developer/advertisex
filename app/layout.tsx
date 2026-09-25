@@ -22,18 +22,18 @@ const dmSans = DM_Sans({
 
 export const metadata: Metadata = {
   title: {
-    default: "Metroctopus",
-    template: "%s · Metroctopus",
+    default: "Advertise X",
+    template: "%s · Advertise X",
   },
   description:
-    "Department-based CRM and internal business operating system for Metroctopus — leads, clients, deals, tasks and follow-ups across every business line.",
+    "Department-based CRM and internal business operating system for Advertise X — leads, clients, deals, tasks and follow-ups across every business line.",
   // Installable, so an availability check can reach a phone's notification
   // tray rather than depending on a browser tab being open.
   manifest: "/manifest.webmanifest",
-  applicationName: "Metroctopus",
+  applicationName: "Advertise X",
   appleWebApp: {
     capable: true,
-    title: "Metroctopus",
+    title: "Advertise X",
     statusBarStyle: "black-translucent",
   },
   icons: {

@@ -52,13 +52,13 @@ export async function PATCH(
     return apiError("You can't remove your own owner access", 400);
   }
 
-  // Nor can the agency be left with nobody who can administer it.
+  // Nor can the company be left with nobody who can administer it.
   if (hasAdminPower(target.role) && (rest.role === "MEMBER" || rest.isActive === false)) {
     const otherAdmins = await prisma.user.count({
       where: { role: "ADMIN", isActive: true, id: { not: target.id } },
     });
     if (otherAdmins === 0) {
-      return apiError("The agency must keep at least one active owner", 400);
+      return apiError("The company must keep at least one active owner", 400);
     }
   }
 

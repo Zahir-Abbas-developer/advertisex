@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { applyEvents } from "@/lib/score-service";
-import { agencyYearMonth, startOfAgencyWeek, endOfAgencyWeek } from "@/lib/date";
+import { companyYearMonth, startOfAgencyWeek, endOfAgencyWeek } from "@/lib/date";
 import { notify } from "@/lib/notifications";
 import { getSettings } from "@/lib/settings";
 import { evaluateWeek, type TargetConfig } from "@/lib/targets";
@@ -54,7 +54,7 @@ export type StageMoveResult =
  * It used to also advance the stage, from a module-level `IMPLIED_STAGE` map:
  * logging a meeting moved the deal to MEETING_BOOKED, a proposal to
  * PROPOSAL_SENT. That map was written when there was one global pipeline. Stages
- * are now per-department admin-editable records, and none of BWM's four
+ * are now per-department admin-editable records, and none of Advertise X's four
  * departments has a stage called MEETING_BOOKED or PROPOSAL_SENT — so the
  * advance would have written a stage key that department's board cannot render,
  * putting the card nowhere.
@@ -270,7 +270,7 @@ export type PipelineMetrics = {
  * to encourage.
  */
 export async function pipelineMetrics(now = new Date()): Promise<PipelineMetrics> {
-  const cycle = agencyYearMonth(now);
+  const cycle = companyYearMonth(now);
   const monthStart = new Date(Date.UTC(cycle.year, cycle.month - 1, 1));
   const monthEnd = new Date(Date.UTC(cycle.year, cycle.month, 1));
 
@@ -339,7 +339,7 @@ export type MrrPoint = { year: number; month: number; amount: number; activeClie
  * past every time the book of business changed.
  */
 export async function mrrSeries(months = 6, now = new Date()) {
-  const cycle = agencyYearMonth(now);
+  const cycle = companyYearMonth(now);
 
   const [activeClients, snapshots] = await Promise.all([
     prisma.client.findMany({
@@ -387,7 +387,7 @@ export async function mrrSeries(months = 6, now = new Date()) {
 
 /** Records this month's MRR. Idempotent — one row per month, updated in place. */
 export async function captureMrrSnapshot(now = new Date()) {
-  const cycle = agencyYearMonth(now);
+  const cycle = companyYearMonth(now);
   const clients = await prisma.client.findMany({
     where: { status: "ACTIVE" },
     select: { monthlyBudget: true },

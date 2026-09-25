@@ -51,7 +51,7 @@ export type ClientRecord = {
   notes: string | null;
   /** Off means the nightly job never opens a new cycle for this client. */
   autoRenew: boolean;
-  /** Null falls back to the agency default. */
+  /** Null falls back to the company default. */
   targetRoas: number | null;
   onboardedAt: string;
 };
@@ -364,7 +364,7 @@ export function ClientDetail({
                 icon={CalendarPlus}
                 eyebrow="Nothing live"
                 title="No engagement running"
-                description="Start a cycle and Metroctopus will lay out the modules and milestones from the services they've bought."
+                description="Start a cycle and Advertise X will lay out the modules and milestones from the services they've bought."
                 action={
                   <Button size="sm" onClick={() => setCreating(true)}>
                     Start an engagement

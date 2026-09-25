@@ -170,7 +170,7 @@ export async function POST(request: Request) {
     /* Where the person should land, decided here because only the server
        knows which modules are on. The wizard used to go straight to the new
        project's plan — but that page belongs to the retainer-projects module,
-       which BWM ships switched off, so every successful onboarding ended on
+       which Advertise X ships switched off, so every successful onboarding ended on
        "Retainer projects is switched off". The client had been created; the
        screen said otherwise. The client's own page is never gated. */
     const next = (await isModuleEnabled("retainerProjects"))

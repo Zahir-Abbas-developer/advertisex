@@ -102,7 +102,7 @@ export const clientDetailsSchema = z.object({
   notes: z.string().trim().max(5000, "Notes must be 5000 characters or fewer").optional(),
   /** Off means the nightly job never opens a new cycle for this client. */
   autoRenew: z.boolean().optional(),
-  /** Null means "use the agency default" rather than "no target". */
+  /** Null means "use the company default" rather than "no target". */
   targetRoas: z.number().min(0).max(100).nullish(),
 });
 

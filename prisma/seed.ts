@@ -5,7 +5,7 @@ import { avatarColorFor, FIELD_ENTITIES } from "../lib/constants";
 import { serializeSkills } from "../lib/skills";
 
 /**
- * BWM seed — the starting shape of the business, not the shape of the system.
+ * Advertise X seed — the starting shape of the business, not the shape of the system.
  *
  * Everything here is a database record an admin can edit afterwards:
  * departments, their pipeline stages, their field definitions, and who works in
@@ -14,7 +14,7 @@ import { serializeSkills } from "../lib/skills";
  *
  * Deliberately absent: demo clients, demo leads, demo deals, invented numbers.
  * The agency fork seeded five clients and fifty-five milestones so its screens
- * looked populated; every figure BWM sees must come from real work, so this
+ * looked populated; every figure the team sees must come from real work, so this
  * seeds structure and people and stops there. The old file is kept as
  * `prisma/seed.agency.archive` for reference.
  *
@@ -56,7 +56,7 @@ const prisma = new PrismaClient();
 
 const PLACEHOLDER_PASSWORD = process.env.SEED_PASSWORD ?? "bwm-change-me";
 
-/** The four business lines BWM runs today. */
+/** The service lines seeded today (replaced per D2 in increment 3). */
 const DEPARTMENTS = [
   {
     slug: "pilot-cars",
@@ -313,7 +313,7 @@ const TEAM = [
 async function main() {
   const passwordHash = await bcrypt.hash(PLACEHOLDER_PASSWORD, 10);
 
-  // Settings singleton. The parked-module flags stay off: BWM did not ask for
+  // Settings singleton. The parked-module flags stay off: Advertise X did not ask for
   // attendance, scoring, retainer cycles or client KPIs, and off means those
   // features are absent rather than empty.
   await prisma.settings.upsert({
@@ -457,7 +457,7 @@ async function main() {
   const keptDepartments = DEPARTMENTS.length - createdDepartments.size;
   const keptUsers = TEAM.length - createdUsers.size;
 
-  console.log("BWM seed complete");
+  console.log("Advertise X seed complete");
   console.log(`  created         ${createdDepartments.size} department(s), ${createdUsers.size} account(s)`);
   console.log(`  left untouched  ${keptDepartments} department(s), ${keptUsers} account(s)`);
   console.log("");
