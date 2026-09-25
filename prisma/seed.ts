@@ -329,6 +329,29 @@ const TEAM = [
 async function main() {
   const passwordHash = await bcrypt.hash(PLACEHOLDER_PASSWORD, 10);
 
+  // Organization #1 (ADR-005): Advertise X itself. Rows that predate tenancy
+  // get their organizationId backfilled — only null keys are touched, so a
+  // row that already belongs somewhere is never moved. That makes this the
+  // one deliberate exception to "create, never overwrite": completing a
+  // migration is not undoing an admin's edit.
+  const org = await prisma.organization.upsert({
+    where: { slug: "advertisex" },
+    update: {},
+    create: { slug: "advertisex", name: "Advertise X" },
+  });
+  await prisma.user.updateMany({
+    where: { organizationId: null },
+    data: { organizationId: org.id },
+  });
+  await prisma.department.updateMany({
+    where: { organizationId: null },
+    data: { organizationId: org.id },
+  });
+  await prisma.client.updateMany({
+    where: { organizationId: null },
+    data: { organizationId: org.id },
+  });
+
   // Settings singleton. The parked-module flags stay off: Advertise X did not ask for
   // attendance, scoring, retainer cycles or client KPIs, and off means those
   // features are absent rather than empty.
@@ -364,6 +387,7 @@ async function main() {
 
     const department = await prisma.department.create({
       data: {
+        organizationId: org.id,
         slug: dept.slug,
         name: dept.name,
         shortLabel: dept.shortLabel,
@@ -426,6 +450,7 @@ async function main() {
     if (!user) {
       user = await prisma.user.create({
         data: {
+          organizationId: org.id,
           name: person.name,
           email: person.email,
           passwordHash,

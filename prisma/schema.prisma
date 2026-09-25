@@ -1,4 +1,4 @@
-// Agency OS — Prisma schema
+// Advertise X — Prisma schema
 //
 // Development runs on SQLite. The schema is deliberately kept
 // Postgres-compatible so the only change needed at deploy time is the
@@ -23,17 +23,74 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-/// A person who can sign in. ADMIN is the agency owner; MEMBER is a
-/// delivery team member (designer, marketer, developer).
+// ---------------------------------------------------------------------------
+// Phase 1 (Advertise X) — Tenancy
+// ---------------------------------------------------------------------------
+
+/// A SaaS tenant. Advertise X itself is organization #1; future tenants are
+/// other agencies or direct restaurant tenants (CLAUDE.md §5, ADR-005).
+///
+/// Tenancy keys sit on the roots — User, Department, Client, ClientAccount —
+/// and child rows reach their organization through their root (a FieldValue
+/// belongs to a Lead, which belongs to a Department, which belongs here).
+/// Denormalised organizationId columns spread to child tables when
+/// Row-Level Security lands on Postgres, not before (ADR-005).
+model Organization {
+  id        String   @id @default(cuid())
+  /// Stable machine key, e.g. "advertisex". URLs and seeds reference it.
+  slug      String   @unique
+  name      String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users          User[]
+  departments    Department[]
+  clients        Client[]
+  clientAccounts ClientAccount[]
+}
+
+/// A restaurant client as a *portal tenant* — the thing a CLIENT login is
+/// scoped to. A skeleton in Phase 1: the portal experience is a later phase.
+///
+/// Deliberately distinct from `Client`, which is the CRM record of the
+/// commercial relationship (pipeline, budget, status). The optional link on
+/// Client ties the two together where both exist; a ClientAccount can predate
+/// its CRM record and vice versa.
+model ClientAccount {
+  id             String   @id @default(cuid())
+  organizationId String
+  name           String
+  /// "ACTIVE" | "SUSPENDED" — see CLIENT_ACCOUNT_STATUSES in lib/constants.ts.
+  status         String   @default("ACTIVE")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  users        User[]
+  clients      Client[]
+
+  @@index([organizationId])
+}
+
+/// A person who can sign in — a team member, the founder, a client contact or
+/// an AI agent. Role names and their meaning live in lib/constants.ts.
 model User {
   id                  String   @id @default(cuid())
   name                String
   email               String   @unique
   passwordHash        String
-  /// "ADMIN" | "SUPPORT_ADMIN" | "MEMBER" — see Role in lib/constants.ts.
-  /// SUPPORT_ADMIN is the maintainer: same capability as ADMIN, labelled
-  /// "Support" in the UI. Authority checks go through hasAdminPower().
-  role                String   @default("MEMBER")
+  /// "FOUNDER" | "MANAGER" | "EMPLOYEE" | "CLIENT" | "AI_AGENT" — see Role in
+  /// lib/constants.ts. Rows written before the Advertise X role model may
+  /// still hold the legacy values "ADMIN" | "SUPPORT_ADMIN" | "MEMBER"; every
+  /// read normalises through normalizeRole(), and authority checks go through
+  /// hasAdminPower(), never string comparison.
+  role                String   @default("EMPLOYEE")
+  /// Nullable only for rows that predate tenancy; the seed backfills it and
+  /// new accounts always carry it. Treated as required by the data layer.
+  organizationId      String?
+  /// CLIENT logins only: the single restaurant account this user is scoped to.
+  clientAccountId     String?
   /// Delivery specialism, e.g. "Shopify Developer", "Media Buyer".
   jobTitle            String
   /// E.164, e.g. "+923001234567". Only used for the optional WhatsApp channel;
@@ -90,11 +147,15 @@ model User {
   incentives     IncentiveAward[]
   departments    DepartmentMembership[]
   clientsOwned   Client[]               @relation("ClientAssignee")
+  organization   Organization?          @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  clientAccount  ClientAccount?         @relation(fields: [clientAccountId], references: [id], onDelete: SetNull)
+  tasksAssigned  Task[]                 @relation("TaskAssignee")
+  tasksCreated   Task[]                 @relation("TaskCreator")
 
   @@index([role])
   @@index([isActive])
-  tasksAssigned Task[] @relation("TaskAssignee")
-  tasksCreated  Task[] @relation("TaskCreator")
+  @@index([organizationId])
+  @@index([clientAccountId])
 }
 
 // ---------------------------------------------------------------------------
@@ -103,52 +164,61 @@ model User {
 
 /// An e-commerce business on a monthly retainer.
 model Client {
-  id             String    @id @default(cuid())
+  id              String    @id @default(cuid())
+  /// Nullable only for rows that predate tenancy; backfilled by the seed.
+  organizationId  String?
+  /// The portal tenant for this relationship, once one exists (skeleton in
+  /// Phase 1 — created when the client portal opens for the account).
+  clientAccountId String?
   /// The business line this client belongs to. Required: a client with no
   /// department is invisible to department-scoped queries, which is a silent
   /// data-loss bug rather than a display one.
-  departmentId   String
-  businessName   String
-  contactName    String
-  email          String
-  phone          String?
-  country        String?
-  industry       String?
+  departmentId    String
+  businessName    String
+  contactName     String
+  email           String
+  phone           String?
+  country         String?
+  industry        String?
   /// Whole currency units (USD). Integer, never Float — money is not binary.
-  monthlyBudget  Int       @default(0)
+  monthlyBudget   Int       @default(0)
   /// "LEAD" | "ACTIVE" | "PAUSED" | "CHURNED" — see CLIENT_STATUSES.
-  status         String    @default("LEAD")
-  notes          String?
-  onboardedAt    DateTime  @default(now())
+  status          String    @default("LEAD")
+  notes           String?
+  onboardedAt     DateTime  @default(now())
   /// When false the nightly job never opens a new cycle for this client —
   /// for bespoke schedules, or a retainer being wound down.
-  autoRenew      Boolean   @default(true)
+  autoRenew       Boolean   @default(true)
   /// Return on ad spend this client's campaigns are held to. Null falls back
   /// to the agency default in Settings.
-  targetRoas     Float?
+  targetRoas      Float?
   /// Who owns this relationship. A core column rather than a dynamic field:
   /// every department has an assignee, and it is filtered on constantly.
-  assigneeId     String?
+  assigneeId      String?
   /// The next thing owed to this client. Core for the same reason — it drives
   /// the follow-up views every department needs.
-  nextFollowUpAt DateTime?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  nextFollowUpAt  DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
-  department Department       @relation(fields: [departmentId], references: [id])
-  assignee   User?            @relation("ClientAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
-  projects   Project[]
-  reports    Report[]
-  lead       Lead?
-  kpis       ClientKpiEntry[]
+  department    Department       @relation(fields: [departmentId], references: [id])
+  assignee      User?            @relation("ClientAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  organization  Organization?    @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  clientAccount ClientAccount?   @relation(fields: [clientAccountId], references: [id], onDelete: SetNull)
+  projects      Project[]
+  reports       Report[]
+  lead          Lead?
+  kpis          ClientKpiEntry[]
+  activities    SalesActivity[]
+  tasks         Task[]
 
   @@index([departmentId, status])
   @@index([assigneeId])
   @@index([nextFollowUpAt])
   @@index([status])
   @@index([businessName])
-  activities SalesActivity[]
-  tasks      Task[]
+  @@index([organizationId])
+  @@index([clientAccountId])
 }
 
 /// The agency's offerings. Seeded, and editable by the owner.
@@ -902,12 +972,12 @@ model Lead {
   createdBy       User?           @relation("LeadCreator", fields: [createdById], references: [id], onDelete: SetNull)
   convertedClient Client?         @relation(fields: [convertedClientId], references: [id], onDelete: SetNull)
   activities      SalesActivity[]
+  tasks           Task[]
 
   @@index([departmentId, stage])
   @@index([nextFollowUpAt])
   @@index([stage, stageChangedAt])
   @@index([ownerId, stage])
-  tasks Task[]
 }
 
 /// One recorded piece of sales work. The unit activity targets count.
@@ -1271,37 +1341,41 @@ model SystemError {
 // ---------------------------------------------------------------------------
 
 model Department {
-  id          String  @id @default(cuid())
+  id             String  @id @default(cuid())
+  /// Nullable only for rows that predate tenancy; backfilled by the seed.
+  organizationId String?
   /// Stable machine key, e.g. "pilot-cars". Referenced by seeds, imports and
   /// URLs, so it survives the display name being reworded.
-  slug        String  @unique
-  name        String
+  slug           String  @unique
+  name           String
   /// Compact name for badges, pills and narrow table columns, where the full
   /// "Paid Ads — 90-Day Growth Sprint" will not fit.
-  shortLabel  String
+  shortLabel     String
   /// Semantic token name from theme (e.g. "brand", "info"), never a raw hex.
   /// Null renders the neutral tone, so a department without a colour is a
   /// normal state rather than a broken badge.
-  colorToken  String?
-  description String?
+  colorToken     String?
+  description    String?
   /// Order in nav, dropdowns and dashboards. Admin-draggable.
-  order       Int     @default(0)
+  order          Int     @default(0)
   /// Deactivating hides a department without deleting its history. Rows keep
   /// pointing at it, so nothing orphans.
-  isActive    Boolean @default(true)
+  isActive       Boolean @default(true)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  memberships DepartmentMembership[]
-  stages      PipelineStage[]
-  fields      FieldDefinition[]
-  clients     Client[]
-  leads       Lead[]
-
-  @@index([isActive, order])
+  memberships  DepartmentMembership[]
+  stages       PipelineStage[]
+  fields       FieldDefinition[]
+  clients      Client[]
+  leads        Lead[]
+  organization Organization?          @relation(fields: [organizationId], references: [id], onDelete: SetNull)
   activities   SalesActivity[]
   tasks        Task[]
+
+  @@index([isActive, order])
+  @@index([organizationId])
 }
 
 /// Which departments a person works in, and what they do there.
