@@ -71,6 +71,20 @@ describe("audit entries written by the data layer", () => {
     assert.ok(!entry?.afterJson?.includes("$2a$"));
   });
 
+  it("never copies a vault credential's sealed secret into the log", () => {
+    const entry = buildAuditEntry({
+      model: "ClientCredential",
+      operation: "create",
+      args: {},
+      before: null,
+      result: { id: "c-1", label: "Website admin", secret: "v1.abcd1234.iv.tag.ct" },
+      actor: HUMAN,
+    });
+    assert.equal(entry?.action, "RECORD_CREATED");
+    assert.ok(!entry?.afterJson?.includes("v1.abcd1234"));
+    assert.equal(JSON.parse(entry!.afterJson!).secret, "[redacted]");
+  });
+
   it("summarises bulk writes by filter and count", () => {
     const entry = buildAuditEntry({
       model: "Task",

@@ -4,6 +4,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
+  AlarmClock,
+  CalendarClock,
+  FolderKanban,
+  FolderPen,
   Trophy,
   PhoneCall,
   Bell,
@@ -44,6 +48,10 @@ const ICONS: Record<NotificationType, typeof Bell> = {
   REVIEW_OVERDUE: Hourglass,
   LEAD_WON: Trophy,
   FOLLOW_UP_DUE: PhoneCall,
+  PROJECT_CREATED: FolderKanban,
+  PROJECT_UPDATED: FolderPen,
+  PROJECT_DEADLINE: CalendarClock,
+  PROJECT_DELAYED: AlarmClock,
 };
 
 const TONE_CLASSES: Record<string, string> = {

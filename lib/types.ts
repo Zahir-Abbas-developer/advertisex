@@ -41,6 +41,8 @@ export type ServiceSummary = {
   name: string;
   slug: string;
   description?: string | null;
+  /** The service's stage template (Phase 4), in order. */
+  stages?: string[];
 };
 
 export type ProjectProgress = {
@@ -49,7 +51,7 @@ export type ProjectProgress = {
   percent: number;
 };
 
-/** A client card in the grid. */
+/** A client card in the grid (Phase 4 — modules/clients/overview.ts). */
 export type ClientSummary = {
   id: string;
   businessName: string;
@@ -57,28 +59,27 @@ export type ClientSummary = {
   email: string;
   country: string | null;
   industry: string | null;
-  monthlyBudget: number;
   status: ClientStatus;
   onboardedAt: string;
   /** The business line this account belongs to. Never null — the column is required. */
   department: { id: string; shortLabel: string; colorToken: string | null };
   assignee: AssigneeChip | null;
   nextFollowUpAt: string | null;
-  services: ServiceSummary[];
+  /** Active services purchased. */
+  services: { id: string; name: string }[];
+  /** Σ monthly equivalent of active services. Null unless the viewer is the founder. */
+  monthlyRecurring: number | null;
+  openProjects: number;
   currentProject: {
     id: string;
     title: string;
-    status: ProjectStatus;
-    startDate: string;
-    endDate: string;
-    progress: ProjectProgress;
-    /** "PENDING" | "PAID" | "OVERDUE" on this cycle. */
-    paymentStatus: string;
+    status: string;
+    deadline: string;
+    progress: number;
+    schedule: "ON_TRACK" | "BEHIND" | "OVERDUE" | "CLOSED";
   } | null;
-  /** Computed, never entered. See lib/clientHealth.ts. */
-  health: { score: number; band: "HEALTHY" | "WATCH" | "AT_RISK"; headline: string | null } | null;
-  /** True when ROAS has been under target for the alert window. */
-  performanceAlert: boolean;
+  /** Computed, never entered. See modules/clients/health.ts. */
+  health: { band: "HEALTHY" | "WATCH" | "AT_RISK"; reasons: string[] };
 };
 
 export type AssigneeChip = {

@@ -110,6 +110,8 @@ export const config = {
     "/api/milestones/:path*",
     "/api/score-events/:path*",
     "/api/my-tasks/:path*",
+    "/api/files/:path*",
+    "/api/credentials/:path*",
     // /api/cron/* is deliberately absent: the scheduler authenticates with a
     // bearer secret rather than a session, and the handler checks it itself.
   ],

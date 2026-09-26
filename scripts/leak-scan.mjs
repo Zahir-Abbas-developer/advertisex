@@ -127,6 +127,24 @@ async function main() {
       numeric: true,
     });
   }
+  /* Phase 4: a contract's value is the founder's, like a retainer; and a
+     vault secret must never arrive in any GET response at all — it leaves
+     only through the audited reveal (POST). The sentinel is the secret
+     itself, opened here with the same keys the app uses. */
+  const [contracts, credentials] = await Promise.all([
+    prisma.contract.findMany({ where: { value: { gt: 999 } }, select: { title: true, value: true } }),
+    prisma.clientCredential.findMany({ select: { id: true, label: true, secret: true } }),
+  ]);
+  for (const contract of contracts) {
+    sentinels.push({ label: `value of contract "${contract.title}" (${contract.value})`, needle: String(contract.value), kind: "contract", numeric: true });
+  }
+  const { open } = await import("../modules/vault/cipher.ts");
+  const { vaultKeys } = await import("../modules/vault/keys.ts");
+  for (const credential of credentials) {
+    sentinels.push({ label: `vault secret "${credential.label}"`, needle: open(credential.secret, vaultKeys().keys, credential.id), kind: "secret" });
+    sentinels.push({ label: `sealed form of "${credential.label}"`, needle: credential.secret.slice(0, 40), kind: "secret" });
+  }
+
   for (const lead of leads) {
     if (lead.estimatedMonthlyValue) {
       sentinels.push({

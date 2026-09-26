@@ -27,18 +27,20 @@ export async function taskAccess(
 ): Promise<TaskAccess> {
   const task = await prisma.task.findUnique({
     where: { id: taskId },
-    select: { id: true, title: true, departmentId: true, assigneeId: true, createdById: true },
+    select: { id: true, title: true, departmentId: true, assigneeId: true, createdById: true, projectId: true },
   });
   if (!task) return { ok: false, status: 404, error: "That task no longer exists" };
 
+  // Phase 4: a project's team works its tasks whatever their own departments.
+  const onProject = task.projectId != null && principal.assignedProjectIds.includes(task.projectId);
   const target = { departmentId: task.departmentId, assigneeId: task.assigneeId, ownerId: task.createdById };
-  if (!authorize(principal, "read", "task", target).allowed) {
+  if (!onProject && !authorize(principal, "read", "task", target).allowed) {
     // Indistinguishable from absent: outside your departments, it isn't there.
     return { ok: false, status: 404, error: "That task no longer exists" };
   }
   if (mode === "read") return { ok: true, task };
 
-  const mine = task.assigneeId === principal.id || task.createdById === principal.id;
+  const mine = task.assigneeId === principal.id || task.createdById === principal.id || onProject;
   const manages = principal.role === "FOUNDER" || principal.role === "MANAGER";
   if (!mine && !manages) return { ok: false, status: 403, error: "That's someone else's task" };
   return { ok: true, task };

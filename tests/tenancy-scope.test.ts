@@ -82,4 +82,29 @@ describe("tenant scoping of query arguments", () => {
     const out = scopeArgs("LeadStageEvent", "findMany", { where: { toStage: "WON" } }, ORG) as { where: Record<string, unknown> };
     assert.deepEqual(out.where.AND, [{ lead: { department: { organizationId: ORG } } }]);
   });
+
+  it("scopes every Phase 4 root by organization and stamps its creates", () => {
+    for (const model of ["Project", "ServiceCatalog", "ClientService", "Contract", "ClientCredential", "ClientNote"]) {
+      const read = scopeArgs(model, "findMany", undefined, ORG) as { where: Record<string, unknown> };
+      assert.deepEqual(read.where.AND, [{ organizationId: ORG }], model);
+      const made = scopeArgs(model, "create", { data: { organizationId: "org-elsewhere" } }, ORG) as { data: Record<string, unknown> };
+      assert.equal(made.data.organizationId, ORG, model);
+    }
+  });
+
+  it("filters project-owned rows through their project", () => {
+    for (const model of ["ProjectService", "ProjectMember", "ProjectSkill", "ProjectStage", "ProjectMilestone", "ProjectComment"]) {
+      for (const operation of ["findMany", "findUnique", "update", "deleteMany", "count"]) {
+        const out = scopeArgs(model, operation, { where: {} }, ORG) as { where: Record<string, unknown> };
+        assert.deepEqual(out.where.AND, [{ project: { organizationId: ORG } }], `${model}.${operation}`);
+      }
+    }
+  });
+
+  it("filters catalog-owned rows through their service", () => {
+    for (const model of ["ServiceStageTemplate", "ServiceSkill"]) {
+      const out = scopeArgs(model, "findMany", { where: {} }, ORG) as { where: Record<string, unknown> };
+      assert.deepEqual(out.where.AND, [{ service: { organizationId: ORG } }], model);
+    }
+  });
 });

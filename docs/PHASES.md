@@ -103,3 +103,31 @@ A complete, fast CRM lead pipeline with outreach activity tracking, and a one-cl
 - Global Definition of Done passes.
 
 ### GATE — docs/phases/PHASE_3_REPORT.md, then STOP for "Phase 3 approved."
+
+---
+
+## PHASE 4 — CLIENT MANAGEMENT & PROJECT MANAGEMENT
+
+*Issued 2026-09-26 after Phase 3 was delivered; taken as the founder's
+go-ahead (recorded in PHASE_LOG). Verbatim below.*
+
+Prerequisite: "Phase 3 approved."
+
+### OBJECTIVE
+The client profile becomes the single source of truth for everything about a client, and every client has one or many fully managed projects.
+
+### SCOPE
+1. Client profile (internal): client and company info; services purchased from a catalog — Website Development, Mobile Application, Google Ads, Meta Ads, SEO, Local SEO, Google Business Profile Optimization, Social Media Marketing, Branding, AI Automation, CRM Implementation — extensible with pricing and recurrence; projects; contracts (files + status + dates); billing summary (wires to Phase 7); reports (wires to Phase 8); assigned team; communication (wires to Phase 6); secure credentials vault (encrypted, masked, audited access); project progress; important notes; a client health indicator.
+2. Project model: name, client, services, start date, deadline, status, priority, assigned team members, required skills (derived from services and editable), tasks (Phase 2 tasks now attach to projects), milestones, progress % (computed from milestones and tasks by a documented formula), reports, files, communication thread, activity.
+3. Stage templates per service type (e.g., Website: Planning → Design → Development → Testing → Launch), editable; current stage; completed milestones; upcoming work.
+4. Views: projects list and board; project detail (overview, tasks, milestones, files, team, activity); founder Projects analytics (active, completed, delayed, upcoming deadlines, progress, assignments, status); delayed-project detection job.
+5. Files: upload to client or project; private storage; signed URLs; previews; internal/external visibility flag.
+6. Notifications: new project, project update, deadline approaching.
+
+### ACCEPTANCE
+- Client → multiple projects → tasks → milestones → progress works and stays consistent.
+- Credentials vault: encrypted at rest, never present in the client bundle, access audited, masked by default (tests).
+- Progress formula documented in docs/METRICS.md and tested.
+- Global Definition of Done passes.
+
+### GATE — docs/phases/PHASE_4_REPORT.md, then STOP for "Phase 4 approved."

@@ -20,39 +20,6 @@ import { avatarColorFor } from "../lib/constants";
 
 const prisma = new PrismaClient();
 
-const SERVICES = [
-  {
-    slug: "shopify-design-development",
-    name: "Shopify Design & Development",
-    description: "Store design, theme build, migrations, speed and launch.",
-    order: 1,
-  },
-  {
-    slug: "google-ads-management",
-    name: "Google Ads Management",
-    description: "Search, Shopping and Performance Max, tracked end to end.",
-    order: 2,
-  },
-  {
-    slug: "meta-ads-management",
-    name: "Meta Ads Management",
-    description: "Facebook and Instagram prospecting and retargeting.",
-    order: 3,
-  },
-  {
-    slug: "creative-research-design",
-    name: "Creative Research & Design",
-    description: "Angle research, concepts and production-ready ad creative.",
-    order: 4,
-  },
-  {
-    slug: "full-funnel",
-    name: "Full Funnel (Website → Ads → Sales)",
-    description: "Everything from the storefront through to closed sales.",
-    order: 5,
-  },
-];
-
 /** Rejected outright — these exist in the demo seed and in every wordlist. */
 const BANNED_PASSWORDS = new Set([
   "admin123",
@@ -87,13 +54,8 @@ async function main() {
     fail("That password is one of the demo or well-known defaults. Pick another.");
   }
 
-  for (const service of SERVICES) {
-    await prisma.serviceCatalog.upsert({
-      where: { slug: service.slug },
-      update: {},
-      create: { ...service, isActive: true },
-    });
-  }
+  // The service catalog is seeded per organization by prisma/seed.ts (which
+  // every deploy runs), from modules/services/catalog.ts.
 
   const existing = await prisma.user.findUnique({ where: { email } });
 
@@ -131,7 +93,6 @@ async function main() {
   console.log(line);
   console.log(`  Owner       ${owner.email}`);
   console.log(`  Password    ${existing ? "unchanged (account already existed)" : "as provided"}`);
-  console.log(`  Services    ${SERVICES.length} in the catalogue`);
   console.log(`${line}\n`);
   console.log("  Sign in, then add your team from /team.\n");
 }

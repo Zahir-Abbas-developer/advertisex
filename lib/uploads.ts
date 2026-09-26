@@ -1,6 +1,6 @@
 import "server-only";
 
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 /**
@@ -93,3 +93,11 @@ export async function read(storedName: string): Promise<Buffer | null> {
   }
 }
 
+/** Deletes a stored file's bytes. Missing or unsafe names are a no-op. */
+export async function remove(storedName: string): Promise<void> {
+  if (storedName.includes("/") || storedName.includes("\\") || storedName.includes("..")) return;
+  const target = path.resolve(UPLOAD_DIR, storedName);
+  const root = path.resolve(UPLOAD_DIR);
+  if (!target.startsWith(`${root}${path.sep}`)) return;
+  await unlink(target).catch(() => undefined);
+}

@@ -41,6 +41,19 @@ export const AUDITED_MODELS = new Set([
   "File",
   "AttendanceDay",
   "BreakSession",
+  // Phase 4 — client management and projects. The project activity feed and
+  // the credential access trail are read from here.
+  "ClientService",
+  "Contract",
+  "ClientCredential",
+  "ClientNote",
+  "ServiceStageTemplate",
+  "ProjectService",
+  "ProjectMember",
+  "ProjectSkill",
+  "ProjectStage",
+  "ProjectMilestone",
+  "ProjectComment",
 ]);
 
 export const RECORD_ACTIONS = {
@@ -60,7 +73,8 @@ const OPERATION_KIND: Record<string, keyof typeof RECORD_ACTIONS> = {
 };
 
 /** Never copied into the audit log, whatever the model. */
-const REDACTED = new Set(["passwordHash"]);
+/** `secret` is a vault credential's sealed value: even ciphertext stays out of the log. */
+const REDACTED = new Set(["passwordHash", "secret"]);
 
 export type ActorType = "HUMAN" | "AI" | "CLIENT" | "SYSTEM";
 

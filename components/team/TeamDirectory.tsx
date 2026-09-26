@@ -43,7 +43,7 @@ function MemberCard({ member }: { member: Member }) {
     <Link
       href={`/team/${member.id}`}
       className={cn(
-        "group block rounded-card border bg-surface p-5 transition-colors hover:bg-surface-2",
+        "group block min-w-0 rounded-card border bg-surface p-5 transition-colors hover:bg-surface-2",
         member.isAgent ? "border-data-2/25 hover:border-data-2/45" : "border-line hover:border-line-strong",
       )}
     >

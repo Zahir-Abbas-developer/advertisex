@@ -1,0 +1,28 @@
+import { NextResponse } from "next/server";
+import { z } from "zod";
+
+import { prisma } from "@/lib/prisma";
+import { apiError, requireAdminApi } from "@/lib/api";
+
+const schema = z.object({ skillIds: z.array(z.string().min(1)).max(40) }).strict();
+
+/** Replaces the skills a service needs — what new projects derive theirs from. */
+export async function PUT(request: Request, { params }: { params: { id: string } }) {
+  const { response } = await requireAdminApi();
+  if (response) return response;
+  const parsed = schema.safeParse(await request.json().catch(() => null));
+  if (!parsed.success) return apiError("Please fix the highlighted fields", 422);
+  const ids = [...new Set(parsed.data.skillIds)];
+  const [service, known] = await Promise.all([
+    prisma.serviceCatalog.findUnique({ where: { id: params.id }, select: { id: true } }),
+    prisma.skill.count({ where: { id: { in: ids } } }),
+  ]);
+  if (!service) return apiError("That service no longer exists", 404);
+  if (known !== ids.length) return apiError("One of those skills isn't in the taxonomy", 422);
+
+  await prisma.$transaction([
+    prisma.serviceSkill.deleteMany({ where: { serviceId: service.id } }),
+    prisma.serviceSkill.createMany({ data: ids.map((skillId) => ({ serviceId: service.id, skillId })) }),
+  ]);
+  return NextResponse.json({ ok: true });
+}

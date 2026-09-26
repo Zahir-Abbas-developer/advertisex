@@ -35,6 +35,7 @@ function principal(role: Role, extra: Partial<Principal> = {}): Principal {
     departmentIds: [],
     clientAccountId: null,
     assignedClientIds: [],
+    assignedProjectIds: [],
     grants: [],
     ...extra,
   };
@@ -298,5 +299,50 @@ describe("Phase 2 — employees, skills, attendance", () => {
       assert.equal(allowed(authorize(p, "create", "attendance")), false);
       assert.equal(allowed(authorize(p, "read", "employee")), false);
     }
+  });
+});
+
+describe("Phase 4 — projects and the credentials vault", () => {
+  const PROJECT = { organizationId: ORG, departmentId: SPRINT, projectId: "project-1" };
+  const CLIENT_ROW = { organizationId: ORG, departmentId: SPRINT, clientId: "client-1" };
+
+  it("an employee reaches a project only by being on it", () => {
+    const off = principal("EMPLOYEE", { departmentIds: [SPRINT] });
+    const on = principal("EMPLOYEE", { departmentIds: [SPRINT], assignedProjectIds: ["project-1"] });
+    assert.equal(allowed(authorize(off, "read", "project", PROJECT)), false);
+    assert.equal(allowed(authorize(on, "read", "project", PROJECT)), true);
+    assert.equal(allowed(authorize(on, "update", "project", PROJECT)), true);
+    assert.equal(allowed(authorize(on, "delete", "project", PROJECT)), false);
+    assert.equal(allowed(authorize(on, "create", "project", { organizationId: ORG, departmentId: SPRINT })), false);
+  });
+
+  it("a manager's projects are their departments' clients' projects", () => {
+    const m = principal("MANAGER", { departmentIds: [SPRINT] });
+    assert.equal(allowed(authorize(m, "update", "project", PROJECT)), true);
+    assert.equal(allowed(authorize(m, "read", "project", { ...PROJECT, departmentId: STUDIO })), false);
+    assert.equal(allowed(authorize(m, "delete", "project", PROJECT)), false);
+  });
+
+  it("no project or vault access for clients or agents, and never across organizations", () => {
+    for (const role of ["CLIENT", "AI_AGENT"] as const) {
+      const p = principal(role, { clientAccountId: "acct-1", assignedProjectIds: ["project-1"], assignedClientIds: ["client-1"] });
+      assert.equal(allowed(authorize(p, "read", "project", PROJECT)), false, role);
+      assert.equal(allowed(authorize(p, "reveal", "credential", CLIENT_ROW)), false, role);
+    }
+    const founder = principal("FOUNDER");
+    assert.equal(allowed(authorize(founder, "read", "project", { ...PROJECT, organizationId: OTHER_ORG })), false);
+    assert.equal(allowed(authorize(founder, "reveal", "credential", { ...CLIENT_ROW, organizationId: OTHER_ORG })), false);
+  });
+
+  it("seeing that a login exists and opening it are separate, and only managers change it", () => {
+    const worker = principal("EMPLOYEE", { assignedClientIds: ["client-1"] });
+    const stranger = principal("EMPLOYEE", { assignedClientIds: ["client-2"] });
+    assert.equal(allowed(authorize(worker, "read", "credential", CLIENT_ROW)), true);
+    assert.equal(allowed(authorize(worker, "reveal", "credential", CLIENT_ROW)), true);
+    assert.equal(allowed(authorize(worker, "update", "credential", CLIENT_ROW)), false);
+    assert.equal(allowed(authorize(stranger, "reveal", "credential", CLIENT_ROW)), false);
+    const manager = principal("MANAGER", { departmentIds: [AUDIT] });
+    assert.equal(allowed(authorize(manager, "reveal", "credential", CLIENT_ROW)), false);
+    assert.equal(allowed(authorize(principal("MANAGER", { departmentIds: [SPRINT] }), "update", "credential", CLIENT_ROW)), true);
   });
 });

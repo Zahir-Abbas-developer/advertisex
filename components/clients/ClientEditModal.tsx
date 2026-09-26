@@ -8,9 +8,27 @@ import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
-import { CLIENT_STATUSES, CLIENT_STATUS_LABEL, INDUSTRIES } from "@/lib/constants";
+import { CLIENT_STATUSES, CLIENT_STATUS_LABEL, INDUSTRIES, type ClientStatus } from "@/lib/constants";
 import { fieldErrors, updateClientSchema } from "@/lib/validation";
-import type { ClientRecord } from "@/components/clients/ClientDetail";
+
+/** The editable client record (the founder's edit form). */
+export type ClientRecord = {
+  id: string;
+  businessName: string;
+  contactName: string;
+  email: string;
+  phone: string | null;
+  country: string | null;
+  industry: string | null;
+  monthlyBudget: number;
+  status: ClientStatus;
+  notes: string | null;
+  /** Off means the nightly job never opens a new cycle for this client. */
+  autoRenew: boolean;
+  /** Null falls back to the company default. */
+  targetRoas: number | null;
+  onboardedAt: string;
+};
 
 export function ClientEditModal({
   open,

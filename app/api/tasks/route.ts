@@ -13,6 +13,7 @@ import { notify } from "@/lib/notifications";
 import { parseDateInput } from "@/lib/date";
 import { hasAdminPower, TASK_PRIORITIES } from "@/lib/constants";
 
+import { projectFor } from "@/modules/projects/server";
 import { requireApi } from "@/modules/rbac/server";
 /**
  * The daily working surface: everything owed, in buckets.
@@ -51,13 +52,20 @@ const createSchema = z
   .object({
     title: z.string().trim().min(2, "Give the task a title").max(160),
     note: z.string().trim().max(2000).nullish(),
-    departmentId: z.string().min(1, "Pick a department"),
+    /** Omitted for a project task: the project decides it. */
+    departmentId: z.string().min(1, "Pick a department").optional(),
     leadId: z.string().min(1).nullish(),
     clientId: z.string().min(1).nullish(),
+    /** Phase 4: a task in a project (its client's department, its team). */
+    projectId: z.string().min(1).nullish(),
     assigneeId: z.string().min(1).nullish(),
     /** `YYYY-MM-DD`, read on the company clock like every other due date. */
     dueAt: z.string().trim().nullish(),
     priority: z.enum(TASK_PRIORITIES).default("MEDIUM"),
+  })
+  .refine((value) => Boolean(value.departmentId || value.projectId), {
+    message: "Pick a department",
+    path: ["departmentId"],
   })
   .refine((value) => !(value.leadId && value.clientId), {
     message: "A task hangs off a lead or a client, not both",
@@ -83,10 +91,21 @@ export async function POST(request: Request) {
     return apiError("Please fix the highlighted fields", 422, fieldErrors(parsed.error));
   }
 
-  const data = parsed.data;
+  const data = parsed.data as typeof parsed.data & { departmentId: string };
   const isAdmin = hasAdminPower(user.role);
 
-  if (!(await canUseDepartment(user.id, isAdmin, data.departmentId))) {
+  // A project task: the project decides the department and the client, and
+  // anyone working on the project may add one for anyone on its team.
+  let projectTeam: Set<string> | null = null;
+  if (data.projectId) {
+    const found = await projectFor(access.principal, data.projectId, "update");
+    if (!found.project) return apiError("That project doesn't exist", found.status);
+    if (data.leadId) return apiError("Please fix the highlighted fields", 422, { leadId: "A project task can't also hang off a lead" });
+    data.departmentId = found.project.client.departmentId;
+    data.clientId = found.project.clientId;
+    const members = await prisma.projectMember.findMany({ where: { projectId: found.project.id }, select: { userId: true } });
+    projectTeam = new Set([...members.map((m) => m.userId), ...(found.project.ownerId ? [found.project.ownerId] : [])]);
+  } else if (!data.departmentId || !(await canUseDepartment(user.id, isAdmin, data.departmentId))) {
     return apiError("That department isn't one of yours", 403);
   }
 
@@ -115,7 +134,12 @@ export async function POST(request: Request) {
     }
   }
 
-  if (data.assigneeId && !(await canBeAssigned(data.departmentId, data.assigneeId))) {
+  if (data.assigneeId && projectTeam && !projectTeam.has(data.assigneeId)) {
+    return apiError("Please fix the highlighted fields", 422, {
+      assigneeId: "That person isn't on this project's team",
+    });
+  }
+  if (data.assigneeId && !projectTeam && !(await canBeAssigned(data.departmentId, data.assigneeId))) {
     return apiError("Please fix the highlighted fields", 422, {
       assigneeId: "That person isn't in this department",
     });
@@ -133,7 +157,7 @@ export async function POST(request: Request) {
      department who does that, falling back to the lightest workload. The old
      default — whoever typed it in — is still the floor, because unassigned
      work is invisible work. */
-  const routed = data.assigneeId
+  const routed = data.assigneeId || projectTeam
     ? null
     : await autoAssign(
         data.departmentId,
@@ -147,6 +171,7 @@ export async function POST(request: Request) {
       departmentId: data.departmentId,
       leadId: data.leadId ?? null,
       clientId: data.clientId ?? null,
+      projectId: data.projectId ?? null,
       title: data.title,
       note: data.note || null,
       assigneeId,

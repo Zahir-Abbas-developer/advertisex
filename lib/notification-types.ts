@@ -23,6 +23,11 @@ export const NOTIFICATION_TYPES = [
   // are the two things a salesperson must not miss.
   "LEAD_WON",
   "FOLLOW_UP_DUE",
+  // Phase 4 (Advertise X) — projects.
+  "PROJECT_CREATED",
+  "PROJECT_UPDATED",
+  "PROJECT_DEADLINE",
+  "PROJECT_DELAYED",
 ] as const;
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
@@ -38,4 +43,8 @@ export const NOTIFICATION_TONE: Record<NotificationType, BadgeTone> = {
   REVIEW_OVERDUE: "danger",
   LEAD_WON: "success",
   FOLLOW_UP_DUE: "warning",
+  PROJECT_CREATED: "info",
+  PROJECT_UPDATED: "neutral",
+  PROJECT_DEADLINE: "warning",
+  PROJECT_DELAYED: "danger",
 };

@@ -81,4 +81,28 @@ describe("client/server boundary", () => {
 
     assert.deepEqual(offenders, []);
   });
+
+  it("keeps the credentials vault — its key and its cipher — out of every client component", () => {
+    const all = DIRS.flatMap(files).map((f) => path.normalize(f));
+    const graph = new Map(all.map((f) => [f, runtimeDeps(readFileSync(f, "utf8"))]));
+    const vault = new Set(all.filter((f) => f.startsWith(path.normalize("modules/vault/"))));
+    let grew = true;
+    while (grew) {
+      grew = false;
+      for (const [file, deps] of graph) {
+        if (!vault.has(file) && deps.some((d) => vault.has(d))) {
+          vault.add(file);
+          grew = true;
+        }
+      }
+    }
+    const offenders = all.filter((f) => readFileSync(f, "utf8").trimStart().startsWith('"use client"') && vault.has(f));
+    assert.deepEqual(offenders, []);
+  });
+
+  it("marks the modules that hold secrets server-only, so a client import fails the build", () => {
+    for (const f of ["modules/vault/server.ts", "modules/vault/credentials.ts", "modules/files/server.ts", "lib/uploads.ts"]) {
+      assert.match(readFileSync(f, "utf8"), /^import "server-only";/m, f);
+    }
+  });
 });

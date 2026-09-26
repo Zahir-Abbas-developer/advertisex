@@ -87,7 +87,12 @@ export const INTERACTIVE_ROLES: readonly Role[] = ["FOUNDER", "MANAGER", "EMPLOY
 // The matrix
 // ---------------------------------------------------------------------------
 
-export const ACTIONS = ["read", "create", "update", "delete", "manage"] as const;
+/**
+ * `reveal` exists for one thing: opening a sealed secret in the credentials
+ * vault. Seeing that a credential exists (`read`) and seeing the secret are
+ * different privileges, and the second is audited every time.
+ */
+export const ACTIONS = ["read", "create", "update", "delete", "manage", "reveal"] as const;
 export type Action = (typeof ACTIONS)[number];
 
 export type Scope = "all" | "department" | "assigned" | "own" | "client-own" | "grant";
@@ -114,6 +119,10 @@ export const RESOURCES = [
   "employee",
   /** The organization's skills taxonomy (Phase 2). */
   "skill",
+  /** Client projects: plan, stages, milestones, team (Phase 4). */
+  "project",
+  /** The client credentials vault (Phase 4). */
+  "credential",
 ] as const;
 export type Resource = (typeof RESOURCES)[number];
 
@@ -129,6 +138,7 @@ export const PERMISSIONS: Matrix = {
     update: FOUNDER_ONLY,
     delete: FOUNDER_ONLY,
     manage: FOUNDER_ONLY,
+    reveal: FOUNDER_ONLY,
   },
 
   ops: {
@@ -243,6 +253,28 @@ export const PERMISSIONS: Matrix = {
     read: { FOUNDER: "all", MANAGER: "all", EMPLOYEE: "all" },
     create: FOUNDER_ONLY,
     update: FOUNDER_ONLY,
+  },
+
+  // Client projects (Phase 4). A manager runs the projects of their
+  // departments' clients; an employee works on the projects they are a
+  // member of (or own a milestone in) — updating the plan's progress, not
+  // its shape (the handlers narrow what "update" means for them).
+  project: {
+    read: { FOUNDER: "all", MANAGER: "department", EMPLOYEE: "assigned" },
+    create: { FOUNDER: "all", MANAGER: "department" },
+    update: { FOUNDER: "all", MANAGER: "department", EMPLOYEE: "assigned" },
+    delete: FOUNDER_ONLY,
+  },
+
+  // The credentials vault. Everyone who works on a client may know which
+  // logins exist and open them when the work needs it — every reveal is
+  // audited. Changing what is stored is for the founder and managers.
+  credential: {
+    read: { FOUNDER: "all", MANAGER: "department", EMPLOYEE: "assigned" },
+    reveal: { FOUNDER: "all", MANAGER: "department", EMPLOYEE: "assigned" },
+    create: { FOUNDER: "all", MANAGER: "department" },
+    update: { FOUNDER: "all", MANAGER: "department" },
+    delete: { FOUNDER: "all", MANAGER: "department" },
   },
 };
 

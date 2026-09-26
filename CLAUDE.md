@@ -271,6 +271,8 @@ npm run tenanttest     # a second organization's rows never reach the first
 npm run daytest        # a full working day: clock in, task through every status, clock out, founder sees it
 npm run leadtest       # lead lifecycle to client + project, CSV, saved views, board speed at 1,000+ leads
 npm run outreachtest   # outreach rollups reconcile exactly with the logged activities
+npm run projecttest    # client → projects → tasks → milestones → progress; vault; files; scope
+npm run bundlescan     # after build: nothing of the credentials vault in the browser bundle
 npm run smoke:browser  # real-browser hydration pass (run when renders change)
 
 npm run set-passwords  # issue a distinct password per account (prints once)

@@ -4,12 +4,15 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { apiError, requireAdminApi } from "@/lib/api";
 import { fieldErrors } from "@/lib/validation";
+import { BILLING_CADENCES } from "@/modules/services/catalog";
 
 const updateServiceSchema = z
   .object({
     name: z.string().trim().min(2, "Name the service").max(80).optional(),
     description: z.string().trim().max(300).optional(),
     isActive: z.boolean().optional(),
+    price: z.number().int().min(0).max(10_000_000).optional(),
+    billing: z.enum(BILLING_CADENCES).optional(),
   })
   .refine((value) => Object.keys(value).length > 0, { message: "Nothing to update" });
 

@@ -6,8 +6,10 @@ import { ProgressBar } from "@/components/ui/ProgressBar";
 import { CLIENT_STATUS_LABEL, CLIENT_STATUS_TONE } from "@/lib/constants";
 import { formatDate } from "@/lib/date";
 import type { ClientSummary } from "@/lib/types";
-import { HEALTH_BAND_COLOR, HEALTH_BAND_LABEL } from "@/lib/clientHealth";
-import { cn } from "@/lib/utils";
+import { HEALTH_LABEL } from "@/modules/clients/health";
+import { SCHEDULE_LABEL } from "@/modules/projects/domain";
+
+const HEALTH_COLOR = { HEALTHY: "#22C55E", WATCH: "#F59E0B", AT_RISK: "#EF4444" } as const;
 
 /** Compact money — a retainer book reads better as $4.5k than $4,500. */
 function formatBudget(amount: number): string {
@@ -36,15 +38,11 @@ export function ClientCard({ client }: { client: ClientSummary }) {
           <h3 className="flex items-center gap-2 truncate font-display text-[17px] font-bold tracking-tight text-ink">
             {/* Computed health, never entered. A dot rather than a number:
                 the card is a glance, and the number is on the client page. */}
-            {client.health && (
-              <span
-                className="h-2 w-2 shrink-0 rounded-full"
-                style={{ backgroundColor: HEALTH_BAND_COLOR[client.health.band] }}
-                title={`${HEALTH_BAND_LABEL[client.health.band]} · ${client.health.score}${
-                  client.health.headline ? ` — ${client.health.headline}` : ""
-                }`}
-              />
-            )}
+            <span
+              className="h-2 w-2 shrink-0 rounded-full"
+              style={{ backgroundColor: HEALTH_COLOR[client.health.band] }}
+              title={`${HEALTH_LABEL[client.health.band]}${client.health.reasons[0] ? ` — ${client.health.reasons[0]}` : ""}`}
+            />
             <span className="truncate">{client.businessName}</span>
           </h3>
           <p className="mt-1 truncate text-[13px] text-ink/50">
@@ -70,34 +68,18 @@ export function ClientCard({ client }: { client: ClientSummary }) {
             <span className="text-[11px] text-ink/45">{client.assignee.name}</span>
           )}
 
-          {/* Deliberately discreet — payment is the owner's business, and a
-              loud red chip on every unpaid invoice would cry wolf by the 8th. */}
-          {project && project.paymentStatus !== "PAID" && (
-            <span
-              className={cn(
-                "rounded-pill border px-2 py-0.5 text-[10px] font-medium",
-                project.paymentStatus === "OVERDUE"
-                  ? "border-danger/25 bg-danger-tint text-danger"
-                  : "border-line bg-surface text-ink/45",
-              )}
-            >
-              {project.paymentStatus === "OVERDUE" ? "Payment overdue" : "Awaiting payment"}
-            </span>
-          )}
         </div>
       </div>
 
-      {client.performanceAlert && (
-        <p className="mt-3 inline-flex items-center gap-1.5 self-start rounded-pill border border-danger/25 bg-danger-tint px-2.5 py-1 text-[11px] font-medium text-danger">
-          <span className="h-1.5 w-1.5 rounded-full bg-danger" />
-          Performance attention
-        </p>
-      )}
-
       <div className="mt-4 flex items-center gap-4 text-[13px] text-ink/55">
-        <span className="font-display text-base font-bold text-ink">
-          {formatBudget(client.monthlyBudget)}
-          <span className="ml-1 text-[11px] font-medium text-ink/40">/mo</span>
+        {client.monthlyRecurring !== null && (
+          <span className="font-display text-base font-bold tabular-nums text-ink">
+            {formatBudget(client.monthlyRecurring)}
+            <span className="ml-1 text-[11px] font-medium text-ink/40">/mo</span>
+          </span>
+        )}
+        <span className="tabular-nums">
+          {client.openProjects} open project{client.openProjects === 1 ? "" : "s"}
         </span>
         {client.country && (
           <span className="flex min-w-0 items-center gap-1.5">
@@ -121,27 +103,26 @@ export function ClientCard({ client }: { client: ClientSummary }) {
           )}
         </div>
       ) : (
-        <p className="mt-4 text-[13px] text-ink/35">No services scoped yet</p>
+        <p className="mt-4 text-[13px] text-ink/35">No services purchased yet</p>
       )}
 
       <div className="mt-auto pt-5">
         {project ? (
           <>
             <ProgressBar
-              value={project.progress.percent}
+              value={project.progress}
               label={project.title}
               showValue
               size="sm"
-              tone={project.status === "OVERDUE_CLOSEOUT" ? "danger" : "brand"}
+              tone={project.schedule === "OVERDUE" ? "danger" : project.schedule === "BEHIND" ? "warn" : "brand"}
             />
             <p className="mt-2 text-[12px] text-ink/40">
-              {project.progress.done} of {project.progress.total} milestones · ends{" "}
-              {formatDate(project.endDate)}
+              {SCHEDULE_LABEL[project.schedule]} · due {formatDate(project.deadline)}
             </p>
           </>
         ) : (
           <div className="flex items-center justify-between rounded-[10px] border border-dashed border-line px-3 py-2.5">
-            <span className="text-[13px] text-ink/45">No active engagement</span>
+            <span className="text-[13px] text-ink/45">No open project</span>
             <ArrowUpRight
               aria-hidden
               className="h-3.5 w-3.5 text-ink/30 transition-colors group-hover:text-brand"

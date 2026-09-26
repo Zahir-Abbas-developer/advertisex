@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
  */
 const SECTIONS = [
   { href: "/settings/departments", label: "Departments" },
+  { href: "/settings/services", label: "Services" },
   { href: "/settings/modules", label: "Modules" },
   { href: "/admin/audit", label: "Audit log" },
   { href: "/admin/errors", label: "Error log" },

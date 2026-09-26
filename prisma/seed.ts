@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import { avatarColorFor, FIELD_ENTITIES } from "../lib/constants";
 import { serializeSkills } from "../lib/skills";
 import { STANDARD_STAGES } from "../modules/leads/domain";
+import { DEFAULT_SERVICES } from "../modules/services/catalog";
 
 /**
  * Advertise X seed — the starting shape of the business, not the shape of the system.
@@ -317,6 +318,44 @@ const SKILLS: readonly { name: string; category: string }[] = [
   { name: "CRM Implementation", category: "Engineering" },
 ];
 
+/**
+ * The service catalog (Phase 4), per organization: each service with its
+ * stage template and the skills it needs. Converges like everything here — a
+ * service already in the catalog (matched by slug) is left exactly as the
+ * founder edited it, template and skills included.
+ */
+async function seedServiceCatalog(organizationId: string) {
+  const skills = await prisma.skill.findMany({ where: { organizationId }, select: { id: true, name: true } });
+  const skillId = new Map(skills.map((s) => [s.name, s.id]));
+  const count = await prisma.serviceCatalog.count({ where: { organizationId } });
+
+  for (const [index, service] of DEFAULT_SERVICES.entries()) {
+    const existing = await prisma.serviceCatalog.findFirst({
+      where: { organizationId, OR: [{ slug: service.slug }, { name: service.name }] },
+      select: { id: true },
+    });
+    if (existing) continue;
+    await prisma.serviceCatalog.create({
+      data: {
+        organizationId,
+        slug: service.slug,
+        name: service.name,
+        description: service.description,
+        price: service.price,
+        billing: service.billing,
+        order: count + index + 1,
+        stageTemplates: { create: service.stages.map((name, order) => ({ name, order })) },
+        skills: {
+          create: service.skills
+            .map((name) => skillId.get(name))
+            .filter((id): id is string => Boolean(id))
+            .map((id) => ({ skillId: id })),
+        },
+      },
+    });
+  }
+}
+
 async function main() {
   const passwordHash = await bcrypt.hash(PLACEHOLDER_PASSWORD, 10);
 
@@ -346,6 +385,21 @@ async function main() {
     where: { organizationId: null },
     data: { organizationId: org.id },
   });
+  // Phase 4: catalog services and projects predating tenancy. A project
+  // belongs to its client's organization.
+  await prisma.serviceCatalog.updateMany({
+    where: { organizationId: null },
+    data: { organizationId: org.id },
+  });
+  for (const project of await prisma.project.findMany({
+    where: { organizationId: null },
+    select: { id: true, client: { select: { organizationId: true } } },
+  })) {
+    await prisma.project.update({
+      where: { id: project.id },
+      data: { organizationId: project.client.organizationId ?? org.id },
+    });
+  }
 
   // Settings singleton. The parked-module flags stay off: Advertise X did not ask for
   // attendance, scoring, retainer cycles or client KPIs, and off means those
@@ -370,6 +424,8 @@ async function main() {
       create: { organizationId: org.id, ...skill },
     });
   }
+
+  await seedServiceCatalog(org.id);
 
   const departmentIdBySlug = new Map<string, string>();
   /** Slugs created in this run — the only departments whose children we add. */

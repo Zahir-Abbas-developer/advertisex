@@ -36,6 +36,8 @@ export type Principal = {
   clientAccountId: string | null;
   /** Clients this person owns or has work on — the `assigned` scope. */
   assignedClientIds: readonly string[];
+  /** Projects this person is a member of or owns a milestone in (Phase 4). */
+  assignedProjectIds: readonly string[];
   /** AI_AGENT only: "resource:action" strings from AgentGrant rows. */
   grants: readonly string[];
 };
@@ -50,6 +52,8 @@ export type Target = {
   assigneeId?: string | null;
   /** For rows attached to a client (the client itself, or its tasks). */
   clientId?: string | null;
+  /** For a project and the rows inside it (Phase 4). */
+  projectId?: string | null;
   clientAccountId?: string | null;
 };
 
@@ -99,7 +103,8 @@ export function authorize(
       const mine =
         (target.assigneeId != null && target.assigneeId === principal.id) ||
         (target.ownerId != null && target.ownerId === principal.id) ||
-        (target.clientId != null && principal.assignedClientIds.includes(target.clientId));
+        (target.clientId != null && principal.assignedClientIds.includes(target.clientId)) ||
+        (target.projectId != null && principal.assignedProjectIds.includes(target.projectId));
       return mine ? { allowed: true, scope } : deny("not assigned to the principal");
     }
 

@@ -516,3 +516,77 @@ measured with 1,200+ in `leadtest`) without virtualizing the drag-and-drop.
 (silent change to live data); counters on `User` for outreach (drift, no
 reconciliation); keeping the wizard path alongside the one-action convert (two
 ways to do one thing, one of them non-atomic).
+
+---
+
+## ADR-013 — Phase 4: client management and projects
+
+**Date:** 2026-09-27 · **Status:** accepted
+
+**Projects extend the existing `Project` table; the retainer machinery stays
+parked.** D4 marked retainer cycles "superseded by the P4 projects module".
+The retainer system (workstreams, scored milestones, renewals, payment
+cycles) is entangled with scoring: every milestone status change writes
+score events. It is also founder-only, and its tables had no tenant key. So
+Phase 4 keeps the `Project` row that lead conversion and tasks already use,
+adds tenancy and the new lifecycle to it, and adds lean new models:
+`ProjectStage`, `ProjectMilestone`, `ProjectMember`, `ProjectSkill` and
+`ProjectComment`. The retainer `Module`/`Milestone` code is untouched and
+parked. `/board` and `/my-tasks` stay behind its flag. `/projects` moves out
+of the flag into the core product. The evaluation cron's close-out, payment
+and renewal steps now run only while the retainer module is on, and close-out
+only touches cycles that have retainer workstreams, so a Phase 4 project past
+its deadline is never auto-closed or charged. The legacy planner pages and
+their components were replaced (the parked module's own code is kept, per
+D4, until the founder approves deleting it).
+
+**Stage templates are copied, not referenced.** A service's template is
+copied onto a project when the service is added. Editing a template changes
+future projects only; work under way keeps its plan.
+
+**Progress: one formula, weighted, rounded down.** Milestones count by their
+weight (1–5), tasks count 1, and stages are the fallback. Rounding down means
+100% only when everything is done. The formula is pure, documented, unit
+tested, and re-checked over HTTP against the database. A second formula
+(e.g. time-based) was rejected: two progress numbers disagree in front of a
+client.
+
+**Health: rules with reasons, not a score.** The legacy weighted score
+needed ROAS and payment data that belong to parked modules. The Phase 4
+health is three bands whose every trigger is named on screen.
+
+**Who sees what.**
+- The founder sees everything, including money.
+- Managers run their departments' clients and projects, without money:
+  prices, contract values and recurring revenue are founder-only, and so are
+  client phone numbers (the standing leak-scan policy).
+- Employees see a project only by being on it: as a member, its owner, or
+  assigned one of its milestones. They move its work (stages, milestones,
+  tasks, files, discussion) but not its shape.
+- The clients list stays with the founder and managers. Employees reach their
+  clients through projects.
+
+**Credentials vault.**
+- AES-256-GCM, with the key from the environment and rotation by key id.
+- Each secret is bound to its record through associated data, so copying a
+  sealed value elsewhere fails.
+- `reveal` is a separate permission action from `read`.
+- Every reveal is audited before the secret is returned. An audit failure
+  means no reveal: unlike ordinary audit writes, this one is not
+  best-effort.
+- `secret` is redacted from audit entries, even in sealed form.
+- Development falls back to a key derived from `NEXTAUTH_SECRET`. Production
+  without `VAULT_KEY` refuses.
+
+**Files: signed URLs over the existing store.** Access is derived from the
+owner (task, client, project or contract), then a five-minute HMAC-signed
+URL is issued. This mirrors S3 presigned URLs, so the bucket swap is local to
+`lib/uploads.ts` and `/f/[id]`. The bucket itself is not chosen here: it
+needs a provider and credentials (a founder decision), and until then files
+live on the validated local store, which does not persist on Vercel.
+
+**Alternatives rejected:**
+- Reusing the retainer `Milestone`: scoring side effects, and no tenant key.
+- Deleting the retainer module now: D4 says only after the replacement ships
+  and the founder agrees.
+- Storing progress on the project: a stored number drifts from its facts.

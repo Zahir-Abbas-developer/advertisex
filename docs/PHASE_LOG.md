@@ -5,6 +5,24 @@ phase → status → done → next → blockers.*
 
 ---
 
+## 2026-09-27 — Phase 4: DELIVERED, awaiting gate
+
+**Phase:** 4 — Client Management & Project Management (prompt verbatim in `docs/PHASES.md`)
+**Status:** ✅ delivered · ⏸ **STOPPED at the gate** — report: `docs/phases/PHASE_4_REPORT.md`; waiting for *"Phase 4 approved"*
+**Gate note:** the founder sent the Phase 4 prompt without the literal "Phase 3 approved"; treated as the go-ahead, as at every earlier handover.
+
+**Before Phase 4, a fix (`7bb4f22`):** a session whose account no longer exists (e.g. after a database reset) looped between /login and the page guards; `/session-ended` now clears it. The founder hit this on localhost.
+
+**Done:** client profile (services purchased with prices, contracts with files, billing summary, team, notes, communication, reports, health, credentials vault); service catalog with prices, cadences, stage templates and skills (Settings → Services); projects on the existing `Project` table with stages, weighted milestones, tasks, team, skills, discussion and audit-log activity; one progress formula; schedule and delayed detection (morning job); projects list/board/detail/analytics; private files with signed URLs and a client-visibility flag; four project notification types; `projecttest` (58) and `bundlescan`, both in CI; ADR-013; METRICS, DATA_MODEL, ARCHITECTURE updated.
+
+**Gate:** all green (793 unit, every harness, build, bundle scan, empty smoke); new screens checked in a browser at 375/768/1280 (a 375px overflow in Phase 2's Team directory found and fixed).
+
+**Needs the founder:** production `VAULT_KEY`; a file storage bucket; what to do with any legacy retainer projects (and whether the retainer code can now be deleted); the Phase 3 stage-mapping decision.
+
+**Carried:** `smoke:browser`; the Neon backup before the first deploy.
+
+---
+
 ## 2026-09-26 — Phase 3: DELIVERED, awaiting gate
 
 **Phase:** 3 — Lead Pipeline & Outreach Tracking (prompt verbatim in `docs/PHASES.md`)

@@ -11,10 +11,8 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { ClientCard } from "@/components/clients/ClientCard";
 import { ClientWizard } from "@/components/clients/ClientWizard";
-import {
-  ServiceCatalogModal,
-  type CatalogService,
-} from "@/components/clients/ServiceCatalogModal";
+import Link from "next/link";
+import { buttonClasses } from "@/components/ui/Button";
 import { CLIENT_STATUSES, CLIENT_STATUS_LABEL, type ClientStatus } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import type { ClientSummary, ServiceSummary } from "@/lib/types";
@@ -26,12 +24,12 @@ const FILTERS: Filter[] = ["ALL", ...CLIENT_STATUSES];
 
 export function ClientsBrowser({
   services,
-  catalog,
+  canOnboard,
 }: {
   /** Active services, for the onboarding wizard. */
   services: ServiceSummary[];
-  /** Every service including retired ones, for the catalogue manager. */
-  catalog: CatalogService[];
+  /** The founder onboards clients and runs the catalog; managers browse theirs. */
+  canOnboard: boolean;
 }) {
   const [clients, setClients] = useState<ClientSummary[]>([]);
   const [status, setStatus] = useState<Status>("loading");
@@ -41,8 +39,6 @@ export function ClientsBrowser({
   const router = useRouter();
   const searchParams = useSearchParams();
   const [wizardOpen, setWizardOpen] = useState(false);
-  // Set by the pipeline when a won deal is converted.
-  const [catalogOpen, setCatalogOpen] = useState(false);
 
   const load = useCallback(async () => {
     setStatus("loading");
@@ -109,20 +105,19 @@ export function ClientsBrowser({
       <PageHeader
         eyebrow="Book of business"
         title="Clients"
-        description="Every account on retainer, what they've bought, and how this month's delivery is tracking."
+        description="Every client, what they've bought, how their projects are tracking and how healthy the relationship is."
         actions={
-          <>
-            <Button
-              variant="secondary"
-              icon={<Layers className="h-4 w-4" />}
-              onClick={() => setCatalogOpen(true)}
-            >
-              Services
-            </Button>
-            <Button icon={<Plus className="h-4 w-4" />} onClick={() => setWizardOpen(true)}>
-              Onboard client
-            </Button>
-          </>
+          canOnboard ? (
+            <>
+              <Link href="/settings/services" className={buttonClasses("secondary", "md", "gap-2")}>
+                <Layers className="h-4 w-4" />
+                Services
+              </Link>
+              <Button icon={<Plus className="h-4 w-4" />} onClick={() => setWizardOpen(true)}>
+                Onboard client
+              </Button>
+            </>
+          ) : undefined
         }
       />
 
@@ -226,12 +221,18 @@ export function ClientsBrowser({
           <EmptyState
             icon={Building2}
             eyebrow="No clients yet"
-            title="Onboard your first client"
-            description="Capture their details, pick the services they've bought, and Advertise X builds the month's plan for you."
+            title={canOnboard ? "Onboard your first client" : "No clients in your departments yet"}
+            description={
+              canOnboard
+                ? "Capture their details, pick the services they've bought, and Advertise X plans the first project for you."
+                : "Clients appear here once a deal in your departments is won."
+            }
             action={
-              <Button icon={<Plus className="h-4 w-4" />} onClick={() => setWizardOpen(true)}>
-                Onboard a client
-              </Button>
+              canOnboard ? (
+                <Button icon={<Plus className="h-4 w-4" />} onClick={() => setWizardOpen(true)}>
+                  Onboard a client
+                </Button>
+              ) : undefined
             }
           />
         </div>
@@ -267,19 +268,15 @@ export function ClientsBrowser({
         </div>
       )}
 
-      <ClientWizard
-        open={wizardOpen}
-        services={services}
-        onClose={() => {
-          setWizardOpen(false);
-        }}
-      />
-
-      <ServiceCatalogModal
-        open={catalogOpen}
-        services={catalog}
-        onClose={() => setCatalogOpen(false)}
-      />
+      {canOnboard && (
+        <ClientWizard
+          open={wizardOpen}
+          services={services}
+          onClose={() => {
+            setWizardOpen(false);
+          }}
+        />
+      )}
     </div>
   );
 }

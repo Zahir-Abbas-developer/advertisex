@@ -44,7 +44,7 @@ export async function principalFor(user: SessionUser): Promise<Principal | null>
   const role = normalizeRole(account.role);
   if (!role) return null;
 
-  const [memberships, ownedClients, taskClients, milestoneClients, grants] = await Promise.all([
+  const [memberships, ownedClients, taskClients, milestoneClients, grants, projects] = await Promise.all([
     prisma.departmentMembership.findMany({
       where: { userId: account.id, department: { isActive: true } },
       select: { departmentId: true },
@@ -66,12 +66,24 @@ export async function principalFor(user: SessionUser): Promise<Principal | null>
           select: { resource: true, action: true },
         })
       : Promise.resolve([]),
+    // Phase 4: projects this person runs, is on, or owns a milestone in.
+    prisma.project.findMany({
+      where: {
+        OR: [
+          { ownerId: account.id },
+          { members: { some: { userId: account.id } } },
+          { milestones: { some: { assigneeId: account.id } } },
+        ],
+      },
+      select: { id: true, clientId: true },
+    }),
   ]);
 
   const assignedClientIds = new Set<string>([
     ...ownedClients.map((client) => client.id),
     ...taskClients.map((task) => task.clientId).filter((id): id is string => Boolean(id)),
     ...milestoneClients.map((row) => row.module.project.clientId),
+    ...projects.map((p) => p.clientId),
   ]);
 
   return {
@@ -81,6 +93,7 @@ export async function principalFor(user: SessionUser): Promise<Principal | null>
     departmentIds: memberships.map((m) => m.departmentId),
     clientAccountId: role === "CLIENT" ? account.clientAccountId : null,
     assignedClientIds: [...assignedClientIds],
+    assignedProjectIds: projects.map((p) => p.id),
     grants: grants.map((g) =>
       grantKey(g.resource as Resource, g.action as Action),
     ),

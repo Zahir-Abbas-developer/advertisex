@@ -15,7 +15,6 @@ import { CLIENT_STATUSES, CLIENT_STATUS_LABEL, INDUSTRIES } from "@/lib/constant
 import { addDays, formatDate, toDateInput } from "@/lib/date";
 import { clientDetailsSchema, fieldErrors } from "@/lib/validation";
 import { PROJECT_LENGTH_DAYS } from "@/lib/constants";
-import { SERVICE_TEMPLATES, WEEKLY_REPORT_MODULE } from "@/lib/templates";
 import { cn } from "@/lib/utils";
 import type { ServiceSummary } from "@/lib/types";
 
@@ -24,7 +23,7 @@ type Step = 1 | 2 | 3;
 const STEPS: { step: Step; label: string; hint: string }[] = [
   { step: 1, label: "Business", hint: "Who they are" },
   { step: 2, label: "Services", hint: "What they've bought" },
-  { step: 3, label: "Engagement", hint: "Their first cycle" },
+  { step: 3, label: "First project", hint: "Name and start date" },
 ];
 
 type Draft = {
@@ -68,7 +67,7 @@ function emptyDraft(): Draft {
 }
 
 /**
- * Three steps: who they are, what they bought, and the first engagement cycle.
+ * Three steps: who they are, what they bought, and their first project.
  *
  * Step 2 shows what each service will actually generate, so the owner picks
  * with the plan in view rather than discovering twenty-five milestones after
@@ -152,14 +151,8 @@ export function ClientWizard({
 
   /** What the selected services will generate, previewed before committing. */
   const preview = useMemo(() => {
-    const modules = selectedServices
-      .map((service) => SERVICE_TEMPLATES[service.slug])
-      .filter(Boolean);
-    const milestoneCount =
-      modules.reduce((sum, module) => sum + module.milestones.length, 0) +
-      WEEKLY_REPORT_MODULE.milestones.length;
-
-    return { moduleCount: modules.length + 1, milestoneCount };
+    const stageCount = selectedServices.reduce((sum, service) => sum + (service.stages?.length ?? 0), 0);
+    return { lineCount: selectedServices.length, stageCount };
   }, [selectedServices]);
 
   function validateStep1(): boolean {
@@ -466,7 +459,6 @@ export function ClientWizard({
 
           {services.map((service) => {
             const selected = draft.serviceIds.includes(service.id);
-            const template = SERVICE_TEMPLATES[service.slug];
 
             return (
               <button
@@ -505,9 +497,9 @@ export function ClientWizard({
                     </span>
                   )}
                   <span className="mt-1.5 block text-[12px] text-ink/40">
-                    {template
-                      ? `Generates "${template.name}" · ${template.milestones.length} milestones`
-                      : "No template yet — starts empty"}
+                    {service.stages?.length
+                      ? `Stages: ${service.stages.join(" → ")}`
+                      : "No stage template yet — starts with Planning → Delivery → Review"}
                   </span>
                 </span>
               </button>
@@ -519,7 +511,7 @@ export function ClientWizard({
       {step === 3 && (
         <div className="space-y-4">
           <Input
-            label="Engagement title"
+            label="Project name"
             requiredMark
             placeholder="Nov 2026 Retainer"
             value={draft.projectTitle}
@@ -561,19 +553,19 @@ export function ClientWizard({
                 </dd>
               </div>
               <div className="flex justify-between gap-4">
-                <dt className="text-ink/55">Workstreams</dt>
-                <dd className="font-medium text-ink">{preview.moduleCount}</dd>
+                <dt className="text-ink/55">Service lines</dt>
+                <dd className="font-medium tabular-nums text-ink">{preview.lineCount}</dd>
               </div>
               <div className="flex justify-between gap-4">
-                <dt className="text-ink/55">Milestones</dt>
-                <dd className="font-medium text-ink">{preview.milestoneCount}</dd>
+                <dt className="text-ink/55">Stages</dt>
+                <dd className="font-medium tabular-nums text-ink">{preview.stageCount}</dd>
               </div>
             </dl>
 
             <p className="mt-3 border-t border-line pt-3 text-[12px] leading-relaxed text-ink/45">
-              Includes four weekly client reports, seven days apart. Delivery
-              work is pre-assigned by specialism; the reports are left for you
-              to assign.
+              The first project runs 90 days from the start date, planned from
+              each service&apos;s stage template. The services are recorded at
+              catalog price; adjust what the client pays on their profile.
             </p>
           </div>
         </div>

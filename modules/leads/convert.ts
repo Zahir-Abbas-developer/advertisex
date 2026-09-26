@@ -5,6 +5,7 @@ import { prisma, transaction } from "@/lib/prisma";
 import { avatarColorFor } from "@/lib/constants";
 import { stagesFor } from "@/lib/stages";
 import type { Principal } from "@/modules/rbac/authorize";
+import { servicesForPlan, writePlan } from "@/modules/projects/server";
 
 /**
  * Convert a lead into a client — Phase 3 scope 7, in ONE transaction:
@@ -69,9 +70,7 @@ export async function convertLead(principal: Principal, leadId: string, input: C
   const organizationId = lead.department.organizationId ?? principal.organizationId;
   if (!organizationId) throw new ConvertError("This lead has no organization", 422);
 
-  const services = input.serviceIds.length
-    ? await prisma.serviceCatalog.findMany({ where: { id: { in: input.serviceIds }, isActive: true }, select: { id: true, name: true } })
-    : [];
+  const services = await servicesForPlan(input.serviceIds);
   if (services.length !== new Set(input.serviceIds).size) {
     throw new ConvertError("Please fix the highlighted fields", 422, { serviceIds: "One of those services isn't available" });
   }
@@ -137,16 +136,23 @@ export async function convertLead(principal: Principal, leadId: string, input: C
       }
     }
 
+    // The first project, planned from its services' stage templates (Phase 4),
+    // run by whoever owned the deal.
     const project = await tx.project.create({
       data: {
+        organizationId,
         clientId: client.id,
         title: input.projectTitle?.trim() || `${lead.businessName} — ${services[0]?.name ?? "Onboarding"}`,
         startDate: start,
         endDate: end,
         status: "PLANNING",
-        services: { create: services.map((s) => ({ serviceId: s.id })) },
+        ownerId: lead.ownerId,
       },
     });
+    await writePlan(tx, project.id, services, now);
+    if (lead.ownerId) {
+      await tx.projectMember.create({ data: { projectId: project.id, userId: lead.ownerId, role: "LEAD" } });
+    }
 
     // The lead's whole history now belongs to the client too (kept on the
     // lead as well), so the client's timeline starts with how it was won.

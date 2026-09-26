@@ -57,6 +57,37 @@ Migration `20260926090000_team_operating_system`: additive only.
 
 Migration `20260926140000_lead_pipeline`: additive only, zero drops.
 
+### Built in Phase 4
+
+| Entity / change | Fields | Notes |
+| --- | --- | --- |
+| `ServiceCatalog` | + organizationId, price (whole USD), billing (ONE_TIME/MONTHLY/QUARTERLY/YEARLY); name and slug unique **per organization** | Tenant root. Seeded with the 11 services of the brief (`modules/services/catalog.ts`). |
+| **ServiceSkill** | serviceId, skillId | The skills a service needs. |
+| **ServiceStageTemplate** | serviceId, name, order | A service's stages. Copied onto projects, never referenced by them. |
+| **ClientService** | organizationId, clientId, serviceId, price, billing, status (ACTIVE/PAUSED/ENDED), startDate, endDate | What a client bought, at their price. |
+| **Contract** | organizationId, clientId, title, status (DRAFT → SENT → SIGNED → ACTIVE → EXPIRED/TERMINATED), startDate, endDate, signedAt, value, notes | Files attach through `File.contractId`. |
+| **ClientCredential** | organizationId, clientId, label, kind, url, username, **secret (sealed)**, notes, createdById, lastRevealedAt | AES-256-GCM, bound to the row id; `secret` is redacted from the audit log. |
+| **ClientNote** | organizationId, clientId, authorId, body, pinned | Pinned = "important notes". |
+| `Project` | + organizationId, description, priority, ownerId, delayedAt, completedAt; statuses PLANNING/ACTIVE/ON_HOLD/COMPLETED/CANCELLED | Now a tenant root. Legacy retainer columns (payment, renewal, close-out) untouched. |
+| **ProjectMember** | projectId, userId, role (LEAD/MEMBER) | The `assigned` scope for projects. |
+| **ProjectSkill** | projectId, skillId, source (DERIVED/MANUAL) | |
+| **ProjectStage** | projectId, serviceId?, name, order, status (PENDING/ACTIVE/DONE), startedAt, completedAt | One line per service. |
+| **ProjectMilestone** | projectId, stageId?, title, description, dueDate, status (OPEN/DONE), completedAt, weight 1–5, assigneeId, order | Distinct from the parked retainer `Milestone` (which carries scoring). |
+| **ProjectComment** | projectId, authorId, body | The project's internal thread. |
+| `File` | + clientId, projectId, contractId | Exactly one owner: task, client, project or contract. |
+| `Task.projectId` | (existing) now used | A project task takes its client's department. |
+
+Migration `20260927090000_client_projects`: additive, except that
+ServiceCatalog's global unique indexes on name and slug are replaced by
+per-organization ones. Existing (legacy) services have a null organization
+until the deploy's seed backfills them to organization #1; their names differ
+from the 11 new services, so the per-organization index holds.
+
+Tenancy: the Phase 4 roots are filtered and stamped by organization;
+ProjectService/Member/Skill/Stage/Milestone/Comment are filtered through
+`project.organizationId`, ServiceStageTemplate/ServiceSkill through
+`service.organizationId` (`modules/tenancy/scope.ts`, tested).
+
 Every new foreign key is indexed; `organizationId` columns are nullable,
 backfilled by the seed (null keys only), and treated as required by the data
 layer. Making them `NOT NULL` is a later, separate migration once production

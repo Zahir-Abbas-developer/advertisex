@@ -119,6 +119,84 @@ one); manager: their departments.
 | Weekly trend | new leads and conversions per Monday-start week on the company calendar; every week in the range appears, empty ones as zero. |
 | Follow-ups / meetings booked | the outreach counts above, over the range. |
 
+## Added in Phase 4 — project progress and schedule (`modules/projects/domain.ts`)
+
+Pinned by `tests/projects-domain.test.ts`, and over HTTP by `projecttest`,
+which recomputes the formula from the database after every change and
+requires the API to agree.
+
+**Progress %** — in one sentence: *the share of the project's planned work
+that is done, where each milestone counts by its size and each task counts 1.*
+
+| Case | Formula |
+| --- | --- |
+| Work planned | ⌊ 100 × (Σ weight of done milestones + done tasks) ÷ (Σ weight of all milestones + all tasks) ⌋. Weight is 1–5 (clamped). |
+| Nothing planned yet, stages exist | ⌊ 100 × done stages ÷ stages ⌋ |
+| Nothing at all | 0 |
+| Project COMPLETED | 100 |
+
+Rounded **down**, so 100% only ever means every item is done. The same
+number feeds the project page, the lists, the client profile, analytics and
+client health.
+
+| Metric | Formula |
+| --- | --- |
+| Deadline | end of the deadline's calendar day on the company clock (`dueDeadline`). |
+| Expected progress | share of the start→deadline span already elapsed, 0–100. |
+| Schedule | CLOSED if completed or cancelled; OVERDUE if now is past the deadline; BEHIND if progress < expected − 25 points (not for ON_HOLD, which isn't expected to move); otherwise ON_TRACK. |
+| Delayed | OVERDUE or BEHIND. |
+| Days overdue | ⌈ (now − deadline) ÷ 1 day ⌉, 0 when not past. |
+| Current stage | per service line, the first stage in order that isn't DONE. |
+| Upcoming work | open milestones and tasks due within 14 days, overdue first, soonest first. |
+
+**Delayed-project job** (morning cron, `modules/projects/jobs.ts`): a project
+newly found delayed is stamped `delayedAt` and its team plus the founder are
+notified once; when it recovers the stamp clears, so a later slip is news
+again. A project due within 7 days (and not delayed) warns its team once per
+deadline date.
+
+## Added in Phase 4 — client health (`modules/clients/health.ts`)
+
+Rules, not a weighted score: every band lists the facts that put it there.
+Pinned by `tests/projects-domain.test.ts`.
+
+| Band | When |
+| --- | --- |
+| At risk | any open project more than 7 days past its deadline; or 2+ delayed projects; or on-time delivery below 60% (with at least 5 completed items) |
+| Watch | one delayed project; any overdue milestone or task; on-time delivery below 85% (≥ 5 items); a signed or active contract ending within 30 days, or past its end date |
+| Healthy | none of the above |
+
+*On-time delivery* = milestones and tasks completed by the end of their due
+day ÷ milestones and tasks completed that had a due date.
+
+(The legacy weighted health — delivery, ROAS, payment, blocked days — belongs
+to the parked retainer and KPI modules and is no longer shown.)
+
+## Added in Phase 4 — billing summary (client profile, founder only)
+
+| Metric | Formula |
+| --- | --- |
+| Monthly recurring | Σ over ACTIVE purchased services of the monthly equivalent: monthly price; quarterly ÷ 3; yearly ÷ 12; one-time 0 (rounded to whole dollars). |
+| Annual run rate | monthly recurring × 12 |
+| One-time work | Σ price of one-time services not ENDED |
+| Contracted | Σ value of SIGNED and ACTIVE contracts |
+
+Agreed figures, not invoices. Invoicing arrives with billing.
+
+## Added in Phase 4 — projects analytics (`/api/projects/analytics`)
+
+Founder: every project. Manager: their departments' clients' projects.
+
+| Metric | Formula |
+| --- | --- |
+| Active | projects PLANNING, ACTIVE or ON_HOLD (legacy OVERDUE_CLOSEOUT reads as COMPLETED) |
+| Completed | projects COMPLETED |
+| Delayed | active projects whose schedule is OVERDUE or BEHIND |
+| Upcoming deadlines | active projects whose deadline falls within the next 14 days |
+| Average progress | mean progress % of active projects (a plain mean — each project counts once) |
+| Assignments | per person: active projects they own or are on, and the open milestones and tasks assigned to them inside those projects |
+| Monthly trend | per company-calendar month, last 6: projects started (by start date), completed (by `completedAt`) |
+
 ## To be defined at their phase gates
 
 - **P2** — per-organization aggregates (same formulas, org-scoped denominators).

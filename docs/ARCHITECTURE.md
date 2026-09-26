@@ -45,7 +45,31 @@ modules/
   leads/      domain (pure: standard stages, sources, filters, tags, velocity) · csv (pure: parse,
               validate, duplicates, formula-safe export) · server (filters → where) · convert   (Phase 3)
   outreach/   domain (pure: kinds, company-calendar buckets, reconciling rollups)              (Phase 3)
+  services/   catalog (pure: the 11 services, prices, cadences, stage templates, skills)       (Phase 4)
+  projects/   domain (pure: statuses, progress, schedule, stages, upcoming) · server (scope,
+              the one create path, batched summaries, team notifications) · jobs (delayed
+              detection, deadline warnings) · activity (audit log → sentences)                 (Phase 4)
+  clients/    health (pure rules) · overview (batched card/profile state) · server · contracts (Phase 4)
+  vault/      cipher (pure AES-256-GCM, record-bound) · keys (env, rotation) · server
+              (server-only) · credentials (masked lists, audited reveal)                      (Phase 4)
+  files/      signing (pure HMAC signed URLs) · server (server-only: owner-derived access)      (Phase 4)
 ```
+
+**Credentials vault (Phase 4).** Secrets are sealed with AES-256-GCM under
+`VAULT_KEY` (rotation via `VAULT_KEY_PREVIOUS`), bound to the credential's
+id as associated data, and redacted from the audit log. Lists always return a
+fixed mask; the secret leaves the server only through `POST
+/api/credentials/[id]/reveal`, which writes its `CREDENTIAL_REVEALED` audit
+entry *before* returning and fails closed if it can't. The vault and file
+modules are `server-only`; a unit test walks the import graph so no client
+component can reach them, and `npm run bundlescan` checks the built bundles.
+
+**Files (Phase 4).** A file belongs to one task, client, project or contract,
+and access is derived from that owner on every request. Bytes are served only
+through `/f/[id]`, by a signed URL (HMAC over id, expiry and disposition, five
+minutes) issued after the access check — the contract of an S3 presigned URL,
+so moving storage to a bucket changes where the URL points, not who gets one.
+Storage today is the validated local store (`lib/uploads.ts`).
 
 **Transactions and audit (Phase 3).** Multi-entity writes use
 `transaction()` from `lib/prisma.ts`, never an interactive `prisma.$transaction`

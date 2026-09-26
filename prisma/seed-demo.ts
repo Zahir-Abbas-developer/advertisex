@@ -4,6 +4,8 @@ import { randomBytes } from "node:crypto";
 
 import { avatarColorFor } from "../lib/constants";
 import { serializeSkills } from "../lib/skills";
+import { seal } from "../modules/vault/cipher";
+import { vaultKeys } from "../modules/vault/keys";
 
 /**
  * The Phase 1 demo tenant (docs/PHASES.md, scope 11): one organization with a
@@ -241,6 +243,9 @@ async function main() {
 
   // --- Phase 3: a living pipeline with its history and outreach ------------
   await seedPipeline(org.id);
+
+  // --- Phase 4: what clients bought, their projects, contracts, vault -------
+  await seedClientProjects(org.id);
 
   const roles = await prisma.user.groupBy({ by: ["role"], _count: true });
   console.log("Advertise X demo tenant");
@@ -510,6 +515,276 @@ async function seedPipeline(organizationId: string) {
         data: { departmentId: dept.id, leadId: lead.id, userId: ownerId, type: "DEAL_CLOSED", isSystem: true, note: `Won ${name}`, occurredAt: lastMove },
       });
     }
+  }
+}
+
+const DAY_MS = 86_400_000;
+/** UTC midnight, `n` days from today — date-only values are stored that way. */
+const dayFromToday = (n: number) => {
+  const d = new Date();
+  return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()) + n * DAY_MS);
+};
+
+type DemoProject = {
+  title: string;
+  services: string[];
+  start: number;
+  deadline: number;
+  status: "PLANNING" | "ACTIVE" | "COMPLETED";
+  priority?: string;
+  /** Stages done per service line, in order. */
+  stagesDone: number[];
+  milestones: { title: string; weight: number; due: number; done: boolean; stage?: number; line?: number }[];
+  tasks: { title: string; due: number; done: boolean }[];
+  team: string[];
+};
+
+type DemoClient = {
+  account: string;
+  owner: string;
+  services: [slug: string, price: number][];
+  projects: DemoProject[];
+  contract: { title: string; status: string; start: number; end: number; value: number };
+  credentials: { label: string; kind: string; url: string; username: string; secret: string }[];
+  note: string;
+};
+
+const CLIENT_PROJECTS: DemoClient[] = [
+  {
+    account: "Osteria Nonna",
+    owner: "tayyaba@bwm.local",
+    services: [["website-development", 4500], ["google-ads", 1500], ["local-seo", 800]],
+    projects: [
+      {
+        title: "Website relaunch",
+        services: ["website-development"],
+        start: -40,
+        deadline: 20,
+        status: "ACTIVE",
+        priority: "HIGH",
+        stagesDone: [2],
+        milestones: [
+          { title: "Sitemap and content plan", weight: 2, due: -30, done: true, stage: 0 },
+          { title: "Homepage design approved", weight: 3, due: -12, done: true, stage: 1 },
+          { title: "Menu and booking pages built", weight: 3, due: 5, done: false, stage: 2 },
+          { title: "Launch checklist signed off", weight: 2, due: 18, done: false, stage: 4 },
+        ],
+        tasks: [
+          { title: "Collect new menu photos", due: -20, done: true },
+          { title: "Connect OpenTable widget", due: 4, done: false },
+          { title: "Write allergen page copy", due: 8, done: false },
+        ],
+        team: ["tayyaba@bwm.local", "cheryl@bwm.local", "rajazain@bwm.local"],
+      },
+      {
+        title: "Always-on search",
+        services: ["google-ads", "local-seo"],
+        start: -60,
+        deadline: 120,
+        status: "ACTIVE",
+        stagesDone: [3, 2],
+        milestones: [
+          { title: "Search campaigns live", weight: 3, due: -45, done: true, line: 0, stage: 2 },
+          { title: "Map pack in top 3 for 'italian near me'", weight: 4, due: 60, done: false, line: 1, stage: 3 },
+        ],
+        tasks: [{ title: "Monthly search terms review", due: 10, done: false }],
+        team: ["tayyaba@bwm.local", "pulse.agent@advertisex.example"],
+      },
+    ],
+    contract: { title: "Website and search retainer", status: "ACTIVE", start: -60, end: 305, value: 31800 },
+    credentials: [
+      { label: "WordPress admin", kind: "WEBSITE", url: "https://osterianonna.example/wp-admin", username: "owner@osterianonna.example", secret: "Nonna-Demo-2026!" },
+      { label: "Google Ads", kind: "GOOGLE", url: "https://ads.google.com", username: "ads@osterianonna.example", secret: "demo-google-7731" },
+    ],
+    note: "Chef Marco approves every photo of the food himself — send drafts to him, not the front of house.",
+  },
+  {
+    account: "Bao Society",
+    owner: "claire@bwm.local",
+    services: [["social-media-marketing", 1800], ["meta-ads", 1500]],
+    projects: [
+      {
+        title: "Instagram launch",
+        services: ["social-media-marketing"],
+        start: -50,
+        deadline: -5,
+        status: "ACTIVE",
+        priority: "URGENT",
+        stagesDone: [1],
+        milestones: [
+          { title: "Brand voice guide", weight: 2, due: -40, done: true, stage: 0 },
+          { title: "30-day content calendar", weight: 3, due: -20, done: false, stage: 1 },
+          { title: "First 12 posts produced", weight: 4, due: -8, done: false, stage: 2 },
+        ],
+        tasks: [
+          { title: "Book the dumpling shoot", due: -15, done: false },
+          { title: "Draft launch captions", due: -10, done: true },
+        ],
+        team: ["claire@bwm.local", "maya@advertisex.example", "quill.agent@advertisex.example"],
+      },
+    ],
+    contract: { title: "Social retainer", status: "ACTIVE", start: -70, end: 20, value: 9900 },
+    credentials: [{ label: "Instagram", kind: "SOCIAL", url: "https://instagram.com/baosociety", username: "baosociety", secret: "bao-demo-5582" }],
+    note: "Never post before 11am — the owners run the morning shift and want to see comments as they come in.",
+  },
+  {
+    account: "Grind Coffee Co.",
+    owner: "cheryl@bwm.local",
+    services: [["branding", 6000], ["google-business-profile", 600], ["ai-automation", 3500]],
+    projects: [
+      {
+        title: "Brand refresh",
+        services: ["branding"],
+        start: -120,
+        deadline: -30,
+        status: "COMPLETED",
+        stagesDone: [5],
+        milestones: [
+          { title: "Logo concepts", weight: 3, due: -95, done: true, stage: 1 },
+          { title: "Brand guidelines delivered", weight: 4, due: -32, done: true, stage: 3 },
+        ],
+        tasks: [],
+        team: ["cam@bwm.local", "cheryl@bwm.local"],
+      },
+      {
+        title: "Booking and reply automation",
+        services: ["ai-automation"],
+        start: 7,
+        deadline: 60,
+        status: "PLANNING",
+        stagesDone: [0],
+        milestones: [{ title: "Automation map agreed", weight: 2, due: 14, done: false, stage: 0 }],
+        tasks: [],
+        team: ["rajazain@bwm.local", "cheryl@bwm.local"],
+      },
+    ],
+    contract: { title: "Brand and automation", status: "SIGNED", start: -125, end: 240, value: 10100 },
+    credentials: [{ label: "Google Business Profile", kind: "GOOGLE", url: "https://business.google.com", username: "hello@grindcoffee.example", secret: "grind-demo-9914" }],
+    note: "Three locations — every change to hours must go on all three profiles the same day.",
+  },
+];
+
+/**
+ * Phase 4 demo data: services bought (with prices), projects planned from the
+ * catalog's stage templates at different points in their life (on track,
+ * delayed, completed, not started), contracts, sealed credentials and pinned
+ * notes. Converges: a client that already has purchases is left alone.
+ */
+async function seedClientProjects(organizationId: string) {
+  const services = await prisma.serviceCatalog.findMany({
+    where: { organizationId },
+    select: { id: true, slug: true, billing: true, stageTemplates: { select: { name: true, order: true }, orderBy: { order: "asc" } }, skills: { select: { skillId: true } } },
+  });
+  const bySlug = new Map(services.map((x) => [x.slug, x]));
+  const userId = async (email: string) => (await prisma.user.findUnique({ where: { email }, select: { id: true } }))?.id ?? null;
+  const { keys } = vaultKeys();
+
+  for (const demo of CLIENT_PROJECTS) {
+    const client = await prisma.client.findFirst({ where: { organizationId, businessName: demo.account }, select: { id: true, departmentId: true } });
+    if (!client || (await prisma.clientService.count({ where: { clientId: client.id } }))) continue;
+    const owner = await userId(demo.owner);
+
+    for (const [slug, price] of demo.services) {
+      const svc = bySlug.get(slug);
+      if (!svc) continue;
+      await prisma.clientService.create({ data: { organizationId, clientId: client.id, serviceId: svc.id, price, billing: svc.billing, startDate: dayFromToday(-60) } });
+    }
+
+    for (const p of demo.projects) {
+      const lines = p.services.map((slug) => bySlug.get(slug)).filter((x): x is NonNullable<typeof x> => Boolean(x));
+      const project = await prisma.project.create({
+        data: {
+          organizationId,
+          clientId: client.id,
+          title: p.title,
+          startDate: dayFromToday(p.start),
+          endDate: dayFromToday(p.deadline),
+          status: p.status,
+          priority: p.priority ?? "MEDIUM",
+          ownerId: owner,
+          completedAt: p.status === "COMPLETED" ? dayFromToday(p.deadline - 2) : null,
+          services: { create: lines.map((l) => ({ serviceId: l.id })) },
+        },
+      });
+      const stageIds: string[][] = [];
+      for (const [li, line] of lines.entries()) {
+        const done = p.stagesDone[li] ?? 0;
+        const ids: string[] = [];
+        for (const t of line.stageTemplates) {
+          const status = t.order < done ? "DONE" : t.order === done ? "ACTIVE" : "PENDING";
+          const stage = await prisma.projectStage.create({
+            data: {
+              projectId: project.id,
+              serviceId: line.id,
+              name: t.name,
+              order: t.order,
+              status,
+              startedAt: status === "PENDING" ? null : dayFromToday(p.start + t.order * 7),
+              completedAt: status === "DONE" ? dayFromToday(p.start + (t.order + 1) * 7) : null,
+            },
+          });
+          ids.push(stage.id);
+        }
+        stageIds.push(ids);
+      }
+      const skillIds = [...new Set(lines.flatMap((l) => l.skills.map((k) => k.skillId)))];
+      if (skillIds.length) await prisma.projectSkill.createMany({ data: skillIds.map((skillId) => ({ projectId: project.id, skillId, source: "DERIVED" })) });
+
+      const team = (await Promise.all(p.team.map(userId))).filter((x): x is string => Boolean(x));
+      for (const member of new Set([...(owner ? [owner] : []), ...team])) {
+        await prisma.projectMember.create({ data: { projectId: project.id, userId: member, role: member === owner ? "LEAD" : "MEMBER" } });
+      }
+      for (const [i, m] of p.milestones.entries()) {
+        await prisma.projectMilestone.create({
+          data: {
+            projectId: project.id,
+            stageId: m.stage !== undefined ? stageIds[m.line ?? 0]?.[m.stage] ?? null : null,
+            title: m.title,
+            weight: m.weight,
+            dueDate: dayFromToday(m.due),
+            status: m.done ? "DONE" : "OPEN",
+            completedAt: m.done ? dayFromToday(m.due - 1) : null,
+            assigneeId: team[i % Math.max(1, team.length)] ?? owner,
+            order: i,
+          },
+        });
+      }
+      for (const [i, t] of p.tasks.entries()) {
+        await prisma.task.create({
+          data: {
+            departmentId: client.departmentId,
+            clientId: client.id,
+            projectId: project.id,
+            title: t.title,
+            dueAt: dayFromToday(t.due),
+            status: t.done ? "COMPLETED" : i % 2 ? "IN_PROGRESS" : "NOT_STARTED",
+            completedAt: t.done ? dayFromToday(t.due - 1) : null,
+            assigneeId: team[i % Math.max(1, team.length)] ?? owner,
+            createdById: owner,
+          },
+        });
+      }
+    }
+
+    await prisma.contract.create({
+      data: {
+        organizationId,
+        clientId: client.id,
+        title: demo.contract.title,
+        status: demo.contract.status,
+        startDate: dayFromToday(demo.contract.start),
+        endDate: dayFromToday(demo.contract.end),
+        signedAt: dayFromToday(demo.contract.start - 3),
+        value: demo.contract.value,
+      },
+    });
+    for (const c of demo.credentials) {
+      const id = randomBytes(12).toString("hex");
+      await prisma.clientCredential.create({
+        data: { id, organizationId, clientId: client.id, label: c.label, kind: c.kind, url: c.url, username: c.username, secret: seal(c.secret, keys[0], id), createdById: owner },
+      });
+    }
+    await prisma.clientNote.create({ data: { organizationId, clientId: client.id, authorId: owner, body: demo.note, pinned: true } });
   }
 }
 

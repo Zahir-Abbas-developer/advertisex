@@ -1,73 +1,60 @@
 import { NextResponse } from "next/server";
 
 import { prisma } from "@/lib/prisma";
-import { apiError, requireAdminApi } from "@/lib/api";
+import { apiError } from "@/lib/api";
 import { fieldErrors, onboardClientSchema } from "@/lib/validation";
 import { parseDateInput } from "@/lib/date";
-import { createProjectWithPlan, progressForProjects } from "@/lib/planner";
-import { healthForClients } from "@/lib/client-health-service";
-import { alertsForClients } from "@/lib/kpi-service";
 import { containsInsensitive } from "@/lib/db-features";
-import { departmentIdsForUser } from "@/lib/departments";
-import { hasAdminPower } from "@/lib/constants";
-import { isModuleEnabled } from "@/lib/modules";
+import { requireApi } from "@/modules/rbac/server";
+import { clientOverviews } from "@/modules/clients/overview";
+import { createProject, ProjectError } from "@/modules/projects/server";
 
+/**
+ * The clients list (Phase 4): the founder sees every client, a manager their
+ * departments'. Recurring value is the founder's alone.
+ */
 export async function GET(request: Request) {
-  const { user, response } = await requireAdminApi();
-  if (response) return response;
+  const gate = await requireApi("read", "client");
+  if (gate.response) return gate.response;
+  const principal = gate.principal;
+  // The book of business is the founder's and the managers'. Employees reach
+  // the clients they work for through their projects, not a list.
+  if (principal.role !== "FOUNDER" && principal.role !== "MANAGER") return apiError("You don't have access to that", 403);
 
   const { searchParams } = new URL(request.url);
   const status = searchParams.get("status");
   const query = searchParams.get("q")?.trim();
+  const options = searchParams.get("options") === "1";
 
-  // The departments this viewer may see, which is what the filter chips are
-  // drawn from. Today the route is admin-only, so this is every active
-  // department — but the list is derived rather than assumed, so widening the
-  // gate to members scopes the rows and the chips together instead of leaking
-  // one while filtering the other.
-  const visibleDepartmentIds = await departmentIdsForUser(
-    user!.id,
-    hasAdminPower(user!.role),
-  );
+  const scope = principal.role === "FOUNDER" ? {} : { departmentId: { in: [...principal.departmentIds] } };
 
   try {
     const clients = await prisma.client.findMany({
       where: {
+        ...scope,
         ...(status && status !== "ALL" ? { status } : {}),
         // containsInsensitive supplies Postgres's `mode: "insensitive"`;
         // SQLite ignores it. Without it, search behaves differently in
         // production than it does locally.
         ...(query ? { businessName: containsInsensitive(query) } : {}),
-        departmentId: { in: visibleDepartmentIds },
       },
       orderBy: [{ status: "asc" }, { businessName: "asc" }],
       include: {
-        projects: {
-          orderBy: { startDate: "desc" },
-          take: 1,
-          include: { services: { include: { service: true } } },
-        },
-        department: {
-          select: { id: true, shortLabel: true, colorToken: true },
-        },
+        department: { select: { id: true, shortLabel: true, colorToken: true } },
         assignee: { select: { id: true, name: true, avatarColor: true } },
       },
     });
 
-    // Health and the performance alert are batched across every card rather
-    // than computed per card — five clients would otherwise be twenty queries.
-    const ids = clients.map((client) => client.id);
-    const [health, alerts, progress] = await Promise.all([
-      healthForClients(ids),
-      alertsForClients(ids),
-      progressForProjects(
-        clients.map((client) => client.projects[0]?.id).filter((id): id is string => Boolean(id)),
-      ),
-    ]);
+    // A picker (new project, filters) needs names only.
+    if (options) {
+      return NextResponse.json({ clients: clients.map((c) => ({ id: c.id, businessName: c.businessName, departmentId: c.departmentId })) });
+    }
 
+    const overviews = await clientOverviews(clients.map((c) => c.id));
+    const money = principal.role === "FOUNDER";
     return NextResponse.json({
       clients: clients.map((client) => {
-        const current = client.projects[0] ?? null;
+        const o = overviews.get(client.id)!;
         return {
           id: client.id,
           businessName: client.businessName,
@@ -75,37 +62,19 @@ export async function GET(request: Request) {
           email: client.email,
           country: client.country,
           industry: client.industry,
-          monthlyBudget: client.monthlyBudget,
           status: client.status,
           onboardedAt: client.onboardedAt,
           department: client.department,
           assignee: client.assignee,
           nextFollowUpAt: client.nextFollowUpAt,
-          services: current
-            ? current.services.map((link) => ({
-                id: link.service.id,
-                name: link.service.name,
-                slug: link.service.slug,
-              }))
-            : [],
-          currentProject: current
-            ? {
-                id: current.id,
-                title: current.title,
-                status: current.status,
-                startDate: current.startDate,
-                endDate: current.endDate,
-                progress: progress.get(current.id) ?? { total: 0, done: 0, percent: 0 },
-                paymentStatus: current.paymentStatus,
-              }
-            : null,
-          health: (() => {
-            const row = health.get(client.id);
-            return row ? { score: row.score, band: row.band, headline: row.headline } : null;
-          })(),
-          performanceAlert: alerts.get(client.id)?.firing ?? false,
+          services: o.services,
+          monthlyRecurring: money ? o.monthlyRecurring : null,
+          openProjects: o.openProjects,
+          currentProject: o.currentProject,
+          health: o.health,
         };
       }),
+      viewer: { canOnboard: money },
     });
   } catch {
     return apiError("Couldn't load your clients", 500);
@@ -114,8 +83,8 @@ export async function GET(request: Request) {
 
 /** The 3-step onboarding wizard: client, services, and the first engagement. */
 export async function POST(request: Request) {
-  const { response } = await requireAdminApi();
-  if (response) return response;
+  const gate = await requireApi("manage", "admin", "Only the founder onboards clients");
+  if (gate.response) return gate.response;
 
   let body: unknown;
   try {
@@ -160,25 +129,34 @@ export async function POST(request: Request) {
       },
     });
 
-    const project = await createProjectWithPlan({
+    // What the client bought, at catalog price (edited on the profile), and
+    // the first project planned from those services' stage templates.
+    const bought = await prisma.serviceCatalog.findMany({ where: { id: { in: serviceIds } }, select: { id: true, price: true, billing: true } });
+    await prisma.clientService.createMany({
+      data: bought.map((s) => ({
+        organizationId: client.organizationId ?? gate.principal.organizationId ?? "",
+        clientId: client.id,
+        serviceId: s.id,
+        price: s.price,
+        billing: s.billing,
+        startDate: start,
+      })),
+    });
+    const project = await createProject(gate.principal, {
       clientId: client.id,
       title: projectTitle,
-      startDate: start,
       serviceIds,
+      startDate: start,
+      endDate: new Date(start.getTime() + 90 * 86_400_000),
+      status: start.getTime() <= Date.now() ? "ACTIVE" : "PLANNING",
+      priority: "MEDIUM",
+      ownerId: client.assigneeId ?? gate.principal.id,
+      memberIds: [],
     });
 
-    /* Where the person should land, decided here because only the server
-       knows which modules are on. The wizard used to go straight to the new
-       project's plan — but that page belongs to the retainer-projects module,
-       which Advertise X ships switched off, so every successful onboarding ended on
-       "Retainer projects is switched off". The client had been created; the
-       screen said otherwise. The client's own page is never gated. */
-    const next = (await isModuleEnabled("retainerProjects"))
-      ? `/projects/${project.id}`
-      : `/clients/${client.id}`;
-
-    return NextResponse.json({ client, project, next }, { status: 201 });
-  } catch {
+    return NextResponse.json({ client, project, next: `/clients/${client.id}` }, { status: 201 });
+  } catch (error) {
+    if (error instanceof ProjectError) return apiError(error.message, error.status, error.fields);
     return apiError("Couldn't onboard this client", 500);
   }
 }

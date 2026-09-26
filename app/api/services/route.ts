@@ -2,68 +2,83 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { prisma } from "@/lib/prisma";
-import { apiError, requireAdminApi } from "@/lib/api";
+import { apiError } from "@/lib/api";
 import { fieldErrors } from "@/lib/validation";
+import { requireApi } from "@/modules/rbac/server";
+import { BILLING_CADENCES, FALLBACK_STAGES, slugifyService } from "@/modules/services/catalog";
 
-const serviceSchema = z.object({
-  name: z.string().trim().min(2, "Name the service").max(80),
-  description: z.string().trim().max(300).optional(),
-});
+/**
+ * The service catalog (Phase 4). Anyone who plans projects reads it (names,
+ * stage templates, skills); prices are the founder's. `?all=1` includes
+ * retired services, for the settings screen.
+ */
+export async function GET(request: Request) {
+  const gate = await requireApi("read", "project");
+  if (gate.response) return gate.response;
+  const founder = gate.principal.role === "FOUNDER";
+  const all = new URL(request.url).searchParams.get("all") === "1" && founder;
 
-export async function GET() {
-  const { response } = await requireAdminApi();
-  if (response) return response;
-
-  try {
-    const services = await prisma.serviceCatalog.findMany({
-      where: { isActive: true },
-      orderBy: { order: "asc" },
-    });
-    return NextResponse.json({ services });
-  } catch {
-    return apiError("Couldn't load the service catalogue", 500);
-  }
+  const services = await prisma.serviceCatalog.findMany({
+    where: all ? {} : { isActive: true },
+    orderBy: { order: "asc" },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      description: true,
+      price: true,
+      billing: true,
+      isActive: true,
+      stageTemplates: { select: { id: true, name: true, order: true }, orderBy: { order: "asc" } },
+      skills: { select: { skill: { select: { id: true, name: true } } } },
+    },
+  });
+  return NextResponse.json({
+    services: services.map((s) => ({
+      ...s,
+      price: founder ? s.price : null,
+      billing: founder ? s.billing : null,
+      skills: s.skills.map((k) => k.skill),
+    })),
+  });
 }
 
+const serviceSchema = z
+  .object({
+    name: z.string().trim().min(2, "Name the service").max(80),
+    description: z.string().trim().max(300).optional(),
+    price: z.number().int().min(0).max(10_000_000).default(0),
+    billing: z.enum(BILLING_CADENCES).default("ONE_TIME"),
+    stages: z.array(z.string().trim().min(1).max(60)).max(20).optional(),
+  })
+  .strict();
+
 export async function POST(request: Request) {
-  const { response } = await requireAdminApi();
-  if (response) return response;
+  const gate = await requireApi("manage", "admin", "Only the founder can do that");
+  if (gate.response) return gate.response;
 
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return apiError("Invalid request body", 400);
-  }
-
-  const parsed = serviceSchema.safeParse(body);
-  if (!parsed.success) {
-    return apiError("Please fix the highlighted fields", 422, fieldErrors(parsed.error));
-  }
-
-  // A custom service has no built-in template, so its projects start with just
-  // the reporting module. The slug is derived once and then frozen.
-  const slug = parsed.data.name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "")
-    .slice(0, 60);
-
-  const last = await prisma.serviceCatalog.findFirst({ orderBy: { order: "desc" } });
+  const parsed = serviceSchema.safeParse(await request.json().catch(() => null));
+  if (!parsed.success) return apiError("Please fix the highlighted fields", 422, fieldErrors(parsed.error));
+  const d = parsed.data;
+  const last = await prisma.serviceCatalog.findFirst({ orderBy: { order: "desc" }, select: { order: true } });
+  const stages = d.stages?.length ? d.stages : [...FALLBACK_STAGES];
 
   try {
     const service = await prisma.serviceCatalog.create({
       data: {
-        name: parsed.data.name,
-        description: parsed.data.description,
-        slug,
+        organizationId: gate.principal.organizationId,
+        name: d.name,
+        description: d.description,
+        // Derived once, then frozen: it keys nothing a rename should move.
+        slug: slugifyService(d.name),
+        price: d.price,
+        billing: d.billing,
         order: (last?.order ?? 0) + 1,
+        stageTemplates: { create: stages.map((name, order) => ({ name, order })) },
       },
     });
     return NextResponse.json({ service }, { status: 201 });
   } catch {
-    return apiError("A service with that name already exists", 409, {
-      name: "Already in the catalogue",
-    });
+    return apiError("A service with that name already exists", 409, { name: "Already in the catalogue" });
   }
 }

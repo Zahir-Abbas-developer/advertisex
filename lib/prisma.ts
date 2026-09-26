@@ -35,7 +35,7 @@ if (process.env.NODE_ENV !== "production") {
   globalForPrisma.prisma = prisma;
 }
 
-type TransactionClient = Parameters<Parameters<AppPrismaClient["$transaction"]>[0]>[0];
+export type TransactionClient = Parameters<Parameters<AppPrismaClient["$transaction"]>[0]>[0];
 
 /**
  * An interactive transaction that keeps the audit trail honest: every audit

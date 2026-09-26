@@ -2,115 +2,133 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/session";
-import { progressForProjects } from "@/lib/planner";
-import { clientBlockedDays } from "@/lib/blocking";
-import { healthForClients } from "@/lib/client-health-service";
-import { ClientDetail } from "@/components/clients/ClientDetail";
-import type { ClientStatus, ProjectStatus } from "@/lib/constants";
+import { authorize } from "@/modules/rbac/authorize";
+import { requirePage } from "@/modules/rbac/server";
+import { clientOverviews } from "@/modules/clients/overview";
+import { canOnCredentials } from "@/modules/vault/credentials";
+import { monthlyEquivalent } from "@/modules/services/catalog";
+import { isOpenProject } from "@/modules/projects/domain";
+import { ClientProfile, type ClientProfileData } from "@/components/clients/ClientProfile";
+import type { ClientStatus } from "@/lib/constants";
 
-export async function generateMetadata({
-  params,
-}: {
-  params: { id: string };
-}): Promise<Metadata> {
-  const client = await prisma.client.findUnique({
-    where: { id: params.id },
-    select: { businessName: true },
-  });
-
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+  const client = await prisma.client.findUnique({ where: { id: params.id }, select: { businessName: true } });
   return { title: client?.businessName ?? "Client" };
 }
 
-export default async function ClientDetailPage({
-  params,
-}: {
-  params: { id: string };
-}) {
-  await requireAdmin();
+/**
+ * The client profile (Phase 4 scope 1) — the single place everything about a
+ * client lives. The founder sees money; a manager sees their departments'
+ * clients without it.
+ */
+export default async function ClientProfilePage({ params }: { params: { id: string } }) {
+  const principal = await requirePage("read", "client");
 
-  const [client, services] = await Promise.all([
-    prisma.client.findUnique({
-      where: { id: params.id },
-      include: {
-        projects: {
-          orderBy: { startDate: "desc" },
-          include: { services: { include: { service: true } } },
-        },
+  const client = await prisma.client.findUnique({
+    where: { id: params.id },
+    include: {
+      department: { select: { id: true, shortLabel: true } },
+      assignee: { select: { id: true, name: true, avatarColor: true, jobTitle: true } },
+      clientAccount: { select: { id: true, users: { select: { id: true }, take: 1 } } },
+    },
+  });
+  if (!client) notFound();
+  const target = { organizationId: client.organizationId, departmentId: client.departmentId, clientId: client.id };
+  if (!authorize(principal, "read", "client", target).allowed) notFound();
+
+  const founder = principal.role === "FOUNDER";
+  const [overview, projects, pinned, reports, services, contracts] = await Promise.all([
+    clientOverviews([client.id]).then((m) => m.get(client.id)!),
+    prisma.project.findMany({
+      where: { clientId: client.id },
+      select: {
+        status: true,
+        owner: { select: { id: true, name: true, avatarColor: true, jobTitle: true } },
+        members: { select: { user: { select: { id: true, name: true, avatarColor: true, jobTitle: true } } } },
       },
     }),
-    prisma.serviceCatalog.findMany({
-      where: { isActive: true },
-      orderBy: { order: "asc" },
-      select: { id: true, name: true, slug: true, description: true },
+    prisma.clientNote.findMany({
+      where: { clientId: client.id, pinned: true },
+      orderBy: { updatedAt: "desc" },
+      take: 5,
+      select: { id: true, body: true, updatedAt: true, author: { select: { name: true } } },
     }),
+    prisma.report.findMany({
+      where: { clientId: client.id },
+      orderBy: { periodStart: "desc" },
+      take: 12,
+      select: { id: true, type: true, periodStart: true, periodEnd: true, generatedAt: true },
+    }),
+    founder ? prisma.clientService.findMany({ where: { clientId: client.id }, select: { price: true, billing: true, status: true } }) : Promise.resolve([]),
+    founder ? prisma.contract.findMany({ where: { clientId: client.id }, select: { value: true, status: true } }) : Promise.resolve([]),
   ]);
 
-  if (!client) notFound();
+  // The assigned team: the account owner, then everyone on an open project.
+  const team = new Map<string, { id: string; name: string; avatarColor: string; jobTitle: string | null; role: string }>();
+  if (client.assignee) team.set(client.assignee.id, { ...client.assignee, role: "Account owner" });
+  for (const p of projects.filter((x) => isOpenProject(x.status))) {
+    if (p.owner && !team.has(p.owner.id)) team.set(p.owner.id, { ...p.owner, role: "Project lead" });
+    for (const m of p.members) if (!team.has(m.user.id)) team.set(m.user.id, { ...m.user, role: "Project team" });
+  }
 
-  const [progress, waiting, healthMap] = await Promise.all([
-    progressForProjects(client.projects.map((project) => project.id)),
-    // Delay this client caused, so a conversation about a late deliverable
-    // starts from data rather than from recollection.
-    clientBlockedDays(client.id),
-    healthForClients([client.id]),
-  ]);
+  const data: ClientProfileData = {
+    client: {
+      id: client.id,
+      businessName: client.businessName,
+      contactName: client.contactName,
+      email: client.email,
+      // Contact numbers stay the founder's (the standing leak-scan policy).
+      phone: founder ? client.phone : null,
+      website: client.website,
+      location: client.location,
+      country: client.country,
+      industry: client.industry,
+      tags: client.tags ? client.tags.split(",").filter(Boolean) : [],
+      status: client.status as ClientStatus,
+      notes: client.notes,
+      onboardedAt: client.onboardedAt.toISOString(),
+      department: client.department,
+      hasPortal: Boolean(client.clientAccount?.users.length),
+    },
+    overview,
+    team: [...team.values()],
+    pinnedNotes: pinned.map((n) => ({ id: n.id, body: n.body, updatedAt: n.updatedAt.toISOString(), author: n.author?.name ?? null })),
+    reports: reports.map((r) => ({ id: r.id, type: r.type, periodStart: r.periodStart.toISOString(), periodEnd: r.periodEnd.toISOString() })),
+    editRecord: founder
+      ? {
+          id: client.id,
+          businessName: client.businessName,
+          contactName: client.contactName,
+          email: client.email,
+          phone: client.phone,
+          country: client.country,
+          industry: client.industry,
+          monthlyBudget: client.monthlyBudget,
+          status: client.status as ClientStatus,
+          notes: client.notes,
+          autoRenew: client.autoRenew,
+          targetRoas: client.targetRoas,
+          onboardedAt: client.onboardedAt.toISOString(),
+        }
+      : null,
+    billing: founder
+      ? {
+          monthlyRecurring: overview.monthlyRecurring,
+          oneTime: services.filter((s) => s.billing === "ONE_TIME" && s.status !== "ENDED").reduce((t, s) => t + s.price, 0),
+          activeServices: services.filter((s) => s.status === "ACTIVE").length,
+          contractedValue: contracts.filter((c) => ["SIGNED", "ACTIVE"].includes(c.status)).reduce((t, c) => t + c.value, 0),
+          annualRunRate: services.filter((s) => s.status === "ACTIVE").reduce((t, s) => t + monthlyEquivalent(s.price, s.billing) * 12, 0),
+        }
+      : null,
+    viewer: {
+      id: principal.id,
+      isFounder: founder,
+      canEdit: authorize(principal, "update", "client", target).allowed,
+      canManageContracts: principal.role === "FOUNDER" || principal.role === "MANAGER",
+      canCreateProject: authorize(principal, "create", "project", { organizationId: client.organizationId, departmentId: client.departmentId }).allowed,
+      canSeeCredentials: canOnCredentials(principal, "read", { ...target, id: client.id, businessName: client.businessName }),
+    },
+  };
 
-  const health = healthMap.get(client.id) ?? null;
-
-  return (
-    <ClientDetail
-      services={services}
-      health={
-        health
-          ? {
-              score: health.score,
-              band: health.band,
-              headline: health.headline,
-              components: health.components.map((component) => ({
-                key: component.key,
-                label: component.label,
-                score: component.score,
-                detail: component.detail,
-              })),
-            }
-          : null
-      }
-      waiting={{
-        totalDays: waiting.totalDays,
-        openItems: waiting.openItems.map((item) => ({
-          ...item,
-          since: item.since.toISOString(),
-        })),
-      }}
-      client={{
-        id: client.id,
-        businessName: client.businessName,
-        contactName: client.contactName,
-        email: client.email,
-        phone: client.phone,
-        country: client.country,
-        industry: client.industry,
-        monthlyBudget: client.monthlyBudget,
-        status: client.status as ClientStatus,
-        notes: client.notes,
-        autoRenew: client.autoRenew,
-        targetRoas: client.targetRoas,
-        onboardedAt: client.onboardedAt.toISOString(),
-      }}
-      projects={client.projects.map((project) => ({
-        id: project.id,
-        title: project.title,
-        status: project.status as ProjectStatus,
-        startDate: project.startDate.toISOString(),
-        endDate: project.endDate.toISOString(),
-        services: project.services.map((link) => ({
-          id: link.service.id,
-          name: link.service.name,
-          slug: link.service.slug,
-        })),
-        progress: progress.get(project.id) ?? { total: 0, done: 0, percent: 0 },
-      }))}
-    />
-  );
+  return <ClientProfile data={data} />;
 }

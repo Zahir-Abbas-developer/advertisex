@@ -16,6 +16,7 @@ import { captureMrrSnapshot, runWeeklyTargets, type WeeklyTargetRun } from "@/li
 import { markOverdueCycles } from "@/lib/payments";
 import { runIncentives, type IncentiveRun } from "@/lib/incentives-service";
 import { chaseOpenDisputes } from "@/lib/disputes";
+import { isModuleEnabled } from "@/lib/modules";
 
 /**
  * The daily evaluation pass.
@@ -78,18 +79,24 @@ export async function runEvaluation(
   // wait is visible and pursued.
   const reviewChases = await chaseStaleReviews(now);
   const lateOrBonusApplied = await catchUpCompletions();
-  const closeout = await closeOutEndedProjects(now);
+
+  // Retainer cycles (close-out, payment, renewal) belong to the parked
+  // retainer module. Phase 4 projects share the Project table and have their
+  // own lifecycle, so these run only while that module is switched on — and
+  // close-out only ever touches cycles that have retainer workstreams.
+  const retainer = await isModuleEnabled("retainerProjects");
+  const closeout = retainer ? await closeOutEndedProjects(now) : { projectsClosed: 0, milestonesMissed: 0, missedPointsApplied: 0 };
 
   // Payment settles before renewal, so the renewals digest can say "previous
   // cycle unpaid" against a status that is current rather than a day stale.
-  const markedOverdue = await markOverdueCycles(now);
+  const markedOverdue = retainer ? await markOverdueCycles(now) : 0;
 
   // Renewal runs *after* close-out, and that order is load-bearing: close-out
   // is what charges the MISSED penalties for the cycle that just ended, and
   // renewal is what copies the survivors forward. Reversed, the carried-over
   // copies would exist before the originals were settled and the same work
   // could be charged in both cycles.
-  const renewal = await runAutoRenewal(now);
+  const renewal = retainer ? await runAutoRenewal(now) : { ranAt: now.toISOString(), renewed: [], skipped: [], totalCarriedOver: 0 };
 
   // Weekly targets settle on Monday, for the week that just closed. Members
   // are told on the same schedule reports arrive, so the ledger and the
@@ -222,6 +229,7 @@ async function closeOutEndedProjects(now: Date) {
       endDate: { lt: now },
       closedOutAt: null,
       status: { in: ["PLANNING", "ACTIVE", "OVERDUE_CLOSEOUT"] },
+      modules: { some: {} },
     },
     include: {
       modules: {

@@ -43,13 +43,12 @@ export const MODULES = [
     key: "retainerProjects",
     label: "Retainer projects",
     description:
-      "Monthly client cycles broken into projects, modules and milestones, and the delivery board.",
+      "Monthly retainer cycles broken into workstreams and scored milestones, and the delivery board. (Client projects are core since Phase 4.)",
     field: "featureRetainerCycles",
-    navKeys: ["board", "projects", "my-tasks"],
-    routePrefixes: ["/board", "/projects", "/my-tasks"],
+    navKeys: ["board", "my-tasks"],
+    routePrefixes: ["/board", "/my-tasks"],
     apiPrefixes: [
       "/api/board",
-      "/api/projects",
       "/api/milestones",
       "/api/modules",
       "/api/my-tasks",

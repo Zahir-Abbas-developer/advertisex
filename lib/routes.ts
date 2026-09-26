@@ -16,6 +16,7 @@ export type NavKey =
   | "pipeline"
   | "outreach"
   | "pipeline-analytics"
+  | "projects-analytics"
   | "my-attendance"
   | "attendance"
   | "my-performance"
@@ -75,8 +76,11 @@ export const NAV_ITEMS: readonly NavItem[] = [
   // pipeline header rather than the rail.
   { key: "pipeline-analytics", label: "Leads analytics", href: "/pipeline/analytics", roles: OPS, hidden: true },
   { key: "outreach", label: "Outreach", href: "/outreach", roles: EVERYONE },
-  { key: "clients", label: "Clients", href: "/clients", roles: ADMINS },
-  { key: "projects", label: "Projects", href: "/projects", roles: ADMINS },
+  // Phase 4: managers run their departments' clients; everyone on staff
+  // works projects (each sees the ones their scope allows).
+  { key: "clients", label: "Clients", href: "/clients", roles: OPS },
+  { key: "projects", label: "Projects", href: "/projects", roles: EVERYONE },
+  { key: "projects-analytics", label: "Projects analytics", href: "/projects/analytics", roles: OPS, hidden: true },
   { key: "tasks", label: "Tasks", href: "/tasks", roles: EVERYONE },
   // The milestone list. It belongs to the parked retainer-projects module —
   // with that module off it has no data at all, so leaving it in the rail

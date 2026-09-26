@@ -34,6 +34,13 @@ export const ORG_ROOT_MODELS = new Set([
   "Skill",
   "File",
   "SavedView",
+  // Phase 4 — client management and projects.
+  "ServiceCatalog",
+  "ClientService",
+  "Contract",
+  "ClientCredential",
+  "ClientNote",
+  "Project",
 ]);
 
 /**
@@ -75,13 +82,34 @@ type Args = Record<string, unknown> | undefined;
 /** Rows that belong to an organization through their lead. */
 export const LEAD_OWNED_MODELS = new Set(["LeadStageEvent"]);
 
+/** Rows that belong to an organization through their project (Phase 4). */
+export const PROJECT_OWNED_MODELS = new Set([
+  "ProjectService",
+  "ProjectMember",
+  "ProjectSkill",
+  "ProjectStage",
+  "ProjectMilestone",
+  "ProjectComment",
+]);
+
+/** Rows that belong to an organization through a catalog service (Phase 4). */
+export const SERVICE_OWNED_MODELS = new Set(["ServiceStageTemplate", "ServiceSkill"]);
+
 export function isTenantModel(model: string): boolean {
-  return ORG_ROOT_MODELS.has(model) || DEPARTMENT_OWNED_MODELS.has(model) || LEAD_OWNED_MODELS.has(model);
+  return (
+    ORG_ROOT_MODELS.has(model) ||
+    DEPARTMENT_OWNED_MODELS.has(model) ||
+    LEAD_OWNED_MODELS.has(model) ||
+    PROJECT_OWNED_MODELS.has(model) ||
+    SERVICE_OWNED_MODELS.has(model)
+  );
 }
 
 function filterFor(model: string, organizationId: string): Record<string, unknown> {
   if (SYSTEM_ROWS_VISIBLE.has(model)) return { OR: [{ organizationId }, { organizationId: null }] };
   if (LEAD_OWNED_MODELS.has(model)) return { lead: { department: { organizationId } } };
+  if (PROJECT_OWNED_MODELS.has(model)) return { project: { organizationId } };
+  if (SERVICE_OWNED_MODELS.has(model)) return { service: { organizationId } };
   return ORG_ROOT_MODELS.has(model)
     ? { organizationId }
     : { department: { organizationId } };

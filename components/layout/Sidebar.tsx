@@ -40,6 +40,7 @@ const ICONS: Record<NavKey, LucideIcon> = {
   pipeline: Wallet,
   outreach: PhoneOutgoing,
   "pipeline-analytics": BarChart3,
+  "projects-analytics": BarChart3,
   clients: Briefcase,
   projects: Layers,
   tasks: CheckSquare,

@@ -26,6 +26,8 @@ export const AUDIT_ACTIONS = [
   "DEPARTMENT_STAGES_CHANGED",
   "MODULE_TOGGLED",
   "PASSWORD_RESET",
+  "LEAD_CONVERTED",
+  "CREDENTIAL_REVEALED",
 ] as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];
@@ -52,4 +54,6 @@ export const AUDIT_ACTION_LABEL: Record<AuditAction, string> = {
   DEPARTMENT_STAGES_CHANGED: "Changed department pipeline",
   MODULE_TOGGLED: "Switched a module on or off",
   PASSWORD_RESET: "Reset a password",
+  LEAD_CONVERTED: "Converted a lead",
+  CREDENTIAL_REVEALED: "Revealed a client credential",
 };
