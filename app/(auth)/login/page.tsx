@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { getCurrentUser } from "@/lib/session";
-import { DEFAULT_LANDING } from "@/lib/routes";
+import { DEFAULT_LANDING, SESSION_ENDED_ROUTE } from "@/lib/routes";
+import { principalFor } from "@/modules/rbac/server";
 import { LoginForm } from "@/components/auth/LoginForm";
 
 export const metadata: Metadata = {
@@ -12,10 +13,16 @@ export const metadata: Metadata = {
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: { callbackUrl?: string };
+  searchParams: { callbackUrl?: string; ended?: string };
 }) {
+  // A token is only a claim: forward it on only if its account still exists
+  // and may sign in. Otherwise clear it — once; if the cookie survived the
+  // clearing, show the form rather than bounce again.
   const user = await getCurrentUser();
-  if (user) redirect(DEFAULT_LANDING);
+  if (user) {
+    if (await principalFor(user)) redirect(DEFAULT_LANDING);
+    if (!searchParams.ended) redirect(SESSION_ENDED_ROUTE);
+  }
 
   // Only ever follow a relative callback, so the login form can't be turned
   // into an open redirect via a crafted link.
@@ -74,6 +81,12 @@ export default async function LoginPage({
           <p className="mt-2.5 text-sm leading-relaxed text-ink/55">
             Use the credentials issued by your administrator.
           </p>
+
+          {searchParams.ended && (
+            <p role="status" className="mt-6 rounded-lg border border-line bg-surface px-4 py-3 text-[13px] text-ink/70">
+              Your previous session ended. Please sign in again.
+            </p>
+          )}
 
           <div className="mt-8">
             <LoginForm callbackUrl={callbackUrl} />

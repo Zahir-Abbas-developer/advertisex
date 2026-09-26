@@ -168,7 +168,23 @@ async function main() {
     await prisma.user.update({ where: { email: CLIENTS[0].email }, data: { isActive: false } });
     try {
       check((await doomed.fetch("/api/notifications")).status === 403, "a deactivated account is refused on its next API call");
-      check((await landing(doomed, "/portal")) === "/login", "and on its next page");
+      check((await landing(doomed, "/portal")) === "/session-ended", "and on its next page, which clears the session");
+      // The loop this replaced: /login forwarded the stale token on, the page
+      // sent it back to /login. Follow every hop; it must end at the form.
+      const hops = [];
+      let at = "/login";
+      while (hops.length < 8) {
+        hops.push(at);
+        const next = await landing(doomed, at);
+        if (!next.startsWith("/")) break;
+        at = next;
+      }
+      check(
+        hops.length < 8 && hops.at(-1) === "/login?ended=1",
+        "a stale session reaches the sign-in form in a few hops, never a loop",
+        hops.join(" → "),
+      );
+      check((await landing(doomed, "/login")) === "200", "and the cleared session stays signed out");
     } finally {
       await prisma.user.update({ where: { email: CLIENTS[0].email }, data: { isActive: true } });
     }

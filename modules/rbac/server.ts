@@ -9,7 +9,7 @@ import {
 } from "@/config/permissions";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/session";
-import { DEFAULT_LANDING, LOGIN_ROUTE } from "@/lib/routes";
+import { DEFAULT_LANDING, LOGIN_ROUTE, SESSION_ENDED_ROUTE } from "@/lib/routes";
 import { authorize, grantKey, type Principal } from "@/modules/rbac/authorize";
 
 /**
@@ -134,9 +134,9 @@ export async function requireStaffPage(): Promise<Principal> {
   if (!user) redirect(LOGIN_ROUTE);
 
   const principal = await principalFor(user);
-  if (!principal) redirect(LOGIN_ROUTE);
+  if (!principal) redirect(SESSION_ENDED_ROUTE);
   if (principal.role === "CLIENT") redirect("/portal");
-  if (!STAFF_ROLES.includes(principal.role)) redirect(LOGIN_ROUTE);
+  if (!STAFF_ROLES.includes(principal.role)) redirect(SESSION_ENDED_ROUTE);
 
   return principal;
 }
@@ -158,7 +158,7 @@ export async function requireClientPage(): Promise<Principal> {
   if (!user) redirect(LOGIN_ROUTE);
 
   const principal = await principalFor(user);
-  if (!principal) redirect(LOGIN_ROUTE);
+  if (!principal) redirect(SESSION_ENDED_ROUTE);
   if (principal.role !== "CLIENT") redirect("/dashboard");
 
   return principal;

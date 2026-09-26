@@ -2,7 +2,7 @@ import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
 
 import { normalizeRole } from "@/config/permissions";
-import { CLIENT_LANDING, DEFAULT_LANDING, LOGIN_ROUTE, canOpenRoute } from "@/lib/routes";
+import { CLIENT_LANDING, DEFAULT_LANDING, LOGIN_ROUTE, SESSION_ENDED_ROUTE, canOpenRoute } from "@/lib/routes";
 
 /**
  * The first wall (every page and handler re-checks on the server):
@@ -29,7 +29,7 @@ export default withAuth(
       return role ? NextResponse.next() : NextResponse.json({ error: "You must be signed in" }, { status: 401 });
     }
 
-    if (!role || role === "AI_AGENT") return redirect("/api/auth/signout");
+    if (!role || role === "AI_AGENT") return redirect(SESSION_ENDED_ROUTE);
 
     const inPortal = pathname === CLIENT_LANDING || pathname.startsWith(`${CLIENT_LANDING}/`);
     if (role === "CLIENT") {

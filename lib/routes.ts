@@ -237,3 +237,6 @@ export const DEFAULT_LANDING = "/dashboard";
 /** Where a CLIENT lands — the client portal shell. */
 export const CLIENT_LANDING = "/portal";
 export const LOGIN_ROUTE = "/login";
+
+/** Clears a session whose account no longer exists, then goes to sign-in. */
+export const SESSION_ENDED_ROUTE = "/session-ended";
