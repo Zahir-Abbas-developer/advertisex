@@ -239,6 +239,9 @@ async function main() {
   // --- Phase 2: skills, schedules, tasks, attendance history ---------------
   await seedTeamOperatingSystem(org.id);
 
+  // --- Phase 3: a living pipeline with its history and outreach ------------
+  await seedPipeline(org.id);
+
   const roles = await prisma.user.groupBy({ by: ["role"], _count: true });
   console.log("Advertise X demo tenant");
   console.log(`  created   ${created} new record group(s)`);
@@ -384,6 +387,127 @@ async function seedTeamOperatingSystem(organizationId: string) {
       });
       await prisma.breakSession.create({
         data: { userId: user.id, date: dayRow.date, reason: "Lunch", startedAt: at(start + 3, 30), endedAt: at(start + 4, 5), minutes: 35 },
+      });
+    }
+  }
+}
+
+/**
+ * Forty-eight restaurant leads with ten weeks of history: each walks the
+ * standard pipeline some way, with the outreach its owner logged along the
+ * way, so the board, the funnel, stage velocity and outreach rollups all have
+ * real movement to show. Deterministic (a seeded generator), so every reset
+ * produces the same pipeline. Only on an organization with no leads yet.
+ */
+const RESTAURANT_NAMES = [
+  "Trattoria Sole", "Pho Real", "The Salted Pig", "Nonna's Kitchen", "Blue Plate Diner", "Taqueria El Sol",
+  "Sakura House", "Brick Oven Co.", "The Green Fork", "Masala Street", "Harbor Fish Bar", "Le Petit Café",
+  "Smoke & Barrel BBQ", "Golden Wok", "Olive & Vine", "Crumb Bakery", "The Daily Grind", "Seoul Food",
+  "Mezze Mediterranean", "Burger Lab", "Ramen Ya", "Casa Luna", "The Local Tap", "Sweet Crumbs",
+  "Pizzeria Napoli", "Curry Leaf", "The Hungry Fox", "Bistro 21", "Dough Bros", "Tandoor Nights",
+  "The Poke Stop", "Farmhouse Table", "Café Colette", "Wok This Way", "El Fuego Grill", "Bagel Society",
+  "The Dumpling Den", "Soul Kitchen", "Verde Taqueria", "The Oyster Room", "Kebab Palace", "Honey & Rye",
+  "Noodle Theory", "The Brunch Club", "Pasta Fresca", "Spice Route", "Waffle House Co.", "The Corner Deli",
+];
+const CITIES = ["Brooklyn, NY", "Austin, TX", "Portland, OR", "Chicago, IL", "Miami, FL", "Denver, CO", "Queens, NY", "Seattle, WA"];
+const SEGMENTS = ["Restaurant", "Fast casual", "Café", "Bar & pub", "Bakery", "Quick service", "Fine dining", "Ghost kitchen"];
+const SOURCES = ["OUTREACH", "OUTREACH", "REFERRAL", "INBOUND", "SOCIAL", "WEBSITE", "PAID_ADS", "EVENT"];
+const TAGS = ["brunch", "multi-site", "delivery", "catering", "new-opening", "franchise"];
+const FLOW = ["NEW_LEAD", "CONTACTED", "QUALIFIED", "MEETING", "PROPOSAL", "NEGOTIATION", "WON"];
+const OUTREACH_FOR: Record<string, string[]> = {
+  NEW_LEAD: ["COLD_CALL"],
+  CONTACTED: ["EMAIL_SENT", "EMAIL_REPLY"],
+  QUALIFIED: ["FOLLOW_UP", "MEETING_BOOKED"],
+  MEETING: ["MEETING_HELD"],
+  PROPOSAL: ["PROPOSAL_SENT"],
+  NEGOTIATION: ["FOLLOW_UP"],
+};
+
+function prng(seed: number) {
+  return () => {
+    seed = (seed * 1_103_515_245 + 12_345) & 0x7fffffff;
+    return seed / 0x7fffffff;
+  };
+}
+
+async function seedPipeline(organizationId: string) {
+  if ((await prisma.lead.count({ where: { department: { organizationId } } })) > 0) return;
+
+  const rand = prng(20260926);
+  const pick = <T,>(list: readonly T[]) => list[Math.floor(rand() * list.length)];
+  const departments = await prisma.department.findMany({
+    where: { organizationId, stages: { some: { key: "NEW_LEAD" } } },
+    select: { id: true, memberships: { select: { userId: true, user: { select: { role: true } } } } },
+  });
+  if (departments.length === 0) return;
+
+  const now = Date.now();
+  const DAY = 86_400_000;
+
+  for (const [i, name] of RESTAURANT_NAMES.entries()) {
+    const dept = departments[i % departments.length];
+    const owners = dept.memberships.filter((m) => m.user.role !== "AI_AGENT").map((m) => m.userId);
+    const ownerId = owners.length ? pick(owners) : null;
+    if (!ownerId) continue;
+
+    const createdAt = new Date(now - Math.floor(5 + rand() * 65) * DAY);
+    // How far this lead gets: most stay early, some win, some are lost.
+    const reach = Math.min(FLOW.length - 1, Math.floor(rand() * rand() * FLOW.length * 1.6));
+    const lost = reach < FLOW.length - 1 && rand() < 0.18;
+    const path = FLOW.slice(0, reach + 1);
+    const stage = lost ? "LOST" : path[path.length - 1];
+    const span = now - createdAt.getTime();
+    const stepAt = (n: number, of: number) => new Date(createdAt.getTime() + Math.floor((span * 0.85 * n) / Math.max(1, of)));
+    const moves = lost ? path.length : path.length - 1;
+    const lastMove = moves === 0 ? createdAt : stepAt(moves, moves);
+    const won = stage === "WON";
+    const email = `hello@${name.toLowerCase().replace(/[^a-z]+/g, "")}.example`;
+
+    const lead = await prisma.lead.create({
+      data: {
+        departmentId: dept.id,
+        businessName: name,
+        contactName: pick(["Alex Rivera", "Priya Shah", "Marco Rossi", "Kim Nguyen", "Dana Brooks", "Luis Ortega", "Hannah Lee", "Sam Patel"]),
+        email,
+        phone: `+1 555 01${String(10 + i).padStart(2, "0")}`,
+        website: `${name.toLowerCase().replace(/[^a-z]+/g, "")}.example`,
+        location: pick(CITIES),
+        country: "United States",
+        industry: pick(SEGMENTS),
+        source: pick(SOURCES),
+        tags: [pick(TAGS), ...(rand() < 0.4 ? [pick(TAGS)] : [])].join(","),
+        dealValue: Math.round((1 + rand() * 11) * 500),
+        // Distinct, non-round figures: the leak scan looks for these exact numbers,
+        // and a round or three-digit value collides with ordinary page text.
+        estimatedMonthlyValue: 1_117 + i * 41,
+        ownerId,
+        createdById: ownerId,
+        stage,
+        stageChangedAt: lastMove,
+        createdAt,
+        convertedAt: won ? lastMove : null,
+        lostReason: lost ? pick(["PRICE", "TIMING", "WENT_ELSEWHERE", "NO_RESPONSE"]) : null,
+        nextFollowUpAt: !won && !lost && rand() < 0.5 ? new Date(now + Math.floor(rand() * 10 - 4) * DAY) : null,
+      },
+    });
+
+    // The stage history, and the outreach logged in each stage.
+    await prisma.leadStageEvent.create({ data: { leadId: lead.id, departmentId: dept.id, fromStage: null, toStage: "NEW_LEAD", userId: ownerId, at: createdAt } });
+    for (let n = 1; n <= moves; n++) {
+      const to = lost && n === moves ? "LOST" : path[n];
+      await prisma.leadStageEvent.create({ data: { leadId: lead.id, departmentId: dept.id, fromStage: path[n - 1], toStage: to, userId: ownerId, at: stepAt(n, moves) } });
+    }
+    for (let n = 0; n < path.length; n++) {
+      for (const type of OUTREACH_FOR[path[n]] ?? []) {
+        const at = new Date(Math.min(now - 3_600_000, stepAt(n, Math.max(1, moves)).getTime() + Math.floor(rand() * DAY)));
+        await prisma.salesActivity.create({
+          data: { departmentId: dept.id, leadId: lead.id, userId: ownerId, type, note: `${type.replace(/_/g, " ").toLowerCase()} — ${name}`, occurredAt: at },
+        });
+      }
+    }
+    if (won) {
+      await prisma.salesActivity.create({
+        data: { departmentId: dept.id, leadId: lead.id, userId: ownerId, type: "DEAL_CLOSED", isSystem: true, note: `Won ${name}`, occurredAt: lastMove },
       });
     }
   }

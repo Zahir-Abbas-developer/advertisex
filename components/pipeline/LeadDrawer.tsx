@@ -31,6 +31,7 @@ import {
 } from "@/lib/pipeline-types";
 import { TERMINAL_STAGE_KINDS, WINNING_STAGE_KINDS, type StageKind } from "@/lib/constants";
 
+import { ConvertDialog } from "@/components/pipeline/ConvertDialog";
 type Detail = {
   viewer?: { id: string; isAdmin: boolean };
   lead: EditableLead & {
@@ -78,7 +79,7 @@ export function LeadDrawer({
 }: {
   leadId: string | null;
   /** The service catalogue, for the "interested in" choices when editing. */
-  services?: { slug: string; name: string }[];
+  services?: { id?: string; slug: string; name: string }[];
   onClose: () => void;
   onChanged: () => void;
 }) {
@@ -86,7 +87,7 @@ export function LeadDrawer({
   const toast = useToast();
   const [data, setData] = useState<Detail | null>(null);
   const [state, setState] = useState<"loading" | "ready" | "error">("loading");
-  const [busy, setBusy] = useState(false);
+  const [converting, setConverting] = useState(false);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -111,25 +112,6 @@ export function LeadDrawer({
     }
     void load();
   }, [leadId, load]);
-
-  async function convert() {
-    if (!leadId) return;
-    setBusy(true);
-    try {
-      const response = await fetch(`/api/leads/${leadId}/convert`, { cache: "no-store" });
-      const body = await response.json().catch(() => ({}));
-
-      if (!response.ok) {
-        toast.error(body?.error ?? "Couldn't start the conversion.");
-        return;
-      }
-
-      // The wizard reads the draft from the URL and pre-fills itself.
-      router.push(`/clients?convert=${leadId}`);
-    } finally {
-      setBusy(false);
-    }
-  }
 
   const lead = data?.lead;
   const kind = data?.stageInfo?.kind as StageKind | undefined;
@@ -157,14 +139,15 @@ export function LeadDrawer({
         Save changes
       </Button>
     </div>
-  ) : lead && won && !lead.convertedClient ? (
+  ) : lead && !lost && !lead.convertedClient ? (
+    // Conversion marks the lead Won itself (Phase 3), so it is offered from
+    // any open stage — a lost deal has to be reopened first.
     <Button
       fullWidth
-      loading={busy}
       icon={<ArrowRight className="h-4 w-4" />}
-      onClick={() => void convert()}
+      onClick={() => setConverting(true)}
     >
-      Convert to client
+      {won ? "Convert to client" : "Win & convert to client"}
     </Button>
   ) : undefined;
 
@@ -342,6 +325,24 @@ export function LeadDrawer({
             onChanged={onChanged}
           />
         </div>
+      )}
+      {converting && lead && (
+        <ConvertDialog
+          lead={{
+            id: lead.id,
+            businessName: lead.businessName,
+            contactName: lead.contactName,
+            email: lead.email,
+            interestedServices: lead.interestedServices ?? [],
+          }}
+          services={services}
+          onClose={() => setConverting(false)}
+          onConverted={(clientId) => {
+            setConverting(false);
+            onChanged();
+            router.push(`/clients/${clientId}`);
+          }}
+        />
       )}
     </Drawer>
   );

@@ -14,6 +14,8 @@ export type NavKey =
   | "my-tasks"
   | "tasks"
   | "pipeline"
+  | "outreach"
+  | "pipeline-analytics"
   | "my-attendance"
   | "attendance"
   | "my-performance"
@@ -69,6 +71,10 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { key: "dashboard", label: "Dashboard", href: "/dashboard", roles: EVERYONE },
   { key: "board", label: "Board", href: "/board", roles: EVERYONE },
   { key: "pipeline", label: "Pipeline", href: "/pipeline", roles: EVERYONE },
+  // Company-wide lead analytics: the founder and managers, reached from the
+  // pipeline header rather than the rail.
+  { key: "pipeline-analytics", label: "Leads analytics", href: "/pipeline/analytics", roles: OPS, hidden: true },
+  { key: "outreach", label: "Outreach", href: "/outreach", roles: EVERYONE },
   { key: "clients", label: "Clients", href: "/clients", roles: ADMINS },
   { key: "projects", label: "Projects", href: "/projects", roles: ADMINS },
   { key: "tasks", label: "Tasks", href: "/tasks", roles: EVERYONE },
@@ -200,6 +206,7 @@ export function experienceFor(rawRole: unknown): StaffExperience {
 const TEAM_ORDER: readonly NavKey[] = [
   "tasks",
   "pipeline",
+  "outreach",
   "board",
   "my-tasks",
   "my-attendance",

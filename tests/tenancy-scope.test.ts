@@ -77,4 +77,9 @@ describe("tenant scoping of query arguments", () => {
     assert.equal(scopeArgs("Settings", "findUnique", args, ORG), args);
     assert.equal(scopeArgs("JobRun", "upsert", args, ORG), args);
   });
+
+  it("filters stage history through its lead's department", () => {
+    const out = scopeArgs("LeadStageEvent", "findMany", { where: { toStage: "WON" } }, ORG) as { where: Record<string, unknown> };
+    assert.deepEqual(out.where.AND, [{ lead: { department: { organizationId: ORG } } }]);
+  });
 });

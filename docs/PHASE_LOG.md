@@ -5,6 +5,44 @@ phase → status → done → next → blockers.*
 
 ---
 
+## 2026-09-26 — Phase 3: DELIVERED, awaiting gate
+
+**Phase:** 3 — Lead Pipeline & Outreach Tracking (prompt verbatim in `docs/PHASES.md`)
+**Status:** ✅ delivered · ⏸ **STOPPED at the gate**. Report: `docs/phases/PHASE_3_REPORT.md`. Waiting for *"Phase 3 approved"*.
+**Gate note:** the founder issued the Phase 3 prompt after the Phase 2 report, without the literal "Phase 2 approved"; treated as the go-ahead, as at the Phase 1→2 handover.
+
+**Done:**
+- Lead fields and the standard stage template.
+- `LeadStageEvent` stage history and `SavedView`.
+- Keyboard drag-and-drop, the table view, filters and saved views.
+- Outreach kinds with company-calendar rollups (`/outreach`).
+- Leads analytics (`/pipeline/analytics`).
+- One-transaction conversion.
+- CSV import/export with duplicate detection.
+- A board paged per column.
+- Transaction-aware audit (`transaction()`).
+- `leadtest` and `outreachtest`, added to CI.
+- ADR-012; METRICS, DATA_MODEL and ARCHITECTURE updated.
+
+**Gate:** everything green except `smoke:browser` (carried). The new screens were checked directly at 375, 768, 1280 and 1536.
+
+**Harness fixes this session:**
+- permtest and journeytest use the new activity types.
+- fieldtest and journeytest pass `allowDuplicate`.
+- journeytest assigns its task explicitly: auto-routing by workload moved with the new seed.
+- The seed's lead values are distinct, so the leak scan can't match ordinary page text.
+- `/pipeline/analytics` is registered in the route map as founder/manager.
+
+**Needs the founder:**
+- Whether to move existing departments onto the standard stages. That is a mapping script on live data; see the report.
+
+**Carried:**
+- `smoke:browser`.
+- The Neon backup before the first deploy.
+- The S3 file store.
+
+---
+
 ## 2026-09-26 — Phase 2: DELIVERED, awaiting gate
 
 **Phase:** 2 — Team Operating System (prompt verbatim in `docs/PHASES.md`)

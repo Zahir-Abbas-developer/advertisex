@@ -19,6 +19,7 @@ import {
   storedTaskStatuses,
 } from "@/modules/tasks/domain";
 
+import { taskBoard } from "@/lib/tasks";
 const pct = (v: number | null) => (v === null ? "—" : `${Math.round(v * 100)}%`);
 
 type Item = {
@@ -80,7 +81,7 @@ export async function MyWork({ userId, name, capacity }: { userId: string; name:
   const key = monthOf(now, timezone);
   const { from, to } = monthBounds(key, timezone);
 
-  const [tasks, perf, attendance] = await Promise.all([
+  const [tasks, perf, attendance, board] = await Promise.all([
     prisma.task.findMany({
       where: { assigneeId: userId, status: { in: storedTaskStatuses(...OPEN_STATUSES) } },
       orderBy: [{ dueAt: "asc" }],
@@ -88,7 +89,11 @@ export async function MyWork({ userId, name, capacity }: { userId: string; name:
     }),
     performanceFor([{ id: userId, weeklyCapacityHours: capacity }], from, to, now),
     attendanceMonth(userId, key, now).catch(() => null),
+    // Follow-ups come from the same place the founder's dashboard counts
+    // them, so the two can never disagree about what is due.
+    taskBoard(userId, false, { mineOnly: true }),
   ]);
+  const followUps = board.rows.filter((r) => r.kind === "FOLLOW_UP" && (r.bucket === "OVERDUE" || r.bucket === "TODAY"));
   const p = perf.get(userId)!;
 
   const items: Item[] = tasks.map((t) => {
@@ -153,6 +158,26 @@ export async function MyWork({ userId, name, capacity }: { userId: string; name:
             <TaskList items={upcoming} empty="No deadlines in the next 7 days." />
           </Panel>
         </div>
+      )}
+
+      {followUps.length > 0 && (
+        <Panel title="Follow-ups due" count={followUps.length}>
+          <ul className="divide-y divide-line">
+            {followUps.map((f) => (
+              <li key={f.id} className="flex items-center justify-between gap-3 px-4 py-3">
+                <Link
+                  href={f.record?.type === "CLIENT" ? `/clients/${f.record.id}` : `/pipeline?lead=${f.record?.id ?? ""}`}
+                  className="min-w-0 truncate text-[13px] text-ink hover:text-brand"
+                >
+                  {f.title}
+                </Link>
+                <Badge size="sm" tone={f.bucket === "OVERDUE" ? "danger" : "warning"}>
+                  {f.bucket === "OVERDUE" ? "Overdue" : "Today"}
+                </Badge>
+              </li>
+            ))}
+          </ul>
+        </Panel>
       )}
 
       <section className="space-y-4">

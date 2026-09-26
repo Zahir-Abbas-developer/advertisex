@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { prisma } from "@/lib/prisma";
+import { prisma, transaction } from "@/lib/prisma";
 import { apiError, requireAdminApi } from "@/lib/api";
 import { fieldErrors } from "@/lib/validation";
 import { listDepartments, uniqueSlug } from "@/lib/departments";
 import { DEPARTMENT_COLOR_TOKENS } from "@/lib/constants";
 import { recordAudit } from "@/lib/audit";
 
+import { STANDARD_STAGES } from "@/modules/leads/domain";
 const departmentSchema = z.object({
   name: z.string().trim().min(2, "Give the department a name").max(120),
   shortLabel: z
@@ -50,15 +51,31 @@ export async function POST(request: Request) {
     select: { order: true },
   });
 
-  const department = await prisma.department.create({
-    data: {
-      slug: await uniqueSlug(data.name),
-      name: data.name,
-      shortLabel: data.shortLabel,
-      colorToken: data.colorToken ?? null,
-      description: data.description || null,
-      order: (last?.order ?? 0) + 1,
-    },
+  const slug = await uniqueSlug(data.name);
+  // A new department starts with the standard pipeline (Phase 3) rather than
+  // an empty board; its stages are its own to rename and reorder afterwards.
+  const department = await transaction(async (tx) => {
+    const created = await tx.department.create({
+      data: {
+        slug,
+        name: data.name,
+        shortLabel: data.shortLabel,
+        colorToken: data.colorToken ?? null,
+        description: data.description || null,
+        order: (last?.order ?? 0) + 1,
+      },
+    });
+    await tx.pipelineStage.createMany({
+      data: STANDARD_STAGES.map((stage, index) => ({
+        departmentId: created.id,
+        key: stage.key,
+        label: stage.label,
+        kind: stage.kind,
+        colorToken: stage.colorToken,
+        sortOrder: index + 1,
+      })),
+    });
+    return created;
   });
 
   await recordAudit({

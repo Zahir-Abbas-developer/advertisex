@@ -150,7 +150,9 @@ export async function PATCH(request: Request) {
         leadId: data.type === "LEAD" ? record.id : null,
         clientId: data.type === "CLIENT" ? record.id : null,
         userId: user.id,
-        type: data.action === "snooze" ? "FOLLOW_UP" : (data.activityType ?? "NOTE"),
+        // A snooze is a reschedule, not outreach: it is recorded as a system
+        // note so it never counts as a follow-up performed.
+        type: data.action === "snooze" ? "NOTE" : (data.activityType ?? "NOTE"),
         // A snooze is the app recording a decision; a logged outcome is a
         // person saying what happened. The timeline shows them differently.
         isSystem: data.action === "snooze",

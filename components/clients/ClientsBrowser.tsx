@@ -42,7 +42,6 @@ export function ClientsBrowser({
   const searchParams = useSearchParams();
   const [wizardOpen, setWizardOpen] = useState(false);
   // Set by the pipeline when a won deal is converted.
-  const convertLeadId = searchParams.get("convert");
   const [catalogOpen, setCatalogOpen] = useState(false);
 
   const load = useCallback(async () => {
@@ -269,12 +268,10 @@ export function ClientsBrowser({
       )}
 
       <ClientWizard
-        open={wizardOpen || Boolean(convertLeadId)}
+        open={wizardOpen}
         services={services}
-        convertLeadId={convertLeadId}
         onClose={() => {
           setWizardOpen(false);
-          if (convertLeadId) router.replace("/clients");
         }}
       />
 

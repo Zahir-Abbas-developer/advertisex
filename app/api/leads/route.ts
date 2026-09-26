@@ -19,6 +19,8 @@ import { validateFieldValues } from "@/lib/fields";
 import { fieldsFor, writeFieldValues } from "@/lib/fields-data";
 
 import { requireApi } from "@/modules/rbac/server";
+import { duplicateKey } from "@/modules/leads/csv";
+import { serializeTags } from "@/modules/leads/domain";
 const leadSchema = z.object({
   // The business line this deal belongs to. Also decides which pipeline
   // stages are valid for it.
@@ -28,7 +30,15 @@ const leadSchema = z.object({
   email: z.string().trim().email("That doesn't look like an email").or(z.literal("")).nullish(),
   phone: z.string().trim().max(40).nullish(),
   source: z.enum(LEAD_SOURCES).default("OUTREACH"),
+  /** Free text for a custom source (with OTHER) or detail on any source. */
+  sourceDetail: z.string().trim().max(120).nullish(),
   country: z.string().trim().max(80).nullish(),
+  location: z.string().trim().max(120).nullish(),
+  website: z.string().trim().max(200).nullish(),
+  industry: z.string().trim().max(60).nullish(),
+  tags: z.array(z.string().trim().min(1).max(40)).max(20).default([]),
+  /** Set when the person has seen the duplicate warning and means it. */
+  allowDuplicate: z.boolean().default(false),
   /** ServiceCatalog slugs. */
   interestedServices: z.array(z.string().min(1)).max(20).default([]),
   estimatedMonthlyValue: z.number().int().min(0).max(1_000_000).default(0),
@@ -198,6 +208,30 @@ export async function POST(request: Request) {
     });
   }
 
+  // Duplicate check before anything is written: the same restaurant entered
+  // twice is two people chasing one deal. Refused with a pointer to the
+  // existing lead unless the person confirms it is genuinely different.
+  if (!data.allowDuplicate) {
+    const key = duplicateKey({ email: data.email || null, businessName: data.businessName, phone: data.phone });
+    const candidates = await prisma.lead.findMany({
+      where: {
+        OR: [
+          ...(data.email ? [{ email: data.email.toLowerCase() }, { email: data.email }] : []),
+          { businessName: data.businessName },
+        ],
+      },
+      select: { id: true, businessName: true, email: true, phone: true },
+      take: 20,
+    });
+    const match = candidates.find((c) => duplicateKey({ email: c.email, businessName: c.businessName, phone: c.phone }) === key);
+    if (match) {
+      return NextResponse.json(
+        { error: `${match.businessName} is already in the pipeline`, duplicateOf: match.id, fields: { businessName: "Possible duplicate" } },
+        { status: 409 },
+      );
+    }
+  }
+
   const definitions = await fieldsFor(department.id, "LEAD");
   const fieldProblems = validateFieldValues(definitions, data.fieldValues);
   if (fieldProblems.length > 0) {
@@ -234,10 +268,15 @@ export async function POST(request: Request) {
       departmentId: department.id,
       businessName: data.businessName,
       contactName: data.contactName,
-      email: data.email || null,
+      email: data.email ? data.email.toLowerCase() : null,
       phone: data.phone || null,
       source: data.source,
+      sourceDetail: data.sourceDetail || null,
       country: data.country || null,
+      location: data.location || null,
+      website: data.website || null,
+      industry: data.industry || null,
+      tags: serializeTags(data.tags),
       interestedServices: data.interestedServices.join(","),
       estimatedMonthlyValue: data.estimatedMonthlyValue,
       dealValue: data.dealValue,
@@ -251,6 +290,10 @@ export async function POST(request: Request) {
   });
 
   await writeFieldValues(lead.id, definitions, data.fieldValues);
+  // The lead's first stage opens its history — the start of stage velocity.
+  await prisma.leadStageEvent.create({
+    data: { leadId: lead.id, departmentId: department.id, fromStage: null, toStage: lead.stage, userId: user.id, at: lead.createdAt },
+  });
 
   /* A routing decision nobody can see is a routing decision nobody trusts, so
      the reason goes on the lead timeline as a system entry and the person who

@@ -151,6 +151,7 @@ async function main() {
           contactName: "Journey Contact",
           email: "journey@bwm.local",
           source: "OUTREACH",
+          allowDuplicate: true,
           dealValue: DEAL_VALUE,
           fieldValues,
         }),
@@ -307,6 +308,8 @@ async function main() {
         departmentId: firstDept.id,
         title: "Journey task — call back",
         dueAt: companyToday,
+        // Explicit: unassigned work is auto-routed by workload, which the seed shifts.
+        assigneeId: (await prisma.user.findUnique({ where: { email: ADMIN } })).id,
         priority: "HIGH",
       }),
     });
@@ -374,7 +377,7 @@ async function main() {
         type: "LEAD",
         recordId: followLead.id,
         action: "log",
-        activityType: "CALL",
+        activityType: "COLD_CALL",
         note: "Spoke briefly",
       }),
     });
@@ -391,7 +394,7 @@ async function main() {
         type: "LEAD",
         recordId: followLead.id,
         action: "log",
-        activityType: "CALL",
+        activityType: "COLD_CALL",
         note: "Spoke to ops, revised quote Thursday",
         nextFollowUpAt: new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10),
       }),
@@ -399,7 +402,7 @@ async function main() {
     check(logged.ok, "logging an outcome with a next date succeeds", String(logged.status));
 
     const activityLogged = await prisma.salesActivity.count({
-      where: { leadId: followLead.id, type: "CALL" },
+      where: { leadId: followLead.id, type: "COLD_CALL" },
     });
     check(activityLogged === 1, "the outcome was written to the timeline");
 
@@ -424,7 +427,7 @@ async function main() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           leadId: timelineLead,
-          type: "CALL",
+          type: "COLD_CALL",
           note: "Journey — spoke to the operations manager",
         }),
       });
@@ -448,10 +451,10 @@ async function main() {
 
       // Filtering narrows the list without changing the counts behind the chips.
       const filtered = await (
-        await admin.fetch(`/api/activities?leadId=${timelineLead}&type=CALL`)
+        await admin.fetch(`/api/activities?leadId=${timelineLead}&type=COLD_CALL`)
       ).json();
       check(
-        (filtered.activities ?? []).every((entry) => entry.type === "CALL"),
+        (filtered.activities ?? []).every((entry) => entry.type === "COLD_CALL"),
         "filtering by type returns only that type",
       );
 

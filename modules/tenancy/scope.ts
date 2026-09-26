@@ -33,6 +33,7 @@ export const ORG_ROOT_MODELS = new Set([
   "AuditLog",
   "Skill",
   "File",
+  "SavedView",
 ]);
 
 /**
@@ -71,12 +72,16 @@ const FILTERED = new Set([
 
 type Args = Record<string, unknown> | undefined;
 
+/** Rows that belong to an organization through their lead. */
+export const LEAD_OWNED_MODELS = new Set(["LeadStageEvent"]);
+
 export function isTenantModel(model: string): boolean {
-  return ORG_ROOT_MODELS.has(model) || DEPARTMENT_OWNED_MODELS.has(model);
+  return ORG_ROOT_MODELS.has(model) || DEPARTMENT_OWNED_MODELS.has(model) || LEAD_OWNED_MODELS.has(model);
 }
 
 function filterFor(model: string, organizationId: string): Record<string, unknown> {
   if (SYSTEM_ROWS_VISIBLE.has(model)) return { OR: [{ organizationId }, { organizationId: null }] };
+  if (LEAD_OWNED_MODELS.has(model)) return { lead: { department: { organizationId } } };
   return ORG_ROOT_MODELS.has(model)
     ? { organizationId }
     : { department: { organizationId } };

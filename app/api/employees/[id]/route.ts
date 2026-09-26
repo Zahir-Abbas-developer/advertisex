@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { prisma } from "@/lib/prisma";
+import { prisma, transaction } from "@/lib/prisma";
 import { apiError } from "@/lib/api";
 import { fieldErrors } from "@/lib/validation";
 import { companyTimezone } from "@/lib/company-time";
@@ -129,7 +129,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     }
   }
 
-  await prisma.$transaction(async (tx) => {
+  await transaction(async (tx) => {
     await tx.user.update({
       where: { id: user.id },
       data: {

@@ -35,7 +35,9 @@
     "roles:backfill": "node scripts/sync-db-provider.mjs && tsx scripts/roles-backfill.ts",
     "shelltest": "node scripts/sync-db-provider.mjs && node --import tsx scripts/shelltest.mjs",
     "tenanttest": "node scripts/sync-db-provider.mjs && node --import tsx scripts/tenanttest.mjs",
-    "daytest": "node scripts/sync-db-provider.mjs && node --import tsx scripts/daytest.mjs"
+    "daytest": "node scripts/sync-db-provider.mjs && node --import tsx scripts/daytest.mjs",
+    "leadtest": "node scripts/sync-db-provider.mjs && node --import tsx scripts/leadtest.mjs",
+    "outreachtest": "node scripts/sync-db-provider.mjs && node --import tsx scripts/outreachtest.mjs"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

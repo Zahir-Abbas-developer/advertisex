@@ -3,6 +3,8 @@ import { describe, it } from "node:test";
 
 import {
   COMPANY_TIMEZONE,
+  companyDayRange,
+  rangeFromQuery,
   dueDeadline,
   parseDateInput,
   toDateOnly,
@@ -77,5 +79,45 @@ describe("dueDeadline", () => {
         `${day} deadline should fall after the day it belongs to`,
       );
     }
+  });
+});
+
+describe("companyDayRange / rangeFromQuery — date filters on the company calendar", () => {
+  it("a New York day runs from 04:00Z to 03:59:59.999Z next day in summer", () => {
+    const r = companyDayRange("2026-09-26", "America/New_York")!;
+    assert.equal(r.start.toISOString(), "2026-09-26T04:00:00.000Z");
+    assert.equal(r.end.toISOString(), "2026-09-27T03:59:59.999Z");
+  });
+
+  it("uses standard time in winter", () => {
+    assert.equal(companyDayRange("2026-01-15", "America/New_York")!.start.toISOString(), "2026-01-15T05:00:00.000Z");
+  });
+
+  it("a day that starts a daylight-saving change is 23 hours long", () => {
+    const r = companyDayRange("2026-03-08", "America/New_York")!;
+    assert.equal(r.start.toISOString(), "2026-03-08T05:00:00.000Z");
+    assert.equal(r.end.toISOString(), "2026-03-09T03:59:59.999Z");
+  });
+
+  it("handles half-hour zones to the minute", () => {
+    assert.equal(companyDayRange("2026-09-26", "Asia/Kolkata")!.start.toISOString(), "2026-09-25T18:30:00.000Z");
+  });
+
+  it("refuses malformed or impossible dates", () => {
+    assert.equal(companyDayRange("2026-02-30"), null);
+    assert.equal(companyDayRange("26/09/2026"), null);
+    assert.equal(companyDayRange(""), null);
+  });
+
+  it("rangeFromQuery defaults, and refuses reversed or oversized ranges", () => {
+    const q = (s: string) => new URLSearchParams(s);
+    const d = rangeFromQuery(q(""), 90, 400, "UTC")!;
+    assert.equal(Math.round((d.to.getTime() - d.from.getTime()) / 86_400_000), 90);
+    const r = rangeFromQuery(q("from=2026-09-01&to=2026-09-30"), 90, 400, "UTC")!;
+    assert.equal(r.from.toISOString(), "2026-09-01T00:00:00.000Z");
+    assert.equal(r.to.toISOString(), "2026-09-30T23:59:59.999Z");
+    assert.equal(rangeFromQuery(q("from=2026-09-30&to=2026-09-01"), 90, 400, "UTC"), null);
+    assert.equal(rangeFromQuery(q("from=2020-01-01&to=2026-09-01"), 90, 400, "UTC"), null);
+    assert.equal(rangeFromQuery(q("from=bad"), 90, 400, "UTC"), null);
   });
 });

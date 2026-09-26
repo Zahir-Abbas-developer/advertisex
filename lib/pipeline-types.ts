@@ -60,15 +60,8 @@ export function isOpenStage(stage: string): boolean {
 // Sources
 // ---------------------------------------------------------------------------
 
-export const LEAD_SOURCES = ["OUTREACH", "REFERRAL", "INBOUND", "SOCIAL"] as const;
-export type LeadSource = (typeof LEAD_SOURCES)[number];
-
-export const LEAD_SOURCE_LABEL: Record<LeadSource, string> = {
-  OUTREACH: "Cold outreach",
-  REFERRAL: "Referral",
-  INBOUND: "Inbound",
-  SOCIAL: "Social",
-};
+// One list, owned by the lead domain (Phase 3 widened it to eight sources).
+export { LEAD_SOURCES, LEAD_SOURCE_LABEL, type LeadSource } from "@/modules/leads/domain";
 
 // ---------------------------------------------------------------------------
 // Activities

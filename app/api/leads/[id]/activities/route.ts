@@ -6,12 +6,11 @@ import { apiError } from "@/lib/api";
 import { getCurrentUser } from "@/lib/session";
 import { fieldErrors } from "@/lib/validation";
 import { logActivity } from "@/lib/pipeline";
-import { ACTIVITY_TYPES } from "@/lib/pipeline-types";
-import { hasAdminPower } from "@/lib/constants";
+import { hasAdminPower, LOGGABLE_ACTIVITY_TYPES, type ActivityType } from "@/lib/constants";
 
 import { requireApi } from "@/modules/rbac/server";
 const activitySchema = z.object({
-  type: z.enum(ACTIVITY_TYPES),
+  type: z.enum(LOGGABLE_ACTIVITY_TYPES as unknown as [ActivityType, ...ActivityType[]]),
   note: z
     .string()
     .trim()

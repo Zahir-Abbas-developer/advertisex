@@ -5,14 +5,16 @@ import { useRouter, useSearchParams } from "next/navigation";
 import {
   DndContext,
   DragOverlay,
+  KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
   type DragEndEvent,
   type DragStartEvent,
 } from "@dnd-kit/core";
-import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { Plus, Trophy, Wallet } from "lucide-react";
+import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { BarChart3, Download, Plus, Trophy, Upload, Wallet } from "lucide-react";
+import Link from "next/link";
 
 import { Button } from "@/components/ui/Button";
 import { Card, CardHeader } from "@/components/ui/Card";
@@ -28,6 +30,12 @@ import { LeadDrawer } from "@/components/pipeline/LeadDrawer";
 import { LeadFormModal } from "@/components/pipeline/LeadFormModal";
 import { LostDialog } from "@/components/pipeline/LostDialog";
 import { DropColumn } from "@/components/pipeline/DropColumn";
+import { LeadFilterBar } from "@/components/pipeline/LeadFilterBar";
+import { LeadTable } from "@/components/pipeline/LeadTable";
+import { ImportLeadsModal } from "@/components/pipeline/ImportLeadsModal";
+import { Tabs } from "@/components/ui/Tabs";
+import { buttonClasses } from "@/components/ui/Button";
+import type { LeadFilters } from "@/modules/leads/domain";
 import { formatMoney } from "@/lib/pipeline-types";
 import type { StageKind } from "@/lib/constants";
 import { cn } from "@/lib/utils";
@@ -83,10 +91,11 @@ type Payload = {
    * deal values these keys are absent — not zero, not null — so the type has to
    * say so, or the first `.toLocaleString()` throws for every one of them.
    */
-  totals: { stage: string; count: number; value?: number }[];
+  totals: { stage: string; count: number; hasMore?: boolean; value?: number }[];
   commissions: Commission[];
-  services: { slug: string; name: string }[];
-  viewer: { id: string; isAdmin: boolean; canSeeDealValues?: boolean };
+  services: { id?: string; slug: string; name: string }[];
+  owners: { id: string; name: string }[];
+  viewer: { id: string; isAdmin: boolean; canSeeDealValues?: boolean; canManage?: boolean };
 };
 
 /**
@@ -106,7 +115,10 @@ export function PipelineBoard() {
   const [data, setData] = useState<Payload | null>(null);
   const [state, setState] = useState<"loading" | "ready" | "error">("loading");
   const [departmentId, setDepartmentId] = useState<string | null>(null);
-  const [owner, setOwner] = useState("ALL");
+  const [filters, setFilters] = useState<LeadFilters>({});
+  const [view, setView] = useState<"board" | "table">("board");
+  const [importing, setImporting] = useState(false);
+  const [loadingMore, setLoadingMore] = useState<string | null>(null);
   const [dragging, setDragging] = useState<PipelineLead | null>(null);
   const [creating, setCreating] = useState(false);
   /* Bumped to force a refetch when nothing else changed.
@@ -124,7 +136,7 @@ export function PipelineBoard() {
     try {
       const query = new URLSearchParams();
       if (departmentId) query.set("departmentId", departmentId);
-      if (owner !== "ALL") query.set("ownerId", owner);
+      query.set("f", JSON.stringify(filters));
 
       const response = await fetch(`/api/pipeline?${query}`, { cache: "no-store" });
       if (!response.ok) throw new Error("failed");
@@ -143,15 +155,42 @@ export function PipelineBoard() {
        The lint rule is right that it is an unusual dependency and wrong that it
        is unnecessary — dropping it is what let a freshly saved lead go missing. */
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [departmentId, owner, reloadToken]);
+  }, [departmentId, filters, reloadToken]);
 
   useEffect(() => {
     void load();
   }, [load]);
 
+  // Pointer for mouse and touch; keyboard so a card can be picked up with
+  // Space, moved with the arrow keys and dropped with Space (Phase 3 scope 2).
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
+
+  /** The next page of one column — columns load 50 at a time. */
+  async function loadMore(stageKey: string) {
+    if (!data?.department) return;
+    setLoadingMore(stageKey);
+    try {
+      const loaded = data.leads.filter((l) => l.stage === stageKey).length;
+      const query = new URLSearchParams({ departmentId: data.department.id, stage: stageKey, skip: String(loaded), f: JSON.stringify(filters) });
+      const res = await fetch(`/api/pipeline?${query}`, { cache: "no-store" });
+      if (!res.ok) return toast.error("Couldn't load more.");
+      const body = (await res.json()) as { leads: PipelineLead[]; hasMore: boolean };
+      setData((current) =>
+        current
+          ? {
+              ...current,
+              leads: [...current.leads, ...body.leads.filter((l) => !current.leads.some((c) => c.id === l.id))],
+              totals: current.totals.map((t) => (t.stage === stageKey ? { ...t, hasMore: body.hasMore } : t)),
+            }
+          : current,
+      );
+    } finally {
+      setLoadingMore(null);
+    }
+  }
 
   const byStage = useMemo(() => {
     const map = new Map<string, PipelineLead[]>();
@@ -270,15 +309,6 @@ export function PipelineBoard() {
       .reduce((sum, stage) => sum + (totalsByStage.get(stage.key)?.value ?? 0), 0);
   }, [data, money, totalsByStage]);
 
-  const owners = useMemo(() => {
-    const seen = new Map<string, { id: string; name: string }>();
-    for (const lead of data?.leads ?? []) {
-      if (lead.owner && !seen.has(lead.owner.id)) {
-        seen.set(lead.owner.id, { id: lead.owner.id, name: lead.owner.name });
-      }
-    }
-    return [...seen.values()].sort((a, b) => a.name.localeCompare(b.name));
-  }, [data]);
 
   return (
     <div className="space-y-8">
@@ -287,9 +317,24 @@ export function PipelineBoard() {
         title="Pipeline"
         description="Every live deal, what it's worth, and what's been done about it."
         actions={
-          <Button icon={<Plus className="h-4 w-4" />} onClick={() => setCreating(true)}>
-            Add lead
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            {data?.viewer.canManage && (
+              <Link href="/pipeline/analytics" className={buttonClasses("ghost", "md", "gap-2")}>
+                <BarChart3 className="h-4 w-4" /> Analytics
+              </Link>
+            )}
+            <a href={`/api/leads/export?${new URLSearchParams({ f: JSON.stringify({ ...filters, departmentId: data?.department?.id }) })}`} download className={buttonClasses("ghost", "md", "gap-2")}>
+              <Download className="h-4 w-4" /> Export
+            </a>
+            {data?.viewer.canManage && data.department && (
+              <Button variant="secondary" icon={<Upload className="h-4 w-4" />} onClick={() => setImporting(true)}>
+                Import
+              </Button>
+            )}
+            <Button icon={<Plus className="h-4 w-4" />} onClick={() => setCreating(true)}>
+              Add lead
+            </Button>
+          </div>
         }
       />
 
@@ -305,7 +350,9 @@ export function PipelineBoard() {
                 type="button"
                 onClick={() => {
                   setDepartmentId(option.id);
-                  setOwner("ALL");
+                  // Stages and owners are per department: keep only the
+                  // filters that still mean something.
+                  setFilters((f) => ({ ...f, stages: undefined, ownerId: undefined }));
                 }}
                 className={cn(
                   "rounded-pill border px-3 py-1.5 text-[13px] transition-colors",
@@ -374,21 +421,26 @@ export function PipelineBoard() {
             </div>
           )}
 
-          {owners.length > 1 && (
-            <div className="max-w-[240px]">
-              <Select
-                label="Owner"
-                value={owner}
-                onChange={(event) => setOwner(event.target.value)}
-                options={[
-                  { value: "ALL", label: "Everyone" },
-                  ...owners.map((person) => ({ value: person.id, label: person.name })),
-                ]}
-              />
-            </div>
-          )}
+          <LeadFilterBar
+            filters={filters}
+            onChange={setFilters}
+            stages={data.stages.map((s) => ({ key: s.key, label: s.label }))}
+            owners={data.owners ?? []}
+            canSeeValues={money}
+          />
 
-          {data.stages.length === 0 ? (
+          <Tabs
+            items={[
+              { key: "board", label: "Board" },
+              { key: "table", label: "Table" },
+            ]}
+            active={view}
+            onChange={setView}
+          />
+
+          {view === "table" ? (
+            <LeadTable filters={filters} onOpen={(id) => router.push(`/pipeline?lead=${id}`)} />
+          ) : data.stages.length === 0 ? (
             <Card padded={false}>
               <EmptyState
                 icon={Wallet}
@@ -440,6 +492,16 @@ export function PipelineBoard() {
                           />
                         ))}
                       </SortableContext>
+                      {totals?.hasMore && (
+                        <button
+                          type="button"
+                          onClick={() => void loadMore(stage.key)}
+                          disabled={loadingMore === stage.key}
+                          className="w-full rounded-[10px] border border-dashed border-line py-2 text-[12px] text-ink/55 transition-colors hover:bg-surface-2 hover:text-ink disabled:opacity-50"
+                        >
+                          {loadingMore === stage.key ? "Loading…" : `Show more (${(totals.count - leads.length).toLocaleString()} left)`}
+                        </button>
+                      )}
                     </DropColumn>
                   );
                 })}
@@ -521,7 +583,7 @@ export function PipelineBoard() {
             </Card>
           )}
 
-          {data.leads.length === 0 && data.stages.length > 0 && (
+          {view === "board" && data.leads.length === 0 && data.stages.length > 0 && (
             <Card padded={false}>
               <EmptyState
                 icon={Wallet}
@@ -558,10 +620,23 @@ export function PipelineBoard() {
             setDepartmentId(landed);
             if (name) toast.toast(`Showing ${name} — that's where this lead was filed.`, "info");
           }
-          setOwner("ALL");
+          setFilters((f) => ({ ...f, ownerId: undefined }));
           setReloadToken((token) => token + 1);
         }}
       />
+
+      {data?.department && (
+        <ImportLeadsModal
+          open={importing}
+          departmentId={data.department.id}
+          departmentName={data.department.shortLabel}
+          onClose={() => setImporting(false)}
+          onImported={() => {
+            setImporting(false);
+            setReloadToken((token) => token + 1);
+          }}
+        />
+      )}
 
       <LostDialog
         lead={losing?.lead ?? null}

@@ -198,6 +198,65 @@ export function utcOffsetHours(
 }
 
 /**
+ * The instant a company calendar day ("2026-09-26") begins and ends, for
+ * filtering timestamps by a date range the person picked. `null` for anything
+ * that isn't a real YYYY-MM-DD date.
+ */
+export function companyDayRange(
+  day: string,
+  timeZone: string = COMPANY_TIMEZONE,
+): { start: Date; end: Date } | null {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(day);
+  if (!match) return null;
+  const [y, m, d] = match.slice(1).map(Number);
+  const midnightUtc = Date.UTC(y, m - 1, d);
+  if (new Date(midnightUtc).getUTCDate() !== d) return null;
+  const startOf = (utcMidnight: number) => {
+    // The zone's offset at that moment, to the minute, applied once and then
+    // re-checked so a day that starts on a daylight-saving change still lands.
+    let at = utcMidnight;
+    for (let i = 0; i < 2; i++) at = utcMidnight - offsetMinutes(new Date(at), timeZone) * 60_000;
+    return at;
+  };
+  return { start: new Date(startOf(midnightUtc)), end: new Date(startOf(midnightUtc + DAY_MS) - 1) };
+}
+
+/**
+ * A `from`/`to` pair of company calendar days from a query string. Missing
+ * `to` means now; missing `from` means `defaultDays` before `to`. `null` when
+ * either is malformed, reversed, or the span exceeds `maxDays`.
+ */
+export function rangeFromQuery(
+  params: URLSearchParams,
+  defaultDays: number,
+  maxDays: number,
+  timeZone: string = COMPANY_TIMEZONE,
+): { from: Date; to: Date } | null {
+  const toParam = params.get("to");
+  const fromParam = params.get("from");
+  const to = toParam ? companyDayRange(toParam, timeZone)?.end : new Date();
+  if (!to) return null;
+  const from = fromParam ? companyDayRange(fromParam, timeZone)?.start : new Date(to.getTime() - defaultDays * DAY_MS);
+  if (!from || from > to || to.getTime() - from.getTime() > maxDays * DAY_MS) return null;
+  return { from, to };
+}
+
+function offsetMinutes(date: Date, timeZone: string): number {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone,
+    hour12: false,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).formatToParts(date);
+  const get = (type: string) => Number(parts.find((part) => part.type === type)?.value ?? "0");
+  const asUtc = Date.UTC(get("year"), get("month") - 1, get("day"), get("hour") % 24, get("minute"));
+  return Math.round((asUtc - Math.floor(date.getTime() / 60_000) * 60_000) / 60_000);
+}
+
+/**
  * `startDate`, `endDate` and `dueDate` are date-only. They're stored at UTC
  * midnight of the intended calendar day. Formatting reads them back in the
  * company timezone, so a zone *behind* UTC — New York is — would render UTC

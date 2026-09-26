@@ -51,6 +51,7 @@ model Organization {
   agentGrants    AgentGrant[]
   skills         Skill[]
   files          File[]
+  savedViews     SavedView[]
 }
 
 /// A restaurant client as a *portal tenant* — the thing a CLIENT login is
@@ -214,6 +215,48 @@ model File {
   @@index([uploaderId])
 }
 
+// ---------------------------------------------------------------------------
+// Phase 3 (Advertise X) — Lead pipeline & outreach
+// ---------------------------------------------------------------------------
+
+/// One move of a lead between stages — the history stage velocity is
+/// measured from. Written by the single stage-move path (lib/stages.ts), in
+/// the same transaction as the move.
+model LeadStageEvent {
+  id           String   @id @default(cuid())
+  leadId       String
+  departmentId String
+  /// Null for the lead's first stage (its creation).
+  fromStage    String?
+  toStage      String
+  userId       String?
+  at           DateTime @default(now())
+
+  lead Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  @@index([leadId, at])
+  @@index([departmentId, at])
+}
+
+/// A named set of pipeline filters a person saved for reuse.
+model SavedView {
+  id             String   @id @default(cuid())
+  organizationId String
+  userId         String
+  /// What the view filters — "LEADS" for now.
+  scope          String   @default("LEADS")
+  name           String
+  /// Serialized filters, validated by modules/leads/domain.ts on read.
+  filters        String
+  createdAt      DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user         User         @relation("SavedViews", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, scope, name])
+  @@index([organizationId])
+}
+
 /// A person who can sign in — a team member, the founder, a client contact or
 /// an AI agent. Role names and their meaning live in lib/constants.ts.
 model User {
@@ -300,6 +343,7 @@ model User {
   schedule       WorkSchedule?
   taskComments   TaskComment[]          @relation("TaskCommentAuthor")
   filesUploaded  File[]                 @relation("FileUploader")
+  savedViews     SavedView[]            @relation("SavedViews")
   grantsIssued   AgentGrant[]           @relation("AgentGrantsIssued")
   tasksAssigned  Task[]                 @relation("TaskAssignee")
   tasksCreated   Task[]                 @relation("TaskCreator")
@@ -332,6 +376,11 @@ model Client {
   phone           String?
   country         String?
   industry        String?
+  /// Carried over from the lead on conversion (Phase 3) — no re-entry.
+  website         String?
+  location        String?
+  /// Comma-separated, lower-case, as on Lead.
+  tags            String    @default("")
   /// Whole currency units (USD). Integer, never Float — money is not binary.
   monthlyBudget   Int       @default(0)
   /// "LEAD" | "ACTIVE" | "PAUSED" | "CHURNED" — see CLIENT_STATUSES.
@@ -1091,7 +1140,16 @@ model Lead {
   phone                 String?
   /// "OUTREACH" | "REFERRAL" | "INBOUND" | "SOCIAL"
   source                String    @default("OUTREACH")
+  /// Free text when the source is OTHER (or refines any source), e.g. "Food expo 2026".
+  sourceDetail          String?
   country               String?
+  /// City / neighbourhood — where the business trades.
+  location              String?
+  website               String?
+  /// Restaurant / food segment, e.g. "Restaurant", "Café", "Ghost kitchen".
+  industry              String?
+  /// Comma-separated, lower-case; parsed only by modules/leads/domain.ts.
+  tags                  String    @default("")
   /// ServiceCatalog slugs, comma-separated. Slugs rather than ids so a lead
   /// survives the catalogue being re-seeded, and comma-separated rather than
   /// an array column so this ports to Postgres unchanged.
@@ -1127,14 +1185,17 @@ model Lead {
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
 
-  department      Department      @relation(fields: [departmentId], references: [id])
-  owner           User?           @relation("LeadOwner", fields: [ownerId], references: [id], onDelete: SetNull)
-  createdBy       User?           @relation("LeadCreator", fields: [createdById], references: [id], onDelete: SetNull)
-  convertedClient Client?         @relation(fields: [convertedClientId], references: [id], onDelete: SetNull)
+  department      Department       @relation(fields: [departmentId], references: [id])
+  owner           User?            @relation("LeadOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  createdBy       User?            @relation("LeadCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  convertedClient Client?          @relation(fields: [convertedClientId], references: [id], onDelete: SetNull)
   activities      SalesActivity[]
   tasks           Task[]
+  stageEvents     LeadStageEvent[]
 
   @@index([departmentId, stage])
+  @@index([createdAt])
+  @@index([source])
   @@index([nextFollowUpAt])
   @@index([stage, stageChangedAt])
   @@index([ownerId, stage])

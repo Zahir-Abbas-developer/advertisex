@@ -144,6 +144,7 @@ async function main() {
           contactName: "Harness Contact",
           email: "harness@bwm.local",
           source: "OUTREACH",
+          allowDuplicate: true,
           fieldValues,
         }),
       });

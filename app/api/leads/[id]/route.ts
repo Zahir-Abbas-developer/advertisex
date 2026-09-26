@@ -17,13 +17,19 @@ import { LEAD_SOURCES, LOST_REASONS } from "@/lib/pipeline-types";
 import { hasAdminPower } from "@/lib/constants";
 
 import { requireApi } from "@/modules/rbac/server";
+import { serializeTags } from "@/modules/leads/domain";
 const patchSchema = z.object({
   businessName: z.string().trim().min(2, "Give the business a name").max(120).optional(),
   contactName: z.string().trim().min(2, "Who are we talking to?").max(120).optional(),
   email: z.string().trim().email("That doesn't look like an email").or(z.literal("")).nullish(),
   phone: z.string().trim().max(40).nullish(),
   source: z.enum(LEAD_SOURCES).optional(),
+  sourceDetail: z.string().trim().max(120).nullish(),
   country: z.string().trim().max(80).nullish(),
+  location: z.string().trim().max(120).nullish(),
+  website: z.string().trim().max(200).nullish(),
+  industry: z.string().trim().max(60).nullish(),
+  tags: z.array(z.string().trim().min(1).max(40)).max(20).optional(),
   interestedServices: z.array(z.string().min(1)).max(20).optional(),
   estimatedMonthlyValue: z.number().int().min(0).max(1_000_000).optional(),
   dealValue: z.number().int().min(0).max(100_000_000).optional(),
@@ -43,6 +49,11 @@ const EDITED_LABEL: Record<string, string> = {
   contactName: "contact",
   email: "email",
   phone: "phone",
+  location: "location",
+  website: "website",
+  industry: "industry",
+  tags: "tags",
+  sourceDetail: "source detail",
   source: "source",
   country: "country",
   interestedServices: "services",
@@ -258,10 +269,15 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     data: {
       ...(rest.businessName !== undefined ? { businessName: rest.businessName } : {}),
       ...(rest.contactName !== undefined ? { contactName: rest.contactName } : {}),
-      ...(rest.email !== undefined ? { email: rest.email || null } : {}),
+      ...(rest.email !== undefined ? { email: rest.email ? rest.email.toLowerCase() : null } : {}),
       ...(rest.phone !== undefined ? { phone: rest.phone || null } : {}),
       ...(rest.source !== undefined ? { source: rest.source } : {}),
       ...(rest.country !== undefined ? { country: rest.country || null } : {}),
+      ...(rest.sourceDetail !== undefined ? { sourceDetail: rest.sourceDetail || null } : {}),
+      ...(rest.location !== undefined ? { location: rest.location || null } : {}),
+      ...(rest.website !== undefined ? { website: rest.website || null } : {}),
+      ...(rest.industry !== undefined ? { industry: rest.industry || null } : {}),
+      ...(rest.tags !== undefined ? { tags: serializeTags(rest.tags) } : {}),
       ...(rest.estimatedMonthlyValue !== undefined
         ? { estimatedMonthlyValue: rest.estimatedMonthlyValue }
         : {}),

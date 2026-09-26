@@ -70,6 +70,55 @@ Attendance and performance are **computed and displayed separately**. No
 composite score is shown in Phase 2; if one is ever added it must be labelled
 a weighted composite with its weights on screen (Phase 2 prompt, scope 6).
 
+## Added in Phase 3 — outreach (`modules/outreach/domain.ts`)
+
+Pinned by `tests/outreach-domain.test.ts` and, over HTTP, by `outreachtest`
+(the logged activities and the rollups must agree exactly).
+
+Every outreach number is a **count of `SalesActivity` rows**; nothing is stored
+pre-aggregated. Each row counts toward exactly one kind, or toward none:
+
+| Kind | Activity types counted |
+| --- | --- |
+| Cold calls | `COLD_CALL`, legacy `CALL` |
+| Emails sent | `EMAIL_SENT`, legacy `EMAIL` |
+| Emails replied | `EMAIL_REPLY` |
+| Follow-ups | `FOLLOW_UP` |
+| Meetings booked | `MEETING_BOOKED` |
+| Meetings completed | `MEETING_HELD`, legacy `MEETING` |
+| Proposals sent | `PROPOSAL_SENT`, legacy `QUOTE` |
+| Deals closed | `DEAL_CLOSED`, written once, by the system, the first time a lead is won; attributed to the lead's owner (the actor if unowned) |
+
+`NOTE`, `OTHER`, `STATUS_CHANGE` and `ASSIGNMENT` never count. A snoozed
+follow-up writes a `NOTE`, not a `FOLLOW_UP`: postponing is not outreach.
+
+| Metric | Formula |
+| --- | --- |
+| Bucket | by `occurredAt` on the **company** calendar: the day; the week starting **Monday**; the calendar month. |
+| Per person | rows grouped by `userId` (who logged it). |
+| Company-wide | Σ over people. Reconciliation invariant: Σ buckets = Σ people = total = number of outreach rows counted. |
+| Range | whole company calendar days (`rangeFromQuery`); default 30 days (daily), 12 weeks (weekly), 12 months (monthly); at most three years. The tiles show the bucket "now" falls in, with the whole range beneath. |
+| Visibility | employee: their own rows only (a `userId` parameter is ignored); manager: their departments; founder: the company. |
+
+## Added in Phase 3 — leads analytics (`/api/leads/analytics`)
+
+Range: `from`–`to`, whole **company calendar** days (`lib/date.ts · rangeFromQuery`; default the last 90 days). Founder: every department (or
+one); manager: their departments.
+
+| Metric | Formula |
+| --- | --- |
+| New leads | leads with `createdAt` in range. |
+| Contacted / Qualified | distinct leads with a `LeadStageEvent` into that stage in range (so a lead that skips a stage is not counted for it). |
+| Converted | leads with `convertedAt` in range. |
+| Lost | distinct leads with a stage event into a LOST-kind stage in range. |
+| Conversion rate | converted ÷ (converted + lost) in range — decided deals only; open leads are not failures yet. `null` when nothing was decided. |
+| Pipeline value | Σ `dealValue` of leads currently in an OPEN-kind stage. |
+| By source | per source: leads created in range, and leads converted in range. |
+| Funnel | per standard stage: distinct leads that entered it in range. |
+| Stage velocity | per stage: mean time from entering it to the lead's next stage event, in days to one decimal, over every completed stay in the lead's history (`stageVelocity`). A stay still in progress is not a sample. |
+| Weekly trend | new leads and conversions per Monday-start week on the company calendar; every week in the range appears, empty ones as zero. |
+| Follow-ups / meetings booked | the outreach counts above, over the range. |
+
 ## To be defined at their phase gates
 
 - **P2** — per-organization aggregates (same formulas, org-scoped denominators).

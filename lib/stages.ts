@@ -85,6 +85,7 @@ export type StageMoveResult =
  *   teaches the pipeline nothing
  * - reaching a winning stage flips the lifecycle and notifies
  * - the move logs its own activity, so the timeline shows who moved what, when
+ * - the move is recorded in LeadStageEvent (stage velocity) in the same transaction
  */
 export async function moveLeadStage(options: {
   leadId: string;
@@ -136,35 +137,67 @@ export async function moveLeadStage(options: {
   const now = new Date();
   const winning = isWinning(target.kind);
 
-  await prisma.lead.update({
-    where: { id: lead.id },
-    data: {
-      stage: target.key,
-      stageChangedAt: now,
-      // Clear a previous loss when a deal comes back to life, so a reopened
-      // card does not carry the reason it died last time.
-      lostReason: target.kind === "LOST" ? (options.lostReason ?? null) : null,
-      lostNote: target.kind === "LOST" ? (options.lostNote ?? null) : null,
-      // `convertedAt` is what marks the deal as having crossed the line; the
-      // client record itself is created by the onboarding wizard, which needs
-      // more than a stage move can supply.
-      ...(winning && !lead.convertedAt ? { convertedAt: now } : {}),
-    },
-  });
+  const firstWin = winning && !lead.convertedAt;
 
-  await prisma.salesActivity.create({
-    data: {
-      departmentId: lead.departmentId,
-      leadId: lead.id,
-      userId: options.actorId,
-      type: "STATUS_CHANGE",
-      isSystem: true,
-      note:
-        `${from?.label ?? lead.stage} → ${target.label}` +
-        (target.kind === "LOST" && options.lostReason ? ` (${options.lostReason})` : ""),
-      occurredAt: now,
-    },
-  });
+  // One transaction: the move, its history row, its timeline entry and — on
+  // a first win — the "deal closed" outreach entry either all land or none do,
+  // so stage velocity and outreach counts can never disagree with the board.
+  await prisma.$transaction([
+    prisma.lead.update({
+      where: { id: lead.id },
+      data: {
+        stage: target.key,
+        stageChangedAt: now,
+        // Clear a previous loss when a deal comes back to life, so a reopened
+        // card does not carry the reason it died last time.
+        lostReason: target.kind === "LOST" ? (options.lostReason ?? null) : null,
+        lostNote: target.kind === "LOST" ? (options.lostNote ?? null) : null,
+        // `convertedAt` marks the deal as having crossed the line.
+        ...(firstWin ? { convertedAt: now } : {}),
+      },
+    }),
+    prisma.leadStageEvent.create({
+      data: {
+        leadId: lead.id,
+        departmentId: lead.departmentId,
+        fromStage: lead.stage,
+        toStage: target.key,
+        userId: options.actorId,
+        at: now,
+      },
+    }),
+    prisma.salesActivity.create({
+      data: {
+        departmentId: lead.departmentId,
+        leadId: lead.id,
+        userId: options.actorId,
+        type: "STATUS_CHANGE",
+        isSystem: true,
+        note:
+          `${from?.label ?? lead.stage} → ${target.label}` +
+          (target.kind === "LOST" && options.lostReason ? ` (${options.lostReason})` : ""),
+        occurredAt: now,
+      },
+    }),
+    // A closed deal counts toward its owner's outreach — the deal is theirs
+    // even when a manager drags the card. Once per lead: reopening and
+    // re-winning is not a second deal.
+    ...(firstWin
+      ? [
+          prisma.salesActivity.create({
+            data: {
+              departmentId: lead.departmentId,
+              leadId: lead.id,
+              userId: lead.ownerId ?? options.actorId,
+              type: "DEAL_CLOSED",
+              isSystem: true,
+              note: `Won ${lead.businessName}`,
+              occurredAt: now,
+            },
+          }),
+        ]
+      : []),
+  ]);
 
   if (winning) {
     await awardWonDeal(lead, options.actorId, now);

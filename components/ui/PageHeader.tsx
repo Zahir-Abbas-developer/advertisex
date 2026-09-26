@@ -64,7 +64,7 @@ export function PageHeader({
             )}
           </div>
 
-          {actions && <div className="flex shrink-0 items-center gap-2.5">{actions}</div>}
+          {actions && <div className="flex min-w-0 flex-wrap items-center gap-2.5">{actions}</div>}
         </div>
 
         {children && <div className="mt-8">{children}</div>}

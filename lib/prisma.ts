@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 
-import { withAudit } from "@/modules/audit/extension";
+import { auditBuffer, withAudit } from "@/modules/audit/extension";
 import { withTenancy } from "@/modules/tenancy/extension";
 
 /**
@@ -33,4 +33,29 @@ export const prisma = globalForPrisma.prisma ?? createClient();
 
 if (process.env.NODE_ENV !== "production") {
   globalForPrisma.prisma = prisma;
+}
+
+type TransactionClient = Parameters<Parameters<AppPrismaClient["$transaction"]>[0]>[0];
+
+/**
+ * An interactive transaction that keeps the audit trail honest: every audit
+ * entry produced inside it is written after it commits, and none are written
+ * if it rolls back. Use this instead of `prisma.$transaction(async (tx) => …)`
+ * (the array form needs nothing: it makes no mid-transaction audit queries).
+ */
+export async function transaction<T>(
+  fn: (tx: TransactionClient) => Promise<T>,
+  options?: { timeout?: number; maxWait?: number },
+): Promise<T> {
+  const buffer: Parameters<typeof auditBuffer.run>[0] = [];
+  const result = await auditBuffer.run(buffer, () => prisma.$transaction(fn, options));
+  if (buffer.length > 0) {
+    try {
+      await prisma.auditLog.createMany({ data: buffer });
+    } catch (error) {
+      // Same contract as every audit write: never fail the change it records.
+      console.error("[audit] could not write buffered entries", error);
+    }
+  }
+  return result;
 }

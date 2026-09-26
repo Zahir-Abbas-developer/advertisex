@@ -13,6 +13,7 @@ import { DepartmentPicker } from "@/components/fields/DepartmentPicker";
 import { DynamicFields } from "@/components/fields/DynamicFields";
 import { AssigneePicker } from "@/components/fields/AssigneePicker";
 import { LEAD_SOURCES, LEAD_SOURCE_LABEL, type LeadSource } from "@/lib/pipeline-types";
+import { INDUSTRY_SEGMENTS } from "@/modules/leads/domain";
 import type { StageKind } from "@/lib/constants";
 import type { CreatableDepartment } from "@/lib/departments";
 import type { FieldDefinitionView, FieldValueMap } from "@/lib/fields";
@@ -39,7 +40,13 @@ type Draft = {
   email: string;
   phone: string;
   country: string;
+  location: string;
+  website: string;
+  industry: string;
+  /** Comma-separated as typed; the server normalizes. */
+  tags: string;
   source: LeadSource;
+  sourceDetail: string;
   estimatedMonthlyValue: string;
   dealValue: string;
   interestedServices: string[];
@@ -55,7 +62,12 @@ function emptyDraft(): Draft {
     email: "",
     phone: "",
     country: "",
+    location: "",
+    website: "",
+    industry: "",
+    tags: "",
     source: "OUTREACH",
+    sourceDetail: "",
     estimatedMonthlyValue: "",
     dealValue: "",
     interestedServices: [],
@@ -99,6 +111,8 @@ export function LeadFormModal({
   const [values, setValues] = useState<FieldValueMap>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+  /** Set when the server found this business already in the pipeline. */
+  const [duplicate, setDuplicate] = useState<{ id: string; message: string } | null>(null);
 
   const [departments, setDepartments] = useState<CreatableDepartment[] | null>(null);
   const [departmentId, setDepartmentId] = useState("");
@@ -222,6 +236,8 @@ export function LeadFormModal({
   }
 
   function set<K extends keyof Draft>(key: K, value: Draft[K]) {
+    // A changed name, email or phone may no longer match the duplicate.
+    if (key === "businessName" || key === "email" || key === "phone") setDuplicate(null);
     setDraft((current) => ({ ...current, [key]: value }));
     clearError(key);
   }
@@ -240,7 +256,7 @@ export function LeadFormModal({
     });
   }
 
-  async function save() {
+  async function save(allowDuplicate = false) {
     // Reachable with the fields emptied again after going Back, so the same
     // check runs here and returns the person to the step that owns it.
     const missing = missingCoreFields();
@@ -264,7 +280,13 @@ export function LeadFormModal({
           email: draft.email,
           phone: draft.phone,
           country: draft.country,
+          location: draft.location,
+          website: draft.website,
+          industry: draft.industry,
+          tags: draft.tags.split(",").map((t) => t.trim()).filter(Boolean),
           source: draft.source,
+          sourceDetail: draft.sourceDetail,
+          allowDuplicate,
           estimatedMonthlyValue: Number(draft.estimatedMonthlyValue || 0),
           dealValue: Number(draft.dealValue || 0),
           interestedServices: draft.interestedServices,
@@ -276,6 +298,12 @@ export function LeadFormModal({
       });
 
       const body = await response.json().catch(() => ({}));
+
+      if (response.status === 409 && body?.duplicateOf) {
+        setDuplicate({ id: body.duplicateOf, message: body.error });
+        return;
+      }
+      setDuplicate(null);
 
       if (!response.ok) {
         if (body?.fields) {
@@ -325,6 +353,24 @@ export function LeadFormModal({
     >
       <div className="space-y-5">
         <StepRail step={step} />
+
+        {duplicate && (
+          <div className="rounded-card border border-warn/30 bg-warn-tint p-4">
+            <p className="text-[13px] font-medium text-warn">{duplicate.message}</p>
+            <p className="mt-1 text-[13px] text-ink/60">
+              Two leads for one business means two people chasing the same deal. Open the existing one, or create this
+              anyway if it really is a different business.
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <a href={`/pipeline?lead=${duplicate.id}`} className="rounded-pill border border-line px-3 py-1.5 text-[13px] text-ink hover:bg-surface-2">
+                Open the existing lead
+              </a>
+              <Button size="sm" variant="secondary" loading={saving} onClick={() => void save(true)}>
+                Create anyway
+              </Button>
+            </div>
+          </div>
+        )}
 
         {step === 0 && (
           <>
@@ -380,9 +426,40 @@ export function LeadFormModal({
                 onChange={(event) => set("phone", event.target.value)}
               />
               <Input
+                label="Location"
+                placeholder="City or neighbourhood"
+                value={draft.location}
+                onChange={(event) => set("location", event.target.value)}
+              />
+              <Input
                 label="Country"
                 value={draft.country}
                 onChange={(event) => set("country", event.target.value)}
+              />
+              <Input
+                label="Website"
+                placeholder="osterianonna.com"
+                value={draft.website}
+                onChange={(event) => set("website", event.target.value)}
+              />
+              <Input
+                label="Industry"
+                list="lead-industries"
+                placeholder="e.g. Café"
+                value={draft.industry}
+                onChange={(event) => set("industry", event.target.value)}
+              />
+              <datalist id="lead-industries">
+                {INDUSTRY_SEGMENTS.map((segment) => (
+                  <option key={segment} value={segment} />
+                ))}
+              </datalist>
+              <Input
+                label="Tags"
+                placeholder="brunch, multi-site"
+                hint="Comma-separated"
+                value={draft.tags}
+                onChange={(event) => set("tags", event.target.value)}
               />
               <Input
                 label="Estimated monthly value"
@@ -412,6 +489,13 @@ export function LeadFormModal({
                   value: source,
                   label: LEAD_SOURCE_LABEL[source],
                 }))}
+              />
+              <Input
+                label={draft.source === "OTHER" ? "Which source?" : "Source detail"}
+                placeholder={draft.source === "OTHER" ? "e.g. Food expo 2026" : "Optional — who referred them, which ad…"}
+                value={draft.sourceDetail}
+                error={errors.sourceDetail}
+                onChange={(event) => set("sourceDetail", event.target.value)}
               />
             </div>
 
@@ -547,6 +631,11 @@ const CORE_KEYS = new Set([
   "email",
   "phone",
   "country",
+  "location",
+  "website",
+  "industry",
+  "tags",
+  "sourceDetail",
   "estimatedMonthlyValue",
   "dealValue",
   "source",

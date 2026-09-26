@@ -44,6 +44,19 @@ ownership and the load-bearing columns — not every timestamp.*
 
 Migration `20260926090000_team_operating_system`: additive only.
 
+### Built in Phase 3
+
+| Entity / change | Fields | Notes |
+| --- | --- | --- |
+| **LeadStageEvent** | leadId, departmentId, fromStage?, toStage, userId?, at | One row per stage move (and the opening stage). Source of the funnel and stage velocity. Written in the same transaction as the move. Tenancy: through `lead.department` (lead-owned). |
+| **SavedView** | organizationId, userId, scope ("pipeline"), name, filters (JSON string) | A person's saved pipeline filters. Unique per (user, scope, name). Tenant root; readable only by its owner. |
+| `Lead` | + sourceDetail, location, website, industry, tags (comma list, default ""); indexes on createdAt, source | `email` stored lowercased from Phase 3 on (duplicate detection). |
+| `Client` | + website, location, tags | So conversion copies every lead field. |
+| `SalesActivity.type` | + COLD_CALL, EMAIL_SENT, EMAIL_REPLY, FOLLOW_UP, MEETING_BOOKED, MEETING_HELD, PROPOSAL_SENT, DEAL_CLOSED | Legacy CALL/EMAIL/MEETING/QUOTE stay readable and counted (METRICS). New logs use the new types. |
+| `PipelineStage` (seed) | the standard template: NEW_LEAD, CONTACTED, QUALIFIED, MEETING, PROPOSAL, NEGOTIATION, WON, LOST | For new departments and fresh databases. Existing departments keep their stages (ADR-012). |
+
+Migration `20260926140000_lead_pipeline`: additive only, zero drops.
+
 Every new foreign key is indexed; `organizationId` columns are nullable,
 backfilled by the seed (null keys only), and treated as required by the data
 layer. Making them `NOT NULL` is a later, separate migration once production

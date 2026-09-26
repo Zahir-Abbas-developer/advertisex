@@ -49,7 +49,7 @@ export function FollowUpDialog({
   onSaved: () => void;
 }) {
   const toast = useToast();
-  const [activityType, setActivityType] = useState<ActivityType>("CALL");
+  const [activityType, setActivityType] = useState<ActivityType>("FOLLOW_UP");
   const [note, setNote] = useState("");
   const [nextAt, setNextAt] = useState("");
   const [close, setClose] = useState(false);
@@ -58,7 +58,7 @@ export function FollowUpDialog({
 
   useEffect(() => {
     if (!row) return;
-    setActivityType("CALL");
+    setActivityType("FOLLOW_UP");
     setNote("");
     // Default a week out — a date already in the box is one less reason to
     // reach for "close it out" just to get the dialog shut.

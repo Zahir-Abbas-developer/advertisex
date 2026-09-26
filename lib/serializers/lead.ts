@@ -17,7 +17,12 @@ export type LeadSource = {
   email: string | null;
   phone: string | null;
   source: string | null;
+  sourceDetail?: string | null;
   country: string | null;
+  location?: string | null;
+  website?: string | null;
+  industry?: string | null;
+  tags?: string[];
   interestedServices: string[];
   estimatedMonthlyValue: number | null;
   /** What the deal is worth. Money, so it follows the same rule. */

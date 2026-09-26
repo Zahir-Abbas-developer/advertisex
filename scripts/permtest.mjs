@@ -496,7 +496,7 @@ async function main() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             leadId: target.leadId,
-            type: "CALL",
+            type: "COLD_CALL",
             note: "Should not persist",
           }),
         });

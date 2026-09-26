@@ -1,3 +1,4 @@
+import { AsyncLocalStorage } from "node:async_hooks";
 import { Prisma, type PrismaClient } from "@prisma/client";
 
 import { actorTypeFor, buildAuditEntry, isAudited } from "@/modules/audit/entry";
@@ -20,6 +21,21 @@ import { logger, errorFields } from "@/lib/logger";
 
 const SNAPSHOT_OPERATIONS = new Set(["update", "delete", "upsert"]);
 
+/**
+ * Inside an interactive transaction (`transaction()` in lib/prisma.ts) the
+ * entries are buffered here instead of written: they are written after the
+ * transaction commits and dropped if it rolls back. Writing them through the
+ * base client mid-transaction would (on SQLite) wait on the transaction's own
+ * lock until it timed out, and (on Postgres) commit audit rows for changes
+ * that were then rolled back.
+ */
+type AuditBuffer = AsyncLocalStorage<Prisma.AuditLogCreateManyInput[]>;
+const globalForAudit = globalThis as unknown as { auditBuffer?: AuditBuffer };
+// One instance per process, cached like the Prisma client: Next can load
+// this module more than once (per bundle), and the client — itself cached on
+// globalThis — must see the same buffer that `transaction()` fills.
+export const auditBuffer: AuditBuffer = (globalForAudit.auditBuffer ??= new AsyncLocalStorage());
+
 type Delegate = { findUnique: (args: { where: unknown }) => Promise<unknown> };
 
 export function withAudit(base: PrismaClient) {
@@ -31,8 +47,11 @@ export function withAudit(base: PrismaClient) {
           if (!isAudited(model, operation)) return query(args);
 
           const input = args as Record<string, unknown> | undefined;
+          const buffer = auditBuffer.getStore();
           let before: unknown = null;
-          if (SNAPSHOT_OPERATIONS.has(operation) && input?.where) {
+          // No before-image inside a transaction: reading it would need a
+          // query outside the transaction (see auditBuffer).
+          if (!buffer && SNAPSHOT_OPERATIONS.has(operation) && input?.where) {
             const delegate = (base as unknown as Record<string, Delegate>)[
               model.charAt(0).toLowerCase() + model.slice(1)
             ];
@@ -55,7 +74,10 @@ export function withAudit(base: PrismaClient) {
                 organizationId: actor?.organizationId ?? null,
               },
             });
-            if (entry) await base.auditLog.create({ data: entry });
+            if (entry) {
+              if (buffer) buffer.push(entry);
+              else await base.auditLog.create({ data: entry });
+            }
           } catch (error) {
             logger.error("audit.write_failed", { model, operation, ...errorFields(error) });
           }

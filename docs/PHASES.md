@@ -73,3 +73,33 @@ Make Advertise X the internal operating system for the team — humans and AI em
 - Global Definition of Done passes.
 
 ### GATE — docs/phases/PHASE_2_REPORT.md, then STOP for "Phase 2 approved."
+
+---
+
+## PHASE 3 — LEAD PIPELINE & OUTREACH TRACKING
+
+*Issued 2026-09-26 after Phase 2 was delivered; taken as the founder's
+go-ahead (recorded in PHASE_LOG). Verbatim below.*
+
+Prerequisite: "Phase 2 approved."
+
+### OBJECTIVE
+A complete, fast CRM lead pipeline with outreach activity tracking, and a one-click conversion of a won lead into a Client + Project with zero re-entry.
+
+### SCOPE
+1. Lead model: business name, contact person, email, phone, website, location, industry (restaurant/food segments as defaults), lead source (enum + custom), assigned employee, deal value, stage, notes, tags, lost reason, timestamps.
+2. Pipeline stages: New Lead → Contacted → Qualified → Meeting → Proposal → Negotiation → Won / Lost. Kanban board (drag-and-drop, keyboard accessible) plus table view; filters (stage, source, owner, value, dates); saved views; global search.
+3. Follow-ups: schedule, due, complete, snooze. "Due today / overdue" surfaced on employee and founder dashboards; reminders via notifications.
+4. Communication history per lead: calls, emails, meetings, notes — logged manually now (integration adapters later); timeline UI.
+5. Outreach activity tracking: cold calls, emails sent, emails replied, follow-ups, meetings booked, meetings completed, proposals sent, deals closed — logged per employee with daily / weekly / monthly rollups. Founder sees per-employee and company-wide; employees see their own.
+6. Founder Leads analytics: total, new, qualified, contacted, follow-ups, meetings booked, converted, lost, by source, conversion rate, pipeline value, stage velocity — real charts per §7.
+7. Convert Lead → Client + Project: ONE action creates the ClientAccount (optionally inviting a client user), copies all lead data, creates the first Project with selected services, links the lead history to the client, marks the lead Won. Transactional and audit-logged.
+8. CSV import/export for leads with validation and duplicate detection.
+
+### ACCEPTANCE
+- Lead lifecycle works end-to-end including conversion; no duplicate data entry anywhere.
+- Kanban stays fast with 1,000+ leads (pagination / virtualization).
+- Outreach metrics reconcile exactly with logged activities (tests).
+- Global Definition of Done passes.
+
+### GATE — docs/phases/PHASE_3_REPORT.md, then STOP for "Phase 3 approved."

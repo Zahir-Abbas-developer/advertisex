@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 
 import { avatarColorFor, FIELD_ENTITIES } from "../lib/constants";
 import { serializeSkills } from "../lib/skills";
+import { STANDARD_STAGES } from "../modules/leads/domain";
 
 /**
  * Advertise X seed — the starting shape of the business, not the shape of the system.
@@ -76,15 +77,7 @@ const DEPARTMENTS = [
     description:
       "The entry offer: a paid teardown of a food business's ads, listings and funnel, delivered as a call — and the doorway to a Growth Sprint.",
     order: 1,
-    stages: [
-      { key: "NEW_INQUIRY", label: "New Inquiry", sortOrder: 1, kind: "OPEN", colorToken: "neutral" },
-      { key: "QUALIFIED", label: "Qualified", sortOrder: 2, kind: "OPEN", colorToken: "info" },
-      { key: "AUDIT_BOOKED", label: "Audit Booked", sortOrder: 3, kind: "OPEN", colorToken: "info" },
-      { key: "AUDIT_DELIVERED", label: "Audit Delivered", sortOrder: 4, kind: "OPEN", colorToken: "warning" },
-      { key: "WON", label: "Won — Engagement", sortOrder: 5, kind: "WON", colorToken: "success" },
-      { key: "ACTIVE_CLIENT", label: "Active Client", sortOrder: 6, kind: "ACTIVE_CLIENT", colorToken: "info" },
-      { key: "LOST", label: "Lost", sortOrder: 7, kind: "LOST", colorToken: "danger" },
-    ],
+    stages: STANDARD_STAGES.map((stage, index) => ({ ...stage, sortOrder: index + 1 })),
     fields: [
       {
         key: "business_type",
@@ -116,18 +109,7 @@ const DEPARTMENTS = [
     description:
       "The core offer: 90 days of managed Google and Meta ads against one stated goal, then rolling retention.",
     order: 2,
-    stages: [
-      { key: "NEW_LEAD", label: "New Lead", sortOrder: 1, kind: "OPEN", colorToken: "neutral" },
-      { key: "QUALIFIED", label: "Qualified", sortOrder: 2, kind: "OPEN", colorToken: "info" },
-      { key: "STRATEGY_CALL", label: "Strategy Call", sortOrder: 3, kind: "OPEN", colorToken: "info" },
-      { key: "PROPOSAL", label: "Proposal", sortOrder: 4, kind: "OPEN", colorToken: "warning" },
-      { key: "WON", label: "Won — Sprint Signed", sortOrder: 5, kind: "WON", colorToken: "success" },
-      // Two flavours of converted-and-ongoing, so the board says which
-      // clients are inside their 90 days and which have rolled over.
-      { key: "LIVE_SPRINT", label: "Live Sprint", sortOrder: 6, kind: "ACTIVE_CLIENT", colorToken: "info" },
-      { key: "RETAINED", label: "Retained", sortOrder: 7, kind: "ACTIVE_CLIENT", colorToken: "info" },
-      { key: "LOST", label: "Lost", sortOrder: 8, kind: "LOST", colorToken: "danger" },
-    ],
+    stages: STANDARD_STAGES.map((stage, index) => ({ ...stage, sortOrder: index + 1 })),
     fields: [
       {
         key: "monthly_ad_budget",
@@ -169,15 +151,7 @@ const DEPARTMENTS = [
     description:
       "Food photography, video, menus and brand work — sold on its own or feeding the ads.",
     order: 3,
-    stages: [
-      { key: "NEW_REQUEST", label: "New Request", sortOrder: 1, kind: "OPEN", colorToken: "neutral" },
-      { key: "QUALIFIED", label: "Qualified", sortOrder: 2, kind: "OPEN", colorToken: "info" },
-      { key: "SCOPING", label: "Scoping", sortOrder: 3, kind: "OPEN", colorToken: "info" },
-      { key: "PROPOSAL", label: "Proposal", sortOrder: 4, kind: "OPEN", colorToken: "warning" },
-      { key: "WON", label: "Won — Booked", sortOrder: 5, kind: "WON", colorToken: "success" },
-      { key: "IN_PRODUCTION", label: "In Production", sortOrder: 6, kind: "ACTIVE_CLIENT", colorToken: "info" },
-      { key: "LOST", label: "Lost", sortOrder: 7, kind: "LOST", colorToken: "danger" },
-    ],
+    stages: STANDARD_STAGES.map((stage, index) => ({ ...stage, sortOrder: index + 1 })),
     fields: [
       {
         key: "deliverables",
@@ -200,15 +174,7 @@ const DEPARTMENTS = [
     description:
       "Websites, online ordering and booking funnels, plus the email/SMS and loyalty programs that keep guests coming back.",
     order: 4,
-    stages: [
-      { key: "NEW_LEAD", label: "New Lead", sortOrder: 1, kind: "OPEN", colorToken: "neutral" },
-      { key: "QUALIFIED", label: "Qualified", sortOrder: 2, kind: "OPEN", colorToken: "info" },
-      { key: "DISCOVERY", label: "Discovery", sortOrder: 3, kind: "OPEN", colorToken: "info" },
-      { key: "PROPOSAL", label: "Proposal", sortOrder: 4, kind: "OPEN", colorToken: "warning" },
-      { key: "WON", label: "Won — Signed", sortOrder: 5, kind: "WON", colorToken: "success" },
-      { key: "LIVE", label: "Live & Retained", sortOrder: 6, kind: "ACTIVE_CLIENT", colorToken: "info" },
-      { key: "LOST", label: "Lost", sortOrder: 7, kind: "LOST", colorToken: "danger" },
-    ],
+    stages: STANDARD_STAGES.map((stage, index) => ({ ...stage, sortOrder: index + 1 })),
     fields: [
       { key: "current_website", label: "Current website", type: "TEXT", order: 1 },
       {

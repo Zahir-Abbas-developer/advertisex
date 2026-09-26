@@ -84,6 +84,7 @@ export const config = {
     "/team/:path*",
     "/reports/:path*",
     "/tasks/:path*",
+    "/outreach/:path*",
     "/portal/:path*",
     "/api/reports/:path*",
     "/api/notifications/:path*",

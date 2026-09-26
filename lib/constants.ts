@@ -137,38 +137,59 @@ export function isStageKind(value: string): value is StageKind {
  * are written by the app when it changes something worth remembering.
  */
 export const ACTIVITY_TYPES = [
+  // Phase 3 outreach types — what people log now. Each counts toward exactly
+  // one outreach kind (modules/outreach/domain.ts).
+  "COLD_CALL",
+  "EMAIL_SENT",
+  "EMAIL_REPLY",
+  "FOLLOW_UP",
+  "MEETING_BOOKED",
+  "MEETING_HELD",
+  "PROPOSAL_SENT",
+  "NOTE",
+  "OTHER",
+  // Written by the app.
+  "STATUS_CHANGE",
+  "ASSIGNMENT",
+  "DEAL_CLOSED",
+  // Earlier generic types: no longer offered, still read (and still counted
+  // toward the nearest outreach kind) so history keeps its meaning.
   "CALL",
   "EMAIL",
   "MEETING",
-  "FOLLOW_UP",
-  "NOTE",
   "QUOTE",
-  "STATUS_CHANGE",
-  "ASSIGNMENT",
-  "OTHER",
 ] as const;
 export type ActivityType = (typeof ACTIVITY_TYPES)[number];
 
 export const ACTIVITY_TYPE_LABEL: Record<ActivityType, string> = {
+  COLD_CALL: "Cold call",
+  EMAIL_SENT: "Email sent",
+  EMAIL_REPLY: "Email reply received",
+  FOLLOW_UP: "Follow-up",
+  MEETING_BOOKED: "Meeting booked",
+  MEETING_HELD: "Meeting held",
+  PROPOSAL_SENT: "Proposal sent",
+  NOTE: "Note",
+  OTHER: "Other",
+  STATUS_CHANGE: "Stage change",
+  ASSIGNMENT: "Assignment",
+  DEAL_CLOSED: "Deal closed",
   CALL: "Call",
   EMAIL: "Email",
   MEETING: "Meeting",
-  FOLLOW_UP: "Follow-up",
-  NOTE: "Note",
   QUOTE: "Quote",
-  STATUS_CHANGE: "Stage change",
-  ASSIGNMENT: "Assignment",
-  OTHER: "Other",
 };
 
 /** The types a person may log by hand. The rest are written by the app. */
 export const LOGGABLE_ACTIVITY_TYPES: readonly ActivityType[] = [
-  "CALL",
-  "EMAIL",
-  "MEETING",
+  "COLD_CALL",
+  "EMAIL_SENT",
+  "EMAIL_REPLY",
   "FOLLOW_UP",
+  "MEETING_BOOKED",
+  "MEETING_HELD",
+  "PROPOSAL_SENT",
   "NOTE",
-  "QUOTE",
   "OTHER",
 ];
 

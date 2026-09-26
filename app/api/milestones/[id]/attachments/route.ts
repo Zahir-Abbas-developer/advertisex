@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { prisma } from "@/lib/prisma";
+import { prisma, transaction } from "@/lib/prisma";
 import { apiError } from "@/lib/api";
 import { getCurrentUser } from "@/lib/session";
 import { recordAttachment } from "@/lib/activity";
@@ -61,7 +61,7 @@ export async function POST(
   }
 
   try {
-    const created = await prisma.$transaction(async (tx) => {
+    const created = await transaction(async (tx) => {
       const row = await tx.attachment.create({
         data: {
           milestoneId: milestone.id,

@@ -11,6 +11,7 @@ import { commissionsFor, stagesFor } from "@/lib/stages";
 import { hasAdminPower } from "@/lib/constants";
 
 import { requireApi } from "@/modules/rbac/server";
+import { LEAD_INCLUDE, filtersFromRequest, toLeadSource, whereFor } from "@/modules/leads/server";
 /**
  * One department's board.
  *
@@ -58,21 +59,39 @@ export async function GET(request: Request) {
   }
 
   const viewer = await viewerFor(user);
-  const ownerId = searchParams.get("ownerId");
+  const showTotals = canSeePipelineTotals(viewer);
+  const url = new URL(request.url);
+  const filters = filtersFromRequest(url, showTotals);
+  const legacyOwner = searchParams.get("ownerId");
+  if (legacyOwner && legacyOwner !== "ALL" && !filters.ownerId) filters.ownerId = legacyOwner;
+  const where = whereFor({ ...filters, departmentId: undefined }, [department.id]);
 
-  const [stages, leads, commissions, services] = await Promise.all([
+  /* Paged per column (Phase 3: fast with 1,000+ leads). Counts and values
+     come from one aggregate over the whole filtered set, so a column's header
+     is exact however few of its cards are loaded; the cards themselves arrive
+     PAGE at a time, and `?stage=KEY&skip=N` fetches one column's next page. */
+  const PAGE = Math.min(100, Math.max(10, Number(searchParams.get("take") ?? 50)));
+  const oneStage = searchParams.get("stage");
+  const skip = Math.max(0, Number(searchParams.get("skip") ?? 0));
+
+  if (oneStage) {
+    const rows = await prisma.lead.findMany({
+      where: { AND: [where, { stage: oneStage }] },
+      orderBy: [{ stageChangedAt: "desc" }, { id: "asc" }],
+      skip,
+      take: PAGE + 1,
+      include: LEAD_INCLUDE,
+    });
+    return NextResponse.json({
+      stage: oneStage,
+      leads: rows.slice(0, PAGE).map((row) => serializeLead(toLeadSource(row), viewer)),
+      hasMore: rows.length > PAGE,
+    });
+  }
+
+  const [stages, grouped, commissions, services] = await Promise.all([
     stagesFor(department.id),
-    prisma.lead.findMany({
-      where: {
-        departmentId: department.id,
-        ...(ownerId && ownerId !== "ALL" ? { ownerId } : {}),
-      },
-      orderBy: [{ stageChangedAt: "desc" }],
-      include: {
-        owner: { select: { id: true, name: true, avatarColor: true } },
-        _count: { select: { activities: true } },
-      },
-    }),
+    prisma.lead.groupBy({ by: ["stage"], where, _count: { _all: true }, _sum: { dealValue: true } }),
     commissionsFor(department.id),
     // Still supplied to the creation form: the service catalogue is an
     // inherited concept awaiting a decision, and dropping it here would remove
@@ -80,52 +99,33 @@ export async function GET(request: Request) {
     prisma.serviceCatalog.findMany({
       where: { isActive: true },
       orderBy: { order: "asc" },
-      select: { slug: true, name: true },
+      select: { id: true, slug: true, name: true },
     }),
   ]);
 
-  const serialized = leads.map((lead) =>
-    serializeLead(
-      {
-        id: lead.id,
-        businessName: lead.businessName,
-        contactName: lead.contactName,
-        email: lead.email,
-        phone: lead.phone,
-        source: lead.source,
-        country: lead.country,
-        interestedServices: lead.interestedServices
-          .split(",")
-          .map((slug) => slug.trim())
-          .filter(Boolean),
-        estimatedMonthlyValue: lead.estimatedMonthlyValue,
-        dealValue: lead.dealValue,
-        ownerId: lead.ownerId,
-        stage: lead.stage,
-        stageChangedAt: lead.stageChangedAt,
-        lostReason: lead.lostReason,
-        lostNote: lead.lostNote,
-        owner: lead.owner,
-        activityCount: lead._count.activities,
-        convertedClientId: lead.convertedClientId,
-        createdAt: lead.createdAt,
-      },
-      viewer,
+  const firstPages = await Promise.all(
+    stages.map((stage) =>
+      prisma.lead.findMany({
+        where: { AND: [where, { stage: stage.key }] },
+        orderBy: [{ stageChangedAt: "desc" }, { id: "asc" }],
+        take: PAGE,
+        include: LEAD_INCLUDE,
+      }),
     ),
   );
+  const serialized = firstPages.flat().map((row) => serializeLead(toLeadSource(row), viewer));
 
   // Column headers carry a count for everyone and a total only for those
   // allowed the money — a stage with four small deals and a stage with one
   // large one are not the same pipeline, and a count alone says they are.
-  const showTotals = canSeePipelineTotals(viewer);
-  const totals = stages.map((stage) => {
-    const inStage = leads.filter((lead) => lead.stage === stage.key);
+  const totals = stages.map((stage, index) => {
+    const g = grouped.find((row) => row.stage === stage.key);
+    const count = g?._count._all ?? 0;
     return {
       stage: stage.key,
-      count: inStage.length,
-      ...(showTotals
-        ? { value: inStage.reduce((sum, lead) => sum + lead.dealValue, 0) }
-        : {}),
+      count,
+      hasMore: count > firstPages[index].length,
+      ...(showTotals ? { value: g?._sum.dealValue ?? 0 } : {}),
     };
   });
 
@@ -149,6 +149,19 @@ export async function GET(request: Request) {
     // see deal values at all.
     commissions: showTotals ? commissions : [],
     services,
-    viewer: { id: user.id, isAdmin, canSeeDealValues: showTotals },
+    filters,
+    viewer: {
+      id: user.id,
+      isAdmin,
+      canSeeDealValues: showTotals,
+      // Bulk import, analytics and conversion are management actions.
+      canManage: access.principal.role === "FOUNDER" || access.principal.role === "MANAGER",
+    },
+    owners: await prisma.departmentMembership
+      .findMany({
+        where: { departmentId: department.id, user: { isActive: true } },
+        select: { user: { select: { id: true, name: true } } },
+      })
+      .then((rows) => rows.map((r) => r.user).sort((a, b) => a.name.localeCompare(b.name))),
   });
 }

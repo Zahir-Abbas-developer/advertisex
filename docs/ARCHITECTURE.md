@@ -42,7 +42,18 @@ modules/
   attendance/ domain (pure: hours, breaks, late, early, absence, month) · server (time clock)   (Phase 2)
   tasks/      domain (pure: lifecycle, deadlines, on-time, workload) · server (access) · deadlines job (Phase 2)
   team/       directory, performance, attendance roll-ups, activity feed (from the audit log)  (Phase 2)
+  leads/      domain (pure: standard stages, sources, filters, tags, velocity) · csv (pure: parse,
+              validate, duplicates, formula-safe export) · server (filters → where) · convert   (Phase 3)
+  outreach/   domain (pure: kinds, company-calendar buckets, reconciling rollups)              (Phase 3)
 ```
+
+**Transactions and audit (Phase 3).** Multi-entity writes use
+`transaction()` from `lib/prisma.ts`, never an interactive `prisma.$transaction`
+directly (a unit test enforces this). Inside it the audit extension buffers
+its entries in an `AsyncLocalStorage` and `transaction()` writes them after
+commit; a rollback drops them. Writing them mid-transaction through the base
+client deadlocked on SQLite and would have committed audit rows for
+rolled-back changes on Postgres (ADR-012).
 
 **Target** (moved when their phase touches them):
 

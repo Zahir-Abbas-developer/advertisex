@@ -449,3 +449,70 @@ already has the shape that store needs.
 
 **Replaced page.** `/team/[id]` was the parked scoring module's profile; it is
 now the employee profile Phase 2 specifies. The scoring module stays parked.
+
+---
+
+## ADR-012 — Phase 3: the lead pipeline on the existing CRM
+
+**Date:** 2026-09-26 · **Status:** accepted
+
+**Standard stages as a template, not a rewrite.** The prompt's stages (New
+Lead → Contacted → Qualified → Meeting → Proposal → Negotiation → Won / Lost)
+are `STANDARD_STAGES` in `modules/leads/domain.ts`. Fresh databases and every
+department created from now on get them. **Existing departments keep their
+stages:** the seed never rewrites a department it finds (ADR-008), and
+renaming stage keys under live leads is a migration on a populated table,
+which is a founder decision (CLAUDE.md §12). Until that is decided, the
+analytics funnel and the "contacted / qualified" counts, which read the
+standard keys, show only departments on the template; everything else
+(board, conversion, outreach, velocity per stage) works with any stages.
+
+**Stage history is a table.** `LeadStageEvent` records every move, written in
+the same transaction as the move itself. The funnel counts leads that
+*entered* a stage, and velocity measures completed stays. Neither can be
+derived from `Lead.stage`, which only knows the present.
+
+**One-action conversion replaces the wizard hand-off.** Before, "convert"
+opened the client wizard pre-filled from the lead and relied on a second POST
+to link the two. It could half-finish. `convertLead` now creates the
+ClientAccount, the Client (every lead field, the department answers copied by
+key), the Project with its services, re-links the history, marks the lead Won
+and optionally invites a client user, all in one transaction with an explicit
+`LEAD_CONVERTED` audit entry. The prefill GET and link POST were removed with
+their only callers. A lead can be converted from any stage except Lost
+(reopen it first) and only once (409).
+
+**Outreach is counted, not stored.** Every figure is a count of
+`SalesActivity` rows by kind (METRICS). There are no counters to drift, which
+is what makes "reconciles exactly" testable. The legacy generic types keep
+counting as their nearest kind so pre-Phase-3 history is not lost.
+`DEAL_CLOSED` is written by the system on the first win only and credited to
+the lead's owner.
+
+**A snooze is a note.** Postponing a follow-up used to log a `FOLLOW_UP`
+activity, which would now inflate the follow-up count with work not done. It
+writes a `NOTE`. That is a small, deliberate behaviour change.
+
+**Transaction-aware audit.** The audit extension wrote each entry (and read
+before-images) through the base client. Inside an interactive transaction
+that deadlocked on SQLite and, on Postgres, would commit audit rows for
+changes that then rolled back. Now `transaction()` in `lib/prisma.ts` runs the
+work under an `AsyncLocalStorage` buffer. The extension pushes entries there
+(without before-images, which would need an outside read), and they are written
+after commit or dropped on rollback. The buffer lives on `globalThis`, like the
+Prisma client, because Next can load a module more than once. A unit test
+forbids interactive `prisma.$transaction` outside `lib/prisma.ts`.
+
+**Duplicates warn, they don't block.** A new lead whose email, or normalized
+name + last ten phone digits, matches an existing one returns 409 with the
+match. The person can choose "Create anyway" (`allowDuplicate`). Import
+reports duplicates and skips them unless told otherwise.
+
+**The board pages by column.** 50 cards per stage, with totals from `groupBy`
+and "load more" per column. The board stays fast at 1,000+ leads (120 ms
+measured with 1,200+ in `leadtest`) without virtualizing the drag-and-drop.
+
+**Alternatives rejected:** rewriting every department's stages on deploy
+(silent change to live data); counters on `User` for outreach (drift, no
+reconciliation); keeping the wizard path alongside the one-action convert (two
+ways to do one thing, one of them non-atomic).
