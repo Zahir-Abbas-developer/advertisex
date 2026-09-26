@@ -3,13 +3,8 @@ import { z } from "zod";
 
 import { prisma } from "@/lib/prisma";
 import { apiError, requireAdminApi } from "@/lib/api";
-import {
-  displayValue,
-  fieldsFor,
-  validateFieldValues,
-  valuesFor,
-  writeFieldValues,
-} from "@/lib/fields";
+import { displayValue, validateFieldValues } from "@/lib/fields";
+import { fieldsFor, valuesFor, writeFieldValues } from "@/lib/fields-data";
 import { recordAudit } from "@/lib/audit";
 
 /**

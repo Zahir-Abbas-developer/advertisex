@@ -321,3 +321,74 @@ So the rollout is expand/contract:
 
 Because the new code accepts both vocabularies, the backfill can run at any
 point after step 1 with no behaviour change, and running it twice is harmless.
+
+## ADR-009 — Tenancy and audit enforced in the Prisma client, not per-module repositories
+
+**Date:** 2026-09-25 · **Status:** accepted
+
+**Context.** Phase 1 scope 4 asks for a tenant-scoped data-access layer with
+"no raw unscoped queries anywhere", and scope 9 for audit logging "wired into
+the data layer for all mutations". ADR-005 anticipated per-module
+repositories. But the codebase has ~80 route handlers and dozens of server
+components that call `prisma.*` directly; converting every one to a
+repository is the module migration itself, and would leave the app unscoped
+until the last handler moved.
+
+**Decision.** Both walls live in the one shared Prisma client
+(`lib/prisma.ts`), as client extensions every query passes through:
+
+- `modules/tenancy` — inside a signed-in request, every query on a
+  tenant-owned model is rewritten by the pure `scopeArgs()` to the caller's
+  organization: roots (`User`, `Department`, `Client`, `ClientAccount`,
+  `AgentGrant`, `AuditLog`) by `organizationId`, department-owned rows
+  (`Lead`, `Task`, `SalesActivity`, `PipelineStage`, `FieldDefinition`,
+  `DepartmentMembership`) through their department. Creates are stamped;
+  a caller-supplied organization is overwritten, never trusted. A signed-in
+  account with no organization is refused, not run unscoped.
+- `modules/audit` — every create/update/delete of a business entity writes
+  `AuditLog` with actor, actor type (HUMAN/AI/CLIENT/SYSTEM), organization
+  and a before/after diff (changed fields only; password hashes redacted).
+  Never throws into the mutation it records.
+
+**Why this over repositories now.** It makes the guarantee *structural*
+today, for every existing call site, instead of eventually. The module
+repositories ADR-005 describes still come, module by module — they then
+inherit the wall rather than being the only thing standing in for it.
+
+**Evidence.** `tests/tenancy-scope.test.ts` and `tests/audit-entry.test.ts`
+cover the rules without a database. `scripts/tenanttest.mjs` plants a whole
+second organization and proves organization #1's founder sees none of it
+across 24 checks — and, mutation-tested, that with the wall disabled 12 of
+those checks fail at once: before this change a founder's
+`departmentScope` returned *every* organization's rows.
+
+**Limits, stated.** Outside a request (cron, seeds, scripts) queries run
+unscoped as the system; jobs carrying an organization context is Phase 2.
+Scheduled-job audit rows have no organization and are visible to the ops
+roles of the (single) organization. Models reached only through a scoped
+parent (notifications, field values, the parked delivery module) are not
+filtered themselves. Postgres Row-Level Security remains the second wall
+(ADR-005).
+
+**Side effect found and fixed.** Client components imported constants from
+server modules (`lib/notifications`, `lib/fields`, `lib/audit`) and so pulled
+the database client into the browser bundle unnoticed. The wall's session
+dependency made that a build error; each module is now split into a
+client-safe half (`lib/notification-types`, `lib/fields`, `lib/audit-actions`)
+and a server half (`lib/notifications`, `lib/fields-data`, `lib/audit`).
+
+## ADR-010 — MANAGER is department-scoped; the maintainer account changes
+
+**Date:** 2026-09-25 · **Status:** accepted, **founder to confirm**
+
+The legacy `SUPPORT_ADMIN` role (one account: the system maintainer) had
+exactly the owner's powers. It reads as MANAGER under the Advertise X role
+model (ADR-007/008), and the Phase 1 prompt's acceptance requires that
+"MANAGER scope holds". So the maintainer now: keeps full lead editing in
+every department he belongs to (all four service lines), keeps the audit and
+error logs (`ops`), and **loses** founder configuration (team, settings,
+services, departments) and money views.
+
+If the founder wants the maintainer to keep owner-level access, the change is
+one line — set that account's role to FOUNDER — and nothing in the model has
+to bend. Recorded here so the change is a decision, not a surprise.

@@ -2,7 +2,6 @@ import { prisma } from "@/lib/prisma";
 import { MILESTONE_STATUS_LABEL, type MilestoneStatus } from "@/lib/constants";
 import { formatDate } from "@/lib/date";
 import { formatPoints, SCORE_EVENT_LABEL, type ScoreEventType } from "@/lib/scoring";
-import type { BadgeTone } from "@/components/ui/Badge";
 
 /**
  * The audit trail.
@@ -13,27 +12,8 @@ import type { BadgeTone } from "@/components/ui/Badge";
  * it was describing.
  */
 
-export const ACTIVITY_TYPES = [
-  "MILESTONE_CREATED",
-  "STATUS_CHANGED",
-  "REASSIGNED",
-  "DUE_DATE_CHANGED",
-  "SCORE_EVENT",
-  "COMMENT_ADDED",
-  "ATTACHMENT_ADDED",
-] as const;
-
-export type ActivityType = (typeof ACTIVITY_TYPES)[number];
-
-export const ACTIVITY_TONE: Record<ActivityType, BadgeTone> = {
-  MILESTONE_CREATED: "neutral",
-  STATUS_CHANGED: "info",
-  REASSIGNED: "info",
-  DUE_DATE_CHANGED: "warning",
-  SCORE_EVENT: "danger",
-  COMMENT_ADDED: "neutral",
-  ATTACHMENT_ADDED: "neutral",
-};
+export { ACTIVITY_TYPES, ACTIVITY_TONE, type ActivityType } from "@/lib/activity-types";
+import type { ActivityType } from "@/lib/activity-types";
 
 export async function record(input: {
   type: ActivityType;

@@ -1,0 +1,80 @@
+# The quality gate on every push and pull request (Phase 0 risk R6: the
+# repository was checked out with a red typecheck and nothing noticed).
+#
+# Static half: typecheck, lint, unit tests (incl. the authorization, tenancy,
+# audit, route-guard and client-boundary suites), production build.
+# HTTP half: seed a SQLite database, start the app, and run the harnesses
+# that prove the permission model over real requests.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DATABASE_URL: file:./ci.db
+  NEXTAUTH_SECRET: ci-only-secret-not-used-anywhere-else
+  NEXTAUTH_URL: http://localhost:3000
+  SEED_PASSWORD: ci-placeholder-password
+  NEXT_TELEMETRY_DISABLED: "1"
+
+jobs:
+  static:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: node scripts/sync-db-provider.mjs && npx prisma generate
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+
+  http:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: static
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run db:reset
+      - name: Smoke (spawns its own servers)
+        run: npm run smoke
+      - name: Start the app
+        run: |
+          npm run db:reset
+          (npm run dev > dev.log 2>&1 &)
+          for i in $(seq 1 90); do
+            curl -sf -o /dev/null http://localhost:3000/login && exit 0
+            sleep 2
+          done
+          cat dev.log
+          exit 1
+      - name: Permission harnesses
+        env:
+          SMOKE_BASE: http://localhost:3000
+        run: |
+          npm run permtest
+          npm run leaks
+          npm run fieldtest
+          npm run journeytest
+          npm run shelltest
+          npm run tenanttest
+      - name: Server log on failure
+        if: failure()
+        run: tail -200 dev.log

@@ -29,7 +29,7 @@ export function PageHeader({
     <header
       className={cn(
         dark
-          ? "surface-dark overflow-hidden rounded-card border border-ink"
+          ? "surface-dark overflow-hidden rounded-card border border-line-strong"
           : "border-b border-line pb-6",
         className,
       )}

@@ -351,6 +351,10 @@ async function main() {
     where: { organizationId: null },
     data: { organizationId: org.id },
   });
+  await prisma.auditLog.updateMany({
+    where: { organizationId: null },
+    data: { organizationId: org.id },
+  });
 
   // Settings singleton. The parked-module flags stay off: Advertise X did not ask for
   // attendance, scoring, retainer cycles or client KPIs, and off means those

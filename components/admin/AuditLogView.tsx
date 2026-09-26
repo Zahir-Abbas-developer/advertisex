@@ -11,7 +11,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Select } from "@/components/ui/Select";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { formatDateTime } from "@/lib/date";
-import { AUDIT_ACTIONS, AUDIT_ACTION_LABEL, type AuditAction } from "@/lib/audit";
+import { AUDIT_ACTIONS, AUDIT_ACTION_LABEL, type AuditAction } from "@/lib/audit-actions";
 
 type Entry = {
   id: string;

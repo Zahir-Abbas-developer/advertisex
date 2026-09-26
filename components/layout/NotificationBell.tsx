@@ -20,7 +20,7 @@ import {
 
 import { EmptyState } from "@/components/ui/EmptyState";
 import { relativeFromNow } from "@/lib/date";
-import { NOTIFICATION_TONE, type NotificationType } from "@/lib/notifications";
+import { NOTIFICATION_TONE, type NotificationType } from "@/lib/notification-types";
 import { cn } from "@/lib/utils";
 
 type NotificationRow = {
@@ -61,7 +61,12 @@ const TONE_CLASSES: Record<string, string> = {
  * internal tool for seven people, and a 60-second delay on "your work was
  * approved" costs nothing.
  */
-export function NotificationBell() {
+export function NotificationBell({
+  reportsHref = "/my-reports",
+}: {
+  /** Footer link to the viewer's reports; null hides it (the client portal has none yet). */
+  reportsHref?: string | null;
+} = {}) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [rows, setRows] = useState<NotificationRow[]>([]);
@@ -231,15 +236,17 @@ export function NotificationBell() {
             )}
           </div>
 
+          {reportsHref && (
           <div className="border-t border-line bg-surface-2/60 px-4 py-2.5 text-center">
             <Link
-              href="/my-reports"
+              href={reportsHref}
               onClick={() => setOpen(false)}
               className="text-[12px] text-ink/55 transition-colors hover:text-ink"
             >
               View your reports
             </Link>
           </div>
+          )}
         </div>
       )}
     </div>

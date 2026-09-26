@@ -2,13 +2,8 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { prisma } from "@/lib/prisma";
-import {
-  deleteFieldValues,
-  fieldsFor,
-  validateFieldValues,
-  valuesFor,
-  writeFieldValues,
-} from "@/lib/fields";
+import { validateFieldValues } from "@/lib/fields";
+import { deleteFieldValues, fieldsFor, valuesFor, writeFieldValues } from "@/lib/fields-data";
 import { apiError } from "@/lib/api";
 import { getCurrentUser } from "@/lib/session";
 import { fieldErrors } from "@/lib/validation";

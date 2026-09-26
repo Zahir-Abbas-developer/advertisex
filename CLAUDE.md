@@ -250,18 +250,24 @@ npm test               # unit tests (node:test via tsx)
 npm run build          # production build (prebuild regenerates the Prisma client)
 
 npm run db:push        # sync schema to the local SQLite db (prototyping only — ADR-003)
-npm run db:seed        # converge-seed: departments, stages, fields, roster
-npm run db:seed:admin  # production owner + service catalogue (see R3 before relying on it)
+npm run db:seed        # local: structure seed + demo tenant (org, staff, AI agents, 3 restaurants)
+npm run db:seed:structure  # structure only — what vercel-build runs on every deploy
+npm run db:seed:demo   # demo tenant only (never in vercel-build — ADR-008)
+npm run db:seed:admin  # production owner (FOUNDER, forced password change)
+npm run db:deploy      # migrate deploy, with the one-time gated baseline (ADR-008)
+npm run roles:backfill # contract step: legacy role names → new (dry run; -- --apply to write)
 npm run db:studio      # Prisma Studio
 npm run db:reset       # wipe local db and reseed
 
 # The HTTP gate (server on :3000 → export SMOKE_BASE=http://localhost:3000)
-npm run smoke          # every route × every role
+npm run smoke          # every route × every staff role
 npm run smoke:empty    # same, against an empty database
 npm run permtest       # forbidden fields/mutations refused; cross-department isolation; rendered pages
 npm run leaks          # owner-only values never reach a non-owner (both directions)
 npm run fieldtest      # field engine: right fields, right people, per department
 npm run journeytest    # one full pipeline journey per department, over HTTP
+npm run shelltest      # every role lands in its own shell; every cross-shell door is shut
+npm run tenanttest     # a second organization's rows never reach the first
 npm run smoke:browser  # real-browser hydration pass (run when renders change)
 
 npm run set-passwords  # issue a distinct password per account (prints once)

@@ -4,7 +4,8 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { apiError, requireAdminApi } from "@/lib/api";
 import { fieldErrors } from "@/lib/validation";
-import { allFieldsFor, serializeOptions, toFieldKey, typeTakesOptions } from "@/lib/fields";
+import { serializeOptions, toFieldKey, typeTakesOptions } from "@/lib/fields";
+import { allFieldsFor } from "@/lib/fields-data";
 import { FIELD_ENTITIES, FIELD_TYPES, type FieldEntity } from "@/lib/constants";
 import { recordAudit } from "@/lib/audit";
 

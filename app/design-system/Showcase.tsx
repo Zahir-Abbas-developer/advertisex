@@ -30,6 +30,9 @@ import { Textarea } from "@/components/ui/Textarea";
 import { ToastProvider, useToast } from "@/components/ui/Toast";
 import { Tooltip } from "@/components/ui/Tooltip";
 
+// Sample names and figures are fictional and must never coincide with seeded
+// or real data: this page renders for any signed-in developer, and the leak
+// scanner rightly treats a real client's budget on it as a leak.
 const COLOR_TOKENS = [
   { name: "canvas", cls: "bg-canvas", note: "#0B0B0D · page" },
   { name: "surface", cls: "bg-surface", note: "#121215 · cards" },
@@ -164,7 +167,7 @@ function ShowcaseBody() {
       <Section title="Forms">
         <Card>
           <div className="grid gap-4 sm:grid-cols-2">
-            <Input label="Business name" placeholder="Osteria Nonna" hint="As it appears on the storefront." />
+            <Input label="Business name" placeholder="Harbor Taqueria" hint="As it appears on the storefront." />
             <Input label="Monthly ad budget" error="Must be a number." defaultValue="four grand" />
             <Select
               label="Business type"
@@ -174,7 +177,7 @@ function ShowcaseBody() {
                 { value: "bar", label: "Bar" },
               ]}
             />
-            <Input label="Email" type="email" placeholder="owner@osterianonna.com" />
+            <Input label="Email" type="email" placeholder="owner@harbortaqueria.example" />
             <div className="sm:col-span-2">
               <Textarea label="Notes" rows={3} placeholder="Two locations; strong brunch trade; no delivery yet." />
             </div>
@@ -236,9 +239,9 @@ function ShowcaseBody() {
             </THead>
             <TBody>
               {[
-                ["Osteria Nonna", "Growth Sprint", "success", "$4,000"],
-                ["Bao Society", "Appetite Audit", "info", "$1,200"],
-                ["Grind Coffee Co.", "Web & Retention", "warning", "$850"],
+                ["Harbor Taqueria", "Growth Sprint", "success", "$3,200"],
+                ["Lumen Bakery", "Appetite Audit", "info", "$1,450"],
+                ["Northside Diner", "Web & Retention", "warning", "$2,750"],
               ].map(([name, line, tone, budget]) => (
                 <TR key={name}>
                   <TD className="font-medium text-ink">{name}</TD>

@@ -31,7 +31,7 @@ export default async function LoginPage({
       <section className="surface-dark flex min-h-[38vh] flex-col justify-between overflow-hidden px-7 py-10 sm:px-12 lg:min-h-screen lg:w-[46%] lg:px-14 lg:py-14">
         <div className="relative">
           <div className="flex items-center gap-2.5">
-            <span className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-brand font-display text-sm font-bold text-ink">
+            <span className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-brand font-display text-sm font-bold text-canvas">
               A
             </span>
             <span className="eyebrow text-ink/50">Internal platform</span>

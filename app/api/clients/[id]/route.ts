@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { apiError, requireAdminApi } from "@/lib/api";
 import { fieldErrors, updateClientSchema } from "@/lib/validation";
-import { deleteFieldValues } from "@/lib/fields";
+import { deleteFieldValues } from "@/lib/fields-data";
 
 export async function PATCH(
   request: Request,

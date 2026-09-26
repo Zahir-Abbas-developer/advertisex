@@ -381,31 +381,38 @@ model IncentiveAward {
 /// and it is written for the person asking "who did that, and what was it
 /// before?".
 model AuditLog {
-  id         String   @id @default(cuid())
-  actorId    String?
+  id             String   @id @default(cuid())
+  actorId        String?
+  /// "HUMAN" | "AI" | "CLIENT" | "SYSTEM" — who, in kind, acted. Null on rows
+  /// written before Phase 1.
+  actorType      String?
+  /// The tenant the change belongs to. Null for pre-Phase-1 rows (backfilled
+  /// by the seed) and for scheduled-job rows, which run without an actor.
+  organizationId String?
   /// "SCORE_ADJUSTED" | "DISPUTE_RESOLVED" | "ROLE_CHANGED" | "SETTINGS_EDITED"
   /// | "CHECK_EXCUSED" | "OUTAGE_REVIEWED" | "MILESTONE_APPROVED"
   /// | "MILESTONE_REJECTED" | "BLOCK_VETOED" | "LEAD_ASSIGNED"
-  action     String
+  action         String
   /// What kind of thing was acted on, and which one.
-  entityType String
-  entityId   String?
+  entityType     String
+  entityId       String?
   /// One line, pre-rendered: "Approved 'Campaign launch' at 4 stars".
-  summary    String
+  summary        String
   /// Serialised JSON of the fields that changed, before and after. Null for
   /// actions where "before" is meaningless.
-  beforeJson String?
-  afterJson  String?
+  beforeJson     String?
+  afterJson      String?
   /// True when the actor was exercising Service Lead authority rather than
   /// being the owner. Every delegated action is tagged.
-  asLead     Boolean  @default(false)
-  createdAt  DateTime @default(now())
+  asLead         Boolean  @default(false)
+  createdAt      DateTime @default(now())
 
   actor User? @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
 
   @@index([createdAt])
   @@index([action, createdAt])
   @@index([entityType, entityId])
+  @@index([organizationId, createdAt])
 }
 
 /// The last run of each scheduled job, so silent failures become loud.

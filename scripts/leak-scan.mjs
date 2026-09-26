@@ -95,7 +95,11 @@ async function main() {
      as the backup owner — scanning him as a member reported his entirely
      legitimate access to a client record as a leak. An owner cannot leak to
      themselves, so owners are excluded and said so out loud. */
+  // Staff accounts only. CLIENT and AI_AGENT isolation has its own harness
+  // (scripts/shelltest.mjs) — an agent cannot sign in at all, and a client's
+  // surface is the portal, not the team product this harness walks.
   const accounts = await prisma.user.findMany({
+    where: { role: { notIn: ["CLIENT", "AI_AGENT"] } },
     select: {
       email: true,
       role: true,

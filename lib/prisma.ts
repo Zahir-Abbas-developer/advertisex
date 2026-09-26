@@ -1,5 +1,8 @@
 import { PrismaClient } from "@prisma/client";
 
+import { withAudit } from "@/modules/audit/extension";
+import { withTenancy } from "@/modules/tenancy/extension";
+
 /**
  * A single Prisma client per process. Next.js dev mode re-evaluates modules on
  * every hot reload, which would otherwise open a new connection pool each time.
@@ -12,15 +15,21 @@ import { PrismaClient } from "@prisma/client";
  * healthy production log fills with "errors" that are the idempotency working.
  * Genuine failures are still surfaced: every catch here logs what it swallowed.
  */
+function createClient() {
+  const base = new PrismaClient({ log: ["warn"] });
+  // Every query the app makes passes through both walls: tenancy scopes it to
+  // the caller's organization, audit records it if it changed a business
+  // entity. Nothing outside this file holds the bare client.
+  return base.$extends(withTenancy(base)).$extends(withAudit(base));
+}
+
+type AppPrismaClient = ReturnType<typeof createClient>;
+
 const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
+  prisma: AppPrismaClient | undefined;
 };
 
-export const prisma =
-  globalForPrisma.prisma ??
-  new PrismaClient({
-    log: ["warn"],
-  });
+export const prisma = globalForPrisma.prisma ?? createClient();
 
 if (process.env.NODE_ENV !== "production") {
   globalForPrisma.prisma = prisma;

@@ -109,7 +109,11 @@ async function main() {
   const { PrismaClient } = await import("@prisma/client");
   const prisma = new PrismaClient();
 
+  // Staff accounts only. CLIENT and AI_AGENT isolation has its own harness
+  // (scripts/shelltest.mjs) — an agent cannot sign in at all, and a client's
+  // surface is the portal, not the team product this harness walks.
   const accounts = await prisma.user.findMany({
+    where: { role: { notIn: ["CLIENT", "AI_AGENT"] } },
     select: {
       id: true,
       email: true,

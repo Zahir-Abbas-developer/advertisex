@@ -37,7 +37,7 @@ import {
 import { dueUrgency, formatDate, formatDateTime, relativeFromNow } from "@/lib/date";
 import { formatPoints } from "@/lib/scoring";
 import { segmentMentions } from "@/lib/mentions";
-import { ACTIVITY_TONE, type ActivityType } from "@/lib/activity";
+import { ACTIVITY_TONE, type ActivityType } from "@/lib/activity-types";
 import { cn, formatBytes } from "@/lib/utils";
 
 import { hasAdminPower } from "@/lib/constants";

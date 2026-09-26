@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { apiError } from "@/lib/api";
 import { getCurrentUser } from "@/lib/session";
 import { canUseDepartment } from "@/lib/departments";
-import { fieldsFor } from "@/lib/fields";
+import { fieldsFor } from "@/lib/fields-data";
 import { assignableMembers } from "@/lib/assignment";
 import { FIELD_ENTITIES, hasAdminPower, type FieldEntity } from "@/lib/constants";
 

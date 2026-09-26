@@ -15,7 +15,8 @@ import { canUseDepartment } from "@/lib/departments";
 import { canBeAssigned } from "@/lib/assignment";
 import { autoAssign, leadSignals } from "@/lib/auto-assign";
 import { notify } from "@/lib/notifications";
-import { fieldsFor, validateFieldValues, writeFieldValues } from "@/lib/fields";
+import { validateFieldValues } from "@/lib/fields";
+import { fieldsFor, writeFieldValues } from "@/lib/fields-data";
 
 import { requireApi } from "@/modules/rbac/server";
 const leadSchema = z.object({

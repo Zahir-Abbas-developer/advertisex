@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { notify } from "@/lib/notifications";
-import { fieldsFor, valuesFor } from "@/lib/fields";
+import { fieldsFor, valuesFor } from "@/lib/fields-data";
 import { getSettings } from "@/lib/settings";
 import { applyEvents } from "@/lib/score-service";
 import { isModuleEnabled } from "@/lib/modules";

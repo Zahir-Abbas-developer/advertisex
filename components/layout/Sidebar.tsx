@@ -28,7 +28,7 @@ import {
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { navItemsForRole, type NavKey } from "@/lib/routes";
+import { navForExperience, type NavKey, type StaffExperience } from "@/lib/routes";
 import { ROLE_LABEL, type Role } from "@/lib/constants";
 import { Avatar } from "@/components/ui/Avatar";
 
@@ -63,11 +63,14 @@ export interface SidebarUser {
 
 export function Sidebar({
   user,
+  experience,
   onNavigate,
   errorBadge = 0,
   hiddenNavKeys = [],
 }: {
   user: SidebarUser;
+  /** Command center (founder, manager) or team (employee). */
+  experience: StaffExperience;
   /** Lets the mobile drawer close itself when a link is tapped. */
   onNavigate?: () => void;
   /**
@@ -84,7 +87,7 @@ export function Sidebar({
   hiddenNavKeys?: readonly NavKey[];
 }) {
   const pathname = usePathname();
-  const items = navItemsForRole(user.role, hiddenNavKeys);
+  const items = navForExperience(user.role, experience, hiddenNavKeys);
 
   return (
     <div className="surface-dark flex h-full w-full flex-col overflow-hidden">
@@ -96,7 +99,7 @@ export function Sidebar({
             onClick={onNavigate}
             className="flex items-center gap-2.5 rounded-[10px]"
           >
-            <span className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-brand font-display text-sm font-bold text-ink">
+            <span className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-brand font-display text-sm font-bold text-canvas">
               A
             </span>
             <span className="font-display text-[15px] font-bold tracking-[-0.01em] text-ink">
@@ -107,7 +110,7 @@ export function Sidebar({
 
         {/* Navigation */}
         <nav className="scrollbar-thin flex-1 overflow-y-auto px-3">
-          <p className="eyebrow mb-2 px-2 text-ink/30">Workspace</p>
+          <p className="eyebrow mb-2 px-2 text-ink/30">{experience === "admin" ? "Command center" : "My work"}</p>
           <ul className="space-y-0.5">
             {items.map((item) => {
               const Icon = ICONS[item.key];

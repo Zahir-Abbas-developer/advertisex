@@ -183,6 +183,46 @@ export function navItemsForRole(rawRole: unknown, hiddenKeys: readonly NavKey[] 
   );
 }
 
+/**
+ * The two staff experiences (CLAUDE.md §7, "three experiences, one system").
+ * Same routes, same components — a different information architecture:
+ * the command center reads top-down from the business, the team shell from
+ * the person's own work.
+ */
+export type StaffExperience = "admin" | "team";
+
+export function experienceFor(rawRole: unknown): StaffExperience {
+  return normalizeRole(rawRole) === "EMPLOYEE" ? "team" : "admin";
+}
+
+const TEAM_ORDER: readonly NavKey[] = [
+  "tasks",
+  "pipeline",
+  "board",
+  "my-tasks",
+  "my-attendance",
+  "my-performance",
+  "my-reports",
+  "disputes",
+  "dashboard",
+  "scoring",
+];
+
+/** The rail for one person, ordered for their experience. */
+export function navForExperience(
+  rawRole: unknown,
+  experience: StaffExperience,
+  hiddenKeys: readonly NavKey[] = [],
+): NavItem[] {
+  const items = navItemsForRole(rawRole, hiddenKeys);
+  if (experience === "admin") return items;
+  const rank = (key: NavKey) => {
+    const i = TEAM_ORDER.indexOf(key);
+    return i === -1 ? TEAM_ORDER.length : i;
+  };
+  return [...items].sort((a, b) => rank(a.key) - rank(b.key));
+}
+
 /** Where a user lands after signing in. */
 export const DEFAULT_LANDING = "/dashboard";
 /** Where a CLIENT lands — the client portal shell. */

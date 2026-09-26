@@ -44,7 +44,9 @@ describe("design tokens", () => {
   });
 
   it("uses no retired light-theme tokens in the UI", () => {
-    const retired = /\b(?:bg|text|border|ring|ring-offset)-(?:paper|cream)\b|\bbg-white\b|\bbg-base\b/;
+    // Also a full-strength `border-ink`: ink is the warm white, so an unfaded
+    // ink border is a glaring outline on obsidian — panels use `line-strong`.
+    const retired = /\b(?:bg|text|border|ring|ring-offset)-(?:paper|cream)\b|\bbg-white\b|\bbg-base\b|\bborder-ink(?![\w/-])/;
     const offenders = ["app", "components"]
       .flatMap(sourceFiles)
       .filter((file) => retired.test(readFileSync(file, "utf8")))

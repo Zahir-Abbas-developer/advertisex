@@ -17,6 +17,28 @@ ownership and the load-bearing columns — not every timestamp.*
 
 ## 2. Entities
 
+### Built in Phase 1
+
+| Entity / change | Fields | Notes |
+| --- | --- | --- |
+| **Organization** | id, slug (unique), name, isActive | The tenant. Advertise X is `advertisex`, created by `prisma/seed.ts`. |
+| **ClientAccount** | id, organizationId, name, status (ACTIVE/SUSPENDED) | Skeleton. A restaurant's portal tenant; CLIENT logins and CRM `Client` rows link to it. |
+| **AgentGrant** | id, organizationId, agentId → User, resource, action, grantedById → User | One explicit permission for an AI_AGENT. Unique per (agent, resource, action). |
+| `User` | + organizationId, + clientAccountId; role default EMPLOYEE | Role values: FOUNDER/MANAGER/EMPLOYEE/CLIENT/AI_AGENT; legacy spellings read until backfilled (ADR-008). |
+| `Department` | + organizationId | Service lines per D2. |
+| `Client` | + organizationId, + clientAccountId | CRM record ↔ portal account link. |
+| `AuditLog` | + organizationId, + actorType | Written by the data layer for every business mutation (ADR-009). |
+
+Every new foreign key is indexed; `organizationId` columns are nullable,
+backfilled by the seed (null keys only), and treated as required by the data
+layer. Making them `NOT NULL` is a later, separate migration once production
+has been backfilled and verified.
+
+**Deferred with reason:** `Notification` and `File` skeletons from the Phase 1
+list — `Notification` already exists (in-app, per user) and is reached only
+through its owner; a `File` model lands with the storage work (P3), where its
+shape (keys, signed URLs, visibility) is decided with its first real use.
+
 ### New in Advertise X
 
 | Entity | Key fields | Tenancy |
@@ -91,6 +113,22 @@ Backfill gaps found in Phase 0: `Lead.createdById`, `Task.createdById`,
 `SalesActivity.type`, `AuditLog([entityType, entityId])`.
 
 ## 5. Migration strategy
+
+**As built (Phase 1):**
+
+| Migration | What it does |
+| --- | --- |
+| `00000000000000_baseline` | Production's schema as `db push` left it. On a ledger-less database it is *marked applied*, never executed (`scripts/migrate-deploy.mjs`, gated on `BASELINE_BACKUP_CONFIRMED=1`). |
+| `20260925100000_advertisex_foundation` | Organization, ClientAccount; tenancy keys + indexes on User/Department/Client; role default. |
+| `20260925120000_agent_grants` | AgentGrant. |
+| `20260925140000_audit_tenancy` | AuditLog.organizationId, AuditLog.actorType, index. |
+
+All additive; rehearsed on Postgres 18 against a production-shaped database,
+one loaded with the pre-Phase-1 data, and an empty one (ADR-008). The eight
+BWM-era migrations, never applied in production, live in
+`prisma/migrations-legacy/`.
+
+**Original plan (kept for context):**
 
 **Baseline first (P1):** freeze the current Postgres schema as migration 0001 via
 `prisma migrate diff` against the live database; from then on, versioned

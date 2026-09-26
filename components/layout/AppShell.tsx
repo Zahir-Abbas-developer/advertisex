@@ -8,7 +8,7 @@ import { Sidebar, type SidebarUser } from "@/components/layout/Sidebar";
 import { NotificationBell } from "@/components/layout/NotificationBell";
 import { CommandPalette } from "@/components/layout/CommandPalette";
 import { AvailabilityBanner } from "@/components/attendance/AvailabilityBanner";
-import type { NavKey } from "@/lib/routes";
+import type { NavKey, StaffExperience } from "@/lib/routes";
 
 /**
  * Fixed 240px rail on desktop; a slide-over drawer below `lg`. The drawer
@@ -16,12 +16,15 @@ import type { NavKey } from "@/lib/routes";
  */
 export function AppShell({
   user,
+  experience,
   children,
   errorBadge = 0,
   hiddenNavKeys = [],
   attendanceEnabled = false,
 }: {
   user: SidebarUser;
+  /** Command center (founder, manager) or team (employee). */
+  experience: StaffExperience;
   children: ReactNode;
   /** Unseen error-log entries, counted server-side. Owner only. */
   errorBadge?: number;
@@ -54,14 +57,14 @@ export function AppShell({
     <div className="min-h-screen bg-canvas">
       {/* Desktop rail */}
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-sidebar lg:block">
-        <Sidebar user={user} errorBadge={errorBadge} hiddenNavKeys={hiddenNavKeys} />
+        <Sidebar user={user} experience={experience} errorBadge={errorBadge} hiddenNavKeys={hiddenNavKeys} />
       </aside>
 
       {/* Mobile top bar */}
       <div className="no-print sticky top-0 z-20 flex items-center justify-between border-b border-line bg-canvas/95 px-4 py-3 backdrop-blur lg:hidden">
         <div className="flex items-center gap-2.5">
-          <span className="flex h-7 w-7 items-center justify-center rounded-[8px] bg-brand font-display text-xs font-bold text-ink">
-            M
+          <span className="flex h-7 w-7 items-center justify-center rounded-[8px] bg-brand font-display text-xs font-bold text-canvas">
+            A
           </span>
           <span className="font-display text-sm font-bold tracking-[-0.01em] text-ink">
             Advertise X
@@ -92,6 +95,7 @@ export function AppShell({
           <div className="absolute inset-y-0 left-0 w-[264px] animate-fade-in">
             <Sidebar
               user={user}
+              experience={experience}
               errorBadge={errorBadge}
               hiddenNavKeys={hiddenNavKeys}
               onNavigate={() => setDrawerOpen(false)}

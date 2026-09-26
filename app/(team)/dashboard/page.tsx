@@ -64,6 +64,7 @@ import { formatMoney } from "@/lib/pipeline-types";
 import { MILESTONE_STATUS_LABEL, MILESTONE_STATUS_TONE, type MilestoneStatus, hasAdminPower } from "@/lib/constants";
 
 import { storedRoleValues } from "@/config/permissions";
+import { companyTimezone } from "@/lib/company-time";
 export const metadata: Metadata = {
   title: "Dashboard",
 };
@@ -289,8 +290,8 @@ export default async function DashboardPage({
       >
         <div className="grid gap-3 sm:grid-cols-3">
           <HeroStat label="Retainer cycle" value="Monthly" />
-          <HeroStat label="Working timezone" value="Asia / Karachi" />
-          <HeroStat label="Your role" value={isAdmin ? "Owner" : user.jobTitle} />
+          <HeroStat label="Working timezone" value={(await companyTimezone()).replace(/_/g, " ").replace("/", " / ")} />
+          <HeroStat label="Your role" value={isAdmin ? "Founder" : user.jobTitle} />
         </div>
       </PageHeader>
 

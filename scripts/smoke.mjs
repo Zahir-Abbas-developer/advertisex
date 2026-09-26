@@ -103,11 +103,20 @@ export class Session {
     return [...this.jar].map(([k, v]) => `${k}=${v}`).join("; ");
   }
   async fetch(pathname, init = {}) {
-    const res = await fetch(this.base + pathname, {
-      ...init,
-      redirect: "manual",
-      headers: { ...(init.headers ?? {}), cookie: this.cookie },
-    });
+    // Bounded: a harness must fail with a named request, never wait forever.
+    // A stalled request once hung the browser pass for an hour at 0% CPU.
+    const timeoutMs = Number(process.env.HTTP_TIMEOUT_MS ?? 60_000);
+    let res;
+    try {
+      res = await fetch(this.base + pathname, {
+        ...init,
+        redirect: "manual",
+        headers: { ...(init.headers ?? {}), cookie: this.cookie },
+        signal: init.signal ?? AbortSignal.timeout(timeoutMs),
+      });
+    } catch (error) {
+      throw new Error(`${this.label}: ${init.method ?? "GET"} ${pathname} failed after ≤${timeoutMs}ms — ${error.message}`);
+    }
     for (const raw of res.headers.getSetCookie()) {
       const [pair] = raw.split(";");
       const i = pair.indexOf("=");
@@ -130,7 +139,7 @@ export class Session {
 
 /**
  * The error boundary's headline. If this string ever changes in
- * app/(app)/error.tsx it must change here too — the test asserting a page
+ * app/(team)/error.tsx it must change here too — the test asserting a page
  * rendered is worth nothing if it is looking for text that no longer exists,
  * so the suite checks the source file for it at startup.
  */
@@ -199,12 +208,22 @@ export async function prepareDatabase(databaseUrl) {
   const bcrypt = (await import("bcryptjs")).default;
   const prisma = new PrismaClient({ datasources: { db: { url: databaseUrl } } });
 
+  // Every signed-in account must belong to an organization — the data
+  // layer refuses a tenant-less principal outright — so the smoke accounts
+  // join organization #1, creating it on an empty database.
+  const org = await prisma.organization.upsert({
+    where: { slug: "advertisex" },
+    update: {},
+    create: { slug: "advertisex", name: "Advertise X" },
+  });
+
   const ensure = async (creds, role, jobTitle) => {
     const passwordHash = await bcrypt.hash(creds.password, 10);
     return prisma.user.upsert({
       where: { email: creds.email },
-      update: { passwordHash, role, isActive: true },
+      update: { passwordHash, role, isActive: true, organizationId: org.id },
       create: {
+        organizationId: org.id,
         email: creds.email,
         name: `Smoke ${role}`,
         passwordHash,
@@ -290,7 +309,7 @@ async function main() {
   // Guard the guard: if the boundary's headline is edited, every assertion
   // below silently stops detecting anything. Fail loudly instead.
   const boundarySource = await import("node:fs").then((fs) =>
-    fs.readFileSync(path.join(ROOT, "app", "(app)", "error.tsx"), "utf8"),
+    fs.readFileSync(path.join(ROOT, "app", "(team)", "error.tsx"), "utf8"),
   );
   if (!BOUNDARY_MARKERS.some((m) => boundarySource.includes(m.replace(/&#x27;/g, "'")))) {
     console.error(
@@ -348,6 +367,17 @@ async function main() {
       if (route === "/reports/[id]" && !isAdminRole(role.role)) {
         if (res.status === 200) {
           failures.push(`${role.name} ${url}: could open another member's report`);
+        }
+        continue;
+      }
+
+      /* The client portal is the one shell no staff role may enter: every staff
+         session must be sent back to the team product. Client sessions are
+         walked by scripts/shelltest.mjs. */
+      if (route === "/portal" || route.startsWith("/portal/")) {
+        const location = res.headers.get("location") ?? "";
+        if (!redirected || !location.includes("/dashboard")) {
+          failures.push(`${role.name} ${url}: expected to be kept out of the portal, got ${res.status} ${location}`);
         }
         continue;
       }

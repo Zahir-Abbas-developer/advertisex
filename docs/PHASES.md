@@ -43,3 +43,33 @@ Attendance, leads, projects, billing, portal features — all later phases. Buil
 Code · migrations · seed · docs/DESIGN_SYSTEM.md · updated ARCHITECTURE / DATA_MODEL / DECISIONS / PHASE_LOG · docs/phases/PHASE_1_REPORT.md.
 
 ### GATE — STOP and wait for "Phase 1 approved."
+
+---
+
+## PHASE 2 — TEAM OPERATING SYSTEM: EMPLOYEES · SKILLS · ATTENDANCE · TASKS · EMPLOYEE DASHBOARD · TEAM ANALYTICS
+
+*Issued 2026-09-25, while Phase 1 was still in progress. Recorded here
+verbatim; **not started** — its prerequisite is "Phase 1 approved."*
+
+Prerequisite: "Phase 1 approved."
+
+### OBJECTIVE
+Make Advertise X the internal operating system for the team — humans and AI employees on one model — with a professional attendance system, task execution with full history, an execution-focused employee dashboard, and founder-level team performance analytics with fully transparent formulas.
+
+### SCOPE
+1. Employee model (extends User/Membership): type HUMAN | AI_AGENT, name, avatar, role/title, department, skills (structured taxonomy with proficiency 1–5), responsibilities, weekly capacity (hours), working schedule, status. Employee profile page: info, skills, current projects, assigned and completed tasks, performance, attendance, working hours, activity history.
+2. Skills taxonomy: seeded catalog — Google Ads, Meta Ads, Lead Generation, UI/UX, Graphic Design, Creative Production, Development, Websites, Mobile Apps, Automation, SEO, Local SEO, Google Business Profile, Social Media Marketing, Branding, AI Automation, CRM Implementation — extensible by the founder.
+3. Attendance: clock in, clock out, breaks; working hours computed; late arrival and early departure against a configurable per-employee schedule; absence; daily and monthly history; monthly attendance report; founder team-wide attendance view with export. Timezone-correct. Unit tests on hours, late, early, and break calculations.
+4. Tasks: title, description, project (optional now, attached in Phase 4), assignee, priority, due date, status Not Started → In Progress → Review → Completed, checklist, comments, attachments (via File), full activity history. Overdue detection as a scheduled job.
+5. Employee dashboard (Team shell): My Work — assigned projects, assigned tasks, priority tasks, upcoming deadlines, overdue, completed, current workload %. My Performance — tasks completed, projects completed, on-time delivery rate, working hours, attendance. Calm, task-first, zero clutter.
+6. Founder Team Performance analytics: attendance, working hours, tasks completed / overdue, projects delivered, on-time delivery rate, assigned workload, productivity — per employee and team-wide. Attendance metrics and performance metrics are computed and displayed SEPARATELY, each with a visible "how this is calculated" definition. An overall score is optional and, if shown, is clearly labeled as a weighted composite with the weights displayed.
+7. Activity history: every task, attendance, and profile change appears in the employee's activity feed (sourced from the audit log).
+8. In-app notifications: task assigned, task overdue, deadline approaching (via the job).
+
+### ACCEPTANCE
+- Full day-in-the-life works: employee logs in → clocks in → sees tasks → moves a task through every status → clocks out; the founder sees all of it reflected in team analytics.
+- Every formula documented in docs/METRICS.md and covered by unit tests.
+- AI-agent employees appear in the team with a distinct, elegant treatment (badge, no attendance, capability list).
+- Global Definition of Done passes.
+
+### GATE — docs/phases/PHASE_2_REPORT.md, then STOP for "Phase 2 approved."

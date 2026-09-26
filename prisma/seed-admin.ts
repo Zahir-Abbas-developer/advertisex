@@ -97,16 +97,29 @@ async function main() {
 
   const existing = await prisma.user.findUnique({ where: { email } });
 
+  // Every account belongs to an organization — the data layer refuses a
+  // tenant-less principal — so the owner joins organization #1.
+  const org = await prisma.organization.upsert({
+    where: { slug: "advertisex" },
+    update: {},
+    create: { slug: "advertisex", name: "Advertise X" },
+  });
+
   const owner = await prisma.user.upsert({
     where: { email },
     // An existing owner keeps their password; this script is not a reset tool.
-    update: { role: "ADMIN", isActive: true },
+    update: { role: "FOUNDER", isActive: true, organizationId: existing?.organizationId ?? org.id },
     create: {
+      organizationId: org.id,
       name,
       email,
       jobTitle,
-      role: "ADMIN",
+      role: "FOUNDER",
       passwordHash: await bcrypt.hash(password, 12),
+      // The password arrived through an environment variable, so it has been
+      // seen by at least one other system; the owner replaces it on first
+      // sign-in (Phase 0 risk R3).
+      mustChangePassword: true,
       avatarColor: avatarColorFor(email),
       isActive: true,
     },

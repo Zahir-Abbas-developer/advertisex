@@ -1,7 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { isUniqueViolation } from "@/lib/score-service";
 import { formatDate } from "@/lib/date";
-import type { BadgeTone } from "@/components/ui/Badge";
 
 /**
  * In-app notifications. No email yet — that's a later phase, and the model is
@@ -11,37 +10,8 @@ import type { BadgeTone } from "@/components/ui/Badge";
  * not roll back the approval or assignment that triggered it.
  */
 
-export const NOTIFICATION_TYPES = [
-  "TASK_ASSIGNED",
-  "DUE_TOMORROW",
-  "OVERDUE",
-  "WORK_APPROVED",
-  "WORK_REJECTED",
-  "REPORT_READY",
-  // Phase 8 — availability checks stop borrowing DUE_TOMORROW, and the owner
-  // gets a type of their own for review work that has gone stale.
-  "AVAILABILITY_CHECK",
-  "REVIEW_OVERDUE",
-  // Phase T3 — the CRM's own events. A deal landing and a follow-up coming due
-  // are the two things a salesperson must not miss.
-  "LEAD_WON",
-  "FOLLOW_UP_DUE",
-] as const;
-
-export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
-
-export const NOTIFICATION_TONE: Record<NotificationType, BadgeTone> = {
-  TASK_ASSIGNED: "info",
-  DUE_TOMORROW: "warning",
-  OVERDUE: "danger",
-  WORK_APPROVED: "success",
-  WORK_REJECTED: "danger",
-  REPORT_READY: "neutral",
-  AVAILABILITY_CHECK: "warning",
-  REVIEW_OVERDUE: "danger",
-  LEAD_WON: "success",
-  FOLLOW_UP_DUE: "warning",
-};
+export { NOTIFICATION_TYPES, NOTIFICATION_TONE, type NotificationType } from "@/lib/notification-types";
+import type { NotificationType } from "@/lib/notification-types";
 
 export type NotifyInput = {
   userId: string;
