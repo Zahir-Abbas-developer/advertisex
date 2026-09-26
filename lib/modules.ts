@@ -16,13 +16,17 @@ import type { NavKey } from "@/lib/routes";
 
 export const MODULES = [
   {
+    // The legacy availability-check system. Phase 2 made attendance itself a
+    // core feature (the time clock at /api/time, the /my-attendance and
+    // /attendance pages); what stays parked behind this flag is the old
+    // machinery around it — random presence checks, outage reports and the
+    // leave workflow's endpoints.
     key: "attendance",
-    label: "Attendance",
-    description:
-      "Clock-in, random availability checks, breaks, leave and outage reports.",
+    label: "Availability checks",
+    description: "Random availability checks, outage reports and leave requests (legacy).",
     field: "featureAttendance",
-    navKeys: ["my-attendance", "attendance"],
-    routePrefixes: ["/my-attendance", "/attendance"],
+    navKeys: [],
+    routePrefixes: [],
     apiPrefixes: ["/api/attendance", "/api/leave", "/api/outages"],
   },
   {

@@ -24,7 +24,16 @@
  * either global or reached only through a scoped root.
  */
 
-export const ORG_ROOT_MODELS = new Set(["User", "Department", "Client", "ClientAccount", "AgentGrant", "AuditLog"]);
+export const ORG_ROOT_MODELS = new Set([
+  "User",
+  "Department",
+  "Client",
+  "ClientAccount",
+  "AgentGrant",
+  "AuditLog",
+  "Skill",
+  "File",
+]);
 
 /**
  * Roots whose rows may legitimately carry no organization: audit entries

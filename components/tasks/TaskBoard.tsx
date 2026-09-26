@@ -24,6 +24,8 @@ import {
 } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
+import { TASK_STATUS_LABEL, type TaskStatus } from "@/modules/tasks/domain";
+import { TaskDrawer, type DrawerTask } from "@/components/tasks/TaskDrawer";
 type TaskRow = {
   id: string;
   kind: "TASK" | "FOLLOW_UP";
@@ -31,7 +33,7 @@ type TaskRow = {
   note: string | null;
   dueAt: string | null;
   priority: TaskPriority;
-  status: "OPEN" | "DONE";
+  status: TaskStatus;
   completedAt: string | null;
   bucket: "OVERDUE" | "TODAY" | "UPCOMING" | "COMPLETED";
   department: { id: string; shortLabel: string } | null;
@@ -70,6 +72,7 @@ export function TaskBoard() {
   const toast = useToast();
 
   const [data, setData] = useState<Payload | null>(null);
+  const [openTask, setOpenTask] = useState<DrawerTask | null>(null);
   const [state, setState] = useState<"loading" | "ready" | "error">("loading");
   const [mineOnly, setMineOnly] = useState(true);
   const [department, setDepartment] = useState("ALL");
@@ -125,7 +128,7 @@ export function TaskBoard() {
             ...current,
             tasks: current.tasks.map((row) =>
               row.id === task.id
-                ? { ...row, status: done ? "DONE" : "OPEN", bucket: done ? "COMPLETED" : "TODAY" }
+                ? { ...row, status: done ? "COMPLETED" : "IN_PROGRESS", bucket: done ? "COMPLETED" : "TODAY" }
                 : row,
             ),
           }
@@ -136,7 +139,7 @@ export function TaskBoard() {
       const response = await fetch(`/api/tasks/${task.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: done ? "DONE" : "OPEN" }),
+        body: JSON.stringify({ status: done ? "COMPLETED" : "IN_PROGRESS" }),
       });
       if (!response.ok) {
         const body = await response.json().catch(() => ({}));
@@ -294,7 +297,7 @@ export function TaskBoard() {
                       <input
                         type="checkbox"
                         aria-label={`Complete ${task.title}`}
-                        checked={task.status === "DONE"}
+                        checked={task.status === "COMPLETED"}
                         onChange={(event) => void complete(task, event.target.checked)}
                         className="mt-1 h-4 w-4 rounded border-line text-brand focus:ring-brand/25"
                       />
@@ -303,14 +306,25 @@ export function TaskBoard() {
                     )}
 
                     <div className="min-w-0 flex-1">
-                      <p
-                        className={cn(
-                          "text-sm text-ink",
-                          task.status === "DONE" && "text-ink/45 line-through",
-                        )}
-                      >
-                        {task.title}
-                      </p>
+                      {task.kind === "TASK" ? (
+                        <button
+                          type="button"
+                          onClick={() => setOpenTask({ id: task.id, title: task.title, note: task.note, status: task.status, dueAt: task.dueAt })}
+                          className={cn(
+                            "flex items-center gap-2 text-left text-sm text-ink hover:text-brand",
+                            task.status === "COMPLETED" && "text-ink/45 line-through",
+                          )}
+                        >
+                          {task.title}
+                          {(task.status === "IN_PROGRESS" || task.status === "REVIEW") && (
+                            <Badge size="sm" tone={task.status === "REVIEW" ? "info" : "warning"}>
+                              {TASK_STATUS_LABEL[task.status]}
+                            </Badge>
+                          )}
+                        </button>
+                      ) : (
+                        <p className="text-sm text-ink">{task.title}</p>
+                      )}
 
                       {task.note && (
                         <p className="mt-0.5 text-[13px] leading-relaxed text-ink/55">
@@ -389,6 +403,12 @@ export function TaskBoard() {
           setCreating(false);
           void load();
         }}
+      />
+
+      <TaskDrawer
+        task={openTask}
+        onClose={() => setOpenTask(null)}
+        onChanged={() => void load()}
       />
 
       <FollowUpDialog

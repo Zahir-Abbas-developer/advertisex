@@ -22,6 +22,7 @@ import {
   Settings as SettingsIcon,
   ShieldCheck,
   Trophy,
+  TrendingUp,
   Users2,
   Wallet,
   type LucideIcon,
@@ -50,6 +51,7 @@ const ICONS: Record<NavKey, LucideIcon> = {
   audit: ShieldCheck,
   errors: AlertTriangle,
   team: Users2,
+  "team-performance": TrendingUp,
   settings: SettingsIcon,
   reports: BarChart3,
 };

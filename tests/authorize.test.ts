@@ -258,3 +258,45 @@ describe("organization isolation", () => {
     assert.equal(allowed(authorize(stray, "read", "lead", { organizationId: ORG })), false);
   });
 });
+
+describe("Phase 2 — employees, skills, attendance", () => {
+  const founder = principal("FOUNDER");
+  const manager = principal("MANAGER", { departmentIds: [SPRINT] });
+  const employee = principal("EMPLOYEE", { departmentIds: [SPRINT] });
+  const client = principal("CLIENT", { clientAccountId: "acct-osteria" });
+  const agent = principal("AI_AGENT", { grants: ["lead:read"] });
+
+  it("lets an employee read their own profile and nobody else's", () => {
+    assert.ok(allowed(authorize(employee, "read", "employee", { organizationId: ORG, ownerId: employee.id })));
+    assert.equal(allowed(authorize(employee, "read", "employee", { organizationId: ORG, ownerId: "someone-else" })), false);
+  });
+
+  it("scopes a manager's directory to their departments", () => {
+    assert.ok(allowed(authorize(manager, "read", "employee", { organizationId: ORG, departmentId: SPRINT })));
+    assert.equal(allowed(authorize(manager, "read", "employee", { organizationId: ORG, departmentId: STUDIO })), false);
+  });
+
+  it("keeps profile edits, schedules and the skills catalog with the founder", () => {
+    for (const p of [manager, employee]) {
+      assert.equal(allowed(authorize(p, "update", "employee")), false);
+      assert.equal(allowed(authorize(p, "manage", "attendance")), false);
+      assert.equal(allowed(authorize(p, "create", "skill")), false);
+    }
+    assert.ok(allowed(authorize(founder, "manage", "attendance")));
+    assert.ok(allowed(authorize(founder, "create", "skill")));
+  });
+
+  it("lets everyone clock themselves in, and nobody clock in for someone else", () => {
+    for (const p of [founder, manager, employee]) {
+      assert.ok(allowed(authorize(p, "create", "attendance", { ownerId: p.id })));
+      assert.equal(allowed(authorize(p, "create", "attendance", { ownerId: "someone-else" })), false);
+    }
+  });
+
+  it("gives clients and AI agents no attendance and no directory", () => {
+    for (const p of [client, agent]) {
+      assert.equal(allowed(authorize(p, "create", "attendance")), false);
+      assert.equal(allowed(authorize(p, "read", "employee")), false);
+    }
+  });
+});

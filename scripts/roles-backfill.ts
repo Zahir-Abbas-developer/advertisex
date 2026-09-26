@@ -1,17 +1,20 @@
 import { PrismaClient } from "@prisma/client";
 
 import { LEGACY_ROLES } from "../config/permissions";
+import { LEGACY_TASK_STATUSES } from "../modules/tasks/domain";
 
 /**
- * The *contract* step of the role rename (ADR-008).
+ * The *contract* step of the vocabulary renames (ADR-008, ADR-011).
  *
- * Rewrites every legacy role string (ADMIN, SUPPORT_ADMIN, MEMBER) to its
- * current name. Run it only once the deployment that reads both vocabularies
- * is live and verified — never inside `vercel-build`, where it would rewrite
- * roles underneath the previous deployment while it is still serving.
+ * Rewrites every legacy role string (ADMIN, SUPPORT_ADMIN, MEMBER) and every
+ * legacy task status (OPEN, DONE) to its current name. Run it only once the
+ * deployment that reads both vocabularies is live and verified — never inside
+ * `vercel-build`, where it would rewrite them underneath the previous
+ * deployment while it is still serving.
  *
- * Safe to run twice: the second run finds nothing to change. Each rewrite is
- * audit-logged. Prints a dry run unless `--apply` is passed.
+ * Safe to run twice: the second run finds nothing to change. Each role change
+ * is audit-logged per account; task statuses are a rename with no meaning
+ * change, so they are rewritten in bulk. Prints a dry run unless `--apply`.
  *
  *   npm run roles:backfill            # show what would change
  *   npm run roles:backfill -- --apply # change it
@@ -27,8 +30,17 @@ async function main() {
     orderBy: { email: "asc" },
   });
 
-  if (legacy.length === 0) {
-    console.log("roles:backfill — nothing to do; every account already uses the current role names.");
+  const tasks = await prisma.task.groupBy({
+    by: ["status"],
+    where: { status: { in: Object.keys(LEGACY_TASK_STATUSES) } },
+    _count: true,
+  });
+  for (const row of tasks) {
+    console.log(`  tasks with status ${row.status.padEnd(6)} ${String(row._count).padStart(5)}  -> ${LEGACY_TASK_STATUSES[row.status]}`);
+  }
+
+  if (legacy.length === 0 && tasks.length === 0) {
+    console.log("roles:backfill — nothing to do; every account and task already uses the current names.");
     return;
   }
 
@@ -37,8 +49,12 @@ async function main() {
   }
 
   if (!apply) {
-    console.log(`\n${legacy.length} account(s) would change. Re-run with --apply to write.`);
+    console.log(`\n${legacy.length} account(s) and ${tasks.reduce((t, r) => t + r._count, 0)} task(s) would change. Re-run with --apply to write.`);
     return;
+  }
+
+  for (const [legacyStatus, current] of Object.entries(LEGACY_TASK_STATUSES)) {
+    await prisma.task.updateMany({ where: { status: legacyStatus }, data: { status: current } });
   }
 
   await prisma.$transaction(

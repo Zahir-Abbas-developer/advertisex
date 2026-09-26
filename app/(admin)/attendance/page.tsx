@@ -1,28 +1,18 @@
 import type { Metadata } from "next";
 
-import { requireAdmin } from "@/lib/session";
-import { AdminAttendance } from "@/components/attendance/AdminAttendance";
-import { moduleGate } from "@/lib/module-guard";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { TeamAttendance } from "@/components/attendance/TeamAttendance";
+import { requirePage } from "@/modules/rbac/server";
 
-export const metadata: Metadata = {
-  title: "Attendance",
-};
+export const metadata: Metadata = { title: "Attendance" };
 
-/** Mirrors the gate in /api/attendance/dev-trigger so the UI never offers a
- *  button the server would refuse. */
-function testTriggersAllowed(): boolean {
-  if (process.env.ALLOW_TEST_TRIGGERS === "1") return true;
-  return process.env.NODE_ENV !== "production";
-}
-
+/** Team-wide attendance for a month, with export. Founder and managers only. */
 export default async function AttendancePage() {
-  // Parked module: the nav entry is already gone, so this guards a
-  // bookmark or a typed URL rather than a link.
-  const gate = await moduleGate("attendance");
-  if (gate) return gate;
-
-  // Middleware blocks members from /attendance; this is the server-side backstop.
-  await requireAdmin();
-
-  return <AdminAttendance testTriggersEnabled={testTriggersAllowed()} />;
+  await requirePage("read", "ops");
+  return (
+    <div className="space-y-8">
+      <PageHeader eyebrow="Team" title="Attendance" description="Everyone's month against their own schedule. AI agents have no attendance." />
+      <TeamAttendance />
+    </div>
+  );
 }

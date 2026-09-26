@@ -6,6 +6,7 @@ import { dueFollowUps } from "@/lib/tasks";
 import { companyTimezone } from "@/lib/company-time";
 import { companyHour, formatDate } from "@/lib/date";
 import { notify } from "@/lib/notifications";
+import { sweepTaskDeadlines } from "@/modules/tasks/deadlines";
 
 /**
  * The 9am follow-up call.
@@ -70,9 +71,14 @@ export async function POST(request: Request) {
       if (delivered) sent += 1;
     }
 
+    // Phase 2: task deadlines ride on the same morning run (Hobby allows
+    // daily crons only).
+    const tasks = await sweepTaskDeadlines(now, timeZone, todayKey(now, timeZone));
+
     return NextResponse.json({
       status: "ok",
       timeZone,
+      tasks,
       due: due.length,
       sent,
       // due minus sent is the dedupe working, not a failure.

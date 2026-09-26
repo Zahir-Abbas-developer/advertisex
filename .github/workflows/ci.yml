@@ -75,6 +75,7 @@ jobs:
           npm run journeytest
           npm run shelltest
           npm run tenanttest
+          npm run daytest
       - name: Server log on failure
         if: failure()
         run: tail -200 dev.log

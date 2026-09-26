@@ -49,6 +49,8 @@ model Organization {
   clients        Client[]
   clientAccounts ClientAccount[]
   agentGrants    AgentGrant[]
+  skills         Skill[]
+  files          File[]
 }
 
 /// A restaurant client as a *portal tenant* — the thing a CLIENT login is
@@ -100,6 +102,118 @@ model AgentGrant {
   @@index([grantedById])
 }
 
+// ---------------------------------------------------------------------------
+// Phase 2 (Advertise X) — Team operating system
+// ---------------------------------------------------------------------------
+
+/// One entry in the organization's skills taxonomy ("Google Ads", "SEO").
+/// Seeded with the Phase 2 catalog; the founder extends it. Deactivating a
+/// skill hides it from pickers without deleting who holds it.
+model Skill {
+  id             String   @id @default(cuid())
+  organizationId String
+  name           String
+  /// Grouping for display, e.g. "Paid media", "Creative".
+  category       String   @default("General")
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  holders      UserSkill[]
+
+  @@unique([organizationId, name])
+  @@index([organizationId, isActive])
+}
+
+/// A person's (or an agent's) skill, with proficiency 1–5.
+model UserSkill {
+  id          String   @id @default(cuid())
+  userId      String
+  skillId     String
+  /// 1 = learning … 5 = expert.
+  proficiency Int
+  createdAt   DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  skill Skill @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, skillId])
+  @@index([skillId])
+}
+
+/// A person's agreed working schedule — what attendance is measured against.
+/// Absent means the default (Mon–Fri 09:00–17:00, company timezone). AI
+/// agents have none: attendance does not apply to them.
+model WorkSchedule {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  /// IANA timezone the schedule is read in, e.g. "America/New_York".
+  timezone     String
+  /// ISO weekdays, comma-separated: "1,2,3,4,5" = Mon–Fri.
+  workDays     String   @default("1,2,3,4,5")
+  /// Minutes past local midnight.
+  startMinute  Int      @default(540)
+  endMinute    Int      @default(1020)
+  graceMinutes Int      @default(5)
+  updatedAt    DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+/// A checklist line on a task.
+model TaskChecklistItem {
+  id        String   @id @default(cuid())
+  taskId    String
+  label     String
+  done      Boolean  @default(false)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@index([taskId, order])
+}
+
+/// A comment on a task.
+model TaskComment {
+  id        String   @id @default(cuid())
+  taskId    String
+  authorId  String?
+  body      String
+  createdAt DateTime @default(now())
+
+  task   Task  @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  author User? @relation("TaskCommentAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+
+  @@index([taskId, createdAt])
+}
+
+/// An uploaded file, stored privately and served only through an authorized
+/// route. Attached to a task for now; other owners join as their phases land.
+model File {
+  id             String   @id @default(cuid())
+  organizationId String
+  uploaderId     String?
+  taskId         String?
+  /// Original name, shown to people. Never used for filesystem access.
+  filename       String
+  /// Generated name in storage, e.g. "<cuid>.png".
+  storedName     String   @unique
+  mimeType       String
+  size           Int
+  /// "INTERNAL" | "CLIENT" — whether a client may ever see it.
+  visibility     String   @default("INTERNAL")
+  createdAt      DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  uploader     User?        @relation("FileUploader", fields: [uploaderId], references: [id], onDelete: SetNull)
+  task         Task?        @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([taskId])
+  @@index([uploaderId])
+}
+
 /// A person who can sign in — a team member, the founder, a client contact or
 /// an AI agent. Role names and their meaning live in lib/constants.ts.
 model User {
@@ -118,6 +232,11 @@ model User {
   organizationId      String?
   /// CLIENT logins only: the single restaurant account this user is scoped to.
   clientAccountId     String?
+  /// What this person owns day to day, in their own words or the founder's.
+  responsibilities    String?
+  /// "ACTIVE" | "ON_LEAVE" | "INACTIVE" — shown on the profile; sign-in is
+  /// governed by isActive alone.
+  employmentStatus    String   @default("ACTIVE")
   /// Delivery specialism, e.g. "Shopify Developer", "Media Buyer".
   jobTitle            String
   /// E.164, e.g. "+923001234567". Only used for the optional WhatsApp channel;
@@ -177,6 +296,10 @@ model User {
   organization   Organization?          @relation(fields: [organizationId], references: [id], onDelete: SetNull)
   clientAccount  ClientAccount?         @relation(fields: [clientAccountId], references: [id], onDelete: SetNull)
   agentGrants    AgentGrant[]           @relation("AgentGrants")
+  skills         UserSkill[]
+  schedule       WorkSchedule?
+  taskComments   TaskComment[]          @relation("TaskCommentAuthor")
+  filesUploaded  File[]                 @relation("FileUploader")
   grantsIssued   AgentGrant[]           @relation("AgentGrantsIssued")
   tasksAssigned  Task[]                 @relation("TaskAssignee")
   tasksCreated   Task[]                 @relation("TaskCreator")
@@ -480,6 +603,7 @@ model Project {
 
   renewedFrom Project? @relation("ProjectRenewal", fields: [renewedFromId], references: [id], onDelete: SetNull)
   renewedInto Project? @relation("ProjectRenewal")
+  tasks       Task[]
 
   @@index([clientId])
   @@index([status])
@@ -1068,20 +1192,29 @@ model Task {
   dueAt        DateTime?
   /// One of TASK_PRIORITIES in lib/constants.ts.
   priority     String    @default("MEDIUM")
-  /// One of TASK_STATUSES in lib/constants.ts.
-  status       String    @default("OPEN")
+  /// "NOT_STARTED" | "IN_PROGRESS" | "REVIEW" | "COMPLETED" — see
+  /// modules/tasks/domain.ts. Rows written before Phase 2 may hold "OPEN" or
+  /// "DONE"; every read normalizes them (ADR-011).
+  status       String    @default("NOT_STARTED")
+  /// Optional until projects are attached to tasks in Phase 4.
+  projectId    String?
   completedAt  DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  department Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
-  lead       Lead?      @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  client     Client?    @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  assignee   User?      @relation("TaskAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
-  createdBy  User?      @relation("TaskCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  department Department          @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  lead       Lead?               @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  client     Client?             @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  assignee   User?               @relation("TaskAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  createdBy  User?               @relation("TaskCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  project    Project?            @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  checklist  TaskChecklistItem[]
+  comments   TaskComment[]
+  files      File[]
 
   @@index([assigneeId, status, dueAt])
+  @@index([projectId])
   @@index([departmentId, status])
   @@index([leadId])
   @@index([clientId])

@@ -392,3 +392,60 @@ services, departments) and money views.
 If the founder wants the maintainer to keep owner-level access, the change is
 one line — set that account's role to FOUNDER — and nothing in the model has
 to bend. Recorded here so the change is a decision, not a surprise.
+
+## ADR-011 — Phase 2: the team operating system on the existing models
+
+**Date:** 2026-09-26 · **Status:** accepted
+
+**Attendance is core again; the old machinery stays parked.** D4 parked the
+BWM attendance module, which was a surveillance-shaped system (random presence
+checks, outage reports) built on a Karachi clock. Phase 2 asks for attendance
+as a professional feature. So: a new engine (`modules/attendance/domain.ts`,
+pure and tested) and a new time clock (`/api/time`) reuse the existing
+`AttendanceDay` and `BreakSession` tables. The `/my-attendance` and
+`/attendance` pages now run on it, outside the flag. What stays behind the
+flag, relabelled "Availability checks", is only the legacy APIs (random
+checks, outages, leave workflow). Nothing is deleted.
+
+**Every employee's own clock.** Attendance is measured against a per-person
+`WorkSchedule` in its own IANA timezone (default: company timezone, Mon–Fri
+09:00–17:00, 5 minutes' grace). Days are stored at UTC midnight of the
+employee's local date; nothing derived (worked, late, absent) is stored, so a
+schedule change re-reads history consistently.
+
+**One span per day.** Clock in once, breaks inside, clock out once. A second
+clock-in or a clock-out without a clock-in is refused. This keeps the model and
+the numbers simple; split shifts can come later without a schema change (a day
+can own several spans).
+
+**Task statuses: expand, then contract (as ADR-008).** `OPEN`/`DONE` become
+`NOT_STARTED`/`IN_PROGRESS`/`REVIEW`/`COMPLETED`. Reads normalize both
+vocabularies (`normalizeTaskStatus`, never reading an unknown value as
+completed); filters match both (`storedTaskStatuses`); new writes use the new
+names. `npm run roles:backfill` now rewrites legacy task statuses too, after
+deploy. The lifecycle is enforced by the server (`canMove`), not only offered
+by the UI.
+
+**Humans and agents on one model.** An AI agent is a `User` with role
+`AI_AGENT`: it has skills and is assigned and measured on tasks; it has no
+schedule and no attendance, and its profile lists its `AgentGrant`
+capabilities instead.
+
+**Activity feeds are the audit log.** Phase 1 wired audit logging into the
+data layer; Phase 2 adds attendance, skills, schedules, checklist items,
+comments and files to the audited models, and the employee and task feeds read
+from it — there is no second activity table to drift.
+
+**No composite score.** Attendance and delivery are computed and shown
+separately, each with its definition on screen. The prompt allows an overall
+score only if its weights are displayed; choosing weights is a founder
+decision, so none is invented.
+
+**Known limitation — file storage.** Task attachments use the existing
+validated upload store (`lib/uploads.ts`), which writes to local disk. On
+Vercel that disk is ephemeral, so attachments do not persist in production
+until the S3-compatible store lands (ARCHITECTURE §5, P3). The `File` model
+already has the shape that store needs.
+
+**Replaced page.** `/team/[id]` was the parked scoring module's profile; it is
+now the employee profile Phase 2 specifies. The scoring module stays parked.

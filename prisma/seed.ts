@@ -326,6 +326,31 @@ const TEAM = [
   },
 ] as const;
 
+/**
+ * The Phase 2 skills taxonomy (the founder extends it in the app). Created if
+ * missing, never renamed or re-categorised here — once a skill exists it
+ * belongs to Settings, like departments do.
+ */
+const SKILLS: readonly { name: string; category: string }[] = [
+  { name: "Google Ads", category: "Paid media" },
+  { name: "Meta Ads", category: "Paid media" },
+  { name: "Lead Generation", category: "Paid media" },
+  { name: "SEO", category: "Search" },
+  { name: "Local SEO", category: "Search" },
+  { name: "Google Business Profile", category: "Search" },
+  { name: "Social Media Marketing", category: "Social" },
+  { name: "UI/UX", category: "Design" },
+  { name: "Graphic Design", category: "Design" },
+  { name: "Creative Production", category: "Design" },
+  { name: "Branding", category: "Design" },
+  { name: "Development", category: "Engineering" },
+  { name: "Websites", category: "Engineering" },
+  { name: "Mobile Apps", category: "Engineering" },
+  { name: "Automation", category: "Engineering" },
+  { name: "AI Automation", category: "Engineering" },
+  { name: "CRM Implementation", category: "Engineering" },
+];
+
 async function main() {
   const passwordHash = await bcrypt.hash(PLACEHOLDER_PASSWORD, 10);
 
@@ -371,6 +396,14 @@ async function main() {
       featureClientKpis: false,
     },
   });
+
+  for (const skill of SKILLS) {
+    await prisma.skill.upsert({
+      where: { organizationId_name: { organizationId: org.id, name: skill.name } },
+      update: {},
+      create: { organizationId: org.id, ...skill },
+    });
+  }
 
   const departmentIdBySlug = new Map<string, string>();
   /** Slugs created in this run — the only departments whose children we add. */

@@ -65,6 +65,7 @@ import { MILESTONE_STATUS_LABEL, MILESTONE_STATUS_TONE, type MilestoneStatus, ha
 
 import { storedRoleValues } from "@/config/permissions";
 import { companyTimezone } from "@/lib/company-time";
+import { MyWork } from "@/components/team/MyWork";
 export const metadata: Metadata = {
   title: "Dashboard",
 };
@@ -78,6 +79,13 @@ export default async function DashboardPage({
 }) {
   const user = await requireUser();
   const isAdmin = hasAdminPower(user.role);
+
+  // Everyone but the founder lands on their own work (Phase 2 scope 5): the
+  // team shell is task-first. The founder's command center continues below.
+  if (!isAdmin) {
+    const account = await prisma.user.findUnique({ where: { id: user.id }, select: { weeklyCapacityHours: true } });
+    return <MyWork userId={user.id} name={user.name ?? "there"} capacity={account?.weeklyCapacityHours ?? 40} />;
+  }
   // Doctrine 5: a parked module's cards must be absent, not empty. Each
   // section below is gated on its own module rather than on one blanket
   // flag, so switching one on brings back only its own surface.

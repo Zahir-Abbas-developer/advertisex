@@ -5,6 +5,7 @@ import { companyTimezone } from "@/lib/company-time";
 import { DAY_MS, startOfCompanyDay, toDateOnly } from "@/lib/date";
 import { WINNING_STAGE_KINDS } from "@/lib/constants";
 
+import { isOpen, normalizeTaskStatus } from "@/modules/tasks/domain";
 /**
  * The dashboard's numbers.
  *
@@ -308,7 +309,7 @@ export async function metricsFor(
   const todayStart = startOfCompanyDay(now, await companyTimezone());
 
   const overdueTasks = tasks.filter(
-    (task) => task.status === "OPEN" && task.dueAt && toDateOnly(task.dueAt) < todayStart,
+    (task) => isOpen(normalizeTaskStatus(task.status)) && task.dueAt && toDateOnly(task.dueAt) < todayStart,
   ).length;
 
   const pendingFollowUps =
@@ -396,7 +397,7 @@ export async function metricsFor(
       lostDeals: lost.length,
       revenue: wonInRange.reduce((sum, lead) => sum + lead.dealValue, 0),
       pendingFollowUps,
-      openTasks: tasks.filter((task) => task.status === "OPEN").length,
+      openTasks: tasks.filter((task) => isOpen(normalizeTaskStatus(task.status))).length,
       overdueTasks,
       conversionRate: conversionRate(won.length, lost.length),
     },

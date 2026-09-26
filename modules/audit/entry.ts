@@ -31,6 +31,16 @@ export const AUDITED_MODELS = new Set([
   "Milestone",
   "ServiceCatalog",
   "Settings",
+  // Phase 2 — the team operating system. Attendance and profile changes are
+  // audited so the employee activity feed can be sourced from this log.
+  "Skill",
+  "UserSkill",
+  "WorkSchedule",
+  "TaskChecklistItem",
+  "TaskComment",
+  "File",
+  "AttendanceDay",
+  "BreakSession",
 ]);
 
 export const RECORD_ACTIONS = {

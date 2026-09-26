@@ -268,6 +268,7 @@ npm run fieldtest      # field engine: right fields, right people, per departmen
 npm run journeytest    # one full pipeline journey per department, over HTTP
 npm run shelltest      # every role lands in its own shell; every cross-shell door is shut
 npm run tenanttest     # a second organization's rows never reach the first
+npm run daytest        # a full working day: clock in, task through every status, clock out, founder sees it
 npm run smoke:browser  # real-browser hydration pass (run when renders change)
 
 npm run set-passwords  # issue a distinct password per account (prints once)

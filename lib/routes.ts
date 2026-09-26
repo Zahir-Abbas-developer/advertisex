@@ -24,6 +24,7 @@ export type NavKey =
   | "errors"
   | "scoring"
   | "team"
+  | "team-performance"
   | "settings"
   | "reports";
 
@@ -82,7 +83,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
     href: "/my-attendance",
     roles: EVERYONE,
   },
-  { key: "attendance", label: "Attendance", href: "/attendance", roles: ADMINS },
+  { key: "attendance", label: "Attendance", href: "/attendance", roles: OPS },
   {
     key: "my-performance",
     label: "My performance",
@@ -102,7 +103,8 @@ export const NAV_ITEMS: readonly NavItem[] = [
     roles: EVERYONE,
   },
   { key: "incentives", label: "Incentives", href: "/incentives", roles: ADMINS },
-  { key: "team", label: "Team", href: "/team", roles: ADMINS },
+  { key: "team", label: "Team", href: "/team", roles: OPS },
+  { key: "team-performance", label: "Team performance", href: "/team/performance", roles: OPS },
   {
     key: "scoring",
     label: "How scoring works",

@@ -11,6 +11,8 @@ import { parseDateInput } from "@/lib/date";
 import { hasAdminPower, TASK_PRIORITIES, TASK_STATUSES } from "@/lib/constants";
 
 import { requireApi } from "@/modules/rbac/server";
+import { canMove, normalizeTaskStatus, TASK_STATUS_LABEL } from "@/modules/tasks/domain";
+import { notify } from "@/lib/notifications";
 const patchSchema = z.object({
   title: z.string().trim().min(2).max(160).optional(),
   note: z.string().trim().max(2000).nullish(),
@@ -67,6 +69,16 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 
   const data = parsed.data;
 
+  // The lifecycle is enforced here, not just offered by the UI.
+  const from = normalizeTaskStatus(task.status);
+  if (data.status !== undefined && data.status !== from && !canMove(from, data.status)) {
+    return apiError(
+      `A task can't go from ${TASK_STATUS_LABEL[from]} to ${TASK_STATUS_LABEL[data.status]}`,
+      422,
+      { status: "That move isn't allowed" },
+    );
+  }
+
   if (data.assigneeId && !(await canBeAssigned(task.departmentId, data.assigneeId))) {
     return apiError("Please fix the highlighted fields", 422, {
       assigneeId: "That person isn't in this department",
@@ -96,11 +108,22 @@ export async function PATCH(request: Request, { params }: { params: { id: string
             status: data.status,
             // Stamped when it is done and cleared when it is reopened, so the
             // timestamp can never describe a task that is currently open.
-            completedAt: data.status === "DONE" ? new Date() : null,
+            completedAt: data.status === "COMPLETED" ? new Date() : null,
           }
         : {}),
     },
   });
+
+  // A newly assigned person hears about it; assigning oneself is not news.
+  if (data.assigneeId && data.assigneeId !== task.assigneeId && data.assigneeId !== user.id) {
+    await notify({
+      userId: data.assigneeId,
+      type: "TASK_ASSIGNED",
+      title: `New task: ${updated.title}`,
+      body: `${user.name ?? "A teammate"} assigned you a task.`,
+      href: "/tasks",
+    });
+  }
 
   return NextResponse.json({ task: updated });
 }

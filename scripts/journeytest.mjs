@@ -329,7 +329,7 @@ async function main() {
       const done = await admin.fetch(`/api/tasks/${taskId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "DONE" }),
+        body: JSON.stringify({ status: "COMPLETED" }),
       });
       check(done.ok, "task completed", String(done.status));
 

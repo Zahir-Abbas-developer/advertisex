@@ -4,6 +4,7 @@ import { companyTimezone } from "@/lib/company-time";
 import { dueDeadline, startOfCompanyDay, toDateOnly } from "@/lib/date";
 import type { TaskPriority, TaskStatus } from "@/lib/constants";
 
+import { normalizeTaskStatus } from "@/modules/tasks/domain";
 /**
  * Tasks and follow-ups — the daily working surface.
  *
@@ -152,10 +153,10 @@ export async function taskBoard(
     note: task.note,
     dueAt: task.dueAt?.toISOString() ?? null,
     priority: task.priority as TaskPriority,
-    status: task.status as TaskStatus,
+    status: normalizeTaskStatus(task.status),
     completedAt: task.completedAt?.toISOString() ?? null,
     bucket:
-      task.status === "DONE"
+      normalizeTaskStatus(task.status) === "COMPLETED"
         ? ("COMPLETED" as const)
         : bucketFor(task.dueAt, now, timeZone),
     department: task.department,
@@ -177,7 +178,7 @@ export async function taskBoard(
       note: null,
       dueAt: lead.nextFollowUpAt!.toISOString(),
       priority: "MEDIUM" as TaskPriority,
-      status: "OPEN" as TaskStatus,
+      status: "NOT_STARTED" as TaskStatus,
       completedAt: null,
       bucket: bucketFor(lead.nextFollowUpAt, now, timeZone),
       department: lead.department,
@@ -191,7 +192,7 @@ export async function taskBoard(
       note: null,
       dueAt: client.nextFollowUpAt!.toISOString(),
       priority: "MEDIUM" as TaskPriority,
-      status: "OPEN" as TaskStatus,
+      status: "NOT_STARTED" as TaskStatus,
       completedAt: null,
       bucket: bucketFor(client.nextFollowUpAt, now, timeZone),
       department: client.department,

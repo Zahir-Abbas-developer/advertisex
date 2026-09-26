@@ -110,6 +110,10 @@ export const RESOURCES = [
   "notification",
   "profile",
   "file",
+  /** An employee's profile, skills, schedule and performance (Phase 2). */
+  "employee",
+  /** The organization's skills taxonomy (Phase 2). */
+  "skill",
 ] as const;
 export type Resource = (typeof RESOURCES)[number];
 
@@ -190,11 +194,14 @@ export const PERMISSIONS: Matrix = {
     update: { FOUNDER: "all", MANAGER: "all", EMPLOYEE: "assigned" },
   },
 
-  // A person's own attendance, breaks, leave, outages, disputes.
+  // A person's own attendance, breaks, leave, outages, disputes. Everyone
+  // clocks themselves in; the team view and schedules are the founder's and
+  // (read-only) a manager's. AI agents have no attendance at all.
   attendance: {
     read: { FOUNDER: "all", MANAGER: "all", EMPLOYEE: "own" },
-    create: { FOUNDER: "all", MANAGER: "all", EMPLOYEE: "own" },
+    create: { FOUNDER: "own", MANAGER: "own", EMPLOYEE: "own" },
     update: { FOUNDER: "all", MANAGER: "all", EMPLOYEE: "own" },
+    manage: FOUNDER_ONLY,
   },
 
   analytics: {
@@ -222,6 +229,20 @@ export const PERMISSIONS: Matrix = {
     read: { FOUNDER: "all", MANAGER: "all", EMPLOYEE: "assigned", CLIENT: "client-own" },
     create: { FOUNDER: "all", MANAGER: "all", EMPLOYEE: "assigned" },
     delete: { FOUNDER: "all", MANAGER: "all", EMPLOYEE: "own" },
+  },
+
+  // The directory, profiles and team performance (Phase 2). A manager sees
+  // the people in their own departments; an employee sees themselves.
+  employee: {
+    read: { FOUNDER: "all", MANAGER: "department", EMPLOYEE: "own" },
+    update: FOUNDER_ONLY,
+    manage: FOUNDER_ONLY,
+  },
+
+  skill: {
+    read: { FOUNDER: "all", MANAGER: "all", EMPLOYEE: "all" },
+    create: FOUNDER_ONLY,
+    update: FOUNDER_ONLY,
   },
 };
 

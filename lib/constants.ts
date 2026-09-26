@@ -187,8 +187,8 @@ export const TASK_PRIORITY_TONE: Record<TaskPriority, BadgeTone> = {
   HIGH: "warning",
 };
 
-export const TASK_STATUSES = ["OPEN", "DONE"] as const;
-export type TaskStatus = (typeof TASK_STATUSES)[number];
+// The task lifecycle lives with its rules (modules/tasks/domain.ts).
+export { TASK_STATUSES, TASK_STATUS_LABEL, type TaskStatus } from "@/modules/tasks/domain";
 
 /**
  * Tones a department may be tagged with.

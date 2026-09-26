@@ -5,7 +5,33 @@ phase → status → done → next → blockers.*
 
 ---
 
-## 2026-09-25 — Phase 1: IN PROGRESS
+## 2026-09-26 — Phase 2: DELIVERED, awaiting gate
+
+**Phase:** 2 — Team Operating System (prompt verbatim in `docs/PHASES.md`)
+**Status:** ✅ delivered · ⏸ **STOPPED at the gate** — report: `docs/phases/PHASE_2_REPORT.md`; waiting for *"Phase 2 approved"*
+**Gate note:** the founder instructed "complete phase2 task" after Phase 1 was
+delivered, without the literal "Phase 1 approved". Treated as the founder's
+go-ahead (CLAUDE.md §12: follow the founder's call); Phase 1's report stands
+for review and anything it surfaces is fixed first.
+
+**Plan (increments):**
+1. Domain engines, pure + tested: attendance (hours, breaks, late, early, absence, month) and tasks (4-status flow, deadlines, on-time rate, workload). Formulas in METRICS.
+2. Schema: Skill + UserSkill (proficiency 1–5), WorkSchedule, User responsibilities/status, Task project link + checklist + comments, File.
+3. APIs + permissions: employees, skills, time clock, team attendance (+CSV), tasks (transitions, checklist, comments, files, activity).
+4. UI: employee directory with AI-agent treatment, profile page, My Work / My Performance dashboard, attendance (employee + founder), task detail, Team Performance analytics.
+5. Deadline job + notifications (assigned, approaching, overdue).
+6. Seed: skills catalog, schedules, demo tasks and attendance.
+7. `daytest` harness (the day-in-the-life acceptance), gate, docs, `PHASE_2_REPORT.md`, STOP.
+
+**Carried from Phase 1:** restore `smoke:browser` to green (stalls on the second role).
+
+---
+
+## 2026-09-25 — Phase 1: DELIVERED (`fd96776`)
+
+**Report:** `docs/phases/PHASE_1_REPORT.md`. Gate green except `smoke:browser` (open item above).
+
+### Phase 1 working log (historical)
 
 **Phase:** 1 — Foundation (scope: the founder's Phase 1 prompt, issued 2026-09-25 — now verbatim in `docs/PHASES.md`; it supersedes the ASSESSMENT §11 proposal, see ADR-007)
 **Status:** ▶ in progress — re-baselined mid-phase when the prompt arrived; increments 1–3 below sit inside its scope items 1, 7 and 11 and carry forward

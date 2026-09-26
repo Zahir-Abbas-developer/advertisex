@@ -30,6 +30,46 @@ formulas at the gate.*
 Both counts are scoped twice: by the query (client-own) and by the tenancy
 wall in the data layer (organization).
 
+## Added in Phase 2 — attendance (`modules/attendance/domain.ts`)
+
+All attendance arithmetic happens on the **employee's own wall clock**: the
+schedule names an IANA timezone, and every "which day", "how late", "how
+early" is evaluated there, DST-correct. Pinned by
+`tests/attendance-domain.test.ts`.
+
+| Metric | Formula |
+| --- | --- |
+| Schedule | work days (ISO weekdays), start and end (minutes past local midnight), grace minutes. Default Mon–Fri 09:00–17:00, 5 min grace, company timezone. |
+| Break minutes | Σ over breaks of the overlap between the break and the worked span; an open break counts up to clock-out (or now while in progress). |
+| Worked minutes | `(clock-out or now) − clock-in − break minutes`, never below 0. |
+| Late minutes | on a scheduled day, if arrival (local minute) > start + grace: `arrival − start` (measured from the start, not from the end of grace); else 0. Never late on an unscheduled day. |
+| Early-departure minutes | on a scheduled day with a same-day clock-out: `max(0, end − departure)`. Not counted while in progress. |
+| Day status | ON_LEAVE (approved leave, no clock-in) · OFF (unscheduled, not worked) · UPCOMING (scheduled, not over, no clock-in) · ABSENT (scheduled, day over — date past, or today after the scheduled end — no clock-in) · IN_PROGRESS (clocked in, not out) · LATE (worked, late > 0) · PRESENT (worked, on time). |
+| Attendance rate | days worked on scheduled days ÷ (scheduled days elapsed − leave days); `null` before any such day. |
+| Punctuality rate | (days worked − late days) ÷ days worked; `null` when nothing was worked. |
+| Hours worked vs scheduled | Σ worked minutes · Σ (end − start) over scheduled days. |
+
+## Added in Phase 2 — tasks and performance (`modules/tasks/domain.ts`)
+
+Pinned by `tests/tasks-domain.test.ts`.
+
+| Metric | Formula |
+| --- | --- |
+| Status flow | NOT_STARTED → IN_PROGRESS → REVIEW → COMPLETED; one step forward or back, straight to COMPLETED from anywhere, COMPLETED reopens only to IN_PROGRESS. Legacy OPEN/DONE read as NOT_STARTED/COMPLETED. |
+| Deadline | the end of the due calendar day on the company clock (`lib/date.ts · dueDeadline`). |
+| Overdue | open and now > deadline. |
+| Deadline approaching | open and deadline − now ≤ 24 hours. |
+| On-time delivery rate | tasks completed at or before their deadline ÷ tasks completed that had a deadline; `null` when none qualify (no work is not bad work). |
+| Workload | open tasks × 2 estimated hours ÷ weekly capacity hours; may exceed 100% — overload is shown, not clipped. `null` without capacity. |
+| Tasks completed / overdue | counts over the selected period, by `completedAt` / by overdue state now. |
+| Projects delivered | distinct projects with status COMPLETED and `closedOutAt` in the period, on which the person had a task (`Task.projectId`) or a milestone. |
+| Period ("this month") | from the first of the month to the first of the next, both at 00:00 on the **company** clock (`modules/team/server.ts · monthBounds`) — a task finished at 22:00 New York time on the 31st counts in that month. Attendance months use each person's own clock. |
+| Team totals | pooled from each person's own counts: team on-time rate = Σ completed on time ÷ Σ completed with a deadline; team punctuality = (Σ days worked − Σ late days) ÷ Σ days worked. Never an average of per-person rates. |
+
+Attendance and performance are **computed and displayed separately**. No
+composite score is shown in Phase 2; if one is ever added it must be labelled
+a weighted composite with its weights on screen (Phase 2 prompt, scope 6).
+
 ## To be defined at their phase gates
 
 - **P2** — per-organization aggregates (same formulas, org-scoped denominators).

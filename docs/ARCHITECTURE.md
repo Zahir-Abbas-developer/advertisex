@@ -39,12 +39,15 @@ modules/
   rbac/       authorize() (pure) · principalFor/requireApi/page guards   (Phase 1)
   tenancy/    scopeArgs() (pure) · request context · Prisma extension    (Phase 1)
   audit/      buildAuditEntry() (pure) · Prisma extension                (Phase 1)
+  attendance/ domain (pure: hours, breaks, late, early, absence, month) · server (time clock)   (Phase 2)
+  tasks/      domain (pure: lifecycle, deadlines, on-time, workload) · server (access) · deadlines job (Phase 2)
+  team/       directory, performance, attendance roll-ups, activity feed (from the audit log)  (Phase 2)
 ```
 
 **Target** (moved when their phase touches them):
 
 ```
-  users/ teams/ leads/ fields/ clients/ tasks/ activity/ analytics/
+  users/ leads/ fields/ clients/ activity/ analytics/
   notifications/ reports/ billing/ messaging/ integrations/ ai/ files/ jobs/
 ```
 

@@ -546,40 +546,18 @@ async function main() {
           !html.includes("Scopeprobe Client"),
         );
 
-        const activeForCheryl = await prisma.client.count({
-          where: { status: "ACTIVE", departmentId: { in: cherylDepts } },
-        });
-        const activeEverywhere = await prisma.client.count({ where: { status: "ACTIVE" } });
-
-        // Without a difference the next assertion cannot fail, and a check that
-        // cannot fail is not a check.
-        check(
-          "there is a difference for the tile to get wrong",
-          activeEverywhere !== activeForCheryl,
-          `global ${activeEverywhere}, hers ${activeForCheryl}`,
-        );
-
-        /* The page is an RSC payload, not markup, so the tile's value arrives as
-           `"children":N` inside escaped JSON rather than between two angle
-           brackets. Reading it out of the payload is the only way to assert the
-           number the member is actually shown — an earlier version of this check
-           regexed for HTML that does not exist, passed against the live leak,
-           and proved nothing. */
+        /* Phase 2 replaced the member dashboard with My Work, which shows only
+           the member's own tasks. The "Active clients" tile this check used to
+           read — and which once leaked every department's count — no longer
+           renders for members at all. The invariant it guarded is asserted
+           directly instead: a member's home carries no company-wide client
+           aggregate, so there is no number that could be wrong. */
         const rendered = html.replace(/\\+/g, "");
-        const label = rendered.indexOf("Active clients");
-        const value = label >= 0
-          ? /text-\[34px\][^}]*"children":\s*(\d+)/.exec(rendered.slice(label, label + 900))
-          : null;
-
-        check("the Active clients tile rendered a number", Boolean(value), "not found");
-
-        if (value) {
-          check(
-            "the tile shows the member's own count, not the global one",
-            Number(value[1]) === activeForCheryl,
-            `tile ${value[1]}, hers ${activeForCheryl}, global ${activeEverywhere}`,
-          );
-        }
+        check(
+          "the member's home shows no company-wide client count",
+          !rendered.includes("Active clients"),
+        );
+        check("the member's home is their own work", rendered.includes("My work"));
       }
 
     } finally {

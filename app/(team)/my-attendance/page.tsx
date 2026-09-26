@@ -1,22 +1,18 @@
 import type { Metadata } from "next";
 
-import { requireUser } from "@/lib/session";
-import { MyAttendance } from "@/components/attendance/MyAttendance";
-import { moduleGate } from "@/lib/module-guard";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { TimeClock } from "@/components/attendance/TimeClock";
+import { requirePage } from "@/modules/rbac/server";
 
-export const metadata: Metadata = {
-  title: "My attendance",
-};
+export const metadata: Metadata = { title: "My attendance" };
 
+/** The employee's own time clock and month. The API scopes to the caller. */
 export default async function MyAttendancePage() {
-  // Parked module: the nav entry is already gone, so this guards a
-  // bookmark or a typed URL rather than a link.
-  const gate = await moduleGate("attendance");
-  if (gate) return gate;
-
-  // The API scopes to the signed-in user, so a member can only ever read their
-  // own month regardless of what the page asks for.
-  await requireUser();
-
-  return <MyAttendance />;
+  await requirePage("create", "attendance");
+  return (
+    <div className="space-y-8">
+      <PageHeader eyebrow="Attendance" title="My attendance" description="Clock in when you start, take your breaks, clock out when you're done." />
+      <TimeClock />
+    </div>
+  );
 }

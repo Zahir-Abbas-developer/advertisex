@@ -29,6 +29,21 @@ ownership and the load-bearing columns — not every timestamp.*
 | `Client` | + organizationId, + clientAccountId | CRM record ↔ portal account link. |
 | `AuditLog` | + organizationId, + actorType | Written by the data layer for every business mutation (ADR-009). |
 
+### Built in Phase 2
+
+| Entity / change | Fields | Notes |
+| --- | --- | --- |
+| **Skill** | organizationId, name (unique per org), category, isActive | The taxonomy; seeded with the 17-skill catalog. Tenant root. |
+| **UserSkill** | userId, skillId, proficiency 1–5 | Unique per (user, skill). |
+| **WorkSchedule** | userId (unique), timezone, workDays, startMinute, endMinute, graceMinutes | Absent = default schedule. None for AI agents. |
+| **TaskChecklistItem** | taskId, label, done, order | |
+| **TaskComment** | taskId, authorId, body | |
+| **File** | organizationId, uploaderId, taskId, filename, storedName, mimeType, size, visibility | Deferred from Phase 1; lands with its first use. Tenant root. |
+| `User` | + responsibilities, + employmentStatus | |
+| `Task` | + projectId (optional, FK Project); status default NOT_STARTED | Four statuses; legacy OPEN/DONE read until backfilled (ADR-011). |
+
+Migration `20260926090000_team_operating_system`: additive only.
+
 Every new foreign key is indexed; `organizationId` columns are nullable,
 backfilled by the seed (null keys only), and treated as required by the data
 layer. Making them `NOT NULL` is a later, separate migration once production
