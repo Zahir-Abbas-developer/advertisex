@@ -83,6 +83,9 @@ export async function runAutoRenewal(now = new Date()): Promise<RenewalRun> {
       // Unique, so this is also what makes a second run a no-op.
       renewedInto: null,
       client: { status: "ACTIVE" },
+      // Retainer cycles only: a Phase 4 project has no workstreams and is
+      // never rolled forward.
+      modules: { some: {} },
     },
     orderBy: { endDate: "asc" },
     include: {
@@ -115,6 +118,7 @@ export async function runAutoRenewal(now = new Date()): Promise<RenewalRun> {
         id: { not: project.id },
         endDate: { gte: now },
         status: { in: ["PLANNING", "ACTIVE"] },
+        modules: { some: {} },
       },
       select: { id: true },
     });
@@ -173,6 +177,8 @@ async function rollForward(
 
   const next = await prisma.project.create({
     data: {
+      // Jobs run unscoped; the new cycle belongs to its client's organization.
+      organizationId: project.organizationId,
       clientId: project.clientId,
       title: cycleTitle(window.startDate),
       startDate: toDateOnly(window.startDate),

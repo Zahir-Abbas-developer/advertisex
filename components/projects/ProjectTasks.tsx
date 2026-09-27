@@ -16,6 +16,7 @@ import type { ProjectPayload, ProjectViewer } from "@/components/projects/types"
 import { TASK_PRIORITIES, TASK_PRIORITY_LABEL } from "@/lib/constants";
 import { formatDate } from "@/lib/date";
 import { TASK_STATUS_LABEL, type TaskStatus } from "@/modules/tasks/domain";
+import { safeFetch } from "@/lib/safe-fetch";
 
 const TONE: Record<TaskStatus, "neutral" | "info" | "warning" | "success"> = {
   NOT_STARTED: "neutral",
@@ -37,7 +38,7 @@ export function ProjectTasks({ project, viewer, onChanged }: { project: ProjectP
 
   const add = async () => {
     setBusy(true);
-    const res = await fetch("/api/tasks", {
+    const res = await safeFetch("/api/tasks", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ projectId: project.id, title: form.title, dueAt: form.dueAt || null, assigneeId: form.assigneeId || null, priority: form.priority }),
@@ -51,7 +52,7 @@ export function ProjectTasks({ project, viewer, onChanged }: { project: ProjectP
   };
 
   return (
-    <Card>
+    <Card padded={false}>
       <CardBody className="space-y-5">
         {viewer.canWork && (
           <div className="grid gap-3 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto] md:items-end">

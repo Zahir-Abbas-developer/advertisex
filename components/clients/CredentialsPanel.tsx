@@ -13,6 +13,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { Textarea } from "@/components/ui/Textarea";
 import { useToast } from "@/components/ui/Toast";
 import { formatDate, relativeFromNow } from "@/lib/date";
+import { safeFetch } from "@/lib/safe-fetch";
 
 type Credential = {
   id: string;
@@ -56,7 +57,7 @@ export function CredentialsPanel({ clientId }: { clientId: string }) {
   const timers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
   const load = useCallback(async () => {
-    const res = await fetch(`/api/clients/${clientId}/credentials`, { cache: "no-store" });
+    const res = await safeFetch(`/api/clients/${clientId}/credentials`, { cache: "no-store" });
     if (!res.ok) return setFailed(true);
     const body = await res.json();
     setFailed(false);
@@ -81,7 +82,7 @@ export function CredentialsPanel({ clientId }: { clientId: string }) {
 
   const reveal = async (c: Credential) => {
     if (shown[c.id]) return hide(c.id);
-    const res = await fetch(`/api/credentials/${c.id}/reveal`, { method: "POST" });
+    const res = await safeFetch(`/api/credentials/${c.id}/reveal`, { method: "POST" });
     const body = await res.json().catch(() => ({}));
     if (!res.ok) return toast.error(body.error ?? "Couldn't open that login");
     setShown((s) => ({ ...s, [c.id]: body.secret }));
@@ -98,7 +99,7 @@ export function CredentialsPanel({ clientId }: { clientId: string }) {
 
   const remove = async (c: Credential) => {
     if (!window.confirm(`Remove the login "${c.label}"? The stored secret is destroyed.`)) return;
-    const res = await fetch(`/api/credentials/${c.id}`, { method: "DELETE" });
+    const res = await safeFetch(`/api/credentials/${c.id}`, { method: "DELETE" });
     if (!res.ok) return toast.error((await res.json().catch(() => ({}))).error ?? "Couldn't remove it");
     toast.success("Login removed");
     void load();
@@ -222,7 +223,7 @@ function CredentialModal({
       notes: form.notes || null,
       ...(form.secret || !credential ? { secret: form.secret } : {}),
     };
-    const res = await fetch(credential ? `/api/credentials/${credential.id}` : `/api/clients/${clientId}/credentials`, {
+    const res = await safeFetch(credential ? `/api/credentials/${credential.id}` : `/api/clients/${clientId}/credentials`, {
       method: credential ? "PATCH" : "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),

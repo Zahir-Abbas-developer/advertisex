@@ -204,10 +204,16 @@ CREATE INDEX "ClientCredential_organizationId_idx" ON "ClientCredential"("organi
 CREATE INDEX "ClientCredential_clientId_idx" ON "ClientCredential"("clientId");
 
 -- CreateIndex
+CREATE INDEX "ClientCredential_createdById_idx" ON "ClientCredential"("createdById");
+
+-- CreateIndex
 CREATE INDEX "ClientNote_organizationId_idx" ON "ClientNote"("organizationId");
 
 -- CreateIndex
 CREATE INDEX "ClientNote_clientId_pinned_idx" ON "ClientNote"("clientId", "pinned");
+
+-- CreateIndex
+CREATE INDEX "ClientNote_authorId_idx" ON "ClientNote"("authorId");
 
 -- CreateIndex
 CREATE INDEX "ProjectMember_userId_idx" ON "ProjectMember"("userId");
@@ -235,6 +241,9 @@ CREATE INDEX "ProjectMilestone_dueDate_idx" ON "ProjectMilestone"("dueDate");
 
 -- CreateIndex
 CREATE INDEX "ProjectComment_projectId_createdAt_idx" ON "ProjectComment"("projectId", "createdAt");
+
+-- CreateIndex
+CREATE INDEX "ProjectComment_authorId_idx" ON "ProjectComment"("authorId");
 
 -- CreateIndex
 CREATE INDEX "File_clientId_idx" ON "File"("clientId");

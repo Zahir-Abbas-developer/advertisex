@@ -163,6 +163,8 @@ export function buildAuditEntry(input: {
     // No per-row snapshot for bulk writes: record what was asked and how many
     // rows it touched.
     const count = (input.result as { count?: number } | null)?.count ?? null;
+    // Like a no-op update: a bulk write that touched nothing leaves no trace.
+    if (count === 0) return null;
     afterJson = JSON.stringify({
       where: redact(input.args?.where) ?? null,
       data: redact(input.args?.data) ?? null,

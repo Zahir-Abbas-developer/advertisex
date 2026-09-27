@@ -14,6 +14,7 @@ import { useToast } from "@/components/ui/Toast";
 import type { ProjectPayload, ProjectViewer } from "@/components/projects/types";
 import { formatDate } from "@/lib/date";
 import { cn } from "@/lib/utils";
+import { safeFetch } from "@/lib/safe-fetch";
 
 type Stage = ProjectPayload["stages"][number];
 type Milestone = ProjectPayload["milestones"][number];
@@ -40,7 +41,7 @@ export function ProjectPlan({ project, viewer, onChanged }: { project: ProjectPa
   }, [project.stages]);
 
   const call = async (url: string, method: string, body: unknown, done: string) => {
-    const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: body ? JSON.stringify(body) : undefined });
+    const res = await safeFetch(url, { method, headers: { "Content-Type": "application/json" }, body: body ? JSON.stringify(body) : undefined });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
       toast.error(data.error ?? "That didn't save");
@@ -57,7 +58,7 @@ export function ProjectPlan({ project, viewer, onChanged }: { project: ProjectPa
   return (
     <div className="space-y-6">
       {lines.map((line) => (
-        <Card key={line.key}>
+        <Card padded={false} key={line.key}>
           <CardHeader
             title={line.name}
             description={`${line.stages.filter((s) => s.status === "DONE").length} of ${line.stages.length} stages done`}
@@ -138,7 +139,7 @@ export function ProjectPlan({ project, viewer, onChanged }: { project: ProjectPa
         </Card>
       ))}
 
-      <Card>
+      <Card padded={false}>
         <CardHeader
           title="Milestones outside a stage"
           action={

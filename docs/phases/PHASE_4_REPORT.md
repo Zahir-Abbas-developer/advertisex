@@ -107,7 +107,7 @@ delay, health, billing and analytics. It is unit tested in
 | --- | --- |
 | `tsc` | ✓ |
 | `lint` | ✓ |
-| Unit tests | **793/793** |
+| Unit tests | **797/797** |
 | `build` | ✓ |
 | **`bundlescan`** | ✓ |
 | `smoke` | ✓ (110) |
@@ -121,7 +121,7 @@ delay, health, billing and analytics. It is unit tested in
 | `daytest` | ✓ (28) |
 | `leadtest` | ✓ (40) |
 | `outreachtest` | ✓ (36) |
-| **`projecttest`** | ✓ (58) |
+| **`projecttest`** | ✓ (65) |
 
 CI runs `projecttest` and `bundlescan`.
 
@@ -163,6 +163,49 @@ CI runs `projecttest` and `bundlescan`.
   project and its client.
 - **Project tasks** can be worked by anyone on the project team, whatever
   their department.
+
+## Bug sweep before approval (2026-09-27)
+
+Three independent code reviews (APIs and security; screens; data model, jobs
+and seed) and a real-browser walk through every Phase 4 form found and fixed:
+
+- **Dates showed one day early everywhere** (all phases): date-only values
+  are stored at UTC midnight and were formatted on the New York clock. The
+  day-level formatters now show the stored calendar day (tested).
+- **Delay and deadline alerts reached only one person per project** (the
+  dedupe key wasn't per recipient) — now every team member and the founder.
+- **A manager's page source carried the client's recurring revenue** — now
+  founder-only, like the rest of the money.
+- **Legacy retainer cycles would have read as 0% and "delayed"** — they now
+  show their own progress and are not schedule-judged; the retainer
+  module's renewal and payment steps touch only retainer cycles; a renewed
+  cycle keeps its organization.
+- **Client health** used a UTC "end of day" and counted work on cancelled
+  projects — now the company clock, open projects only.
+- **The project activity feed missed most events** and could show a phantom
+  "took someone off the team" — now matched by record, named, no phantoms.
+- **Completing a later stage could leave two active stages** — the line's
+  first unfinished stage is always the current one (tested).
+- **Onboarding wasn't atomic** (a failure could leave a client to be
+  duplicated on retry) — one transaction now; the wizard's project length,
+  default dates and error step fixed.
+- Employees could publish a file straight to the client on upload; deleting
+  a project left its files on disk; milestone reassignment wasn't validated;
+  client edits couldn't clear optional fields; stale selections on the Team
+  tab could silently drop skills; the profile's figures didn't refresh after
+  edits; cancelled projects were missing from the board; several saves
+  could leave a spinner stuck on a network failure; cards were double
+  padded; a few smaller issues (search case, blank prices, retired skills,
+  duplicate-slug false errors, missing FK indexes).
+
+`projecttest` now has 65 checks (per-recipient alerts, first-unfinished
+stage, activity feed, employee file sharing). Unit tests 797.
+
+**Not changed, on purpose:** the 5 legacy e-commerce services in production
+stay in the catalog next to the new ones (retire them in Settings → Services
+if unwanted — changing live catalog data is your call); the activity feed
+searches the audit log by text, which is fine now and should get an index
+when the log grows large.
 
 ## Needs your decision
 

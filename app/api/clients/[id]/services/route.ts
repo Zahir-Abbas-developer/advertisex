@@ -25,7 +25,7 @@ export async function GET(_request: Request, { params }: { params: { id: string 
     select: { id: true, status: true, startDate: true, endDate: true, billing: true, price: true, service: { select: { id: true, name: true } } },
   });
   return NextResponse.json({
-    services: rows.map((r) => ({ ...r, price: money ? r.price : null })),
+    services: rows.map((r) => ({ ...r, price: money ? r.price : null, billing: money ? r.billing : null })),
     canManage: money,
   });
 }

@@ -591,6 +591,7 @@ model ClientCredential {
 
   @@index([organizationId])
   @@index([clientId])
+  @@index([createdById])
 }
 
 /// A note about a client. Pinned notes are the "important notes" at the top
@@ -611,6 +612,7 @@ model ClientNote {
 
   @@index([organizationId])
   @@index([clientId, pinned])
+  @@index([authorId])
 }
 
 // ---------------------------------------------------------------------------
@@ -948,6 +950,7 @@ model ProjectComment {
   author  User?   @relation("ProjectCommentAuthor", fields: [authorId], references: [id], onDelete: SetNull)
 
   @@index([projectId, createdAt])
+  @@index([authorId])
 }
 
 /// Which services a given engagement cycle covers. A join model rather than

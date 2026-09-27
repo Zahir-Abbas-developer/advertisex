@@ -3,6 +3,10 @@ import { describe, it } from "node:test";
 
 import {
   COMPANY_TIMEZONE,
+  formatDate,
+  formatDateLong,
+  formatWeekday,
+  isDateOnly,
   companyDayRange,
   rangeFromQuery,
   dueDeadline,
@@ -119,5 +123,22 @@ describe("companyDayRange / rangeFromQuery — date filters on the company calen
     assert.equal(rangeFromQuery(q("from=2026-09-30&to=2026-09-01"), 90, 400, "UTC"), null);
     assert.equal(rangeFromQuery(q("from=2020-01-01&to=2026-09-01"), 90, 400, "UTC"), null);
     assert.equal(rangeFromQuery(q("from=bad"), 90, 400, "UTC"), null);
+  });
+});
+
+describe("formatting date-only values as the day they name", () => {
+  it("shows a stored due date on its own day, not the evening before in New York", () => {
+    assert.equal(formatDate("2026-11-30"), "30 Nov 2026");
+    assert.equal(formatDate(new Date("2026-11-30T00:00:00.000Z")), "30 Nov 2026");
+    assert.equal(formatDate("2026-11-30T00:00:00.000Z"), "30 Nov 2026");
+    assert.equal(formatDateLong("2026-01-01"), "1 January 2026");
+    assert.equal(formatWeekday("2026-09-28"), "Monday");
+  });
+
+  it("still shows real timestamps on the company clock", () => {
+    // 02:30 UTC on 1 Dec is still 30 Nov in New York.
+    assert.equal(formatDate("2026-12-01T02:30:00.000Z"), "30 Nov 2026");
+    assert.equal(isDateOnly("2026-12-01T02:30:00.000Z"), false);
+    assert.equal(isDateOnly("2026-12-01"), true);
   });
 });

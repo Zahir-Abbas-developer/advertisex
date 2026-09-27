@@ -18,6 +18,7 @@ import { PriorityBadge, ProjectStatusBadge, progressTone, ScheduleBadge } from "
 import { formatDate } from "@/lib/date";
 import { cn } from "@/lib/utils";
 import { PROJECT_STATUS_LABEL, type ProjectStatus, type Schedule } from "@/modules/projects/domain";
+import { safeFetch } from "@/lib/safe-fetch";
 
 type Row = {
   id: string;
@@ -38,7 +39,7 @@ type Row = {
 };
 
 type Scope = "OPEN" | "COMPLETED" | "ALL";
-const BOARD_COLUMNS: ProjectStatus[] = ["PLANNING", "ACTIVE", "ON_HOLD", "COMPLETED"];
+const BOARD_COLUMNS: ProjectStatus[] = ["PLANNING", "ACTIVE", "ON_HOLD", "COMPLETED", "CANCELLED"];
 
 /**
  * Projects (Phase 4 scope 4): a list and a board by status. Delayed projects
@@ -56,7 +57,7 @@ export function ProjectsView({ canCreate, canSeeAnalytics }: { canCreate: boolea
   const load = useCallback(async () => {
     setRows(null);
     const q = new URLSearchParams({ status: scope === "COMPLETED" ? "COMPLETED" : scope, ...(mine ? { mine: "1" } : {}) });
-    const res = await fetch(`/api/projects?${q}`, { cache: "no-store" });
+    const res = await safeFetch(`/api/projects?${q}`, { cache: "no-store" });
     if (!res.ok) return setFailed(true);
     setFailed(false);
     setRows((await res.json()).projects);
@@ -150,8 +151,10 @@ export function ProjectsView({ canCreate, canSeeAnalytics }: { canCreate: boolea
           />
         </div>
       ) : view === "board" ? (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {BOARD_COLUMNS.filter((c) => scope !== "OPEN" || c !== "COMPLETED").map((column) => {
+        <div className={cn("grid gap-4 md:grid-cols-2", scope === "ALL" ? "xl:grid-cols-5" : "xl:grid-cols-4")}>
+          {BOARD_COLUMNS.filter((c) =>
+            scope === "OPEN" ? c !== "COMPLETED" && c !== "CANCELLED" : scope === "COMPLETED" ? c === "COMPLETED" : true,
+          ).map((column) => {
             const items = visible.filter((r) => r.status === column);
             return (
               <section key={column} className="min-w-0 space-y-3" aria-label={PROJECT_STATUS_LABEL[column]}>

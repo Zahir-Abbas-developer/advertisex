@@ -28,6 +28,7 @@ import { PriorityBadge, progressTone, ProjectStatusBadge, ScheduleBadge } from "
 import type { ProjectPayload, ProjectViewer } from "@/components/projects/types";
 import { formatDate } from "@/lib/date";
 import { PROJECT_PRIORITIES, PROJECT_PRIORITY_LABEL, PROJECT_STATUS_LABEL, PROJECT_STATUSES, SCHEDULE_LABEL } from "@/modules/projects/domain";
+import { safeFetch } from "@/lib/safe-fetch";
 
 type Tab = "overview" | "plan" | "tasks" | "files" | "team" | "discussion" | "logins";
 
@@ -52,7 +53,7 @@ export function ProjectDetail({ projectId, viewerId }: { projectId: string; view
   const [tab, setTab] = useState<Tab>("overview");
 
   const load = useCallback(async () => {
-    const res = await fetch(`/api/projects/${projectId}`, { cache: "no-store" });
+    const res = await safeFetch(`/api/projects/${projectId}`, { cache: "no-store" });
     if (res.status === 404) return setStatus("missing");
     if (!res.ok) return setStatus("error");
     const body = await res.json();
@@ -65,17 +66,21 @@ export function ProjectDetail({ projectId, viewerId }: { projectId: string; view
     void load();
   }, [load]);
 
-  const patch = async (data: Record<string, unknown>, done: string) => {
-    const res = await fetch(`/api/projects/${projectId}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
+  const patch = async (data: Record<string, unknown>, done: string): Promise<boolean> => {
+    const res = await safeFetch(`/api/projects/${projectId}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
     const body = await res.json().catch(() => ({}));
-    if (!res.ok) return toast.error(body.error ?? "That change didn't save");
+    if (!res.ok) {
+      toast.error(Object.values((body.fields ?? {}) as Record<string, string>)[0] ?? body.error ?? "That change didn't save");
+      return false;
+    }
     toast.success(done);
     void load();
+    return true;
   };
 
   const remove = async () => {
     if (!project || !window.confirm(`Delete "${project.title}"? Its plan, milestones, discussion and files go with it. Tasks are kept, unlinked.`)) return;
-    const res = await fetch(`/api/projects/${projectId}`, { method: "DELETE" });
+    const res = await safeFetch(`/api/projects/${projectId}`, { method: "DELETE" });
     if (!res.ok) return toast.error("Couldn't delete the project");
     toast.success("Project deleted");
     router.push("/projects");
@@ -145,7 +150,7 @@ export function ProjectDetail({ projectId, viewerId }: { projectId: string; view
               <StatCard label="Open work" value={String(s.openMilestones + s.openTasks)} hint={`${s.openMilestones} milestones · ${s.openTasks} tasks`} />
             </div>
 
-            <Card>
+            <Card padded={false}>
               <CardHeader title="Progress" description={BASIS[s.progress.basis]} />
               <CardBody className="space-y-4">
                 <ProgressBar value={s.progress.percent} showValue tone={progressTone(s.schedule)} />
@@ -169,7 +174,7 @@ export function ProjectDetail({ projectId, viewerId }: { projectId: string; view
               </CardBody>
             </Card>
 
-            <Card>
+            <Card padded={false}>
               <CardHeader title="Upcoming work" description="Open milestones and tasks due in the next two weeks, overdue first." />
               <CardBody>
                 {project.upcoming.length ? (
@@ -198,15 +203,15 @@ export function ProjectDetail({ projectId, viewerId }: { projectId: string; view
           </div>
 
           <div className="min-w-0 space-y-6">
-            <Card>
+            <Card padded={false}>
               <CardHeader title="Details" />
               <CardBody className="space-y-4">
                 {viewer.canShape ? (
                   <>
                     <Select label="Status" value={project.status} onChange={(e) => void patch({ status: e.target.value }, "Status updated")} options={PROJECT_STATUSES.map((x) => ({ value: x, label: PROJECT_STATUS_LABEL[x] }))} />
                     <Select label="Priority" value={project.priority} onChange={(e) => void patch({ priority: e.target.value }, "Priority updated")} options={PROJECT_PRIORITIES.map((x) => ({ value: x, label: PROJECT_PRIORITY_LABEL[x] }))} />
-                    <DateField label="Start" value={project.startDate} onSave={(v) => void patch({ startDate: v }, "Start date moved")} />
-                    <DateField label="Deadline" value={project.deadline} onSave={(v) => void patch({ deadline: v }, "Deadline moved — the team was told")} />
+                    <DateField label="Start" value={project.startDate} onSave={(v) => patch({ startDate: v }, "Start date moved")} />
+                    <DateField label="Deadline" value={project.deadline} onSave={(v) => patch({ deadline: v }, "Deadline moved — the team was told")} />
                   </>
                 ) : (
                   <dl className="space-y-2 text-[13px]">
@@ -218,7 +223,7 @@ export function ProjectDetail({ projectId, viewerId }: { projectId: string; view
                 {project.completedAt && <p className="text-[12px] text-ink/45">Completed {formatDate(project.completedAt)}</p>}
               </CardBody>
             </Card>
-            <Card>
+            <Card padded={false}>
               <CardHeader title="Team" action={<button type="button" onClick={() => setTab("team")} className="text-[13px] text-brand hover:underline">Manage</button>} />
               <CardBody>
                 {project.team.length ? (
@@ -243,16 +248,16 @@ export function ProjectDetail({ projectId, viewerId }: { projectId: string; view
       {tab === "plan" && <ProjectPlan project={project} viewer={viewer} onChanged={load} />}
       {tab === "tasks" && <ProjectTasks project={project} viewer={viewer} onChanged={load} />}
       {tab === "files" && (
-        <Card>
+        <Card padded={false}>
           <CardBody>
-            <FilesPanel owner={{ projectId: project.id }} canUpload={viewer.canWork} canChangeVisibility={viewer.canShape} />
+            <FilesPanel owner={{ projectId: project.id }} canUpload={viewer.canWork} canChangeVisibility={viewer.canShape} viewerId={viewerId} />
           </CardBody>
         </Card>
       )}
       {tab === "team" && <ProjectTeam project={project} viewer={viewer} onChanged={load} />}
       {tab === "discussion" && <ProjectDiscussion projectId={project.id} canPost={viewer.canWork} viewerId={viewerId} />}
       {tab === "logins" && viewer.canSeeCredentials && (
-        <Card>
+        <Card padded={false}>
           <CardHeader title={`${project.client.businessName} logins`} />
           <CardBody>
             <CredentialsPanel clientId={project.client.id} />
@@ -272,13 +277,20 @@ function Row({ k, v }: { k: string; v: string }) {
   );
 }
 
-function DateField({ label, value, onSave }: { label: string; value: string; onSave: (v: string) => void }) {
+/** Saves on blur; a refused date snaps back to the saved one. */
+function DateField({ label, value, onSave }: { label: string; value: string; onSave: (v: string) => Promise<boolean> }) {
+  const [draft, setDraft] = useState(value);
+  useEffect(() => setDraft(value), [value]);
   return (
     <Input
       type="date"
       label={label}
-      defaultValue={value}
-      onBlur={(e) => e.target.value && e.target.value !== value && onSave(e.target.value)}
+      value={draft}
+      onChange={(e) => setDraft(e.target.value)}
+      onBlur={async () => {
+        if (!draft || draft === value) return setDraft(value);
+        if (!(await onSave(draft))) setDraft(value);
+      }}
     />
   );
 }

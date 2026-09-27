@@ -16,6 +16,7 @@ import { AXIS, CHART, CURSOR, TOOLTIP } from "@/components/charts/theme";
 import { ScheduleBadge } from "@/components/projects/shared/badges";
 import { formatDate } from "@/lib/date";
 import { PROJECT_STATUS_LABEL, type ProjectStatus, type Schedule } from "@/modules/projects/domain";
+import { safeFetch } from "@/lib/safe-fetch";
 
 type Payload = {
   totals: { active: number; completed: number; delayed: number; upcomingDeadlines: number; averageProgress: number | null };
@@ -34,7 +35,7 @@ export function ProjectsAnalytics() {
   const [failed, setFailed] = useState(false);
 
   const load = useCallback(async () => {
-    const res = await fetch("/api/projects/analytics", { cache: "no-store" });
+    const res = await safeFetch("/api/projects/analytics", { cache: "no-store" });
     if (!res.ok) return setFailed(true);
     setFailed(false);
     setData(await res.json());
@@ -66,7 +67,7 @@ export function ProjectsAnalytics() {
           </div>
 
           <div className="grid gap-6 lg:grid-cols-2 [&>*]:min-w-0">
-            <Card>
+            <Card padded={false}>
               <CardHeader title="Are we finishing as many projects as we start?" description="Projects started and completed per month" />
               <CardBody>
                 <div className="h-64">
@@ -84,7 +85,7 @@ export function ProjectsAnalytics() {
                 </div>
               </CardBody>
             </Card>
-            <Card>
+            <Card padded={false}>
               <CardHeader title="Where do projects stand?" description="Projects by status" />
               <CardBody>
                 <div className="h-64">
@@ -102,7 +103,7 @@ export function ProjectsAnalytics() {
             </Card>
           </div>
 
-          <Card>
+          <Card padded={false}>
             <CardHeader title="Delayed projects" description="Past their deadline, or more than 25 points behind the calendar." />
             {data.delayed.length ? (
               <TableShell>
@@ -145,7 +146,7 @@ export function ProjectsAnalytics() {
           </Card>
 
           <div className="grid gap-6 lg:grid-cols-2 [&>*]:min-w-0">
-            <Card>
+            <Card padded={false}>
               <CardHeader title="Upcoming deadlines" description="Open projects due in the next 14 days" />
               <CardBody>
                 {data.upcoming.length ? (
@@ -167,7 +168,7 @@ export function ProjectsAnalytics() {
                 )}
               </CardBody>
             </Card>
-            <Card>
+            <Card padded={false}>
               <CardHeader title="Assignments" description="Open projects, and open milestones and tasks inside them, per person" />
               <CardBody>
                 {data.assignments.length ? (

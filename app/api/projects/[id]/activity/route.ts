@@ -19,15 +19,30 @@ export async function GET(_request: Request, { params }: { params: { id: string 
   const found = await projectFor(gate.principal, params.id, "read");
   if (!found.project) return apiError("That project doesn't exist", 404);
 
+  // An update records only what changed, so rows are matched by the ids of
+  // the project's own records; deleted records are still found by the
+  // project id their creation or deletion recorded.
+  const [stages, milestones, tasks, files] = await Promise.all([
+    prisma.projectStage.findMany({ where: { projectId: params.id }, select: { id: true, name: true } }),
+    prisma.projectMilestone.findMany({ where: { projectId: params.id }, select: { id: true, title: true } }),
+    prisma.task.findMany({ where: { projectId: params.id }, select: { id: true, title: true } }),
+    prisma.file.findMany({ where: { projectId: params.id }, select: { id: true, filename: true } }),
+  ]);
+  const label = new Map<string, Record<string, string>>([
+    ...stages.map((x) => [x.id, { name: x.name }] as const),
+    ...milestones.map((x) => [x.id, { title: x.title }] as const),
+    ...tasks.map((x) => [x.id, { title: x.title }] as const),
+    ...files.map((x) => [x.id, { filename: x.filename }] as const),
+  ]);
   const marker = `"projectId":"${params.id}"`;
   const entries = await prisma.auditLog.findMany({
     where: {
       entityType: { in: TYPES },
-      OR: [{ entityId: params.id }, { afterJson: { contains: marker } }, { beforeJson: { contains: marker } }],
+      OR: [{ entityId: { in: [params.id, ...label.keys()] } }, { afterJson: { contains: marker } }, { beforeJson: { contains: marker } }],
     },
     orderBy: { createdAt: "desc" },
     take: 150,
-    select: { id: true, action: true, entityType: true, beforeJson: true, afterJson: true, createdAt: true, actorType: true, actor: { select: { name: true } } },
+    select: { id: true, action: true, entityType: true, entityId: true, beforeJson: true, afterJson: true, createdAt: true, actorType: true, actor: { select: { name: true } } },
   });
 
   const parse = (json: string | null) => {
@@ -37,7 +52,13 @@ export async function GET(_request: Request, { params }: { params: { id: string 
       return null;
     }
   };
-  const parsed = entries.map((e) => ({ ...e, before: parse(e.beforeJson), after: parse(e.afterJson) }));
+  // Names the diff left out (it holds only what changed) come from the record.
+  const parsed = entries.map((e) => {
+    const known = e.entityId ? label.get(e.entityId) : undefined;
+    const after = parse(e.afterJson);
+    const before = parse(e.beforeJson);
+    return { ...e, before: before && known ? { ...known, ...before } : before, after: after && known ? { ...known, ...after } : after };
+  });
   const userIds = new Set<string>();
   const serviceIds = new Set<string>();
   for (const e of parsed) {

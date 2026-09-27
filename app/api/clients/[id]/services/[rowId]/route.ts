@@ -3,7 +3,8 @@ import { z } from "zod";
 
 import { prisma } from "@/lib/prisma";
 import { apiError } from "@/lib/api";
-import { parseDateInput } from "@/lib/date";
+import { parseDateInput, startOfCompanyDay } from "@/lib/date";
+import { companyTimezone } from "@/lib/company-time";
 import { requireApi } from "@/modules/rbac/server";
 import { BILLING_CADENCES } from "@/modules/services/catalog";
 import { clientFor, seesMoney } from "@/modules/clients/server";
@@ -32,7 +33,13 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 
   const { count } = await prisma.clientService.updateMany({
     where: { id: params.rowId, clientId: params.id },
-    data: { ...rest, ...(end !== undefined ? { endDate: end } : {}), ...(rest.status === "ENDED" && end === undefined ? { endDate: new Date() } : {}) },
+    data: {
+      ...rest,
+      ...(end !== undefined ? { endDate: end } : {}),
+      // Ending without a date ends today (date-only); reactivating clears it.
+      ...(rest.status === "ENDED" && end === undefined ? { endDate: startOfCompanyDay(new Date(), await companyTimezone()) } : {}),
+      ...(rest.status === "ACTIVE" && end === undefined ? { endDate: null } : {}),
+    },
   });
   if (!count) return apiError("Not found", 404);
   return NextResponse.json({ ok: true });

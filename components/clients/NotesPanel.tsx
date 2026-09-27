@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Pin, PinOff, StickyNote, Trash2 } from "lucide-react";
 
 import { Avatar } from "@/components/ui/Avatar";
@@ -11,12 +12,14 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { Textarea } from "@/components/ui/Textarea";
 import { useToast } from "@/components/ui/Toast";
 import { formatDateTime } from "@/lib/date";
+import { safeFetch } from "@/lib/safe-fetch";
 
 type Note = { id: string; body: string; pinned: boolean; createdAt: string; author: { id: string; name: string; avatarColor: string } | null };
 
 /** Notes about a client. Pinned notes are shown as "important" on the overview. */
 export function NotesPanel({ clientId, canEdit, viewerId, isManager }: { clientId: string; canEdit: boolean; viewerId: string; isManager: boolean }) {
   const toast = useToast();
+  const router = useRouter();
   const [notes, setNotes] = useState<Note[] | null>(null);
   const [failed, setFailed] = useState(false);
   const [draft, setDraft] = useState("");
@@ -24,7 +27,7 @@ export function NotesPanel({ clientId, canEdit, viewerId, isManager }: { clientI
   const [busy, setBusy] = useState(false);
 
   const load = useCallback(async () => {
-    const res = await fetch(`/api/clients/${clientId}/notes`, { cache: "no-store" });
+    const res = await safeFetch(`/api/clients/${clientId}/notes`, { cache: "no-store" });
     if (!res.ok) return setFailed(true);
     setFailed(false);
     setNotes((await res.json()).notes);
@@ -37,7 +40,7 @@ export function NotesPanel({ clientId, canEdit, viewerId, isManager }: { clientI
   const add = async () => {
     if (!draft.trim()) return;
     setBusy(true);
-    const res = await fetch(`/api/clients/${clientId}/notes`, {
+    const res = await safeFetch(`/api/clients/${clientId}/notes`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ body: draft, pinned: pin }),
@@ -47,25 +50,29 @@ export function NotesPanel({ clientId, canEdit, viewerId, isManager }: { clientI
     setDraft("");
     setPin(false);
     void load();
+    // Pinned notes show on the overview.
+    router.refresh();
   };
 
   const update = async (n: Note, data: { pinned?: boolean }) => {
-    const res = await fetch(`/api/clients/${clientId}/notes/${n.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
+    const res = await safeFetch(`/api/clients/${clientId}/notes/${n.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
     if (!res.ok) return toast.error("Couldn't change that");
     void load();
+    router.refresh();
   };
 
   const remove = async (n: Note) => {
     if (!window.confirm("Delete this note?")) return;
-    const res = await fetch(`/api/clients/${clientId}/notes/${n.id}`, { method: "DELETE" });
+    const res = await safeFetch(`/api/clients/${clientId}/notes/${n.id}`, { method: "DELETE" });
     if (!res.ok) return toast.error((await res.json().catch(() => ({}))).error ?? "Couldn't delete it");
     void load();
+    router.refresh();
   };
 
   if (failed) return <ErrorState title="Notes didn't load" onRetry={() => void load()} />;
 
   return (
-    <Card>
+    <Card padded={false}>
       <CardBody className="space-y-5">
         {canEdit && (
           <div className="space-y-2">

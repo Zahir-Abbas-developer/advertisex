@@ -31,8 +31,10 @@ export async function PUT(request: Request, { params }: { params: { id: string }
 
   const before = await prisma.projectMember.findMany({ where: { projectId: params.id }, select: { userId: true } });
   const added = ids.filter((id) => !before.some((b) => b.userId === id));
+  const removed = before.filter((b) => !ids.includes(b.userId)).map((b) => b.userId);
   await prisma.$transaction([
-    prisma.projectMember.deleteMany({ where: { projectId: params.id, userId: { notIn: ids } } }),
+    // One row at a time, so the activity feed can say who left and who joined.
+    ...removed.map((userId) => prisma.projectMember.delete({ where: { projectId_userId: { projectId: params.id, userId } } })),
     ...added.map((userId) => prisma.projectMember.create({ data: { projectId: params.id, userId, role: userId === ownerId ? "LEAD" : "MEMBER" } })),
   ]);
   for (const userId of added.filter((id) => id !== gate.principal.id)) {

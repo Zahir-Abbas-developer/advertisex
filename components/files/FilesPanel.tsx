@@ -11,6 +11,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { useToast } from "@/components/ui/Toast";
 import { formatBytes } from "@/lib/utils";
 import { formatDate } from "@/lib/date";
+import { safeFetch } from "@/lib/safe-fetch";
 
 export type FileItem = {
   id: string;
@@ -35,11 +36,15 @@ export function FilesPanel({
   owner,
   canUpload,
   canChangeVisibility,
+  viewerId,
   compact = false,
 }: {
   owner: Owner;
   canUpload: boolean;
+  /** Founder and managers: share with the client, and remove anyone's file. */
   canChangeVisibility: boolean;
+  /** Everyone else removes only what they uploaded. */
+  viewerId?: string;
   compact?: boolean;
 }) {
   const toast = useToast();
@@ -53,7 +58,7 @@ export function FilesPanel({
   const query = new URLSearchParams(owner as Record<string, string>).toString();
 
   const load = useCallback(async () => {
-    const res = await fetch(`/api/files?${query}`, { cache: "no-store" });
+    const res = await safeFetch(`/api/files?${query}`, { cache: "no-store" });
     if (!res.ok) return setFailed(true);
     setFailed(false);
     setFiles((await res.json()).files);
@@ -67,7 +72,7 @@ export function FilesPanel({
   // Signed links last five minutes; refresh the list before opening a stale one.
   const fresh = async (file: FileItem): Promise<FileItem | null> => {
     if (Date.now() - loadedAt < 4 * 60_000) return file;
-    const res = await fetch(`/api/files?${query}`, { cache: "no-store" });
+    const res = await safeFetch(`/api/files?${query}`, { cache: "no-store" });
     if (!res.ok) return null;
     const list: FileItem[] = (await res.json()).files;
     setFiles(list);
@@ -81,8 +86,9 @@ export function FilesPanel({
     form.set("file", file);
     form.set("visibility", visibility);
     for (const [k, v] of Object.entries(owner)) form.set(k, v);
-    const res = await fetch("/api/files", { method: "POST", body: form });
+    const res = await safeFetch("/api/files", { method: "POST", body: form }).catch(() => null);
     setUploading(false);
+    if (!res) return toast.error("The upload didn't reach the server — check your connection");
     if (!res.ok) {
       toast.error((await res.json().catch(() => ({}))).error ?? "That file didn't upload");
       return;
@@ -93,7 +99,7 @@ export function FilesPanel({
 
   const toggle = async (file: FileItem) => {
     const next = file.visibility === "CLIENT" ? "INTERNAL" : "CLIENT";
-    const res = await fetch(`/api/files/${file.id}`, {
+    const res = await safeFetch(`/api/files/${file.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ visibility: next }),
@@ -105,7 +111,7 @@ export function FilesPanel({
 
   const remove = async (file: FileItem) => {
     if (!window.confirm(`Remove ${file.filename}? This can't be undone.`)) return;
-    const res = await fetch(`/api/files/${file.id}`, { method: "DELETE" });
+    const res = await safeFetch(`/api/files/${file.id}`, { method: "DELETE" });
     if (!res.ok) return toast.error((await res.json().catch(() => ({}))).error ?? "Couldn't remove that");
     toast.success("File removed");
     void load();
@@ -137,15 +143,17 @@ export function FilesPanel({
           <Button size="sm" variant="secondary" icon={<Upload className="h-4 w-4" />} loading={uploading} onClick={() => input.current?.click()}>
             Upload file
           </Button>
-          <label className="flex items-center gap-2 text-[13px] text-ink/60">
-            <input
-              type="checkbox"
-              className="accent-brand"
-              checked={visibility === "CLIENT"}
-              onChange={(e) => setVisibility(e.target.checked ? "CLIENT" : "INTERNAL")}
-            />
-            Visible to the client
-          </label>
+          {canChangeVisibility && (
+            <label className="flex items-center gap-2 text-[13px] text-ink/60">
+              <input
+                type="checkbox"
+                className="accent-brand"
+                checked={visibility === "CLIENT"}
+                onChange={(e) => setVisibility(e.target.checked ? "CLIENT" : "INTERNAL")}
+              />
+              Visible to the client
+            </label>
+          )}
           <span className="text-[12px] text-ink/40">Images, PDFs, documents and archives · up to 10 MB</span>
         </div>
       )}
@@ -196,7 +204,7 @@ export function FilesPanel({
                     {f.visibility === "CLIENT" ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4 text-data-1" />}
                   </button>
                 )}
-                {canUpload && (
+                {canUpload && (canChangeVisibility || (viewerId && f.uploader?.id === viewerId)) && (
                   <button type="button" onClick={() => void remove(f)} className="rounded p-1.5 text-ink/50 hover:bg-surface-2 hover:text-danger" aria-label={`Remove ${f.filename}`}>
                     <Trash2 className="h-4 w-4" />
                   </button>

@@ -4,6 +4,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { apiError } from "@/lib/api";
 import { formatDate, parseDateInput } from "@/lib/date";
+import { remove } from "@/lib/uploads";
 import { normalizeTaskStatus } from "@/modules/tasks/domain";
 import { authorize } from "@/modules/rbac/authorize";
 import { requireApi } from "@/modules/rbac/server";
@@ -157,7 +158,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   const existing = await prisma.project.findUniqueOrThrow({ where: { id: params.id }, select: { startDate: true, endDate: true, status: true, title: true, ownerId: true } });
   const start = d.startDate ? parseDateInput(d.startDate) : existing.startDate;
   const end = d.deadline ? parseDateInput(d.deadline) : existing.endDate;
-  if (!start || !end) return apiError("Please fix the highlighted fields", 422, { deadline: "Not a date" });
+  if (!start || !end) return apiError("Please fix the highlighted fields", 422, !start ? { startDate: "Not a date" } : { deadline: "Not a date" });
   if (end <= start) return apiError("Please fix the highlighted fields", 422, { deadline: "The deadline must be after the start" });
 
   if (d.ownerId) {
@@ -203,7 +204,10 @@ export async function DELETE(_request: Request, { params }: { params: { id: stri
   if (gate.response) return gate.response;
   const found = await projectFor(gate.principal, params.id, "delete");
   if (!found.project) return apiError("That project doesn't exist", found.status);
+  const files = await prisma.file.findMany({ where: { projectId: params.id }, select: { storedName: true } });
   await prisma.task.updateMany({ where: { projectId: params.id }, data: { projectId: null } });
   await prisma.project.delete({ where: { id: params.id } });
+  // The rows cascade; the stored bytes are removed here.
+  for (const f of files) await remove(f.storedName);
   return NextResponse.json({ ok: true });
 }

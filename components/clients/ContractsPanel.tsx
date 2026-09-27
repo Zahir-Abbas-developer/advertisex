@@ -16,6 +16,7 @@ import { useToast } from "@/components/ui/Toast";
 import { FilesPanel } from "@/components/files/FilesPanel";
 import { formatDate } from "@/lib/date";
 import { CONTRACT_STATUSES, CONTRACT_STATUS_LABEL, CONTRACT_STATUS_TONE, type ContractStatus } from "@/modules/clients/contracts";
+import { safeFetch } from "@/lib/safe-fetch";
 
 type Contract = {
   id: string;
@@ -37,7 +38,7 @@ export function ContractsPanel({ clientId }: { clientId: string }) {
   const [editing, setEditing] = useState<Contract | "new" | null>(null);
 
   const load = useCallback(async () => {
-    const res = await fetch(`/api/clients/${clientId}/contracts`, { cache: "no-store" });
+    const res = await safeFetch(`/api/clients/${clientId}/contracts`, { cache: "no-store" });
     if (!res.ok) return setFailed(true);
     const body = await res.json();
     setFailed(false);
@@ -51,7 +52,7 @@ export function ContractsPanel({ clientId }: { clientId: string }) {
 
   const remove = async (c: Contract) => {
     if (!window.confirm(`Delete "${c.title}" and its files?`)) return;
-    const res = await fetch(`/api/clients/${clientId}/contracts/${c.id}`, { method: "DELETE" });
+    const res = await safeFetch(`/api/clients/${clientId}/contracts/${c.id}`, { method: "DELETE" });
     if (!res.ok) return toast.error("Couldn't delete it");
     toast.success("Contract deleted");
     void load();
@@ -70,12 +71,12 @@ export function ContractsPanel({ clientId }: { clientId: string }) {
         </div>
       )}
       {rows.length === 0 ? (
-        <Card>
+        <Card padded={false}>
           <EmptyState icon={FileSignature} title="No contracts yet" description="Record the agreement, its dates and its status, and attach the signed copy." />
         </Card>
       ) : (
         rows.map((c) => (
-          <Card key={c.id}>
+          <Card padded={false} key={c.id}>
             <CardHeader
               title={
                 <span className="flex flex-wrap items-center gap-2">
@@ -155,7 +156,7 @@ function ContractModal({ clientId, contract, seesValue, onClose, onSaved }: { cl
       notes: form.notes || null,
       ...(seesValue ? { value: Number(form.value || 0) } : {}),
     };
-    const res = await fetch(contract ? `/api/clients/${clientId}/contracts/${contract.id}` : `/api/clients/${clientId}/contracts`, {
+    const res = await safeFetch(contract ? `/api/clients/${clientId}/contracts/${contract.id}` : `/api/clients/${clientId}/contracts`, {
       method: contract ? "PATCH" : "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),

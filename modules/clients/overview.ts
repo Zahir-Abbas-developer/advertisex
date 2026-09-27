@@ -1,4 +1,6 @@
 import { prisma } from "@/lib/prisma";
+import { companyTimezone } from "@/lib/company-time";
+import { dueDeadline } from "@/lib/date";
 import { normalizeTaskStatus } from "@/modules/tasks/domain";
 import { clientHealth, type Health } from "@/modules/clients/health";
 import { monthlyEquivalent } from "@/modules/services/catalog";
@@ -38,16 +40,17 @@ export async function clientOverviews(clientIds: readonly string[], now = new Da
     prisma.contract.findMany({ where: { clientId: { in: ids } }, select: { clientId: true, status: true, endDate: true } }),
   ]);
   const open = projects.filter((p) => isOpenProject(p.status));
-  const [summaries, milestones, tasks] = await Promise.all([
+  const [summaries, milestones, tasks, timeZone] = await Promise.all([
     summarize(open, now),
     prisma.projectMilestone.findMany({
       where: { project: { clientId: { in: ids } }, dueDate: { not: null } },
-      select: { status: true, dueDate: true, completedAt: true, project: { select: { clientId: true } } },
+      select: { status: true, dueDate: true, completedAt: true, project: { select: { clientId: true, status: true } } },
     }),
     prisma.task.findMany({
       where: { clientId: { in: ids }, dueAt: { not: null } },
-      select: { clientId: true, status: true, dueAt: true, completedAt: true },
+      select: { clientId: true, status: true, dueAt: true, completedAt: true, project: { select: { status: true } } },
     }),
+    companyTimezone(),
   ]);
 
   for (const clientId of ids) {
@@ -60,10 +63,13 @@ export async function clientOverviews(clientIds: readonly string[], now = new Da
       ...milestones.filter((m) => m.project.clientId === clientId && m.status === "DONE" && m.completedAt).map((m) => ({ due: m.dueDate!, at: m.completedAt! })),
       ...tasks.filter((t) => t.clientId === clientId && normalizeTaskStatus(t.status) === "COMPLETED" && t.completedAt).map((t) => ({ due: t.dueAt!, at: t.completedAt! })),
     ];
-    const endOfDay = (d: Date) => d.getTime() + 86_400_000;
+    // The end of the due day on the company clock, as everywhere else.
+    const endOfDay = (d: Date) => dueDeadline(d, timeZone).getTime();
+    // Open work only counts while its project is open: a cancelled or
+    // completed project's leftovers are not overdue work.
     const overdueItems =
-      milestones.filter((m) => m.project.clientId === clientId && m.status !== "DONE" && endOfDay(m.dueDate!) < now.getTime()).length +
-      tasks.filter((t) => t.clientId === clientId && normalizeTaskStatus(t.status) !== "COMPLETED" && endOfDay(t.dueAt!) < now.getTime()).length;
+      milestones.filter((m) => m.project.clientId === clientId && isOpenProject(m.project.status) && m.status !== "DONE" && endOfDay(m.dueDate!) < now.getTime()).length +
+      tasks.filter((t) => t.clientId === clientId && (!t.project || isOpenProject(t.project.status)) && normalizeTaskStatus(t.status) !== "COMPLETED" && endOfDay(t.dueAt!) < now.getTime()).length;
 
     const health = clientHealth({
       projects: mine.map((p) => {

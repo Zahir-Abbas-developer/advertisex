@@ -74,12 +74,13 @@ export function ClientEditModal({
       businessName: draft.businessName,
       contactName: draft.contactName,
       email: draft.email,
-      phone: draft.phone || undefined,
-      country: draft.country || undefined,
-      industry: draft.industry || undefined,
+      // Empty means cleared: null, so the save removes the old value.
+      phone: draft.phone || null,
+      country: draft.country || null,
+      industry: draft.industry || null,
       monthlyBudget: Number(draft.monthlyBudget || 0),
       status: draft.status,
-      notes: draft.notes || undefined,
+      notes: draft.notes || null,
       autoRenew: draft.autoRenew,
       // Blank means "use the company default", which is null — not zero.
       targetRoas: draft.targetRoas === "" ? null : Number(draft.targetRoas),

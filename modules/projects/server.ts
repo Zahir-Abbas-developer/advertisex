@@ -11,6 +11,7 @@ import { storedRoleValues, type Action, type Role } from "@/config/permissions";
 import { FALLBACK_STAGES } from "@/modules/services/catalog";
 import {
   daysOverdue,
+  normalizeProjectStatus,
   projectProgress,
   projectSchedule,
   type Progress,
@@ -89,12 +90,21 @@ export async function summarize(
   const out = new Map<string, ProjectSummary>();
   if (ids.length === 0) return out;
 
-  const [timeZone, milestones, tasks, stages] = await Promise.all([
+  const [timeZone, milestones, tasks, stages, legacy] = await Promise.all([
     companyTimezone(),
     prisma.projectMilestone.findMany({ where: { projectId: { in: ids } }, select: { projectId: true, weight: true, status: true } }),
     prisma.task.findMany({ where: { projectId: { in: ids } }, select: { projectId: true, status: true } }),
     prisma.projectStage.findMany({ where: { projectId: { in: ids } }, select: { projectId: true, status: true } }),
+    // Retainer cycles keep their work in the parked module's milestones.
+    prisma.milestone.findMany({ where: { module: { projectId: { in: ids } } }, select: { status: true, module: { select: { projectId: true } } } }),
   ]);
+  const legacyByProject = new Map<string, { total: number; done: number }>();
+  for (const m of legacy) {
+    const row = legacyByProject.get(m.module.projectId) ?? { total: 0, done: 0 };
+    row.total += 1;
+    if (m.status === "COMPLETED") row.done += 1;
+    legacyByProject.set(m.module.projectId, row);
+  }
 
   const group = <T extends { projectId: string | null }>(rows: T[]) => {
     const m = new Map<string, T[]>();
@@ -106,6 +116,21 @@ export async function summarize(
   const ss = group(stages);
 
   for (const p of projects) {
+    const retainer = legacyByProject.get(p.id);
+    if (retainer) {
+      // A retainer cycle: progress from its own milestones, and no schedule
+      // judgement — its lifecycle belongs to the parked retainer module.
+      const percent = normalizeProjectStatus(p.status) === "COMPLETED" ? 100 : retainer.total ? Math.floor((retainer.done / retainer.total) * 100) : 0;
+      out.set(p.id, {
+        progress: { percent, basis: "work", done: retainer.done, total: retainer.total },
+        schedule: "CLOSED",
+        daysOverdue: 0,
+        deadline: dueDeadline(p.endDate, timeZone),
+        openMilestones: retainer.total - retainer.done,
+        openTasks: 0,
+      });
+      continue;
+    }
     const m = (ms.get(p.id) ?? []).map((x) => ({ weight: x.weight, done: x.status === "DONE" }));
     const t = (ts.get(p.id) ?? []).map((x) => ({ done: normalizeTaskStatus(x.status) === "COMPLETED" }));
     const progress = projectProgress({ status: p.status, milestones: m, tasks: t, stages: (ss.get(p.id) ?? []).map((x) => ({ done: x.status === "DONE" })) });
@@ -271,10 +296,10 @@ export async function notifyTeam(
 ) {
   const project = await prisma.project.findUnique({
     where: { id: projectId },
-    select: { ownerId: true, members: { select: { userId: true } } },
+    select: { ownerId: true, owner: { select: { isActive: true } }, members: { where: { user: { isActive: true } }, select: { userId: true } } },
   });
   if (!project) return 0;
-  const recipients = new Set([...(project.ownerId ? [project.ownerId] : []), ...project.members.map((m) => m.userId)]);
+  const recipients = new Set([...(project.ownerId && project.owner?.isActive ? [project.ownerId] : []), ...project.members.map((m) => m.userId)]);
   if (actorId) recipients.delete(actorId);
   let sent = 0;
   for (const userId of recipients) {

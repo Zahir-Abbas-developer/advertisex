@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
 import { Building2, Layers, Plus, Search, SlidersHorizontal } from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
@@ -36,8 +35,6 @@ export function ClientsBrowser({
   const [filter, setFilter] = useState<Filter>("ALL");
   const [department, setDepartment] = useState<string>("ALL");
   const [query, setQuery] = useState("");
-  const router = useRouter();
-  const searchParams = useSearchParams();
   const [wizardOpen, setWizardOpen] = useState(false);
 
   const load = useCallback(async () => {
@@ -250,6 +247,7 @@ export function ClientsBrowser({
                 variant="secondary"
                 onClick={() => {
                   setFilter("ALL");
+                  setDepartment("ALL");
                   setQuery("");
                 }}
               >

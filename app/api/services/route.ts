@@ -61,6 +61,14 @@ export async function POST(request: Request) {
   if (!parsed.success) return apiError("Please fix the highlighted fields", 422, fieldErrors(parsed.error));
   const d = parsed.data;
   const last = await prisma.serviceCatalog.findFirst({ orderBy: { order: "desc" }, select: { order: true } });
+  if (await prisma.serviceCatalog.findFirst({ where: { name: d.name }, select: { id: true } })) {
+    return apiError("A service with that name already exists", 409, { name: "Already in the catalogue" });
+  }
+  // The slug is frozen once made, so a renamed service can still hold the
+  // slug a new name would produce: take the first free one.
+  const base = slugifyService(d.name) || "service";
+  let slug = base;
+  for (let n = 2; await prisma.serviceCatalog.findFirst({ where: { slug }, select: { id: true } }); n++) slug = `${base}-${n}`;
   const stages = d.stages?.length ? d.stages : [...FALLBACK_STAGES];
 
   try {
@@ -70,7 +78,7 @@ export async function POST(request: Request) {
         name: d.name,
         description: d.description,
         // Derived once, then frozen: it keys nothing a rename should move.
-        slug: slugifyService(d.name),
+        slug,
         price: d.price,
         billing: d.billing,
         order: (last?.order ?? 0) + 1,

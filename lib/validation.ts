@@ -92,16 +92,16 @@ export const clientDetailsSchema = z.object({
   /// The business line this client belongs to. Required at creation: a client
   /// with no department is invisible to every department-scoped query.
   departmentId: z.string().min(1, "Pick a department"),
-  phone: z.string().trim().max(40, "Phone must be 40 characters or fewer").optional(),
-  country: z.string().trim().max(60, "Country must be 60 characters or fewer").optional(),
-  industry: z.string().trim().max(60, "Industry must be 60 characters or fewer").optional(),
+  phone: z.string().trim().max(40, "Phone must be 40 characters or fewer").nullish(),
+  country: z.string().trim().max(60, "Country must be 60 characters or fewer").nullish(),
+  industry: z.string().trim().max(60, "Industry must be 60 characters or fewer").nullish(),
   monthlyBudget: z
     .number({ invalid_type_error: "Enter a monthly budget" })
     .int("Use whole currency units")
     .min(0, "Budget cannot be negative")
     .max(10_000_000, "That budget looks wrong"),
   status: z.enum(CLIENT_STATUSES).default("ACTIVE"),
-  notes: z.string().trim().max(5000, "Notes must be 5000 characters or fewer").optional(),
+  notes: z.string().trim().max(5000, "Notes must be 5000 characters or fewer").nullish(),
   /** Off means the nightly job never opens a new cycle for this client. */
   autoRenew: z.boolean().optional(),
   /** Null means "use the company default" rather than "no target". */

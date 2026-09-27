@@ -15,6 +15,7 @@ import { Textarea } from "@/components/ui/Textarea";
 import { useToast } from "@/components/ui/Toast";
 import { cn } from "@/lib/utils";
 import { BILLING_CADENCES, BILLING_LABEL, type Billing } from "@/modules/services/catalog";
+import { safeFetch } from "@/lib/safe-fetch";
 
 type Service = {
   id: string;
@@ -40,11 +41,11 @@ export function ServicesCatalogManager() {
   const [editing, setEditing] = useState<Service | "new" | null>(null);
 
   const load = useCallback(async () => {
-    const [s, k] = await Promise.all([fetch("/api/services?all=1", { cache: "no-store" }), fetch("/api/skills")]);
+    const [s, k] = await Promise.all([safeFetch("/api/services?all=1", { cache: "no-store" }), safeFetch("/api/skills")]);
     if (!s.ok) return setFailed(true);
     setFailed(false);
     setServices((await s.json()).services);
-    if (k.ok) setSkills((await k.json()).skills ?? []);
+    if (k.ok) setSkills(((await k.json()).skills ?? []).filter((x: Skill & { isActive?: boolean }) => x.isActive !== false));
   }, []);
 
   useEffect(() => {
@@ -65,13 +66,13 @@ export function ServicesCatalogManager() {
         </Button>
       </div>
       {services.length === 0 ? (
-        <Card>
+        <Card padded={false}>
           <EmptyState icon={Layers} title="No services yet" description="Add what you sell; projects are planned from it." />
         </Card>
       ) : (
         <div className="grid gap-4 lg:grid-cols-2">
           {services.map((s) => (
-            <Card key={s.id} className={cn(!s.isActive && "opacity-60")}>
+            <Card padded={false} key={s.id} className={cn(!s.isActive && "opacity-60")}>
               <CardHeader
                 title={
                   <span className="flex items-center gap-2">
@@ -129,26 +130,29 @@ function ServiceModal({ service, skills, onClose, onSaved }: { service: Service 
   });
   const [busy, setBusy] = useState(false);
 
+  // Set once the service exists, so a retry after a partial failure updates
+  // it instead of trying to create it a second time.
+  const [savedId, setSavedId] = useState<string | null>(service?.id ?? null);
+
   const save = async () => {
     const stages = form.stages.split("\n").map((x) => x.trim()).filter(Boolean);
     if (!stages.length) return toast.error("Keep at least one stage");
     setBusy(true);
-    const json = (url: string, method: string, body: unknown) => fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-    let id = service?.id;
-    const core = { name: form.name, description: form.description || undefined, price: Number(form.price || 0), billing: form.billing };
-    const res = service ? await json(`/api/services/${service.id}`, "PATCH", { ...core, isActive: form.isActive }) : await json("/api/services", "POST", { ...core, stages });
+    const json = (url: string, method: string, body: unknown) => safeFetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    const core = { name: form.name, price: Number(form.price || 0), billing: form.billing };
+    const res = savedId
+      ? await json(`/api/services/${savedId}`, "PATCH", { ...core, description: form.description, ...(service ? { isActive: form.isActive } : {}) })
+      : await json("/api/services", "POST", { ...core, ...(form.description ? { description: form.description } : {}), stages });
     const body = await res.json().catch(() => ({}));
     if (!res.ok) {
       setBusy(false);
       return toast.error(body.error ?? "Couldn't save the service");
     }
-    id = id ?? body.service.id;
-    const results = await Promise.all([
-      service ? json(`/api/services/${id}/stages`, "PUT", { stages }) : Promise.resolve({ ok: true }),
-      json(`/api/services/${id}/skills`, "PUT", { skillIds: form.skillIds }),
-    ]);
+    const id = savedId ?? body.service.id;
+    setSavedId(id);
+    const results = await Promise.all([json(`/api/services/${id}/stages`, "PUT", { stages }), json(`/api/services/${id}/skills`, "PUT", { skillIds: form.skillIds })]);
     setBusy(false);
-    if (results.some((r) => !r.ok)) return toast.error("Saved, but the stages or skills didn't update");
+    if (results.some((r) => !r.ok)) return toast.error("Saved, but the stages or skills didn't update — save again to retry");
     toast.success(service ? "Service updated" : "Service added");
     onSaved();
   };

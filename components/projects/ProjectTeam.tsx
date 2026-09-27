@@ -11,6 +11,7 @@ import { Select } from "@/components/ui/Select";
 import { useToast } from "@/components/ui/Toast";
 import type { ProjectPayload, ProjectViewer } from "@/components/projects/types";
 import { cn } from "@/lib/utils";
+import { safeFetch } from "@/lib/safe-fetch";
 
 type Person = { id: string; name: string; jobTitle: string | null; avatarColor: string; isAgent: boolean; skills: { id: string; name: string; proficiency: number }[] };
 type Service = { id: string; name: string; skills: { id: string; name: string }[] };
@@ -30,16 +31,24 @@ export function ProjectTeam({ project, viewer, onChanged }: { project: ProjectPa
   const [serviceIds, setServiceIds] = useState(project.services.map((s) => s.id));
   const [skillIds, setSkillIds] = useState(project.skills.map((s) => s.id));
 
+  // After any save the project is refetched; the selections follow it, so a
+  // later save never sends a list from before the last one.
+  useEffect(() => {
+    setMembers(project.team.map((m) => m.id));
+    setServiceIds(project.services.map((s) => s.id));
+    setSkillIds(project.skills.map((s) => s.id));
+  }, [project]);
+
   useEffect(() => {
     if (!viewer.canShape) return;
     void Promise.all([
-      fetch("/api/projects/people").then((r) => (r.ok ? r.json() : { people: [] })),
-      fetch("/api/services").then((r) => (r.ok ? r.json() : { services: [] })),
-      fetch("/api/skills").then((r) => (r.ok ? r.json() : { skills: [] })),
+      safeFetch("/api/projects/people").then((r) => (r.ok ? r.json() : { people: [] })),
+      safeFetch("/api/services").then((r) => (r.ok ? r.json() : { services: [] })),
+      safeFetch("/api/skills").then((r) => (r.ok ? r.json() : { skills: [] })),
     ]).then(([p, s, k]) => {
       setPeople(p.people);
       setServices(s.services);
-      setSkills(k.skills ?? []);
+      setSkills((k.skills ?? []).filter((x: Skill & { isActive?: boolean }) => x.isActive !== false));
     });
   }, [viewer.canShape]);
 
@@ -50,7 +59,7 @@ export function ProjectTeam({ project, viewer, onChanged }: { project: ProjectPa
   }, [people, project.skills, project.team]);
 
   const put = async (url: string, body: unknown, done: string) => {
-    const res = await fetch(url, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    const res = await safeFetch(url, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) return toast.error(data.error ?? "That didn't save");
     toast.success(done);
@@ -61,7 +70,7 @@ export function ProjectTeam({ project, viewer, onChanged }: { project: ProjectPa
 
   return (
     <div className="grid gap-6 lg:grid-cols-2">
-      <Card>
+      <Card padded={false}>
         <CardHeader title="Team" description={viewer.canShape ? "Pick who works on this project. People with the required skills are listed first." : undefined} />
         <CardBody className="space-y-4">
           {viewer.canShape && people.length > 0 ? (
@@ -93,7 +102,7 @@ export function ProjectTeam({ project, viewer, onChanged }: { project: ProjectPa
                     label="Owner"
                     value={project.owner?.id ?? ""}
                     onChange={async (e) => {
-                      const res = await fetch(`/api/projects/${project.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ownerId: e.target.value || null }) });
+                      const res = await safeFetch(`/api/projects/${project.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ownerId: e.target.value || null }) });
                       if (!res.ok) return toast.error("Couldn't change the owner");
                       toast.success("Owner changed");
                       onChanged();
@@ -123,7 +132,7 @@ export function ProjectTeam({ project, viewer, onChanged }: { project: ProjectPa
       </Card>
 
       <div className="space-y-6">
-        <Card>
+        <Card padded={false}>
           <CardHeader title="Required skills" description="Derived from the services; add or remove as the work needs." />
           <CardBody className="space-y-4">
             <ul className="flex flex-wrap gap-1.5">
@@ -158,7 +167,7 @@ export function ProjectTeam({ project, viewer, onChanged }: { project: ProjectPa
         </Card>
 
         {viewer.canShape && services.length > 0 && (
-          <Card>
+          <Card padded={false}>
             <CardHeader title="Services" description="Adding a service adds its stages and skills; removing one removes its stages." />
             <CardBody className="space-y-4">
               <div className="flex flex-wrap gap-1.5">

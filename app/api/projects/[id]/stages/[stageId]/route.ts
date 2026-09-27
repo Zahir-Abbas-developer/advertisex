@@ -70,7 +70,9 @@ export async function DELETE(_request: Request, { params }: { params: { id: stri
   if (!found.project) return apiError("That project doesn't exist", found.status);
   if (!canShapeProject(gate.principal, found.project)) return apiError("Only the founder and managers change the plan", 403);
 
-  const { count } = await prisma.projectStage.deleteMany({ where: { id: params.stageId, projectId: params.id } });
-  if (!count) return apiError("That stage doesn't exist", 404);
+  const existing = await prisma.projectStage.findFirst({ where: { id: params.stageId, projectId: params.id }, select: { id: true } });
+  if (!existing) return apiError("That stage doesn't exist", 404);
+  // A single-row delete, so the audit entry keeps what was removed.
+  await prisma.projectStage.delete({ where: { id: existing.id } });
   return NextResponse.json({ ok: true });
 }

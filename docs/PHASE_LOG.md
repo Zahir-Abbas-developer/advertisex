@@ -17,6 +17,8 @@ phase → status → done → next → blockers.*
 
 **Gate:** all green (793 unit, every harness, build, bundle scan, empty smoke); new screens checked in a browser at 375/768/1280 (a 375px overflow in Phase 2's Team directory found and fixed).
 
+**Bug sweep (same day, before approval):** three code reviews plus a browser walk of every form; ~30 fixes including a system-wide one-day-early date display, single-recipient delay alerts, a revenue figure in a manager's page source, legacy retainer cycles reading as delayed, and non-atomic onboarding. Gate green again (797 unit, projecttest 65). See the report's "Bug sweep" section.
+
 **Needs the founder:** production `VAULT_KEY`; a file storage bucket; what to do with any legacy retainer projects (and whether the retainer code can now be deleted); the Phase 3 stage-mapping decision.
 
 **Carried:** `smoke:browser`; the Neon backup before the first deploy.

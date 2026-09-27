@@ -28,23 +28,36 @@ function isValid(date: Date): boolean {
   return !Number.isNaN(date.getTime());
 }
 
-function format(value: DateInput, options: Intl.DateTimeFormatOptions): string {
+function format(value: DateInput, options: Intl.DateTimeFormatOptions, timeZone: string = COMPANY_TIMEZONE): string {
   const date = toDate(value);
   if (!isValid(date)) return "—";
-  return new Intl.DateTimeFormat("en-GB", {
-    timeZone: COMPANY_TIMEZONE,
-    ...options,
-  }).format(date);
+  return new Intl.DateTimeFormat("en-GB", { timeZone, ...options }).format(date);
+}
+
+/**
+ * A date-only value — "2026-11-30", or the UTC midnight it is stored as — is
+ * a calendar day, not an instant. Rendered in New York it would read as the
+ * previous evening, one day early. Day-level formatters show it as the day it
+ * names; real timestamps are shown on the company clock.
+ */
+export function isDateOnly(value: DateInput): boolean {
+  if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) return true;
+  const date = toDate(value);
+  return isValid(date) && date.getTime() % DAY_MS === 0;
+}
+
+function formatDay(value: DateInput, options: Intl.DateTimeFormatOptions): string {
+  return format(value, options, isDateOnly(value) ? "UTC" : COMPANY_TIMEZONE);
 }
 
 /** "8 Aug 2026" — the default for table cells and metadata. */
 export function formatDate(value: DateInput): string {
-  return format(value, { day: "numeric", month: "short", year: "numeric" });
+  return formatDay(value, { day: "numeric", month: "short", year: "numeric" });
 }
 
 /** "8 August 2026" — for headers and detail pages. */
 export function formatDateLong(value: DateInput): string {
-  return format(value, { day: "numeric", month: "long", year: "numeric" });
+  return formatDay(value, { day: "numeric", month: "long", year: "numeric" });
 }
 
 /** "8 Aug 2026, 14:30" */
@@ -61,12 +74,12 @@ export function formatDateTime(value: DateInput): string {
 
 /** "August 2026" — retainer cycle labels. */
 export function formatMonth(value: DateInput): string {
-  return format(value, { month: "long", year: "numeric" });
+  return formatDay(value, { month: "long", year: "numeric" });
 }
 
 /** "Friday" */
 export function formatWeekday(value: DateInput): string {
-  return format(value, { weekday: "long" });
+  return formatDay(value, { weekday: "long" });
 }
 
 /**

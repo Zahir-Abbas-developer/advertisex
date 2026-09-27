@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { PriorityBadge, ProjectStatusBadge, progressTone, ScheduleBadge } from "@/components/projects/shared/badges";
 import { formatDate } from "@/lib/date";
 import type { Schedule } from "@/modules/projects/domain";
+import { safeFetch } from "@/lib/safe-fetch";
 
 type Row = {
   id: string;
@@ -32,7 +33,7 @@ export function ClientProjectsPanel({ clientId, canCreate, onNew }: { clientId: 
   const [failed, setFailed] = useState(false);
 
   const load = useCallback(async () => {
-    const res = await fetch(`/api/projects?clientId=${clientId}&status=ALL`, { cache: "no-store" });
+    const res = await safeFetch(`/api/projects?clientId=${clientId}&status=ALL`, { cache: "no-store" });
     if (!res.ok) return setFailed(true);
     setFailed(false);
     const list: Row[] = (await res.json()).projects;
@@ -48,7 +49,7 @@ export function ClientProjectsPanel({ clientId, canCreate, onNew }: { clientId: 
   if (!rows) return <Skeleton className="h-40 rounded-card" />;
   if (rows.length === 0) {
     return (
-      <Card>
+      <Card padded={false}>
         <EmptyState
           icon={FolderKanban}
           title="No projects yet"

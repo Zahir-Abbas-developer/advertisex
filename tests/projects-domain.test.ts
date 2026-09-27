@@ -115,6 +115,17 @@ describe("stages", () => {
     assert.deepEqual(stageMove(stages, "w3", "DONE"), [{ id: "w3", status: "DONE" }]);
   });
 
+  it("completing a later stage never leaves two active stages — the first unfinished stays current", () => {
+    const line = [
+      { id: "a", serviceId: "web", order: 0, status: "ACTIVE" },
+      { id: "b", serviceId: "web", order: 1, status: "PENDING" },
+      { id: "c", serviceId: "web", order: 2, status: "PENDING" },
+    ];
+    const changes = stageMove(line, "b", "DONE");
+    const after = line.map((s) => changes.find((c) => c.id === s.id)?.status ?? s.status);
+    assert.deepEqual(after, ["ACTIVE", "DONE", "PENDING"]);
+  });
+
   it("starting a stage leaves one active stage per line", () => {
     assert.deepEqual(stageMove(stages, "w3", "ACTIVE"), [{ id: "w3", status: "ACTIVE" }, { id: "w2", status: "PENDING" }]);
     assert.deepEqual(stageMove(stages, "nope", "DONE"), []);

@@ -51,6 +51,10 @@ export async function POST(request: Request) {
 
   const visibility = String(form.get("visibility") ?? "INTERNAL") as FileVisibility;
   if (!FILE_VISIBILITIES.includes(visibility)) return apiError("Visibility is INTERNAL or CLIENT", 422, { visibility: "Pick who can see it" });
+  // Sharing with the client is the founder's and managers' call, on upload as on change.
+  if (visibility === "CLIENT" && gate.principal.role === "EMPLOYEE") {
+    return apiError("Only the founder and managers share files with the client", 403, { visibility: "Upload it as internal" });
+  }
 
   const upload = form.get("file");
   if (!(upload instanceof File) || upload.size === 0) return apiError("Choose a file to upload", 422, { file: "No file received" });

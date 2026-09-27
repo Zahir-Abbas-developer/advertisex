@@ -12,9 +12,9 @@ import { Textarea } from "@/components/ui/Textarea";
 import { DepartmentPicker } from "@/components/fields/DepartmentPicker";
 import type { CreatableDepartment } from "@/lib/departments";
 import { CLIENT_STATUSES, CLIENT_STATUS_LABEL, INDUSTRIES } from "@/lib/constants";
-import { addDays, formatDate, toDateInput } from "@/lib/date";
+import { addDays, COMPANY_TIMEZONE, formatDate, startOfCompanyDay, toDateInput } from "@/lib/date";
 import { clientDetailsSchema, fieldErrors } from "@/lib/validation";
-import { PROJECT_LENGTH_DAYS } from "@/lib/constants";
+import { FIRST_PROJECT_DAYS } from "@/modules/projects/domain";
 import { cn } from "@/lib/utils";
 import type { ServiceSummary } from "@/lib/types";
 
@@ -43,6 +43,9 @@ type Draft = {
   startDate: string;
 };
 
+/** The fields step 1 asks for — a server error on one of these reopens it. */
+const STEP_ONE_FIELDS = new Set(["departmentId", "businessName", "contactName", "email", "phone", "country", "industry", "monthlyBudget", "status", "notes"]);
+
 function emptyDraft(): Draft {
   const today = new Date();
   return {
@@ -58,11 +61,12 @@ function emptyDraft(): Draft {
     notes: "",
     serviceIds: [],
     projectTitle: `${new Intl.DateTimeFormat("en-GB", {
-      timeZone: "Asia/Karachi",
+      timeZone: COMPANY_TIMEZONE,
       month: "short",
       year: "numeric",
-    }).format(today)} Retainer`,
-    startDate: toDateInput(today),
+    }).format(today)} onboarding`,
+    // Today on the company calendar, not in UTC (which runs ahead of New York each evening).
+    startDate: toDateInput(startOfCompanyDay(today)),
   };
 }
 
@@ -200,6 +204,14 @@ export function ClientWizard({
 
   async function submit() {
     setFormError(null);
+    if (draft.projectTitle.trim().length < 2) {
+      setErrors({ projectTitle: "Name the first project" });
+      return;
+    }
+    if (!draft.startDate) {
+      setErrors({ startDate: "Pick a start date" });
+      return;
+    }
     setSaving(true);
 
     try {
@@ -229,20 +241,16 @@ export function ClientWizard({
         if (body?.fields) {
           setErrors(body.fields);
           // Send them back to the step that actually holds the bad field.
-          if (Object.keys(body.fields).some((key) => key in emptyDraft() && key !== "serviceIds")) {
-            setStep(1);
-          }
+          const keys = Object.keys(body.fields);
+          if (keys.some((key) => STEP_ONE_FIELDS.has(key))) setStep(1);
+          else if (keys.includes("serviceIds")) setStep(2);
         }
         setFormError(body?.error ?? "Something went wrong. Please try again.");
         return;
       }
 
       onClose();
-      // Land on the new project's plan, per the brief.
-
-      // The server picks the destination: the plan when the retainer-projects
-      // module is on, otherwise the client's own page — never a page that
-      // would announce a disabled module right after a successful save.
+      // Land on the new client's profile, where the first project is waiting.
       router.push(body.next ?? `/clients/${body.client.id}`);
       router.refresh();
     } catch {
@@ -254,7 +262,7 @@ export function ClientWizard({
 
   const endDate = useMemo(() => {
     const start = new Date(`${draft.startDate}T00:00:00.000Z`);
-    return Number.isNaN(start.getTime()) ? null : addDays(start, PROJECT_LENGTH_DAYS);
+    return Number.isNaN(start.getTime()) ? null : addDays(start, FIRST_PROJECT_DAYS);
   }, [draft.startDate]);
 
   return (
@@ -530,7 +538,7 @@ export function ClientWizard({
             disabled={saving}
             hint={
               endDate
-                ? `Runs ${PROJECT_LENGTH_DAYS} days, ending ${formatDate(endDate)}.`
+                ? `Runs ${FIRST_PROJECT_DAYS} days, ending ${formatDate(endDate)}.`
                 : undefined
             }
           />

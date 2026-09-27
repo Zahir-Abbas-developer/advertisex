@@ -20,7 +20,9 @@ import { summarize } from "@/modules/projects/server";
  */
 export async function sweepProjects(now: Date) {
   const projects = await prisma.project.findMany({
-    where: { status: { in: [...OPEN_PROJECT_STATUSES] } },
+    // Retainer cycles (legacy workstreams) have their own lifecycle and no
+    // Phase 4 plan; judged here they would all read as 0% and delayed.
+    where: { status: { in: [...OPEN_PROJECT_STATUSES] }, modules: { none: {} } },
     select: {
       id: true,
       organizationId: true,
@@ -31,7 +33,8 @@ export async function sweepProjects(now: Date) {
       delayedAt: true,
       ownerId: true,
       client: { select: { businessName: true } },
-      members: { select: { userId: true } },
+      owner: { select: { isActive: true } },
+      members: { where: { user: { isActive: true } }, select: { userId: true } },
     },
   });
   const summaries = await summarize(projects, now);
@@ -46,7 +49,7 @@ export async function sweepProjects(now: Date) {
 
   for (const p of projects) {
     const s = summaries.get(p.id)!;
-    const team = new Set([...(p.ownerId ? [p.ownerId] : []), ...p.members.map((m) => m.userId)]);
+    const team = new Set([...(p.ownerId && p.owner?.isActive ? [p.ownerId] : []), ...p.members.map((m) => m.userId)]);
     const deadlineKey = p.endDate.toISOString().slice(0, 10);
 
     if (isDelayed(s.schedule)) {
@@ -61,7 +64,8 @@ export async function sweepProjects(now: Date) {
             title: `${p.title} is delayed`,
             body: `${p.client.businessName} — ${SCHEDULE_LABEL[s.schedule].toLowerCase()}, ${s.progress.percent}% done, deadline ${formatDate(p.endDate)}.`,
             href: `/projects/${p.id}`,
-            dedupeKey: `project-delayed:${p.id}:${deadlineKey}:${now.toISOString().slice(0, 10)}`,
+            // Per recipient: the key is unique across all notifications.
+            dedupeKey: `project-delayed:${p.id}:${deadlineKey}:${now.toISOString().slice(0, 10)}:${userId}`,
           });
         }
       }
@@ -81,7 +85,7 @@ export async function sweepProjects(now: Date) {
             title: `${p.title} is due ${formatDate(p.endDate)}`,
             body: `${p.client.businessName} — ${s.progress.percent}% done.`,
             href: `/projects/${p.id}`,
-            dedupeKey: `project-deadline:${p.id}:${deadlineKey}`,
+            dedupeKey: `project-deadline:${p.id}:${deadlineKey}:${userId}`,
           })
         ) {
           warned++;

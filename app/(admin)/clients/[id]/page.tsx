@@ -90,7 +90,8 @@ export default async function ClientProfilePage({ params }: { params: { id: stri
       department: client.department,
       hasPortal: Boolean(client.clientAccount?.users.length),
     },
-    overview,
+    // Recurring value is the founder's; the rest of the overview is shared.
+    overview: founder ? overview : { ...overview, monthlyRecurring: 0 },
     team: [...team.values()],
     pinnedNotes: pinned.map((n) => ({ id: n.id, body: n.body, updatedAt: n.updatedAt.toISOString(), author: n.author?.name ?? null })),
     reports: reports.map((r) => ({ id: r.id, type: r.type, periodStart: r.periodStart.toISOString(), periodEnd: r.periodEnd.toISOString() })),

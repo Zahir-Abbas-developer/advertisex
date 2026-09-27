@@ -11,13 +11,28 @@ import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
 import { useToast } from "@/components/ui/Toast";
 import { cn } from "@/lib/utils";
-import { PROJECT_PRIORITIES, PROJECT_PRIORITY_LABEL } from "@/modules/projects/domain";
+import { startOfCompanyDay, toDateInput } from "@/lib/date";
+import { FIRST_PROJECT_DAYS, PROJECT_PRIORITIES, PROJECT_PRIORITY_LABEL } from "@/modules/projects/domain";
+import { safeFetch } from "@/lib/safe-fetch";
 
 type Service = { id: string; name: string; stageTemplates: { name: string }[]; skills: { id: string; name: string }[] };
 type Person = { id: string; name: string; jobTitle: string | null; isAgent: boolean; skills: { id: string; name: string }[] };
 
-const today = () => new Date().toISOString().slice(0, 10);
+// Today on the company calendar — UTC runs a day ahead every New York evening.
+const today = () => toDateInput(startOfCompanyDay(new Date()));
 const plusDays = (d: string, n: number) => new Date(Date.parse(`${d}T00:00:00Z`) + n * 86_400_000).toISOString().slice(0, 10);
+
+const blankForm = (clientId?: string) => ({
+  clientId: clientId ?? "",
+  title: "",
+  description: "",
+  serviceIds: [] as string[],
+  startDate: today(),
+  deadline: plusDays(today(), FIRST_PROJECT_DAYS),
+  priority: "MEDIUM",
+  ownerId: "",
+  memberIds: [] as string[],
+});
 
 /**
  * A new project: client, services (each bringing its stage template and
@@ -32,24 +47,17 @@ export function NewProjectModal({ open, onClose, clientId }: { open: boolean; on
   const [people, setPeople] = useState<Person[]>([]);
   const [busy, setBusy] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [form, setForm] = useState({
-    clientId: clientId ?? "",
-    title: "",
-    description: "",
-    serviceIds: [] as string[],
-    startDate: today(),
-    deadline: plusDays(today(), 90),
-    priority: "MEDIUM",
-    ownerId: "",
-    memberIds: [] as string[],
-  });
+  const [form, setForm] = useState(() => blankForm(clientId));
 
   useEffect(() => {
     if (!open) return;
+    // Each opening starts clean.
+    setForm(blankForm(clientId));
+    setErrors({});
     void Promise.all([
-      clientId ? Promise.resolve(null) : fetch("/api/clients?options=1").then((r) => (r.ok ? r.json() : { clients: [] })),
-      fetch("/api/services").then((r) => (r.ok ? r.json() : { services: [] })),
-      fetch("/api/projects/people").then((r) => (r.ok ? r.json() : { people: [] })),
+      clientId ? Promise.resolve(null) : safeFetch("/api/clients?options=1").then((r) => (r.ok ? r.json() : { clients: [] })),
+      safeFetch("/api/services").then((r) => (r.ok ? r.json() : { services: [] })),
+      safeFetch("/api/projects/people").then((r) => (r.ok ? r.json() : { people: [] })),
     ]).then(([c, s, p]) => {
       if (c) setClients(c.clients);
       setServices(s.services);
@@ -76,7 +84,7 @@ export function NewProjectModal({ open, onClose, clientId }: { open: boolean; on
 
   const save = async () => {
     setBusy(true);
-    const res = await fetch("/api/projects", {
+    const res = await safeFetch("/api/projects", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...form, description: form.description || null, ownerId: form.ownerId || null }),

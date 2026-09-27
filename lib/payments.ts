@@ -50,6 +50,8 @@ export async function markOverdueCycles(now = new Date()): Promise<number> {
       paymentStatus: "PENDING",
       startDate: { lt: cutoff },
       client: { status: { in: ["ACTIVE", "PAUSED"] } },
+      // Retainer cycles only; Phase 4 projects are billed elsewhere.
+      modules: { some: {} },
     },
     data: { paymentStatus: "OVERDUE" },
   });
@@ -88,7 +90,7 @@ export async function collections(now = new Date()): Promise<Collections> {
   const monthEnd = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
 
   const cycles = await prisma.project.findMany({
-    where: { client: { status: { in: ["ACTIVE", "PAUSED"] } } },
+    where: { client: { status: { in: ["ACTIVE", "PAUSED"] } }, modules: { some: {} } },
     orderBy: { startDate: "desc" },
     include: {
       client: { select: { id: true, businessName: true, monthlyBudget: true } },

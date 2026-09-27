@@ -44,9 +44,9 @@ export function describeProjectEvent(e: AuditEntryLike, names: Names): string | 
       const name = str(row.name);
       if (created) return `added the stage ${name}`;
       if (deleted) return `removed the stage ${name}`;
-      if (row.status === "DONE" && b.status !== "DONE") return `completed ${name}`;
-      if (row.status === "ACTIVE" && b.status !== "ACTIVE") return `started ${name}`;
-      if (b.name && b.name !== row.name) return `renamed ${str(b.name)} to ${name}`;
+      if (b.name && e.after?.name && b.name !== e.after.name) return `renamed ${str(b.name)} to ${str(e.after.name)}`;
+      if (e.after?.status === "DONE" && b.status !== "DONE") return `completed ${name}`;
+      if (e.after?.status === "ACTIVE" && b.status !== "ACTIVE") return `started ${name}`;
       return null;
     }
     case "ProjectMilestone": {

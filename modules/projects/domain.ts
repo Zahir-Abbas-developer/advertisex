@@ -161,6 +161,9 @@ export function daysOverdue(deadline: Date, now: Date): number {
   return now > deadline ? Math.ceil((now.getTime() - deadline.getTime()) / 86_400_000) : 0;
 }
 
+/** How long a client's first project runs when onboarding doesn't say. */
+export const FIRST_PROJECT_DAYS = 90;
+
 /** Days before the deadline at which "deadline approaching" is raised. */
 export const DEADLINE_WARNING_DAYS = 7;
 
@@ -192,8 +195,8 @@ export function currentStages<T extends StageRow>(stages: readonly T[]): T[] {
 }
 
 /**
- * Completing a stage: it becomes DONE and the next stage of its line becomes
- * ACTIVE (if pending). Starting or reopening a stage: it becomes ACTIVE and
+ * Completing a stage: it becomes DONE and the line's first unfinished stage
+ * becomes its one ACTIVE stage. Starting or reopening a stage: it becomes ACTIVE and
  * any other ACTIVE stage of its line goes back to PENDING — one line never
  * has two active stages. Returns the rows to change.
  */
@@ -205,12 +208,18 @@ export function stageMove<T extends StageRow>(
   const stage = stages.find((s) => s.id === stageId);
   if (!stage) return [];
   const line = stages.filter((s) => (s.serviceId ?? "") === (stage.serviceId ?? "")).sort((a, b) => a.order - b.order);
-  const later = line.filter((s) => s.order > stage.order);
   const changes: { id: string; status: StageStatus }[] = [{ id: stage.id, status: to }];
 
   if (to === "DONE") {
-    const next = later.find((s) => s.status !== "DONE");
-    if (next && next.status === "PENDING") changes.push({ id: next.id, status: "ACTIVE" });
+    // After the move, the line's one active stage is its first unfinished
+    // stage (the same rule as currentStages); every other active one pends.
+    const after = line.map((s) => ({ ...s, status: s.id === stage.id ? "DONE" : s.status }));
+    const first = after.find((s) => s.status !== "DONE");
+    for (const s of after) {
+      if (s.id === stage.id) continue;
+      if (first && s.id === first.id && s.status !== "ACTIVE") changes.push({ id: s.id, status: "ACTIVE" });
+      else if ((!first || s.id !== first.id) && s.status === "ACTIVE") changes.push({ id: s.id, status: "PENDING" });
+    }
   } else if (to === "ACTIVE") {
     for (const s of line) if (s.id !== stage.id && s.status === "ACTIVE") changes.push({ id: s.id, status: "PENDING" });
   }

@@ -4,6 +4,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { apiError } from "@/lib/api";
 import { parseDateInput } from "@/lib/date";
+import { containsInsensitive } from "@/lib/db-features";
 import { requireApi } from "@/modules/rbac/server";
 import {
   isOpenProject,
@@ -40,9 +41,10 @@ export async function GET(request: Request) {
       AND: [
         scope,
         clientId ? { clientId } : {},
-        q ? { OR: [{ title: { contains: q } }, { client: { businessName: { contains: q } } }] } : {},
+        q ? { OR: [{ title: containsInsensitive(q) }, { client: { businessName: containsInsensitive(q) } }] } : {},
         mine ? { OR: [{ ownerId: principal.id }, { members: { some: { userId: principal.id } } }] } : {},
-        status === "ALL" ? {} : status === "OPEN" ? {} : { status },
+        // "Completed" includes legacy closed-out cycles, which read as completed.
+        status === "ALL" || status === "OPEN" ? {} : status === "COMPLETED" ? { status: { in: ["COMPLETED", "OVERDUE_CLOSEOUT"] } } : { status },
       ],
     },
     orderBy: [{ endDate: "asc" }],

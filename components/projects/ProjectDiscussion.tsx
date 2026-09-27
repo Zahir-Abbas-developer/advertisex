@@ -11,6 +11,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { Textarea } from "@/components/ui/Textarea";
 import { useToast } from "@/components/ui/Toast";
 import { formatDateTime, relativeFromNow } from "@/lib/date";
+import { safeFetch } from "@/lib/safe-fetch";
 
 type Comment = { id: string; body: string; createdAt: string; author: { id: string; name: string; avatarColor: string } | null };
 type Entry = { id: string; at: string; actor: string; text: string };
@@ -28,7 +29,7 @@ export function ProjectDiscussion({ projectId, canPost, viewerId }: { projectId:
   const [busy, setBusy] = useState(false);
 
   const load = useCallback(async () => {
-    const [c, a] = await Promise.all([fetch(`/api/projects/${projectId}/comments`, { cache: "no-store" }), fetch(`/api/projects/${projectId}/activity`, { cache: "no-store" })]);
+    const [c, a] = await Promise.all([safeFetch(`/api/projects/${projectId}/comments`, { cache: "no-store" }), safeFetch(`/api/projects/${projectId}/activity`, { cache: "no-store" })]);
     if (!c.ok || !a.ok) return setFailed(true);
     setFailed(false);
     setComments((await c.json()).comments);
@@ -41,7 +42,7 @@ export function ProjectDiscussion({ projectId, canPost, viewerId }: { projectId:
 
   const post = async () => {
     setBusy(true);
-    const res = await fetch(`/api/projects/${projectId}/comments`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ body: draft }) });
+    const res = await safeFetch(`/api/projects/${projectId}/comments`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ body: draft }) });
     setBusy(false);
     if (!res.ok) return toast.error("Your message didn't post");
     setDraft("");
@@ -52,7 +53,7 @@ export function ProjectDiscussion({ projectId, canPost, viewerId }: { projectId:
 
   return (
     <div className="grid gap-6 lg:grid-cols-5">
-      <Card className="lg:col-span-3">
+      <Card padded={false} className="lg:col-span-3">
         <CardHeader title="Discussion" description="Internal to the team." />
         <CardBody className="space-y-5">
           {!comments ? (
@@ -87,13 +88,13 @@ export function ProjectDiscussion({ projectId, canPost, viewerId }: { projectId:
         </CardBody>
       </Card>
 
-      <Card className="lg:col-span-2">
+      <Card padded={false} className="lg:col-span-2">
         <CardHeader title="Activity" />
         <CardBody>
           {!activity ? (
             <Skeleton className="h-40" />
           ) : activity.length === 0 ? (
-            <EmptyState icon={History} title="Nothing yet" className="py-6" />
+            <EmptyState icon={History} title="Nothing yet" description="Changes made to this project in the app appear here." className="py-6" />
           ) : (
             <ol className="space-y-3">
               {activity.map((e) => (

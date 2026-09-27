@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
 
-import { prisma } from "@/lib/prisma";
+import { prisma, transaction } from "@/lib/prisma";
 import { apiError } from "@/lib/api";
 import { fieldErrors, onboardClientSchema } from "@/lib/validation";
 import { parseDateInput } from "@/lib/date";
 import { containsInsensitive } from "@/lib/db-features";
 import { requireApi } from "@/modules/rbac/server";
 import { clientOverviews } from "@/modules/clients/overview";
-import { createProject, ProjectError } from "@/modules/projects/server";
+import { servicesForPlan, writePlan } from "@/modules/projects/server";
+import { FIRST_PROJECT_DAYS } from "@/modules/projects/domain";
 
 /**
  * The clients list (Phase 4): the founder sees every client, a manager their
@@ -111,52 +112,50 @@ export async function POST(request: Request) {
     return apiError("Pick a department", 422, { departmentId: "That department no longer exists" });
   }
 
-  const services = await prisma.serviceCatalog.findMany({
-    where: { id: { in: serviceIds }, isActive: true },
-    select: { id: true },
-  });
-  if (services.length !== serviceIds.length) {
+  const services = await servicesForPlan(serviceIds);
+  if (services.length !== new Set(serviceIds).size) {
     return apiError("One of those services no longer exists", 422, {
       serviceIds: "Refresh and pick the services again",
     });
   }
+  const prices = await prisma.serviceCatalog.findMany({ where: { id: { in: serviceIds } }, select: { id: true, price: true, billing: true } });
 
+  // One transaction: the client, what they bought (at catalog price, edited on
+  // the profile) and their first project planned from the services' stage
+  // templates. A failure leaves nothing behind to be duplicated on retry.
+  const now = new Date();
+  const ownerId = gate.principal.id;
   try {
-    const client = await prisma.client.create({
-      data: {
-        ...details,
-        onboardedAt: new Date(),
-      },
+    const { client, project } = await transaction(async (tx) => {
+      const client = await tx.client.create({ data: { ...details, onboardedAt: now } });
+      await tx.clientService.createMany({
+        data: prices.map((s) => ({
+          organizationId: client.organizationId ?? gate.principal.organizationId ?? "",
+          clientId: client.id,
+          serviceId: s.id,
+          price: s.price,
+          billing: s.billing,
+          startDate: start,
+        })),
+      });
+      const project = await tx.project.create({
+        data: {
+          organizationId: client.organizationId,
+          clientId: client.id,
+          title: projectTitle,
+          startDate: start,
+          endDate: new Date(start.getTime() + FIRST_PROJECT_DAYS * 86_400_000),
+          status: start.getTime() <= now.getTime() ? "ACTIVE" : "PLANNING",
+          ownerId,
+        },
+        select: { id: true, title: true },
+      });
+      await writePlan(tx, project.id, services, now);
+      await tx.projectMember.create({ data: { projectId: project.id, userId: ownerId, role: "LEAD" } });
+      return { client, project };
     });
-
-    // What the client bought, at catalog price (edited on the profile), and
-    // the first project planned from those services' stage templates.
-    const bought = await prisma.serviceCatalog.findMany({ where: { id: { in: serviceIds } }, select: { id: true, price: true, billing: true } });
-    await prisma.clientService.createMany({
-      data: bought.map((s) => ({
-        organizationId: client.organizationId ?? gate.principal.organizationId ?? "",
-        clientId: client.id,
-        serviceId: s.id,
-        price: s.price,
-        billing: s.billing,
-        startDate: start,
-      })),
-    });
-    const project = await createProject(gate.principal, {
-      clientId: client.id,
-      title: projectTitle,
-      serviceIds,
-      startDate: start,
-      endDate: new Date(start.getTime() + 90 * 86_400_000),
-      status: start.getTime() <= Date.now() ? "ACTIVE" : "PLANNING",
-      priority: "MEDIUM",
-      ownerId: client.assigneeId ?? gate.principal.id,
-      memberIds: [],
-    });
-
     return NextResponse.json({ client, project, next: `/clients/${client.id}` }, { status: 201 });
-  } catch (error) {
-    if (error instanceof ProjectError) return apiError(error.message, error.status, error.fields);
+  } catch {
     return apiError("Couldn't onboard this client", 500);
   }
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Plus, ShoppingBag } from "lucide-react";
 
 import { Badge } from "@/components/ui/Badge";
@@ -15,6 +16,7 @@ import { StatCard } from "@/components/ui/StatCard";
 import { useToast } from "@/components/ui/Toast";
 import { formatDate } from "@/lib/date";
 import { BILLING_CADENCES, BILLING_LABEL, type Billing } from "@/modules/services/catalog";
+import { safeFetch } from "@/lib/safe-fetch";
 
 type Row = { id: string; status: string; startDate: string; endDate: string | null; billing: string; price: number | null; service: { id: string; name: string } };
 type Billing4 = { monthlyRecurring: number; oneTime: number; activeServices: number; contractedValue: number; annualRunRate: number } | null;
@@ -28,13 +30,14 @@ const STATUS_TONE: Record<string, "success" | "warning" | "neutral"> = { ACTIVE:
  */
 export function ClientServicesPanel({ clientId, billing }: { clientId: string; billing: Billing4 }) {
   const toast = useToast();
+  const router = useRouter();
   const [rows, setRows] = useState<Row[] | null>(null);
   const [canManage, setCanManage] = useState(false);
   const [failed, setFailed] = useState(false);
   const [adding, setAdding] = useState(false);
 
   const load = useCallback(async () => {
-    const res = await fetch(`/api/clients/${clientId}/services`, { cache: "no-store" });
+    const res = await safeFetch(`/api/clients/${clientId}/services`, { cache: "no-store" });
     if (!res.ok) return setFailed(true);
     const body = await res.json();
     setFailed(false);
@@ -47,13 +50,15 @@ export function ClientServicesPanel({ clientId, billing }: { clientId: string; b
   }, [load]);
 
   const setStatus = async (row: Row, status: "ACTIVE" | "PAUSED" | "ENDED") => {
-    const res = await fetch(`/api/clients/${clientId}/services/${row.id}`, {
+    const res = await safeFetch(`/api/clients/${clientId}/services/${row.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status }),
     });
     if (!res.ok) return toast.error("Couldn't change that");
     void load();
+    // The billing figures on the overview are computed from these.
+    router.refresh();
   };
 
   if (failed) return <ErrorState title="Services didn't load" onRetry={() => void load()} />;
@@ -68,7 +73,7 @@ export function ClientServicesPanel({ clientId, billing }: { clientId: string; b
           <StatCard label="Contracted" value={money(billing.contractedValue)} hint="Signed and active contracts" />
         </div>
       )}
-      <Card>
+      <Card padded={false}>
         <CardHeader
           title="Services purchased"
           description={billing ? "Invoicing and payments arrive with billing; these figures are what has been agreed." : undefined}
@@ -123,7 +128,17 @@ export function ClientServicesPanel({ clientId, billing }: { clientId: string; b
           )}
         </CardBody>
       </Card>
-      {adding && <AddServiceModal clientId={clientId} onClose={() => setAdding(false)} onSaved={() => { setAdding(false); void load(); }} />}
+      {adding && (
+        <AddServiceModal
+          clientId={clientId}
+          onClose={() => setAdding(false)}
+          onSaved={() => {
+            setAdding(false);
+            void load();
+            router.refresh();
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -135,7 +150,7 @@ function AddServiceModal({ clientId, onClose, onSaved }: { clientId: string; onC
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    void fetch("/api/services").then(async (r) => r.ok && setCatalog((await r.json()).services));
+    void safeFetch("/api/services").then(async (r) => r.ok && setCatalog((await r.json()).services));
   }, []);
 
   const pick = (id: string) => {
@@ -145,10 +160,11 @@ function AddServiceModal({ clientId, onClose, onSaved }: { clientId: string; onC
 
   const save = async () => {
     setBusy(true);
-    const res = await fetch(`/api/clients/${clientId}/services`, {
+    const res = await safeFetch(`/api/clients/${clientId}/services`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ serviceId: form.serviceId, price: Number(form.price || 0), ...(form.billing ? { billing: form.billing } : {}), startDate: form.startDate }),
+      // A blank price means "the catalog price" — the server fills it in.
+      body: JSON.stringify({ serviceId: form.serviceId, ...(form.price.trim() ? { price: Number(form.price) } : {}), ...(form.billing ? { billing: form.billing } : {}), startDate: form.startDate }),
     });
     setBusy(false);
     if (!res.ok) return toast.error((await res.json().catch(() => ({}))).error ?? "Couldn't add that");

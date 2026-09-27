@@ -161,6 +161,13 @@ async function main() {
     check(webLine.filter((s) => s.status === "ACTIVE").length === 1, "one active stage per line");
     const detail = await json(await founder.fetch(`/api/projects/${projectId}`));
     check((detail.project?.currentStages ?? []).some((c) => c.id === webLine[1].id), "the current stage follows");
+    const skip = await send(founder, `/api/projects/${projectId}/stages/${webLine[3].id}`, "PATCH", { status: "DONE" });
+    const afterSkip = await prisma.projectStage.findMany({ where: { projectId, serviceId: web.id }, orderBy: { order: "asc" } });
+    check(skip.ok && afterSkip.filter((x) => x.status === "ACTIVE").length === 1 && afterSkip[1].status === "ACTIVE", "completing a later stage keeps one active stage: the first unfinished");
+    const feed = (await json(await founder.fetch(`/api/projects/${projectId}/activity`))).activity ?? [];
+    const lines = feed.map((e) => e.text).join(" | ");
+    check(/completed /.test(lines) && /reached Sitemap|added the milestone Sitemap/.test(lines), "the activity feed shows stage and milestone moves by name", lines.slice(0, 160));
+    check(!/took someone off/.test(lines), "…with no phantom entries");
 
     console.log("\nSCOPE");
     check((await emp.fetch(`/api/projects/${projectId}`)).status === 404, "an employee off the team can't see the project");
@@ -190,6 +197,17 @@ async function main() {
     const analytics = await json(await founder.fetch("/api/projects/analytics"));
     check((analytics.delayed ?? []).some((p) => p.id === late.project.id), "…and listed in the founder's delayed projects");
     check((await emp.fetch("/api/projects/analytics")).status === 403, "employees can't read projects analytics");
+
+    console.log("\nDELAY ALERTS REACH EVERYONE");
+    await send(founder, `/api/projects/${late.project.id}/team`, "PUT", { memberIds: [employee.id] });
+    const { sweepProjects } = await import("../modules/projects/jobs.ts");
+    await sweepProjects(new Date());
+    const alerts = await prisma.notification.findMany({ where: { type: "PROJECT_DELAYED", href: `/projects/${late.project.id}` }, select: { userId: true } });
+    const alerted = new Set(alerts.map((a) => a.userId));
+    check(alerted.has(employee.id) && alerted.has(founderUser.id), "a delay alert reaches every team member and the founder, not just the first", `${alerted.size} recipient(s)`);
+    await sweepProjects(new Date());
+    check((await prisma.notification.count({ where: { type: "PROJECT_DELAYED", href: `/projects/${late.project.id}` } })) === alerts.length, "…once, not again on the next run");
+    check(Boolean((await prisma.project.findUnique({ where: { id: late.project.id }, select: { delayedAt: true } })).delayedAt), "the project is stamped delayed");
 
     console.log("\nCREDENTIALS VAULT");
     const cred = await json(await send(founder, `/api/clients/${client.id}/credentials`, "POST", { label: `${MARK} WP`, kind: "WEBSITE", username: "owner", secret: SECRET }));
@@ -245,6 +263,11 @@ async function main() {
     const shared = await json(await portal.fetch(`/api/files?projectId=${late.project.id}`));
     check((shared.files ?? []).some((f) => f.id === file.id), "once shared, the client sees it");
     check((await mgr.fetch(`/api/files?projectId=${late.project.id}`)).status === 404, "a manager of another department can't list it");
+    const empForm = new FormData();
+    empForm.set("file", new Blob(["x"], { type: "text/plain" }), "note.txt");
+    empForm.set("projectId", late.project.id);
+    empForm.set("visibility", "CLIENT");
+    check((await emp.fetch("/api/files", { method: "POST", body: empForm })).status === 403, "an employee can't publish a file straight to the client");
 
     console.log("\nNOTIFICATIONS");
     const created4 = await prisma.notification.count({ where: { userId: employee.id, type: { in: ["PROJECT_UPDATED", "PROJECT_CREATED"] } } });

@@ -131,14 +131,14 @@ export function ClientProfile({ data }: { data: ClientProfileData }) {
       {tab === "services" && <ClientServicesPanel clientId={client.id} billing={data.billing} />}
       {tab === "contracts" && <ContractsPanel clientId={client.id} />}
       {tab === "files" && (
-        <Card>
+        <Card padded={false}>
           <CardBody>
-            <FilesPanel owner={{ clientId: client.id }} canUpload={viewer.canEdit} canChangeVisibility={viewer.canManageContracts} />
+            <FilesPanel owner={{ clientId: client.id }} canUpload={viewer.canEdit} canChangeVisibility={viewer.canManageContracts} viewerId={viewer.id} />
           </CardBody>
         </Card>
       )}
       {tab === "logins" && viewer.canSeeCredentials && (
-        <Card>
+        <Card padded={false}>
           <CardBody>
             <CredentialsPanel clientId={client.id} />
           </CardBody>
@@ -146,7 +146,7 @@ export function ClientProfile({ data }: { data: ClientProfileData }) {
       )}
       {tab === "notes" && <NotesPanel clientId={client.id} canEdit={viewer.canEdit} viewerId={viewer.id} isManager={viewer.canManageContracts} />}
       {tab === "communication" && (
-        <Card>
+        <Card padded={false}>
           <CardHeader title="Communication" description="Calls, emails, meetings and notes with this client, including everything from before they signed. Messaging arrives with the client portal." />
           <CardBody>
             <ActivityTimeline clientId={client.id} viewerId={viewer.id} isAdmin={viewer.isFounder} />
@@ -184,7 +184,7 @@ function Overview({ data, onOpen }: { data: ClientProfileData; onOpen: (t: Tab) 
           </div>
         )}
 
-        <Card>
+        <Card padded={false}>
           <CardHeader
             title="Project progress"
             action={
@@ -212,7 +212,7 @@ function Overview({ data, onOpen }: { data: ClientProfileData; onOpen: (t: Tab) 
           </CardBody>
         </Card>
 
-        <Card>
+        <Card padded={false}>
           <CardHeader title="Health" description="Computed from delivery, schedules and contracts — never typed in." />
           <CardBody>
             <div className="flex items-start gap-3">
@@ -232,7 +232,7 @@ function Overview({ data, onOpen }: { data: ClientProfileData; onOpen: (t: Tab) 
           </CardBody>
         </Card>
 
-        <Card>
+        <Card padded={false}>
           <CardHeader
             title="Important notes"
             action={
@@ -265,7 +265,7 @@ function Overview({ data, onOpen }: { data: ClientProfileData; onOpen: (t: Tab) 
       </div>
 
       <div className="min-w-0 space-y-6">
-        <Card>
+        <Card padded={false}>
           <CardHeader title="Contact" />
           <CardBody className="space-y-2.5 text-[13px]">
             <p className="font-medium text-ink">{client.contactName}</p>
@@ -291,7 +291,7 @@ function Overview({ data, onOpen }: { data: ClientProfileData; onOpen: (t: Tab) 
           </CardBody>
         </Card>
 
-        <Card>
+        <Card padded={false}>
           <CardHeader title="Assigned team" />
           <CardBody>
             {data.team.length ? (
@@ -315,7 +315,7 @@ function Overview({ data, onOpen }: { data: ClientProfileData; onOpen: (t: Tab) 
           </CardBody>
         </Card>
 
-        <Card>
+        <Card padded={false}>
           <CardHeader title="Services" />
           <CardBody>
             {overview.services.length ? (
@@ -338,7 +338,7 @@ function Overview({ data, onOpen }: { data: ClientProfileData; onOpen: (t: Tab) 
 
 function ReportsList({ reports }: { reports: ClientProfileData["reports"] }) {
   return (
-    <Card>
+    <Card padded={false}>
       <CardHeader title="Reports" description="Weekly client reports. Performance reporting with live ad data arrives with integrations." />
       <CardBody>
         {reports.length ? (

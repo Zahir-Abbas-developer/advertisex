@@ -85,6 +85,11 @@ describe("audit entries written by the data layer", () => {
     assert.equal(JSON.parse(entry!.afterJson!).secret, "[redacted]");
   });
 
+  it("leaves no trace for a bulk write that touched nothing", () => {
+    const entry = buildAuditEntry({ model: "Task", operation: "deleteMany", args: { where: { id: "x" } }, before: null, result: { count: 0 }, actor: HUMAN });
+    assert.equal(entry, null);
+  });
+
   it("summarises bulk writes by filter and count", () => {
     const entry = buildAuditEntry({
       model: "Task",
