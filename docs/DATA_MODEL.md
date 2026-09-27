@@ -83,6 +83,18 @@ per-organization ones. Existing (legacy) services have a null organization
 until the deploy's seed backfills them to organization #1; their names differ
 from the 11 new services, so the per-organization index holds.
 
+### Built in Phase 5
+
+| Entity / change | Fields | Notes |
+| --- | --- | --- |
+| `ServiceSkill` | + weight (1–5, default 3) | How central the skill is to the service. The seed sets the catalog's 5/3/2 on services whose weights were all still the default. |
+| `ProjectSkill` | + weight (1–5); source adds `BRIEF` | The role's weight in assignment. |
+| `Settings` | + assignmentMode (RECOMMEND/AUTO), assignmentWeights (JSON), assignmentRoleHours | Founder-configured. |
+| **AssignmentRecommendation** | projectId, skillId (unique together), recommendedUserId?, score, explanation, detail (JSON: components, alternatives), status (PROPOSED/ACCEPTED/OVERRIDDEN/DISMISSED/GAP), chosenUserId?, overrideReason?, mode, decidedById?, decidedAt | One per role. OVERRIDDEN rows are the feedback signal. Audited. Project-owned for tenancy. |
+| **ReassignmentSuggestion** | projectId, skillId, fromUserId, toUserId?, reason, status (OPEN/ACCEPTED/DISMISSED), dedupeKey (unique), decidedById?, decidedAt | Never applied without a decision. Audited. Project-owned. |
+
+Migration `20260928090000_assignment`: additive only.
+
 Tenancy: the Phase 4 roots are filtered and stamped by organization;
 ProjectService/Member/Skill/Stage/Milestone/Comment are filtered through
 `project.organizationId`, ServiceStageTemplate/ServiceSkill through

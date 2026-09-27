@@ -10,6 +10,7 @@ import { Card, CardBody, CardHeader } from "@/components/ui/Card";
 import { Select } from "@/components/ui/Select";
 import { useToast } from "@/components/ui/Toast";
 import type { ProjectPayload, ProjectViewer } from "@/components/projects/types";
+import { TeamPlanPanel } from "@/components/projects/TeamPlanPanel";
 import { cn } from "@/lib/utils";
 import { safeFetch } from "@/lib/safe-fetch";
 
@@ -69,6 +70,8 @@ export function ProjectTeam({ project, viewer, onChanged }: { project: ProjectPa
   const toggle = (list: string[], set: (v: string[]) => void, id: string) => set(list.includes(id) ? list.filter((x) => x !== id) : [...list, id]);
 
   return (
+    <div className="space-y-6">
+    <TeamPlanPanel projectId={project.id} onChanged={onChanged} />
     <div className="grid gap-6 lg:grid-cols-2">
       <Card padded={false}>
         <CardHeader title="Team" description={viewer.canShape ? "Pick who works on this project. People with the required skills are listed first." : undefined} />
@@ -194,6 +197,7 @@ export function ProjectTeam({ project, viewer, onChanged }: { project: ProjectPa
           </Card>
         )}
       </div>
+    </div>
     </div>
   );
 }

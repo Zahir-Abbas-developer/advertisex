@@ -93,7 +93,7 @@ describe("tenant scoping of query arguments", () => {
   });
 
   it("filters project-owned rows through their project", () => {
-    for (const model of ["ProjectService", "ProjectMember", "ProjectSkill", "ProjectStage", "ProjectMilestone", "ProjectComment"]) {
+    for (const model of ["ProjectService", "ProjectMember", "ProjectSkill", "ProjectStage", "ProjectMilestone", "ProjectComment", "AssignmentRecommendation", "ReassignmentSuggestion"]) {
       for (const operation of ["findMany", "findUnique", "update", "deleteMany", "count"]) {
         const out = scopeArgs(model, operation, { where: {} }, ORG) as { where: Record<string, unknown> };
         assert.deepEqual(out.where.AND, [{ project: { organizationId: ORG } }], `${model}.${operation}`);

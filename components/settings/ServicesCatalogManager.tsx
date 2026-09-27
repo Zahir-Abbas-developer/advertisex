@@ -25,7 +25,7 @@ type Service = {
   billing: string | null;
   isActive: boolean;
   stageTemplates: { id: string; name: string; order: number }[];
-  skills: { id: string; name: string }[];
+  skills: { id: string; name: string; weight: number }[];
 };
 type Skill = { id: string; name: string };
 
@@ -92,7 +92,7 @@ export function ServicesCatalogManager() {
                 <div className="flex flex-wrap gap-1">
                   {s.skills.map((k) => (
                     <Badge key={k.id} size="sm">
-                      {k.name}
+                      {k.name} <span className="text-ink/40">· {k.weight}</span>
                     </Badge>
                   ))}
                   {s.skills.length === 0 && <span className="text-[12px] text-ink/40">No skills listed</span>}
@@ -126,6 +126,7 @@ function ServiceModal({ service, skills, onClose, onSaved }: { service: Service 
     billing: service?.billing ?? "ONE_TIME",
     stages: (service?.stageTemplates.map((t) => t.name) ?? ["Planning", "Delivery", "Review"]).join("\n"),
     skillIds: service?.skills.map((k) => k.id) ?? [],
+    weights: Object.fromEntries((service?.skills ?? []).map((k) => [k.id, k.weight])) as Record<string, number>,
     isActive: service?.isActive ?? true,
   });
   const [busy, setBusy] = useState(false);
@@ -150,7 +151,7 @@ function ServiceModal({ service, skills, onClose, onSaved }: { service: Service 
     }
     const id = savedId ?? body.service.id;
     setSavedId(id);
-    const results = await Promise.all([json(`/api/services/${id}/stages`, "PUT", { stages }), json(`/api/services/${id}/skills`, "PUT", { skillIds: form.skillIds })]);
+    const results = await Promise.all([json(`/api/services/${id}/stages`, "PUT", { stages }), json(`/api/services/${id}/skills`, "PUT", { skills: form.skillIds.map((skillId) => ({ skillId, weight: form.weights[skillId] ?? 3 })) })]);
     setBusy(false);
     if (results.some((r) => !r.ok)) return toast.error("Saved, but the stages or skills didn't update — save again to retry");
     toast.success(service ? "Service updated" : "Service added");
@@ -180,6 +181,31 @@ function ServiceModal({ service, skills, onClose, onSaved }: { service: Service 
             })}
           </div>
         </fieldset>
+        {form.skillIds.length > 0 && (
+          <div className="space-y-2">
+            <p className="text-[13px] font-medium text-ink/80">How central each skill is</p>
+            <p className="text-[12px] text-ink/45">5 = the core of the service; it weighs most when staffing a project.</p>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {form.skillIds.map((id) => (
+                <label key={id} className="flex items-center justify-between gap-3 rounded-lg border border-line px-3 py-2 text-[13px] text-ink">
+                  {skills.find((k) => k.id === id)?.name ?? "Skill"}
+                  <select
+                    aria-label={`Weight of ${skills.find((k) => k.id === id)?.name ?? "skill"}`}
+                    value={form.weights[id] ?? 3}
+                    onChange={(e) => setForm((f) => ({ ...f, weights: { ...f.weights, [id]: Number(e.target.value) } }))}
+                    className="rounded-md border border-line bg-surface px-2 py-1 text-[13px] text-ink"
+                  >
+                    {[5, 4, 3, 2, 1].map((w) => (
+                      <option key={w} value={w}>
+                        {w}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
         {service && (
           <label className="flex items-center gap-2 text-[13px] text-ink/70">
             <input type="checkbox" className="accent-brand" checked={form.isActive} onChange={(e) => setForm((f) => ({ ...f, isActive: e.target.checked }))} />

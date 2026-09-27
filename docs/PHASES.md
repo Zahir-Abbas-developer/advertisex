@@ -131,3 +131,32 @@ The client profile becomes the single source of truth for everything about a cli
 - Global Definition of Done passes.
 
 ### GATE — docs/phases/PHASE_4_REPORT.md, then STOP for "Phase 4 approved."
+
+---
+
+## PHASE 5 — AI-POWERED PROJECT & TASK ASSIGNMENT
+
+*Issued 2026-09-27 after Phase 4 was delivered (and its bug sweep); taken as
+the founder's go-ahead (recorded in PHASE_LOG). Verbatim below.*
+
+Prerequisite: "Phase 4 approved."
+
+### OBJECTIVE
+When a project is created, the system analyzes its requirements and recommends — or automatically assigns — the right team members, with a plain-language explanation and a founder override.
+
+### DESIGN — deterministic core, AI where it adds value
+1. Requirement analysis: derive required skills from the selected services (catalog mapping) plus optional AI extraction from the project brief (via modules/ai). Output a structured list of required skills with weights.
+2. Scoring — for every eligible employee compute:
+   score = w1·skillMatch + w2·availability + w3·(1 − workloadRatio) + w4·performanceHistory + w5·deadlineFit
+   Hard constraints: must cover the required skills; capacity must not be exceeded. Weights are founder-configurable. Every input comes from real data: skills and proficiency, capacity, current tasks, on-time delivery rate, deadlines.
+3. Output: ranked recommendations per required skill / role with a plain-language explanation, e.g. "Best match: covers 3/3 required skills · 40% capacity free · 96% on-time delivery." Modes: RECOMMEND (founder confirms) or AUTO-ASSIGN (configurable). The founder can override any assignment; overrides are audit-logged and fed back as signals.
+4. On assignment: employees see the project and its tasks immediately on their dashboard; notifications fire.
+5. Rebalancing: when workload or deadlines change, surface a "reassignment suggested" signal — never a silent change.
+
+### ACCEPTANCE
+- Creating a project for "Website + Google Ads + SEO" yields sensible, explainable assignments across the right specialists in the seeded team — verified by tests with fixed data.
+- Unit tests cover scoring, constraints, weights, and explanation output.
+- Scoring formula documented in docs/METRICS.md.
+- Global Definition of Done passes.
+
+### GATE — docs/phases/PHASE_5_REPORT.md, then STOP for "Phase 5 approved."

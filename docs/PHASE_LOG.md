@@ -5,6 +5,29 @@ phase → status → done → next → blockers.*
 
 ---
 
+## 2026-09-28 — Phase 5: DELIVERED, awaiting gate
+
+**Phase:** 5 — AI-Powered Project & Task Assignment (prompt verbatim in `docs/PHASES.md`)
+**Status:** ✅ delivered · ⏸ **STOPPED at the gate**. Report: `docs/phases/PHASE_5_REPORT.md`. Waiting for *"Phase 5 approved"*.
+**Gate note:** the founder sent the Phase 5 prompt after the Phase 4 report and bug sweep, without the literal "Phase 4 approved"; treated as the go-ahead, as at every earlier handover.
+
+**Done:**
+- Weighted requirements from services, the brief (AI, taxonomy-only, optional) and hand-added skills.
+- Deterministic scoring with hard constraints and founder weights.
+- Explained recommendations per role; RECOMMEND or AUTO mode.
+- Audited overrides, fed back as a per-skill signal.
+- Assignees see the project on My Work and are notified.
+- Rebalancing suggestions (morning, on deadline change, on demand), never silent changes.
+- `modules/ai` (provider interface, Anthropic over fetch, off without a key).
+- Settings → Assignment; per-service skill weights.
+- `assigntest` (35) in CI; ADR-014; METRICS, DATA_MODEL, ARCHITECTURE updated.
+
+**Gate:** all green (826 unit, every harness, build, bundle scan). The browser check found and fixed a capacity fairness bug; the unit tests found and fixed a one-generalist-takes-all bias.
+
+**Needs the founder:** optional `ANTHROPIC_API_KEY`; default mode; Phase 4's open decisions.
+
+---
+
 ## 2026-09-27 — Phase 4: DELIVERED, awaiting gate
 
 **Phase:** 4 — Client Management & Project Management (prompt verbatim in `docs/PHASES.md`)

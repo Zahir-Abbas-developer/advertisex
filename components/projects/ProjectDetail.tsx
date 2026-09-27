@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { CalendarClock, Info, Trash2 } from "lucide-react";
 
 import { Avatar } from "@/components/ui/Avatar";
@@ -50,7 +50,9 @@ export function ProjectDetail({ projectId, viewerId }: { projectId: string; view
   const [project, setProject] = useState<ProjectPayload | null>(null);
   const [viewer, setViewer] = useState<ProjectViewer | null>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "missing" | "error">("loading");
-  const [tab, setTab] = useState<Tab>("overview");
+  // Notifications link to ?tab=team when a team plan or suggestion is waiting.
+  const initialTab = useSearchParams().get("tab");
+  const [tab, setTab] = useState<Tab>(initialTab === "team" || initialTab === "plan" || initialTab === "tasks" ? (initialTab as Tab) : "overview");
 
   const load = useCallback(async () => {
     const res = await safeFetch(`/api/projects/${projectId}`, { cache: "no-store" });
@@ -140,6 +142,20 @@ export function ProjectDetail({ projectId, viewerId }: { projectId: string; view
       </PageHeader>
 
       <Tabs items={tabs} active={tab} onChange={setTab} />
+
+      {tab === "overview" && (s.pendingRoles > 0 || s.openSuggestions > 0) && (
+        <button
+          type="button"
+          onClick={() => setTab("team")}
+          className="flex w-full items-center justify-between gap-3 rounded-card border border-brand/40 bg-brand-tint px-5 py-3.5 text-left text-[13px] text-ink transition-colors hover:border-brand"
+        >
+          <span>
+            {s.pendingRoles > 0 && `${s.pendingRoles} role${s.pendingRoles === 1 ? "" : "s"} in the team plan ${s.pendingRoles === 1 ? "is" : "are"} waiting for a decision. `}
+            {s.openSuggestions > 0 && `${s.openSuggestions} reassignment${s.openSuggestions === 1 ? "" : "s"} suggested.`}
+          </span>
+          <span className="shrink-0 font-medium text-brand">Open the team plan →</span>
+        </button>
+      )}
 
       {tab === "overview" && (
         <div className="grid gap-6 lg:grid-cols-3">

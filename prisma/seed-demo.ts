@@ -259,10 +259,12 @@ async function main() {
 
 /** Who knows what, at what proficiency (1–5). Agents hold skills too. */
 const SKILL_MATRIX: Record<string, [string, number][]> = {
-  "tayyaba@bwm.local": [["Google Ads", 4], ["Lead Generation", 4], ["Local SEO", 3]],
+  "tayyaba@bwm.local": [["Google Ads", 4], ["Lead Generation", 4], ["Local SEO", 3], ["SEO", 2]],
   "claire@bwm.local": [["Meta Ads", 4], ["Social Media Marketing", 5], ["Automation", 2]],
-  "cam@bwm.local": [["Creative Production", 5], ["Graphic Design", 4], ["Branding", 3]],
-  "cheryl@bwm.local": [["Websites", 3], ["CRM Implementation", 4], ["Google Business Profile", 4]],
+  "cam@bwm.local": [["Creative Production", 5], ["Graphic Design", 4], ["Branding", 3], ["UI/UX", 4]],
+  // Phase 5: the web lead also owns organic search, so "Website + Google Ads +
+  // SEO" has real specialists to find.
+  "cheryl@bwm.local": [["Websites", 4], ["UI/UX", 3], ["SEO", 4], ["CRM Implementation", 4], ["Google Business Profile", 4]],
   "maya@advertisex.example": [["Meta Ads", 5], ["Creative Production", 3], ["Social Media Marketing", 4]],
   "rajazain@bwm.local": [["Development", 5], ["Automation", 5], ["AI Automation", 4]],
   "atlas.agent@advertisex.example": [["Lead Generation", 4]],

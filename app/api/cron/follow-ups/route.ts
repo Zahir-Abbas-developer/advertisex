@@ -8,6 +8,7 @@ import { companyHour, formatDate } from "@/lib/date";
 import { notify } from "@/lib/notifications";
 import { sweepTaskDeadlines } from "@/modules/tasks/deadlines";
 import { sweepProjects } from "@/modules/projects/jobs";
+import { sweepRebalance } from "@/modules/assignment/server";
 
 /**
  * The 9am follow-up call.
@@ -77,12 +78,15 @@ export async function POST(request: Request) {
     const tasks = await sweepTaskDeadlines(now, timeZone, todayKey(now, timeZone));
     // Phase 4: delayed-project detection and deadline warnings.
     const projects = await sweepProjects(now);
+    // Phase 5: workload and deadlines drift — suggest reassignments, never make them.
+    const rebalance = await sweepRebalance(now);
 
     return NextResponse.json({
       status: "ok",
       timeZone,
       tasks,
       projects,
+      rebalance,
       due: due.length,
       sent,
       // due minus sent is the dedupe working, not a failure.

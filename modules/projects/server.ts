@@ -155,7 +155,7 @@ export type PlanService = {
   id: string;
   name: string;
   stageTemplates: { name: string; order: number }[];
-  skills: { skillId: string }[];
+  skills: { skillId: string; weight: number; skill: { name: string } }[];
 };
 
 /** The active services, with their templates and skills, in the given order. */
@@ -167,7 +167,7 @@ export async function servicesForPlan(serviceIds: readonly string[]): Promise<Pl
       id: true,
       name: true,
       stageTemplates: { select: { name: true, order: true }, orderBy: { order: "asc" } },
-      skills: { select: { skillId: true } },
+      skills: { select: { skillId: true, weight: true, skill: { select: { name: true } } } },
     },
   });
   return [...new Set(serviceIds)].map((id) => rows.find((r) => r.id === id)).filter((r): r is PlanService => Boolean(r));
@@ -198,9 +198,11 @@ export async function writePlan(tx: TransactionClient, projectId: string, servic
       })),
     });
   }
-  const skillIds = [...new Set(services.flatMap((s) => s.skills.map((k) => k.skillId)))];
-  if (skillIds.length) {
-    await tx.projectSkill.createMany({ data: skillIds.map((skillId) => ({ projectId, skillId, source: "DERIVED" })) });
+  // A skill several services need keeps its highest weight.
+  const weights = new Map<string, number>();
+  for (const k of services.flatMap((s) => s.skills)) weights.set(k.skillId, Math.max(weights.get(k.skillId) ?? 0, k.weight));
+  if (weights.size) {
+    await tx.projectSkill.createMany({ data: [...weights].map(([skillId, weight]) => ({ projectId, skillId, source: "DERIVED", weight })) });
   }
 }
 

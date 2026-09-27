@@ -12,7 +12,7 @@ import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 
 const ROOT = path.join(process.cwd(), ".next", "static");
-const NEEDLES = ["VAULT_KEY", "advertisex-dev-vault", "aes-256-gcm", "sealSecret", "openSecret", "advertisex:file-urls", "FILE_URL_SECRET", "Nonna-Demo-2026"];
+const NEEDLES = ["VAULT_KEY", "advertisex-dev-vault", "aes-256-gcm", "sealSecret", "openSecret", "advertisex:file-urls", "FILE_URL_SECRET", "Nonna-Demo-2026", "api.anthropic.com"];
 
 if (!existsSync(ROOT)) {
   console.error("No .next/static — run `npm run build` first.");
@@ -26,9 +26,9 @@ for (const file of files(ROOT).filter((f) => /\.(js|css|json|map)$/.test(f))) {
   scanned++;
   for (const n of NEEDLES) if (text.includes(n)) hits.push(`${path.relative(process.cwd(), file)} contains "${n}"`);
 }
-console.log(`${scanned} browser files scanned for ${NEEDLES.length} vault markers`);
+console.log(`${scanned} browser files scanned for  vault and AI markers`);
 if (hits.length) {
   for (const h of hits) console.error(`  ✗ ${h}`);
   process.exit(1);
 }
-console.log("✓ nothing of the vault reached the browser bundle");
+console.log("✓ nothing of the vault or the AI provider reached the browser bundle");

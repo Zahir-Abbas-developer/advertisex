@@ -13,6 +13,7 @@ import {
   PROJECT_STATUSES,
 } from "@/modules/projects/domain";
 import { createProject, ProjectError, projectScopeWhere, summarize } from "@/modules/projects/server";
+import { onProjectCreated } from "@/modules/assignment/server";
 
 /**
  * Projects (Phase 4).
@@ -139,7 +140,10 @@ export async function POST(request: Request) {
       ownerId: d.ownerId ?? null,
       memberIds: d.memberIds,
     });
-    return NextResponse.json({ project }, { status: 201 });
+    // Phase 5: analyze the requirements and recommend (or, in AUTO, assign)
+    // the team. Never fails the creation it advises on.
+    const assignment = await onProjectCreated(project.id, gate.principal.id);
+    return NextResponse.json({ project, assignment }, { status: 201 });
   } catch (error) {
     if (error instanceof ProjectError) {
       return apiError(error.message, error.status, error.fields?.endDate ? { ...error.fields, deadline: error.fields.endDate } : error.fields);

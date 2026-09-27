@@ -197,6 +197,58 @@ Founder: every project. Manager: their departments' clients' projects.
 | Assignments | per person: active projects they own or are on, and the open milestones and tasks assigned to them inside those projects |
 | Monthly trend | per company-calendar month, last 6: projects started (by start date), completed (by `completedAt`) |
 
+## Added in Phase 5 — project assignment (`modules/assignment/domain.ts`)
+
+Pinned by `tests/assignment-domain.test.ts` (fixed data, including the
+"Website + Google Ads + SEO" scenario) and over HTTP on the seeded team by
+`assigntest`.
+
+**Requirements.** Each required skill is a *role*, with a weight 1–5:
+
+| Source | Weight |
+| --- | --- |
+| A service's skills (catalog) | as set per service; defaults by list position: first 5, second 3, others 2 |
+| Read from the brief by AI (only skills in the taxonomy) | 2 |
+| Added by hand on the project | 3 |
+
+A skill from several sources keeps its highest weight. Roles are filled
+heaviest first.
+
+**Score**, per candidate per role (each component 0–1; weights `w` are the
+founder's, normalized to sum to 1 — defaults 40/10/20/20/10):
+
+    score = w1·skillMatch + w2·availability + w3·freeCapacity + w4·performanceHistory + w5·deadlineFit  (+ signal)
+
+| Component | Formula |
+| --- | --- |
+| skillMatch | 0.7 × proficiency in the role's skill ÷ 5 + 0.3 × (Σ weights of the project's skills they hold at ≥ 2) ÷ (Σ all weights) |
+| availability | 1 − approved leave days in the project's first 14 days ÷ 10; 0 if on leave or inactive |
+| freeCapacity (the brief's 1 − workloadRatio) | 1 − committed hours *after taking the role* ÷ weekly capacity, clamped 0–1. Committed = 2 h × (open tasks + open project milestones) + role hours × (open projects they're on + roles already given to them in this plan). A newcomer adds one role's hours; a current holder's role is already counted — the same measure for both. |
+| performanceHistory | on-time rate of tasks and milestones completed in the last 180 days that had a due date (done by the end of the due day, company clock); 0.6 with no history (neutral, not a penalty) |
+| deadlineFit | 1 − (2 h × open items due on or before this project's deadline) ÷ (weekly capacity × weeks from start to deadline, at least 1) |
+| signal | per skill, over 180 days: +0.04 for each time the founder chose this person over the recommendation, −0.04 each time they were overridden away; capped ±0.12 |
+
+Role hours default to 6 per week (Settings → Assignment).
+
+**Hard constraints** — never ranked: proficiency in the role's skill below
+2/5; employment status on leave or inactive; no weekly capacity; committed
+hours after taking the role above weekly capacity.
+
+**Output.** Per role: the best eligible candidate, up to three ranked
+alternatives, and a sentence built from the same numbers, e.g. *"Best match:
+covers 3/5 required skills · SEO 4/5 · 45% capacity free · 100% on-time
+delivery."* (additions when relevant: leave in the first two weeks, other
+deadlines first, the founder's past choices, AI agent). A role no one can
+take says why: nobody holds the skill (a gap), or who holds it and why they
+are unavailable.
+
+**Rebalancing** (morning job, on deadline changes, or on demand) raises a
+"reassignment suggested" — never a change — when the holder: no longer
+holds the skill or is unavailable; is over capacity (committed > weekly
+capacity); or the project is delayed and another eligible candidate scores
+at least 15 points (0.15) higher. Deduped per project, role, holder,
+suggestion and week.
+
 ## To be defined at their phase gates
 
 - **P2** — per-organization aggregates (same formulas, org-scoped denominators).

@@ -80,6 +80,7 @@ jobs:
           npm run leadtest
           npm run outreachtest
           npm run projecttest
+          npm run assigntest
       - name: Server log on failure
         if: failure()
         run: tail -200 dev.log

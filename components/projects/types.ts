@@ -31,7 +31,7 @@ export type ProjectPayload = {
   }[];
   tasks: { id: string; title: string; status: string; priority: string; dueAt: string | null; assignee: { id: string; name: string; avatarColor: string } | null }[];
   upcoming: { id: string; kind: "MILESTONE" | "TASK"; title: string; dueAt: string | null }[];
-  summary: { progress: Progress; schedule: Schedule; daysOverdue: number; openMilestones: number; openTasks: number };
+  summary: { progress: Progress; schedule: Schedule; daysOverdue: number; openMilestones: number; openTasks: number; pendingRoles: number; openSuggestions: number };
 };
 
 export type ProjectViewer = {

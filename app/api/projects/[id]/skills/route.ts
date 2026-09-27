@@ -25,12 +25,24 @@ export async function PUT(request: Request, { params }: { params: { id: string }
   const known = await prisma.skill.findMany({ where: { id: { in: ids }, isActive: true }, select: { id: true } });
   if (known.length !== ids.length) return apiError("Please fix the highlighted fields", 422, { skillIds: "One of those skills isn't in the taxonomy" });
 
-  const derived = new Set(
-    (await prisma.serviceSkill.findMany({ where: { service: { projects: { some: { projectId: params.id } } } }, select: { skillId: true } })).map((s) => s.skillId),
-  );
+  // Kept skills keep their weight and source; a skill the services need is
+  // DERIVED at its catalog weight; one added by hand is MANUAL at 3.
+  const [existing, serviceSkills] = await Promise.all([
+    prisma.projectSkill.findMany({ where: { projectId: params.id }, select: { skillId: true, weight: true, source: true } }),
+    prisma.serviceSkill.findMany({ where: { service: { projects: { some: { projectId: params.id } } } }, select: { skillId: true, weight: true } }),
+  ]);
+  const derived = new Map<string, number>();
+  for (const k of serviceSkills) derived.set(k.skillId, Math.max(derived.get(k.skillId) ?? 0, k.weight));
+  const rows = ids.map((skillId) => {
+    const kept = existing.find((e) => e.skillId === skillId);
+    if (kept) return { projectId: params.id, skillId, source: kept.source, weight: kept.weight };
+    return derived.has(skillId)
+      ? { projectId: params.id, skillId, source: "DERIVED", weight: derived.get(skillId)! }
+      : { projectId: params.id, skillId, source: "MANUAL", weight: 3 };
+  });
   await prisma.$transaction([
-    prisma.projectSkill.deleteMany({ where: { projectId: params.id } }),
-    prisma.projectSkill.createMany({ data: ids.map((skillId) => ({ projectId: params.id, skillId, source: derived.has(skillId) ? "DERIVED" : "MANUAL" })) }),
+    prisma.projectSkill.deleteMany({ where: { projectId: params.id, skillId: { notIn: ids } } }),
+    ...rows.filter((r) => !existing.some((e) => e.skillId === r.skillId)).map((r) => prisma.projectSkill.create({ data: r })),
   ]);
   return NextResponse.json({ ok: true });
 }

@@ -590,3 +590,64 @@ live on the validated local store, which does not persist on Vercel.
 - Deleting the retainer module now: D4 says only after the replacement ships
   and the founder agrees.
 - Storing progress on the project: a stored number drifts from its facts.
+
+---
+
+## ADR-014 — Phase 5: project assignment
+
+**Date:** 2026-09-28 · **Status:** accepted
+
+**Deterministic core, AI at the edge.** The score is a pure function of
+recorded facts (skills and proficiency, capacity, open work, on-time
+history, leave, deadlines), so it can be tested to the decimal, explained in
+a sentence, and trusted when it's wrong for a known reason. AI does one job:
+reading the brief for skills the services don't cover. It may only name
+skills already in the taxonomy (everything else is discarded), it has an
+8-second limit, and it fails safe to "no extra skills". There's no SDK:
+the Anthropic Messages API is called over `fetch` behind `modules/ai`'s
+interface, so the provider is configuration. With no key, the product is
+fully functional.
+
+**Roles are required skills.** A project needs one person per required
+skill. One person may hold several roles, but every role carries a weekly
+load (default 6 h), so a second role costs capacity. That spreads work to
+specialists instead of piling it on one generalist. A first version counted
+a person's load once per project, and the fixed-data test caught the web
+lead absorbing UI/UX over the UI/UX specialist.
+
+**Free capacity is measured after the role, for everyone.** The brief's
+`1 − workloadRatio` is computed on the load a person would carry with the
+role. A current holder's role is already in their load; a newcomer's is
+added. Measuring "before" penalised whoever had just been accepted, and
+flipped rankings the moment a founder confirmed. The browser check caught
+this, and a unit test now pins it.
+
+**Hard constraints are filters, not penalties.** Not holding the skill (at
+2/5 or better), being on leave or inactive, and going over capacity remove a
+candidate from the ranking. A role no one can fill is shown as a gap, with
+the reason. The founder can still assign anyone active, and the dialog says
+when that person doesn't meet the rules.
+
+**Overrides are the signal.** An overridden recommendation keeps who was
+recommended and who was chosen. For that skill, over 180 days, each choice
+moves the chosen person up and the passed-over person down by 0.04 (capped
+at ±0.12), and the explanation says so. It's a nudge, never an override of
+the facts, and it's per skill.
+
+**RECOMMEND by default; AUTO on request.** In RECOMMEND mode nothing
+changes until the founder (or the project's department manager) confirms,
+and the founder and the project owner are told a team is waiting. In AUTO
+mode every role with a recommendation is accepted on creation; gaps remain
+for a human. Every decision is audit-logged by the data layer.
+
+**Rebalancing only suggests.** A morning sweep, a deadline change, or an
+on-demand check can raise a "reassignment suggested" signal. It never moves
+a role. Accepting a suggestion moves the role and tells the previous holder,
+who stays on the team.
+
+**Alternatives rejected:**
+- A learned ranking model: it can't be explained or tested with fixed data,
+  and there's too little history.
+- Letting AI score candidates: it isn't reproducible, and it would put
+  personal data in prompts for no gain.
+- Assigning silently on imbalance: the brief forbids it.

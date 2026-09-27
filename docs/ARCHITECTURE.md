@@ -53,7 +53,20 @@ modules/
   vault/      cipher (pure AES-256-GCM, record-bound) · keys (env, rotation) · server
               (server-only) · credentials (masked lists, audited reveal)                      (Phase 4)
   files/      signing (pure HMAC signed URLs) · server (server-only: owner-derived access)      (Phase 4)
+  assignment/ domain (pure: requirements, scoring, constraints, explanations, team plan,
+              rebalancing) · server (real inputs, stored recommendations, decisions,
+              AUTO mode, rebalance sweep)                                                     (Phase 5)
+  ai/         provider (the interface) · anthropic (Messages API over fetch) · index
+              (server-only: provider from env, null when off) · skills (brief → taxonomy)   (Phase 5)
 ```
+
+**AI (Phase 5).** `modules/ai` is the only place a model is called. The
+provider is configuration (`ANTHROPIC_API_KEY`, `AI_MODEL`, `AI_ENABLED`);
+with none set, `aiProvider()` is null and every feature takes its
+deterministic path. Today one feature uses it: reading a project brief for
+required skills, constrained to the organization's taxonomy (anything else
+the model says is dropped), with an 8-second limit and fail-safe to none.
+Assignment scoring is deterministic and never calls a model.
 
 **Credentials vault (Phase 4).** Secrets are sealed with AES-256-GCM under
 `VAULT_KEY` (rotation via `VAULT_KEY_PREVIOUS`), bound to the credential's

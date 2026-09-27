@@ -8,6 +8,7 @@ import { fieldErrors } from "@/lib/validation";
 import { authorize } from "@/modules/rbac/authorize";
 import { requireApi } from "@/modules/rbac/server";
 import { ConvertError, convertLead } from "@/modules/leads/convert";
+import { onProjectCreated } from "@/modules/assignment/server";
 
 const convertSchema = z.object({
   serviceIds: z.array(z.string().min(1)).max(20).default([]),
@@ -40,6 +41,8 @@ export async function POST(request: Request, { params }: { params: { id: string 
 
   try {
     const result = await convertLead(gate.principal, params.id, parsed.data);
+    // The first project gets its team plan like any other (Phase 5).
+    await onProjectCreated(result.projectId, gate.principal.id);
     return NextResponse.json(result, { status: 201 });
   } catch (error) {
     if (error instanceof ConvertError) return apiError(error.message, error.status, error.fields);

@@ -18,6 +18,7 @@ import {
   upcomingWork,
 } from "@/modules/projects/domain";
 import { canShapeProject, notifyTeam, projectFor, summarize } from "@/modules/projects/server";
+import { sweepRebalance } from "@/modules/assignment/server";
 
 /**
  * One project: its overview, plan (stages, milestones), tasks, team and
@@ -61,6 +62,10 @@ export async function GET(_request: Request, { params }: { params: { id: string 
     select: { id: true, title: true, status: true, priority: true, dueAt: true, assignee: { select: { id: true, name: true, avatarColor: true } } },
   });
   const summary = (await summarize([p])).get(p.id)!;
+  const [pendingRoles, openSuggestions] = await Promise.all([
+    prisma.assignmentRecommendation.count({ where: { projectId: p.id, status: { in: ["PROPOSED", "GAP"] } } }),
+    prisma.reassignmentSuggestion.count({ where: { projectId: p.id, status: "OPEN" } }),
+  ]);
   const now = new Date();
 
   const serviceName = new Map(p.services.map((s) => [s.service.id, s.service.name]));
@@ -120,6 +125,8 @@ export async function GET(_request: Request, { params }: { params: { id: string 
         daysOverdue: summary.daysOverdue,
         openMilestones: summary.openMilestones,
         openTasks: summary.openTasks,
+        pendingRoles,
+        openSuggestions,
       },
     },
     viewer: {
@@ -193,6 +200,8 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   if (d.status && d.status !== wasStatus) changes.push(`is now ${PROJECT_STATUS_LABEL[d.status]}`);
   if (d.deadline && end.getTime() !== existing.endDate.getTime()) changes.push(`deadline moved to ${formatDate(end)}`);
   if (d.ownerId !== undefined && d.ownerId !== existing.ownerId) changes.push("has a new owner");
+  // A moved deadline changes who can make it: check the team (suggestions only).
+  if (d.deadline && end.getTime() !== existing.endDate.getTime()) await sweepRebalance(new Date(), updated.id).catch(() => null);
   if (changes.length) {
     await notifyTeam(updated.id, gate.principal.id, { type: "PROJECT_UPDATED", title: `${updated.title} ${changes[0]}`, body: changes.join(" · ") });
   }

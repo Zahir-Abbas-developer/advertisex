@@ -20,6 +20,9 @@ import {
 } from "@/modules/tasks/domain";
 
 import { taskBoard } from "@/lib/tasks";
+import { ProgressBar } from "@/components/ui/ProgressBar";
+import { summarize } from "@/modules/projects/server";
+import { isDelayed, OPEN_PROJECT_STATUSES, SCHEDULE_LABEL } from "@/modules/projects/domain";
 const pct = (v: number | null) => (v === null ? "—" : `${Math.round(v * 100)}%`);
 
 type Item = {
@@ -81,7 +84,7 @@ export async function MyWork({ userId, name, capacity }: { userId: string; name:
   const key = monthOf(now, timezone);
   const { from, to } = monthBounds(key, timezone);
 
-  const [tasks, perf, attendance, board] = await Promise.all([
+  const [tasks, perf, attendance, board, myProjects] = await Promise.all([
     prisma.task.findMany({
       where: { assigneeId: userId, status: { in: storedTaskStatuses(...OPEN_STATUSES) } },
       orderBy: [{ dueAt: "asc" }],
@@ -92,7 +95,24 @@ export async function MyWork({ userId, name, capacity }: { userId: string; name:
     // Follow-ups come from the same place the founder's dashboard counts
     // them, so the two can never disagree about what is due.
     taskBoard(userId, false, { mineOnly: true }),
+    // Phase 5: the moment someone is put on a project it's here, with the
+    // role(s) they hold on it.
+    prisma.project.findMany({
+      where: { status: { in: [...OPEN_PROJECT_STATUSES] }, OR: [{ ownerId: userId }, { members: { some: { userId } } }] },
+      orderBy: { endDate: "asc" },
+      select: {
+        id: true,
+        title: true,
+        status: true,
+        startDate: true,
+        endDate: true,
+        client: { select: { businessName: true } },
+        recommendations: { where: { chosenUserId: userId, status: { in: ["ACCEPTED", "OVERRIDDEN"] } }, select: { skill: { select: { name: true } } } },
+        stages: { where: { status: "ACTIVE" }, select: { name: true }, take: 1 },
+      },
+    }),
   ]);
+  const projectSummaries = await summarize(myProjects, now);
   const followUps = board.rows.filter((r) => r.kind === "FOLLOW_UP" && (r.bucket === "OVERDUE" || r.bucket === "TODAY"));
   const p = perf.get(userId)!;
 
@@ -158,6 +178,32 @@ export async function MyWork({ userId, name, capacity }: { userId: string; name:
             <TaskList items={upcoming} empty="No deadlines in the next 7 days." />
           </Panel>
         </div>
+      )}
+
+      {myProjects.length > 0 && (
+        <Panel title="Your projects" count={myProjects.length}>
+          <ul className="divide-y divide-line">
+            {myProjects.map((pr) => {
+              const sum = projectSummaries.get(pr.id)!;
+              return (
+                <li key={pr.id}>
+                  <Link href={`/projects/${pr.id}`} className="grid gap-2 px-4 py-3 hover:bg-surface-2 sm:grid-cols-[minmax(0,1fr)_10rem] sm:items-center">
+                    <span className="min-w-0">
+                      <span className="block truncate text-[13px] font-medium text-ink">{pr.title}</span>
+                      <span className="block truncate text-[12px] text-ink/45">
+                        {pr.client.businessName}
+                        {pr.recommendations.length ? ` · your role: ${pr.recommendations.map((r) => r.skill.name).join(", ")}` : ""}
+                        {pr.stages[0] ? ` · now: ${pr.stages[0].name}` : ""}
+                        {isDelayed(sum.schedule) ? ` · ${SCHEDULE_LABEL[sum.schedule].toLowerCase()}` : ""}
+                      </span>
+                    </span>
+                    <ProgressBar value={sum.progress.percent} showValue size="sm" tone={sum.schedule === "OVERDUE" ? "danger" : sum.schedule === "BEHIND" ? "warn" : "brand"} />
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </Panel>
       )}
 
       {followUps.length > 0 && (

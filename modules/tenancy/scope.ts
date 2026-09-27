@@ -90,6 +90,9 @@ export const PROJECT_OWNED_MODELS = new Set([
   "ProjectStage",
   "ProjectMilestone",
   "ProjectComment",
+  // Phase 5 — assignment.
+  "AssignmentRecommendation",
+  "ReassignmentSuggestion",
 ]);
 
 /** Rows that belong to an organization through a catalog service (Phase 4). */

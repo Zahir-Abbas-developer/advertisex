@@ -125,10 +125,12 @@ model Skill {
   isActive       Boolean  @default(true)
   createdAt      DateTime @default(now())
 
-  organization Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  holders      UserSkill[]
-  services     ServiceSkill[]
-  projects     ProjectSkill[]
+  organization    Organization               @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  holders         UserSkill[]
+  services        ServiceSkill[]
+  projects        ProjectSkill[]
+  recommendations AssignmentRecommendation[]
+  reassignments   ReassignmentSuggestion[]
 
   @@unique([organizationId, name])
   @@index([organizationId, isActive])
@@ -323,54 +325,60 @@ model User {
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 
-  milestones         Milestone[]            @relation("MilestoneAssignee")
-  scoreEvents        ScoreEvent[]           @relation("ScoreEventSubject")
-  authoredScore      ScoreEvent[]           @relation("ScoreEventAuthor")
+  milestones         Milestone[]                @relation("MilestoneAssignee")
+  scoreEvents        ScoreEvent[]               @relation("ScoreEventSubject")
+  authoredScore      ScoreEvent[]               @relation("ScoreEventAuthor")
   reports            Report[]
   notifications      Notification[]
   comments           Comment[]
   mentions           CommentMention[]
   attachments        Attachment[]
-  activity           Activity[]             @relation("ActivityActor")
+  activity           Activity[]                 @relation("ActivityActor")
   attendance         AttendanceDay[]
-  leaveRequests      LeaveRequest[]         @relation("LeaveSubject")
-  leaveReviews       LeaveRequest[]         @relation("LeaveReviewer")
-  outages            OutageReport[]         @relation("OutageSubject")
-  outageReviews      OutageReport[]         @relation("OutageReviewer")
+  leaveRequests      LeaveRequest[]             @relation("LeaveSubject")
+  leaveReviews       LeaveRequest[]             @relation("LeaveReviewer")
+  outages            OutageReport[]             @relation("OutageSubject")
+  outageReviews      OutageReport[]             @relation("OutageReviewer")
   breaks             BreakSession[]
   pushSubs           PushSubscription[]
-  blocksRaised       BlockPeriod[]          @relation("BlockAuthor")
-  blocksCleared      BlockPeriod[]          @relation("BlockReleaser")
-  leads              Lead[]                 @relation("LeadOwner")
-  leadsCreated       Lead[]                 @relation("LeadCreator")
+  blocksRaised       BlockPeriod[]              @relation("BlockAuthor")
+  blocksCleared      BlockPeriod[]              @relation("BlockReleaser")
+  leads              Lead[]                     @relation("LeadOwner")
+  leadsCreated       Lead[]                     @relation("LeadCreator")
   salesActivity      SalesActivity[]
   targets            ActivityTarget[]
-  kpiEntries         ClientKpiEntry[]       @relation("KpiAuthor")
+  kpiEntries         ClientKpiEntry[]           @relation("KpiAuthor")
   leadsServices      ServiceLead[]
-  disputes           Dispute[]              @relation("DisputeSubject")
+  disputes           Dispute[]                  @relation("DisputeSubject")
   disputeFiles       DisputeFile[]
-  disputeRulings     Dispute[]              @relation("DisputeResolver")
-  auditEntries       AuditLog[]             @relation("AuditActor")
+  disputeRulings     Dispute[]                  @relation("DisputeResolver")
+  auditEntries       AuditLog[]                 @relation("AuditActor")
   incentives         IncentiveAward[]
   departments        DepartmentMembership[]
-  clientsOwned       Client[]               @relation("ClientAssignee")
-  organization       Organization?          @relation(fields: [organizationId], references: [id], onDelete: SetNull)
-  clientAccount      ClientAccount?         @relation(fields: [clientAccountId], references: [id], onDelete: SetNull)
-  agentGrants        AgentGrant[]           @relation("AgentGrants")
+  clientsOwned       Client[]                   @relation("ClientAssignee")
+  organization       Organization?              @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  clientAccount      ClientAccount?             @relation(fields: [clientAccountId], references: [id], onDelete: SetNull)
+  agentGrants        AgentGrant[]               @relation("AgentGrants")
   skills             UserSkill[]
   schedule           WorkSchedule?
-  taskComments       TaskComment[]          @relation("TaskCommentAuthor")
-  filesUploaded      File[]                 @relation("FileUploader")
-  savedViews         SavedView[]            @relation("SavedViews")
-  grantsIssued       AgentGrant[]           @relation("AgentGrantsIssued")
-  tasksAssigned      Task[]                 @relation("TaskAssignee")
-  tasksCreated       Task[]                 @relation("TaskCreator")
-  projectsLed        Project[]              @relation("ProjectOwner")
+  taskComments       TaskComment[]              @relation("TaskCommentAuthor")
+  filesUploaded      File[]                     @relation("FileUploader")
+  savedViews         SavedView[]                @relation("SavedViews")
+  grantsIssued       AgentGrant[]               @relation("AgentGrantsIssued")
+  tasksAssigned      Task[]                     @relation("TaskAssignee")
+  tasksCreated       Task[]                     @relation("TaskCreator")
+  projectsLed        Project[]                  @relation("ProjectOwner")
   projectMemberships ProjectMember[]
-  projectMilestones  ProjectMilestone[]     @relation("ProjectMilestoneAssignee")
-  projectComments    ProjectComment[]       @relation("ProjectCommentAuthor")
-  clientNotes        ClientNote[]           @relation("ClientNoteAuthor")
-  credentialsCreated ClientCredential[]     @relation("CredentialCreator")
+  projectMilestones  ProjectMilestone[]         @relation("ProjectMilestoneAssignee")
+  projectComments    ProjectComment[]           @relation("ProjectCommentAuthor")
+  clientNotes        ClientNote[]               @relation("ClientNoteAuthor")
+  credentialsCreated ClientCredential[]         @relation("CredentialCreator")
+  recommendedFor     AssignmentRecommendation[] @relation("RecommendedFor")
+  chosenFor          AssignmentRecommendation[] @relation("ChosenFor")
+  assignmentsDecided AssignmentRecommendation[] @relation("AssignmentDecider")
+  reassignFrom       ReassignmentSuggestion[]   @relation("ReassignFrom")
+  reassignTo         ReassignmentSuggestion[]   @relation("ReassignTo")
+  reassignDecided    ReassignmentSuggestion[]   @relation("ReassignDecider")
 
   @@index([role])
   @@index([isActive])
@@ -487,6 +495,8 @@ model ServiceCatalog {
 model ServiceSkill {
   serviceId String
   skillId   String
+  /// 1–5: how central this skill is to the service (drives assignment).
+  weight    Int    @default(3)
 
   service ServiceCatalog @relation(fields: [serviceId], references: [id], onDelete: Cascade)
   skill   Skill          @relation(fields: [skillId], references: [id], onDelete: Cascade)
@@ -834,17 +844,19 @@ model Project {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  client       Client             @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  organization Organization?      @relation(fields: [organizationId], references: [id], onDelete: SetNull)
-  owner        User?              @relation("ProjectOwner", fields: [ownerId], references: [id], onDelete: SetNull)
-  services     ProjectService[]
-  modules      Module[]
-  members      ProjectMember[]
-  skills       ProjectSkill[]
-  stages       ProjectStage[]
-  milestones   ProjectMilestone[]
-  comments     ProjectComment[]
-  files        File[]
+  client          Client                     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  organization    Organization?              @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  owner           User?                      @relation("ProjectOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  services        ProjectService[]
+  modules         Module[]
+  members         ProjectMember[]
+  skills          ProjectSkill[]
+  stages          ProjectStage[]
+  milestones      ProjectMilestone[]
+  comments        ProjectComment[]
+  files           File[]
+  recommendations AssignmentRecommendation[]
+  reassignments   ReassignmentSuggestion[]
 
   renewedFrom Project? @relation("ProjectRenewal", fields: [renewedFromId], references: [id], onDelete: SetNull)
   renewedInto Project? @relation("ProjectRenewal")
@@ -877,7 +889,10 @@ model ProjectMember {
 model ProjectSkill {
   projectId String
   skillId   String
+  /// "DERIVED" (from services) | "BRIEF" (read from the brief by AI) | "MANUAL"
   source    String @default("DERIVED")
+  /// 1–5: how much of the project needs it — the role's weight in assignment.
+  weight    Int    @default(3)
 
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   skill   Skill   @relation(fields: [skillId], references: [id], onDelete: Cascade)
@@ -936,6 +951,74 @@ model ProjectMilestone {
   @@index([stageId])
   @@index([assigneeId, status])
   @@index([dueDate])
+}
+
+/// A recommendation for one role (a required skill) on a project (Phase 5).
+/// The founder accepts it, overrides it with someone else, or dismisses it;
+/// overrides are the signal fed back into later scoring.
+model AssignmentRecommendation {
+  id                String    @id @default(cuid())
+  projectId         String
+  skillId           String
+  /// Null when no one could take the role (a gap).
+  recommendedUserId String?
+  score             Float?
+  /// The plain-language reason, and the gap text when there is no one.
+  explanation       String
+  /// JSON: the score components and the ranked alternatives with theirs.
+  detail            String    @default("{}")
+  /// "PROPOSED" | "ACCEPTED" | "OVERRIDDEN" | "DISMISSED" | "GAP"
+  status            String    @default("PROPOSED")
+  /// Who holds the role now: the recommendation, or the founder's choice.
+  chosenUserId      String?
+  overrideReason    String?
+  /// "RECOMMEND" | "AUTO" — how the decision was made.
+  mode              String    @default("RECOMMEND")
+  decidedById       String?
+  decidedAt         DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  project     Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  skill       Skill   @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  recommended User?   @relation("RecommendedFor", fields: [recommendedUserId], references: [id], onDelete: SetNull)
+  chosen      User?   @relation("ChosenFor", fields: [chosenUserId], references: [id], onDelete: SetNull)
+  decidedBy   User?   @relation("AssignmentDecider", fields: [decidedById], references: [id], onDelete: SetNull)
+
+  @@unique([projectId, skillId])
+  @@index([skillId, status])
+  @@index([recommendedUserId])
+  @@index([chosenUserId])
+  @@index([decidedById])
+}
+
+/// "Reassignment suggested" (Phase 5 design 5): a signal for the founder,
+/// never a silent change. Deduped per project, role, holder and suggestion.
+model ReassignmentSuggestion {
+  id          String    @id @default(cuid())
+  projectId   String
+  skillId     String
+  fromUserId  String
+  toUserId    String?
+  reason      String
+  /// "OPEN" | "ACCEPTED" | "DISMISSED"
+  status      String    @default("OPEN")
+  dedupeKey   String    @unique
+  decidedById String?
+  decidedAt   DateTime?
+  createdAt   DateTime  @default(now())
+
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  skill     Skill   @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  from      User    @relation("ReassignFrom", fields: [fromUserId], references: [id], onDelete: Cascade)
+  to        User?   @relation("ReassignTo", fields: [toUserId], references: [id], onDelete: SetNull)
+  decidedBy User?   @relation("ReassignDecider", fields: [decidedById], references: [id], onDelete: SetNull)
+
+  @@index([projectId, status])
+  @@index([skillId])
+  @@index([fromUserId])
+  @@index([toUserId])
+  @@index([decidedById])
 }
 
 /// The project's internal discussion thread.
@@ -1806,6 +1889,14 @@ model Settings {
   /// person who took it — and because a routing rule nobody can switch off is
   /// a routing rule nobody trusts.
   autoAssignEnabled Boolean @default(true)
+
+  // --- Project assignment (Advertise X Phase 5) ------------------------------
+  /// "RECOMMEND" (the founder confirms) | "AUTO" (assign on creation).
+  assignmentMode      String @default("RECOMMEND")
+  /// JSON weights {skillMatch, availability, capacity, performance, deadlineFit}.
+  assignmentWeights   String @default("{\"skillMatch\":40,\"availability\":10,\"capacity\":20,\"performance\":20,\"deadlineFit\":10}")
+  /// Weekly hours a project role is expected to take.
+  assignmentRoleHours Int    @default(6)
 
   // --- Advertise X fork: parked module flags ---------------------------------------
   /// Modules inherited from the agency fork that Advertise X did not request. All

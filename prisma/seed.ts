@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 import { avatarColorFor, FIELD_ENTITIES } from "../lib/constants";
 import { serializeSkills } from "../lib/skills";
 import { STANDARD_STAGES } from "../modules/leads/domain";
-import { DEFAULT_SERVICES } from "../modules/services/catalog";
+import { DEFAULT_SERVICES, skillWeightAt } from "../modules/services/catalog";
 
 /**
  * Advertise X seed — the starting shape of the business, not the shape of the system.
@@ -332,9 +332,20 @@ async function seedServiceCatalog(organizationId: string) {
   for (const [index, service] of DEFAULT_SERVICES.entries()) {
     const existing = await prisma.serviceCatalog.findFirst({
       where: { organizationId, OR: [{ slug: service.slug }, { name: service.name }] },
-      select: { id: true },
+      select: { id: true, skills: { select: { skillId: true, weight: true } } },
     });
-    if (existing) continue;
+    if (existing) {
+      // Phase 5 added skill weights (default 3). A service whose weights are
+      // all still that default gets the catalog's; one the founder has
+      // weighted is left alone.
+      if (existing.skills.length && existing.skills.every((k) => k.weight === 3)) {
+        for (const [index, name] of service.skills.entries()) {
+          const id = skillId.get(name);
+          if (id) await prisma.serviceSkill.updateMany({ where: { serviceId: existing.id, skillId: id }, data: { weight: skillWeightAt(index) } });
+        }
+      }
+      continue;
+    }
     await prisma.serviceCatalog.create({
       data: {
         organizationId,
@@ -347,9 +358,9 @@ async function seedServiceCatalog(organizationId: string) {
         stageTemplates: { create: service.stages.map((name, order) => ({ name, order })) },
         skills: {
           create: service.skills
-            .map((name) => skillId.get(name))
-            .filter((id): id is string => Boolean(id))
-            .map((id) => ({ skillId: id })),
+            .map((name, index) => ({ id: skillId.get(name), weight: skillWeightAt(index) }))
+            .filter((k): k is { id: string; weight: number } => Boolean(k.id))
+            .map((k) => ({ skillId: k.id, weight: k.weight })),
         },
       },
     });

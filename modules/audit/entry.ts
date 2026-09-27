@@ -54,6 +54,10 @@ export const AUDITED_MODELS = new Set([
   "ProjectStage",
   "ProjectMilestone",
   "ProjectComment",
+  // Phase 5 — every recommendation decision (accept, override, dismiss) and
+  // every reassignment suggestion is on the record.
+  "AssignmentRecommendation",
+  "ReassignmentSuggestion",
 ]);
 
 export const RECORD_ACTIONS = {

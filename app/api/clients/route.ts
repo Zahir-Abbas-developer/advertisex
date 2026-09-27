@@ -8,6 +8,7 @@ import { containsInsensitive } from "@/lib/db-features";
 import { requireApi } from "@/modules/rbac/server";
 import { clientOverviews } from "@/modules/clients/overview";
 import { servicesForPlan, writePlan } from "@/modules/projects/server";
+import { onProjectCreated } from "@/modules/assignment/server";
 import { FIRST_PROJECT_DAYS } from "@/modules/projects/domain";
 
 /**
@@ -154,6 +155,7 @@ export async function POST(request: Request) {
       await tx.projectMember.create({ data: { projectId: project.id, userId: ownerId, role: "LEAD" } });
       return { client, project };
     });
+    await onProjectCreated(project.id, gate.principal.id);
     return NextResponse.json({ client, project, next: `/clients/${client.id}` }, { status: 201 });
   } catch {
     return apiError("Couldn't onboard this client", 500);

@@ -145,6 +145,13 @@ export const DEFAULT_SERVICES: readonly CatalogService[] = [
   },
 ];
 
+/**
+ * A catalog skill's weight by its position in the service's list: the first
+ * is the service's core skill (5), the second supports it (3), the rest are
+ * useful (2). Weights drive assignment; the founder can change them.
+ */
+export const skillWeightAt = (index: number) => (index === 0 ? 5 : index === 1 ? 3 : 2);
+
 /** Stages for a service with no template — a project always has a plan. */
 export const FALLBACK_STAGES: readonly string[] = ["Planning", "Delivery", "Review"];
 

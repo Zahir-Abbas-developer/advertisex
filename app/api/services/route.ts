@@ -30,7 +30,7 @@ export async function GET(request: Request) {
       billing: true,
       isActive: true,
       stageTemplates: { select: { id: true, name: true, order: true }, orderBy: { order: "asc" } },
-      skills: { select: { skill: { select: { id: true, name: true } } } },
+      skills: { select: { weight: true, skill: { select: { id: true, name: true } } }, orderBy: { weight: "desc" } },
     },
   });
   return NextResponse.json({
@@ -38,7 +38,7 @@ export async function GET(request: Request) {
       ...s,
       price: founder ? s.price : null,
       billing: founder ? s.billing : null,
-      skills: s.skills.map((k) => k.skill),
+      skills: s.skills.map((k) => ({ ...k.skill, weight: k.weight })),
     })),
   });
 }
