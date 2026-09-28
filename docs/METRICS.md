@@ -262,6 +262,48 @@ suggestion and week.
 - **Client project progress:** the Phase 4 formula, unchanged; the portal
   shows the same percentage the team sees.
 
+## Added in Phase 7 — money (`modules/billing/money.ts`, `domain.ts`)
+
+**Money is integers.** Every amount is stored and computed in integer minor
+units (cents); quantities in thousandths. Input is parsed from text straight
+to integers (never through a float); products that could exceed 2^53 use
+BigInt; display builds the decimal string from integers.
+
+| Rule | Definition |
+| --- | --- |
+| Line amount | `quantityMilli × rateMinor ÷ 1000`, rounded **half away from zero** to the cent (1.5 × 10.01 = 15.015 → 15.02; a discount −15.015 → −15.02). Each line is rounded once. |
+| Invoice total | Σ of the rounded line amounts (no tax in this phase; subtotal = total). A negative rate is a discount line. |
+| Limits | rate ≤ 10,000,000.00; quantity ≤ 100,000 units with ≤ 3 decimals; amounts ≤ 2 decimals; total ≤ 10,000,000,000.00. |
+| Balance | total − paid, for SENT / PARTIALLY_PAID / OVERDUE; 0 for DRAFT, VOID and PAID. |
+| Paid | Σ of the invoice's payments that are not reversed (kept equal to `Invoice.paidMinor` in the same transaction). |
+| Status | DRAFT and VOID are set by people. Otherwise: fully paid → PAID; past due with a balance → OVERDUE (even if part-paid); something paid → PARTIALLY_PAID; else SENT. "Past due" = the company-calendar day after the due date. |
+| Over-payment | refused (no credit balances in this phase). |
+| Payment allocation (for revenue by service) | each payment is split across its invoice's services in proportion to their positive line amounts, by **largest remainder** (floor shares, then the leftover cents one each to the largest remainders; earlier line wins a tie). Shares always sum to the payment. Discount lines reduce every service in proportion. Lines without a service count as "Other work". |
+
+## Added in Phase 7 — the financial overview (`/finance`, `modules/billing/overview.ts`)
+
+Periods are company-calendar ranges ending today: this month, this quarter,
+this year, last 12 months. Only invoices in the organization's currency
+count; others are counted and reported, never converted.
+
+| Metric | Formula |
+| --- | --- |
+| Payments received (revenue) | Σ payments (not reversed) whose date falls in the range |
+| Revenue by client | the same payments, grouped by their invoice's client — sums to payments received |
+| Revenue by service | the same payments, allocated across services (see allocation above) — sums to payments received |
+| Revenue trend | per month, last 12: payments received (by payment date) and invoiced (by issue date) |
+| Invoiced | Σ totals of invoices issued in the range (not drafts, not void) |
+| Pending | Σ balances of SENT and PARTIALLY_PAID invoices, **today** (whatever the range) |
+| Overdue | Σ balances of OVERDUE invoices, today |
+| Outstanding | pending + overdue |
+| MRR | Σ over ACTIVE client services of the monthly value: MONTHLY price; QUARTERLY price ÷ 3; YEARLY price ÷ 12 (each in cents, rounded half away from zero); ONE_TIME 0. Agreed value, not invoices. |
+| ARR | MRR × 12 |
+| New clients | clients created in the range |
+| Closed deals | leads won in the range: `DEAL_CLOSED` activities (written once per lead), with Σ of those leads' deal value |
+
+`npm run billingtest` recomputes every one of these from the database and
+checks the API and the CSV export agree to the cent.
+
 ## To be defined at their phase gates
 
 - **P2** — per-organization aggregates (same formulas, org-scoped denominators).

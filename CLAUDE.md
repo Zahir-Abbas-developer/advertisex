@@ -274,7 +274,8 @@ npm run outreachtest   # outreach rollups reconcile exactly with the logged acti
 npm run projecttest    # client → projects → tasks → milestones → progress; vault; files; scope
 npm run assigntest     # project staffing: recommendations, overrides, AUTO, rebalancing, weights
 npm run portaltest     # client isolation, nothing internal in the portal, founder channel, invites
-npm run bundlescan     # after build: nothing of the credentials vault in the browser bundle
+npm run billingtest    # invoices → payments → overdue → overview reconcile to the cent; billing isolation
+npm run bundlescan     # after build: no vault, AI/payment provider or PDF engine in the browser bundle
 npm run smoke:browser  # real-browser hydration pass (run when renders change)
 
 npm run set-passwords  # issue a distinct password per account (prints once)

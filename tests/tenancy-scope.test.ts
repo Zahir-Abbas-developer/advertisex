@@ -130,4 +130,18 @@ describe("tenant scoping of query arguments", () => {
       }
     }
   });
+  it("scopes billing (Phase 7): invoices and payments by organization, lines through their invoice", () => {
+    for (const model of ["Invoice", "Payment"]) {
+      const read = scopeArgs(model, "findMany", undefined, ORG) as { where: Record<string, unknown> };
+      assert.deepEqual(read.where.AND, [{ organizationId: ORG }], model);
+      const made = scopeArgs(model, "create", { data: { organizationId: "org-elsewhere" } }, ORG) as { data: Record<string, unknown> };
+      assert.equal(made.data.organizationId, ORG, model);
+      const moved = scopeArgs(model, "updateMany", { where: { id: "x" } }, ORG) as { where: Record<string, unknown> };
+      assert.deepEqual(moved.where.AND, [{ organizationId: ORG }], `${model}.updateMany`);
+    }
+    for (const operation of ["findMany", "deleteMany", "count", "update"]) {
+      const out = scopeArgs("InvoiceLine", operation, { where: {} }, ORG) as { where: Record<string, unknown> };
+      assert.deepEqual(out.where.AND, [{ invoice: { organizationId: ORG } }], `InvoiceLine.${operation}`);
+    }
+  });
 });

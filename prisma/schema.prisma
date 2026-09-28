@@ -61,6 +61,22 @@ model Organization {
   clientInvites  ClientInvite[]
   clientReports  ClientReport[]
   threads        MessageThread[]
+  invoices       Invoice[]
+  payments       Payment[]
+
+  // Phase 7 — billing. The organization is the seller on every invoice.
+  /// Printed before the number: "INV" gives INV-0001.
+  invoicePrefix     String  @default("INV")
+  /// The next number to issue. Numbers are taken when an invoice is sent
+  /// (drafts have none), so the sequence has no gaps.
+  nextInvoiceNumber Int     @default(1)
+  /// ISO 4217. The financial overview reports in this currency.
+  currency          String  @default("USD")
+  /// Days from issue to due, unless an invoice says otherwise.
+  paymentTermsDays  Int     @default(14)
+  /// Printed on invoices as the seller's address (multi-line).
+  billingAddress    String?
+  billingEmail      String?
 }
 
 /// A restaurant client as a *portal tenant* — the thing a CLIENT login is
@@ -398,6 +414,9 @@ model User {
   reportReads        ClientReportRead[]
   messages           Message[]                  @relation("MessageAuthor")
   threadReads        ThreadRead[]
+  invoicesCreated    Invoice[]                  @relation("InvoiceCreator")
+  paymentsRecorded   Payment[]                  @relation("PaymentRecorder")
+  paymentsReversed   Payment[]                  @relation("PaymentReverser")
 
   @@index([role])
   @@index([isActive])
@@ -470,6 +489,7 @@ model Client {
   files         File[]
   reportLibrary ClientReport[]
   threads       MessageThread[]
+  invoices      Invoice[]
 
   @@index([departmentId, status])
   @@index([assigneeId])
@@ -505,6 +525,7 @@ model ServiceCatalog {
   skills         ServiceSkill[]
   stageTemplates ServiceStageTemplate[]
   clientServices ClientService[]
+  invoiceLines   InvoiceLine[]
   projectStages  ProjectStage[]
 
   @@unique([organizationId, name])
@@ -884,6 +905,7 @@ model Project {
   tasks       Task[]
   updates     ProjectUpdate[]
   threads     MessageThread[]
+  invoices    Invoice[]
 
   @@index([clientId])
   @@index([status])
@@ -2309,4 +2331,116 @@ model FieldValue {
 
   @@unique([fieldDefinitionId, recordId])
   @@index([recordId])
+}
+
+// ---------------------------------------------------------------------------
+// Phase 7 (Advertise X) — invoices and payments
+//
+// Money is integer minor units (cents) everywhere in this section, never a
+// float. Rounding rules: docs/METRICS.md → "Money".
+// ---------------------------------------------------------------------------
+
+/// An invoice to a client. Editable only as a DRAFT; sending it takes the
+/// organization's next number and freezes who it is billed to.
+model Invoice {
+  id                String    @id @default(cuid())
+  organizationId    String
+  clientId          String
+  projectId         String?
+  /// Null while a draft; unique per organization once sent.
+  number            Int?
+  /// The printed number, e.g. "INV-0007", fixed when sent.
+  numberLabel       String?
+  currency          String
+  /// "DRAFT" | "SENT" | "PARTIALLY_PAID" | "PAID" | "OVERDUE" | "VOID"
+  status            String    @default("DRAFT")
+  issueDate         DateTime?
+  dueDate           DateTime
+  notes             String?
+  subtotalMinor     Int       @default(0)
+  totalMinor        Int       @default(0)
+  /// Σ of this invoice's payments that aren't reversed. Kept in step inside
+  /// the same transaction as every payment change.
+  paidMinor         Int       @default(0)
+  /// Who it is billed to, copied from the client when sent.
+  billToName        String?
+  billToEmail       String?
+  billToAddress     String?
+  sentAt            DateTime?
+  paidAt            DateTime?
+  voidedAt          DateTime?
+  voidReason        String?
+  overdueNotifiedAt DateTime?
+  createdById       String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  organization Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  client       Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  project      Project?      @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  createdBy    User?         @relation("InvoiceCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  lines        InvoiceLine[]
+  payments     Payment[]
+
+  @@unique([organizationId, number])
+  @@index([organizationId, status])
+  @@index([clientId, status])
+  @@index([projectId])
+  @@index([dueDate])
+  @@index([issueDate])
+  @@index([createdById])
+}
+
+/// One line: quantity × rate = amount (rounded half away from zero).
+model InvoiceLine {
+  id            String  @id @default(cuid())
+  invoiceId     String
+  serviceId     String?
+  description   String
+  /// Thousandths: 1.5 hours is 1500.
+  quantityMilli Int
+  rateMinor     Int
+  amountMinor   Int
+  position      Int     @default(0)
+
+  invoice Invoice         @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  service ServiceCatalog? @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+
+  @@index([invoiceId, position])
+  @@index([serviceId])
+}
+
+/// Money received against an invoice. Never edited or deleted: a mistake is
+/// reversed (kept, with who and why), so the history stays whole.
+model Payment {
+  id             String    @id @default(cuid())
+  organizationId String
+  invoiceId      String
+  amountMinor    Int
+  currency       String
+  /// "BANK_TRANSFER" | "CARD" | "CASH" | "CHECK" | "OTHER"
+  method         String
+  paidAt         DateTime
+  reference      String?
+  /// Unique per organization: a retried request records the payment once.
+  idempotencyKey String
+  /// "MANUAL" | "STRIPE"
+  source         String    @default("MANUAL")
+  providerRef    String?
+  recordedById   String?
+  reversedAt     DateTime?
+  reversedById   String?
+  reverseReason  String?
+  createdAt      DateTime  @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  invoice      Invoice      @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  recordedBy   User?        @relation("PaymentRecorder", fields: [recordedById], references: [id], onDelete: SetNull)
+  reversedBy   User?        @relation("PaymentReverser", fields: [reversedById], references: [id], onDelete: SetNull)
+
+  @@unique([organizationId, idempotencyKey])
+  @@index([invoiceId])
+  @@index([organizationId, paidAt])
+  @@index([recordedById])
+  @@index([reversedById])
 }

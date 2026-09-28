@@ -46,7 +46,9 @@ function transporter(): Transporter | null {
   return cached;
 }
 
-export async function sendEmail(to: string, email: Email): Promise<SendResult> {
+export type Attachment = { filename: string; content: Buffer | Uint8Array; contentType?: string };
+
+export async function sendEmail(to: string, email: Email, opts: { attachments?: Attachment[] } = {}): Promise<SendResult> {
   const mailer = transporter();
 
   if (!mailer) {
@@ -64,6 +66,7 @@ export async function sendEmail(to: string, email: Email): Promise<SendResult> {
       subject: email.subject,
       text: email.text,
       html: email.html,
+      attachments: opts.attachments?.map((a) => ({ filename: a.filename, content: Buffer.from(a.content), contentType: a.contentType })),
     });
     return { status: "sent", messageId: info.messageId };
   } catch (error) {

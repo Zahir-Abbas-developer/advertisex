@@ -346,3 +346,35 @@ describe("Phase 4 — projects and the credentials vault", () => {
     assert.equal(allowed(authorize(principal("MANAGER", { departmentIds: [SPRINT] }), "update", "credential", CLIENT_ROW)), true);
   });
 });
+
+describe("billing (Phase 7) — money is the founder's; a client reads only its own", () => {
+  const ACCOUNT = "acct-osteria";
+  const target = { organizationId: ORG, clientAccountId: ACCOUNT, departmentId: SPRINT, clientId: "client-osteria" };
+
+  it("gives the founder every billing action", () => {
+    for (const [resource, actions] of [["invoice", ["read", "create", "update", "delete"]], ["payment", ["read", "create", "update"]], ["finance", ["read"]]] as const) {
+      for (const action of actions) assert.equal(authorize(principal("FOUNDER"), action, resource, target).allowed, true, `${resource}.${action}`);
+    }
+  });
+
+  it("refuses managers, employees and agents any billing at all — even in their own department", () => {
+    for (const role of ["MANAGER", "EMPLOYEE", "AI_AGENT"] as const) {
+      const p = principal(role, { departmentIds: [SPRINT], assignedClientIds: ["client-osteria"], grants: ["invoice:read", "finance:read"] });
+      for (const resource of ["invoice", "payment", "finance"] as const) {
+        for (const action of ACTIONS) assert.equal(authorize(p, action, resource, target).allowed, false, `${role} ${resource}.${action}`);
+      }
+    }
+  });
+
+  it("lets a client read its own account's invoices and payments, and nothing else", () => {
+    const mine = principal("CLIENT", { clientAccountId: ACCOUNT });
+    const theirs = principal("CLIENT", { clientAccountId: "acct-bao" });
+    assert.equal(authorize(mine, "read", "invoice", target).allowed, true);
+    assert.equal(authorize(mine, "read", "payment", target).allowed, true);
+    assert.equal(authorize(theirs, "read", "invoice", target).allowed, false);
+    assert.equal(authorize(mine, "read", "invoice", { ...target, organizationId: OTHER_ORG }).allowed, false);
+    for (const action of ["create", "update", "delete"] as const) assert.equal(authorize(mine, action, "invoice", target).allowed, false);
+    assert.equal(authorize(mine, "create", "payment", target).allowed, false);
+    assert.equal(authorize(mine, "read", "finance").allowed, false);
+  });
+});

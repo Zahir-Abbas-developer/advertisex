@@ -110,6 +110,23 @@ list — `Notification` already exists (in-app, per user) and is reached only
 through its owner; a `File` model lands with the storage work (P3), where its
 shape (keys, signed URLs, visibility) is decided with its first real use.
 
+### Built in Phase 7
+
+| Entity / change | Fields | Notes |
+| --- | --- | --- |
+| `Organization` | + invoicePrefix ("INV"), nextInvoiceNumber (1), currency ("USD"), paymentTermsDays (14), billingAddress?, billingEmail? | The seller on every invoice. The next number is the sequence: taken atomically when an invoice is sent, never edited. |
+| **Invoice** | organizationId, clientId, projectId?, number? (unique per org once sent), numberLabel?, currency, status (DRAFT/SENT/PARTIALLY_PAID/PAID/OVERDUE/VOID), issueDate?, dueDate, notes?, subtotalMinor, totalMinor, paidMinor, billToName/Email/Address (frozen when sent), sentAt?, paidAt?, voidedAt?, voidReason?, overdueNotifiedAt?, createdById? | Integer cents. Editable only as a draft. Audited. |
+| **InvoiceLine** | invoiceId, serviceId?, description, quantityMilli, rateMinor, amountMinor, position | Invoice-owned for tenancy. Audited. |
+| **Payment** | organizationId, invoiceId, amountMinor, currency, method, paidAt, reference?, idempotencyKey (unique per org), source (MANUAL/STRIPE), providerRef?, recordedById?, reversedAt?, reversedById?, reverseReason? | Never edited or deleted; a mistake is reversed and kept. Audited. |
+
+Migration `20260930090000_billing`: additive only (3 tables; new Organization columns with defaults; no drops).
+
+Tenancy: Invoice and Payment are organization roots; InvoiceLine is filtered
+through `invoice.organizationId` (`modules/tenancy/scope.ts`, tested).
+Client isolation (one account's billing never reaching another, owners
+only) is enforced in `modules/billing/server.ts · invoiceForClient` and
+proven over HTTP by `npm run billingtest`.
+
 ### Built in Phase 6
 
 | Entity / change | Fields | Notes |

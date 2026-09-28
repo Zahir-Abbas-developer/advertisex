@@ -5,6 +5,32 @@ phase → status → done → next → blockers.*
 
 ---
 
+## 2026-09-28 — Phase 7: DELIVERED, awaiting gate
+
+**Phase:** 7 — Invoices, Payments & Financial Overview (prompt verbatim in `docs/PHASES.md`)
+**Status:** ✅ delivered · ⏸ **STOPPED at the gate**. Report: `docs/phases/PHASE_7_REPORT.md`. Waiting for *"Phase 7 approved"*.
+**Gate note:** the founder sent the Phase 7 prompt after the Phase 6 report, without the literal "Phase 6 approved"; treated as the go-ahead, as at every earlier handover.
+
+**Done:**
+- Invoice, InvoiceLine and Payment models (integer cents; additive migration), with organization billing settings.
+- Sequential per-organization numbering taken atomically on send.
+- Draft → Sent → Partially paid / Paid / Overdue / Void, from one pure rule.
+- Branded PDF (pdf-lib), emailed with the invoice.
+- Idempotent, immutable payments with reversals.
+- Overdue job (morning run and on demand) with one-time notifications.
+- Founder Finance page: KPIs, MRR/ARR, revenue by client and service, 12-month trend, CSV exports.
+- Portal invoices: list, detail, PDF; owners only.
+- Stripe adapter and verified webhook behind `modules/integrations/payments`, off by default.
+- Settings → Billing; invoices on the client profile.
+- `billingtest` (100/102) in CI; unit tests for money, lifecycle, reconciliation, webhook signatures, permissions and tenancy.
+- ADR-016. METRICS (Money, overview formulas), DATA_MODEL, ARCHITECTURE, CLAUDE.md, `.env.example` updated. Demo seed extended (converging).
+
+**Gate:** all green (888 unit, every harness, smoke:empty, build, bundle scan). Browser check of every new screen at 375/768/1280 found and fixed one mobile overflow; PDF reviewed and two encoding issues fixed.
+
+**Needs the founder:** real billing address and email (Settings → Billing); SMTP for emailing invoices; Stripe keys if cards are wanted; a tax rule if sales tax applies; carried decisions from Phases 4–6.
+
+---
+
 ## 2026-09-28 — Phase 6: DELIVERED, awaiting gate
 
 **Phase:** 6 — Client Portal & Client–Team Communication (prompt verbatim in `docs/PHASES.md`)

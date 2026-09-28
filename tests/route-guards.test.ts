@@ -24,6 +24,7 @@ const PUBLIC: Record<string, string> = {
   "auth/[...nextauth]/route.ts": "NextAuth's own sign-in endpoints",
   "health/route.ts": "uptime probe; returns no data",
   "invites/accept/route.ts": "portal invitation acceptance: the one-time token is the credential (rate-limited)",
+  "webhooks/stripe/route.ts": "Stripe's webhook: the HMAC signature over the raw body is the credential; 404 unless live charging is enabled",
 };
 
 function handlers(dir: string): string[] {

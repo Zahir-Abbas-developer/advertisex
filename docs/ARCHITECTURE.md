@@ -63,8 +63,36 @@ modules/
               account scoping, projects, reports, invites) · invite-email                     (Phase 6)
   messages/   server (server-only: who may see a thread, TEAM/FOUNDER threads, unread,
               receipts, notifications)                                                        (Phase 6)
-  billing/    portal (the Phase 7 seam: invoicesForAccount, empty until billing lands)        (Phase 6)
+  billing/    money (pure: integer cents, parsing, rounding, allocation) · domain (pure:
+              statuses, totals, lifecycle rules, MRR, the overview arithmetic) · views
+              (allow-list serializers) · server (access, drafts) · lifecycle (send,
+              payments, reversals, void, overdue sweep) · overview · pdf · email · portal (Phase 7)
+  integrations/payments/  provider (the interface) · stripe (REST over fetch, webhook
+              signature) · index (server-only: provider from env, off by default)          (Phase 7)
 ```
+
+**Billing (Phase 7).** Money is integer cents end to end (docs/METRICS.md →
+"Money"). An invoice is a draft until sent; sending takes the organization's
+next number with an atomic increment in the same transaction as the status
+change, so numbers are sequential, unique and gap-free. Every state change is
+a conditional update on the state that was read (optimistic concurrency), so
+racing requests can't both succeed. Payments are idempotent by
+`(organizationId, idempotencyKey)` — the UI sends one key per payment dialog,
+Stripe events use their event id — and never deleted: a mistake is reversed
+and kept. The overdue sweep runs in the morning job and on demand. The
+overview's arithmetic is pure (`buildOverview`) and `billingtest` recomputes
+it from the database. PDFs are rendered server-side with pdf-lib (standard
+fonts, nothing to install); the portal reads through `invoicesForAccount`
+and `invoiceForClient` (owners only, never drafts, 404 for anything else).
+Money is the founder's: no role below FOUNDER can read billing.
+
+**Payments provider (Phase 7).** `modules/integrations/payments` is the only
+place a payment provider is called. Stripe is prepared (Checkout Sessions
+over REST, webhook signature verification with a 5-minute replay window) and
+off unless `STRIPE_ENABLED=true` with both keys. The webhook route is public
+(its signature is the credential), returns 404 when disabled, and names the
+organization explicitly on every query, since there is no session to scope
+by.
 
 **Client portal (Phase 6).** A client login is created only by accepting an
 invitation (`ClientInvite`: a 24-byte token, stored as its sha256, 7 days,

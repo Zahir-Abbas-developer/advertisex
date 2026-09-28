@@ -6,6 +6,8 @@ import { avatarColorFor } from "../lib/constants";
 import { serializeSkills } from "../lib/skills";
 import { seal } from "../modules/vault/cipher";
 import { vaultKeys } from "../modules/vault/keys";
+import { dayKey, deriveStatus, numberLabel } from "../modules/billing/domain";
+import { COMPANY_TIMEZONE } from "../lib/date";
 
 /**
  * The Phase 1 demo tenant (docs/PHASES.md, scope 11): one organization with a
@@ -252,6 +254,9 @@ async function main() {
   // Demo logins made before Phase 6 are their accounts' owners.
   await prisma.user.updateMany({ where: { organizationId: org.id, role: "CLIENT", clientRole: null }, data: { clientRole: "OWNER" } });
   await seedPortal(org.id);
+
+  // --- Phase 7: invoices and payments ----------------------------------------
+  await seedBilling(org.id);
 
   const roles = await prisma.user.groupBy({ by: ["role"], _count: true });
   console.log("Advertise X demo tenant");
@@ -887,6 +892,110 @@ async function seedPortal(organizationId: string) {
   await prisma.clientReport.create({
     data: { organizationId, clientId: client.id, title: `Monthly Report — ${label}`, kind: "MONTHLY", periodMonth, fileId: file.id, status: "PUBLISHED", publishedAt: at(10), createdById: tayyaba.id },
   });
+}
+
+/**
+ * Phase 7 demo: six months of invoices for the three restaurants, built the
+ * way the product builds them (integer cents, sequential numbers, paid
+ * totals equal to the payments, statuses from the same rule). One is part
+ * paid, one overdue, one void, one a draft. Converges: skipped once the
+ * organization has any invoice.
+ */
+async function seedBilling(organizationId: string) {
+  if (await prisma.invoice.count({ where: { organizationId } })) return;
+  const founder = await prisma.user.findFirst({ where: { organizationId, role: { in: ["FOUNDER", "ADMIN"] } }, select: { id: true } });
+  const org = await prisma.organization.findUniqueOrThrow({ where: { id: organizationId } });
+  if (!org.billingAddress) {
+    await prisma.organization.update({ where: { id: organizationId }, data: { billingAddress: "221 Madison Avenue, Suite 4\nNew York, NY 10016", billingEmail: "billing@advertisex.example" } });
+  }
+  const today = dayKey(new Date(), COMPANY_TIMEZONE);
+  const date = (monthsAgo: number, day: number) => {
+    const d = new Date(`${today.slice(0, 7)}-01T00:00:00Z`);
+    d.setUTCMonth(d.getUTCMonth() - monthsAgo);
+    d.setUTCDate(day);
+    return d;
+  };
+  const key = (d: Date) => d.toISOString().slice(0, 10);
+  // Osteria: paid up, this month's half paid (not yet due). Bao: last month's
+  // unpaid (overdue), and one voided. Grind: paid up, this month's a draft.
+  const plan: Record<string, { last: "PAID" | "UNPAID"; current: { status: "SENT" | "DRAFT"; pay: "PARTIAL" | "UNPAID" } | null; voidMonth?: number }> = {
+    "Osteria Nonna": { last: "PAID", current: { status: "SENT", pay: "PARTIAL" } },
+    "Bao Society": { last: "UNPAID", current: null, voidMonth: 3 },
+    "Grind Coffee Co.": { last: "PAID", current: { status: "DRAFT", pay: "UNPAID" } },
+  };
+  const recent = new Date(`${today}T00:00:00Z`);
+  recent.setUTCDate(recent.getUTCDate() - 3);
+
+  type Draft = { clientId: string; projectId: string | null; issue: Date | null; lines: { serviceId: string; description: string; rateMinor: number }[]; pay: "PAID" | "PARTIAL" | "UNPAID"; status: "SENT" | "DRAFT" | "VOID" };
+  const drafts: Draft[] = [];
+  for (const [name, p] of Object.entries(plan)) {
+    const client = await prisma.client.findFirst({ where: { organizationId, businessName: name }, select: { id: true } });
+    if (!client) continue;
+    const services = await prisma.clientService.findMany({ where: { clientId: client.id, status: "ACTIVE" }, include: { service: { select: { id: true, name: true } } }, orderBy: { createdAt: "asc" } });
+    if (services.length === 0) continue;
+    const project = await prisma.project.findFirst({ where: { clientId: client.id }, orderBy: { createdAt: "asc" }, select: { id: true } });
+    for (let ago = 5; ago >= 0; ago--) {
+      const month = date(ago, 1);
+      const label = month.toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: "UTC" });
+      const lines = services.flatMap((s) => {
+        const rateMinor = s.price * 100;
+        if (s.billing === "MONTHLY") return [{ serviceId: s.service.id, description: `${s.service.name} — ${label}`, rateMinor }];
+        if (s.billing === "QUARTERLY" && ago % 3 === 2) return [{ serviceId: s.service.id, description: `${s.service.name} — quarter from ${label}`, rateMinor }];
+        if ((s.billing === "ONE_TIME" || s.billing === "YEARLY") && ago === 5) return [{ serviceId: s.service.id, description: s.service.name, rateMinor }];
+        return [];
+      });
+      if (lines.length === 0) continue;
+      if (ago === 0) {
+        if (!p.current) continue;
+        drafts.push({ clientId: client.id, projectId: project?.id ?? null, issue: p.current.status === "DRAFT" ? null : recent, lines, pay: p.current.pay, status: p.current.status });
+      } else {
+        drafts.push({ clientId: client.id, projectId: project?.id ?? null, issue: month, lines, pay: ago === 1 ? p.last : "PAID", status: p.voidMonth === ago ? "VOID" : "SENT" });
+      }
+    }
+  }
+
+  drafts.sort((a, b) => (a.issue?.getTime() ?? Infinity) - (b.issue?.getTime() ?? Infinity));
+  let number = org.nextInvoiceNumber;
+  for (const d of drafts) {
+    const client = await prisma.client.findUniqueOrThrow({ where: { id: d.clientId }, select: { businessName: true, email: true, contactName: true, location: true } });
+    const totalMinor = d.lines.reduce((sum, l) => sum + l.rateMinor, 0);
+    const issued = d.status !== "DRAFT" && d.issue;
+    const due = new Date((d.issue ?? recent).getTime() + org.paymentTermsDays * 86_400_000);
+    const paidMinor = d.status === "VOID" ? 0 : d.pay === "PAID" ? totalMinor : d.pay === "PARTIAL" ? Math.floor(totalMinor / 2) : 0;
+    const status = d.status === "SENT" ? deriveStatus({ status: "SENT", totalMinor, paidMinor, dueKey: key(due) }, today) : d.status;
+    // Paid a few days before it was due — and never in the future.
+    const paidAt = new Date(Math.min(due.getTime() - 4 * 86_400_000, Date.now() - 86_400_000));
+    const inv = await prisma.invoice.create({
+      data: {
+        organizationId,
+        clientId: d.clientId,
+        projectId: d.projectId,
+        currency: org.currency,
+        status,
+        ...(issued
+          ? { number, numberLabel: numberLabel(org.invoicePrefix, number), issueDate: d.issue, sentAt: d.issue, billToName: client.businessName, billToEmail: client.email, billToAddress: [client.contactName, client.location].filter(Boolean).join("\n") || null }
+          : {}),
+        dueDate: due,
+        notes: "Bank transfer to Advertise X LLC. Please quote the invoice number.",
+        subtotalMinor: totalMinor,
+        totalMinor,
+        paidMinor,
+        paidAt: status === "PAID" ? paidAt : null,
+        voidedAt: status === "VOID" ? d.issue : null,
+        voidReason: status === "VOID" ? "Issued twice by mistake — replaced by the next invoice" : null,
+        overdueNotifiedAt: status === "OVERDUE" ? new Date() : null,
+        createdById: founder?.id ?? null,
+        lines: { create: d.lines.map((l, position) => ({ ...l, quantityMilli: 1000, amountMinor: l.rateMinor, position })) },
+      },
+    });
+    if (issued) number += 1;
+    if (paidMinor > 0) {
+      await prisma.payment.create({
+        data: { organizationId, invoiceId: inv.id, amountMinor: paidMinor, currency: org.currency, method: "BANK_TRANSFER", paidAt, reference: `WIRE-${inv.numberLabel?.slice(-4) ?? "0000"}`, idempotencyKey: `seed:${inv.id}`, recordedById: founder?.id ?? null },
+      });
+    }
+  }
+  await prisma.organization.update({ where: { id: organizationId }, data: { nextInvoiceNumber: number } });
 }
 
 main()

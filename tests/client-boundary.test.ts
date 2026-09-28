@@ -101,7 +101,20 @@ describe("client/server boundary", () => {
   });
 
   it("marks the modules that hold secrets server-only, so a client import fails the build", () => {
-    for (const f of ["modules/vault/server.ts", "modules/vault/credentials.ts", "modules/files/server.ts", "lib/uploads.ts"]) {
+    for (const f of [
+      "modules/vault/server.ts",
+      "modules/vault/credentials.ts",
+      "modules/files/server.ts",
+      "lib/uploads.ts",
+      // Phase 7: billing's data access, the PDF engine, and the payment provider's keys.
+      "modules/billing/server.ts",
+      "modules/billing/lifecycle.ts",
+      "modules/billing/overview.ts",
+      "modules/billing/pdf.ts",
+      "modules/billing/email.ts",
+      "modules/billing/portal.ts",
+      "modules/integrations/payments/index.ts",
+    ]) {
       assert.match(readFileSync(f, "utf8"), /^import "server-only";/m, f);
     }
   });

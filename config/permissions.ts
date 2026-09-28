@@ -129,6 +129,12 @@ export const RESOURCES = [
   "clientReport",
   /** Client portal logins and invitations (Phase 6). A client OWNER manages their own account's. */
   "portalUser",
+  /** Invoices (Phase 7). A client reads its own account's, and only its OWNER (modules/billing). */
+  "invoice",
+  /** Payments against invoices (Phase 7). Recorded and reversed by the founder. */
+  "payment",
+  /** The founder's financial overview and exports (Phase 7). */
+  "finance",
 ] as const;
 export type Resource = (typeof RESOURCES)[number];
 
@@ -306,6 +312,24 @@ export const PERMISSIONS: Matrix = {
     read: { FOUNDER: "all", MANAGER: "department", CLIENT: "client-own" },
     create: { FOUNDER: "all", MANAGER: "department", CLIENT: "client-own" },
     delete: { FOUNDER: "all", MANAGER: "department", CLIENT: "client-own" },
+  },
+
+  // Money is the founder's (as the Phase 4 billing summary was). A client
+  // reads its own invoices and their payments; staff below the founder don't
+  // see billing at all.
+  invoice: {
+    read: { FOUNDER: "all", CLIENT: "client-own" },
+    create: FOUNDER_ONLY,
+    update: FOUNDER_ONLY,
+    delete: FOUNDER_ONLY,
+  },
+  payment: {
+    read: { FOUNDER: "all", CLIENT: "client-own" },
+    create: FOUNDER_ONLY,
+    update: FOUNDER_ONLY,
+  },
+  finance: {
+    read: FOUNDER_ONLY,
   },
 };
 

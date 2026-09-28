@@ -4,6 +4,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
+  AlertCircle,
+  CircleDollarSign,
+  Receipt,
   FileBarChart2,
   MessageSquare,
   Megaphone,
@@ -58,6 +61,9 @@ const ICONS: Record<NotificationType, typeof Bell> = {
   MESSAGE_RECEIVED: MessageSquare,
   REPORT_SHARED: FileBarChart2,
   UPDATE_SHARED: Megaphone,
+  INVOICE_SENT: Receipt,
+  INVOICE_OVERDUE: AlertCircle,
+  PAYMENT_RECEIVED: CircleDollarSign,
 };
 
 const TONE_CLASSES: Record<string, string> = {

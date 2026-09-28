@@ -9,6 +9,7 @@ import { notify } from "@/lib/notifications";
 import { sweepTaskDeadlines } from "@/modules/tasks/deadlines";
 import { sweepProjects } from "@/modules/projects/jobs";
 import { sweepRebalance } from "@/modules/assignment/server";
+import { sweepInvoices } from "@/modules/billing/lifecycle";
 
 /**
  * The 9am follow-up call.
@@ -80,6 +81,8 @@ export async function POST(request: Request) {
     const projects = await sweepProjects(now);
     // Phase 5: workload and deadlines drift — suggest reassignments, never make them.
     const rebalance = await sweepRebalance(now);
+    // Phase 7: invoices past their due date become OVERDUE; founders and the client are told once.
+    const invoices = await sweepInvoices(now);
 
     return NextResponse.json({
       status: "ok",
@@ -87,6 +90,7 @@ export async function POST(request: Request) {
       tasks,
       projects,
       rebalance,
+      invoices,
       due: due.length,
       sent,
       // due minus sent is the dedupe working, not a failure.

@@ -41,7 +41,8 @@
     "projecttest": "node scripts/sync-db-provider.mjs && node --import tsx scripts/projecttest.mjs",
     "bundlescan": "node scripts/bundle-scan.mjs",
     "assigntest": "node scripts/sync-db-provider.mjs && node --import tsx scripts/assigntest.mjs",
-    "portaltest": "node scripts/sync-db-provider.mjs && node --import tsx scripts/portaltest.mjs"
+    "portaltest": "node scripts/sync-db-provider.mjs && node --import tsx scripts/portaltest.mjs",
+    "billingtest": "node scripts/sync-db-provider.mjs && node --import tsx scripts/billingtest.mjs"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -57,6 +58,7 @@
     "next": "14.2.33",
     "next-auth": "4.24.11",
     "nodemailer": "^6.9.16",
+    "pdf-lib": "1.17.1",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "recharts": "^3.10.1",

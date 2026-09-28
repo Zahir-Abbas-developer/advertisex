@@ -45,6 +45,9 @@ export const ORG_ROOT_MODELS = new Set([
   "ClientInvite",
   "ClientReport",
   "MessageThread",
+  // Phase 7 — billing.
+  "Invoice",
+  "Payment",
 ]);
 
 /**
@@ -106,6 +109,9 @@ export const THREAD_OWNED_MODELS = new Set(["Message", "ThreadRead"]);
 /** Rows that belong to an organization through their report (Phase 6). */
 export const REPORT_OWNED_MODELS = new Set(["ClientReportRead"]);
 
+/** Rows that belong to an organization through their invoice (Phase 7). */
+export const INVOICE_OWNED_MODELS = new Set(["InvoiceLine"]);
+
 /** Rows that belong to an organization through a catalog service (Phase 4). */
 export const SERVICE_OWNED_MODELS = new Set(["ServiceStageTemplate", "ServiceSkill"]);
 
@@ -117,7 +123,8 @@ export function isTenantModel(model: string): boolean {
     PROJECT_OWNED_MODELS.has(model) ||
     SERVICE_OWNED_MODELS.has(model) ||
     THREAD_OWNED_MODELS.has(model) ||
-    REPORT_OWNED_MODELS.has(model)
+    REPORT_OWNED_MODELS.has(model) ||
+    INVOICE_OWNED_MODELS.has(model)
   );
 }
 
@@ -128,6 +135,7 @@ function filterFor(model: string, organizationId: string): Record<string, unknow
   if (SERVICE_OWNED_MODELS.has(model)) return { service: { organizationId } };
   if (THREAD_OWNED_MODELS.has(model)) return { thread: { organizationId } };
   if (REPORT_OWNED_MODELS.has(model)) return { report: { organizationId } };
+  if (INVOICE_OWNED_MODELS.has(model)) return { invoice: { organizationId } };
   return ORG_ROOT_MODELS.has(model)
     ? { organizationId }
     : { department: { organizationId } };

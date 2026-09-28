@@ -65,6 +65,10 @@ export const AUDITED_MODELS = new Set([
   "ClientReport",
   "MessageThread",
   "Message",
+  // Phase 7 — every billing mutation.
+  "Invoice",
+  "InvoiceLine",
+  "Payment",
 ]);
 
 export const RECORD_ACTIONS = {

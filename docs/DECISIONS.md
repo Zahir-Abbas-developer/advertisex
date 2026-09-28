@@ -700,3 +700,65 @@ page, API, owner-only rule and empty state are final.
 - Letting employees share with clients directly: sharing is a
   management decision in the brief, and the flag makes it auditable.
 
+## ADR-016 — Phase 7: invoices, payments and money
+
+**Date:** 2026-09-28 · **Status:** accepted
+
+**Integer cents, rounded once per line.** Amounts are integers in minor
+units; quantities in thousandths. A line is rounded half away from zero,
+once; the total is the sum of rounded lines, so the PDF, the portal and the
+overview always add up. Input goes from text to integers without a float;
+large products use BigInt. The legacy `Client.monthlyBudget` and
+`ClientService.price` stay whole units and are converted (×100) at the edge.
+
+**Numbers are taken when sent, not when drafted.** Drafts come and go; an
+issued number never does. The organization row holds the next number and an
+atomic increment inside the send transaction takes it, so numbers are
+sequential and unique per organization with no gaps, even under
+concurrency (tested with simultaneous sends). A voided invoice keeps its
+number. The next number isn't editable.
+
+**Frozen once sent.** A sent invoice's lines, amounts and bill-to details
+don't change; to correct one, void it and issue another. That keeps the
+emailed PDF and the portal identical to the record.
+
+**Status is derived, then stored.** One pure rule (`deriveStatus`) decides
+SENT / PARTIALLY_PAID / PAID / OVERDUE from the money and the date, and every
+write stores its result in the same transaction. Overdue beats partially
+paid (money is late). The morning job applies the date part and notifies
+once (stamped).
+
+**Payments are idempotent and immutable.** A unique
+`(organizationId, idempotencyKey)` makes retries and double clicks record
+once; the insert and the invoice's paid total move together, guarded by the
+paid total that was read. Over-payment is refused rather than turned into
+credit (credits are a later decision). A mistaken payment is reversed —
+kept, with who and why — never deleted.
+
+**Revenue is money received.** The overview counts payments, not invoices,
+as revenue; revenue by service allocates each payment across its invoice's
+services by largest remainder so every breakdown sums exactly to the total.
+Pending, overdue and outstanding are balances today. Figures are in the
+organization's currency; other currencies are reported, never converted.
+
+**PDF with pdf-lib.** Pure JavaScript, no native dependencies and no fonts
+to ship (the standard Helvetica faces), so it runs on serverless. Rendered on
+demand from the frozen record, so there is no stored copy to drift.
+Characters outside the fonts' encoding fall back safely.
+
+**Stripe behind a seam, off by default.** Checkout Sessions and a verified
+webhook, over REST with `fetch` (no SDK). Live charging needs
+`STRIPE_ENABLED=true` and both keys, so a key alone can't start taking money.
+A payment is recorded only from the signed webhook, never from the redirect.
+
+**Money is the founder's.** Only FOUNDER reads or writes billing; managers
+and employees see none of it (continuing the Phase 4 billing summary rule).
+A client reads its own account's invoices, and only its OWNER.
+
+**Alternatives rejected:**
+- Floats or decimals-as-strings in the database: floats round wrongly;
+  string decimals push arithmetic into every caller.
+- Numbering on draft creation: deleted drafts would leave gaps.
+- A stored PDF per invoice: two sources of truth.
+- Recording a payment on Stripe's success redirect: forgeable and unreliable.
+

@@ -180,7 +180,11 @@ async function main() {
     check(threadsA.length === 2 && threadsA.every((t) => t.client.id === clientA.id), "A's thread list is A's alone");
     check(!(await (await a.fetch("/portal/messages")).text()).includes(`${MARK} secret from B`), "B's message never renders in A's portal");
     const invoicesA = await json(await a.fetch("/api/portal/invoices"));
-    check(Array.isArray(invoicesA.invoices) && invoicesA.invoices.length === 0, "invoices: A sees only its own (none until billing)");
+    const invoiceOwners = await prisma.invoice.findMany({ where: { id: { in: (invoicesA.invoices ?? []).map((i) => i.id) } }, select: { client: { select: { clientAccountId: true } } } });
+    check(
+      Array.isArray(invoicesA.invoices) && invoiceOwners.length === invoicesA.invoices.length && invoiceOwners.every((i) => i.client.clientAccountId === accountA),
+      "invoices: A sees only its own account's (billingtest covers billing in depth)",
+    );
     const peopleA = await json(await a.fetch("/api/portal/people"));
     check((peopleA.users ?? []).every((u) => !u.email.endsWith("baosociety.example")), "A's people are A's alone");
     for (const [url, label] of [

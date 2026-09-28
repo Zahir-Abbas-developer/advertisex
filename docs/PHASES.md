@@ -189,3 +189,32 @@ A secure, elegant, jargon-free client experience in which a restaurant sees only
 - Global Definition of Done passes.
 
 ### GATE — docs/phases/PHASE_6_REPORT.md, then STOP for "Phase 6 approved."
+
+---
+
+## Phase 7 — Invoices, Payments & Financial Overview
+
+*Issued by the founder on 2026-09-28 (verbatim).*
+
+PHASE 7 — INVOICES, PAYMENTS & FINANCIAL OVERVIEW
+
+Prerequisite: "Phase 6 approved."
+
+### OBJECTIVE
+A correct, auditable billing system with a complete founder financial overview and strictly client-scoped visibility.
+
+### SCOPE
+1. Invoice model: sequential number per organization, client, project, line items (service, quantity, rate, amount), currency, issue and due dates, status Draft → Sent → Paid / Partially Paid / Overdue / Void, notes; branded premium PDF generation; send via email.
+2. Payments: record a payment (method, date, amount, reference); partial payments; payment history; overdue detection job with status change and notifications.
+3. Founder financial overview: new clients, closed deals, MRR (from recurring services), payments received, pending, outstanding and overdue, revenue by client, revenue by service, revenue trends — real charts; export.
+4. Client portal: own invoices, statuses, payment history, PDF download.
+5. Money handling: integer minor units (never floats); documented rounding rules; idempotent payment recording; every mutation audited. Tests on totals, partial payments, and overdue transitions.
+6. Stripe prepared behind the integrations interface (adapter + webhook skeleton); live charging feature-flagged and optional.
+
+### ACCEPTANCE
+- Financial numbers reconcile across invoices, payments, and dashboards (tests).
+- A client sees only its own billing (tests).
+- MRR and revenue formulas documented in docs/METRICS.md.
+- Global Definition of Done passes.
+
+### GATE — docs/phases/PHASE_7_REPORT.md, then STOP for "Phase 7 approved."

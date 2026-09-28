@@ -19,6 +19,7 @@ import { FilesPanel } from "@/components/files/FilesPanel";
 import { CredentialsPanel } from "@/components/clients/CredentialsPanel";
 import { ClientProjectsPanel } from "@/components/clients/ClientProjectsPanel";
 import { ClientServicesPanel } from "@/components/clients/ClientServicesPanel";
+import { ClientInvoicesPanel } from "@/components/billing/ClientInvoicesPanel";
 import { ContractsPanel } from "@/components/clients/ContractsPanel";
 import { NotesPanel } from "@/components/clients/NotesPanel";
 import { ClientReportsPanel } from "@/components/clients/ClientReportsPanel";
@@ -132,7 +133,12 @@ export function ClientProfile({ data }: { data: ClientProfileData }) {
 
       {tab === "overview" && <Overview data={data} onOpen={setTab} />}
       {tab === "projects" && <ClientProjectsPanel clientId={client.id} canCreate={viewer.canCreateProject} onNew={() => setNewProject(true)} />}
-      {tab === "services" && <ClientServicesPanel clientId={client.id} billing={data.billing} />}
+      {tab === "services" && (
+        <div className="space-y-6">
+          <ClientServicesPanel clientId={client.id} billing={data.billing} />
+          {viewer.isFounder && <ClientInvoicesPanel clientId={client.id} />}
+        </div>
+      )}
       {tab === "contracts" && <ContractsPanel clientId={client.id} />}
       {tab === "files" && (
         <Card padded={false}>
