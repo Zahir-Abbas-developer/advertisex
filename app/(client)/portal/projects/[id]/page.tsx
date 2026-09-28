@@ -26,11 +26,11 @@ export default async function PortalProject({ params }: { params: { id: string }
   return (
     <div className="space-y-8">
       <div>
-        <Link href="/portal/projects" className="inline-flex items-center gap-1.5 text-[13px] text-ink/55 hover:text-ink">
+        <Link href="/portal/projects" className="inline-flex items-center gap-1.5 text-[13px] text-ink-muted hover:text-ink">
           <ArrowLeft className="h-3.5 w-3.5" /> All projects
         </Link>
         <h1 className="mt-3 font-display text-[28px] font-bold leading-tight tracking-[-0.02em] text-ink">{p.title}</h1>
-        <p className="mt-1.5 text-sm text-ink/55">
+        <p className="mt-1.5 text-sm text-ink-muted">
           {p.statusText} · {p.services.join(" · ")} · planned to finish {formatDate(p.deadline)}
         </p>
       </div>
@@ -41,16 +41,16 @@ export default async function PortalProject({ params }: { params: { id: string }
           <ProgressBar value={p.progress} showValue />
           {p.stages.map((line, i) => (
             <div key={i}>
-              {p.stages.length > 1 && <p className="mb-2 text-[12px] font-medium text-ink/55">{line.service ?? "Project"}</p>}
+              {p.stages.length > 1 && <p className="mb-2 text-[12px] font-medium text-ink-muted">{line.service ?? "Project"}</p>}
               <ol className="grid gap-2 sm:flex sm:flex-wrap sm:items-center" aria-label={`${line.service ?? "Project"} stages`}>
                 {line.stages.map((s, j) => (
                   <li key={j} className="flex items-center gap-2">
                     <span
                       className={cn(
                         "flex items-center gap-1.5 rounded-pill border px-3 py-1.5 text-[13px]",
-                        s.state === "done" && "border-success/30 bg-success-tint text-success",
+                        s.state === "done" && "border-success/30 bg-success-tint text-success-ink",
                         s.state === "current" && "border-brand/50 bg-brand-tint font-medium text-ink",
-                        s.state === "upcoming" && "border-line text-ink/45",
+                        s.state === "upcoming" && "border-line text-ink-muted",
                       )}
                     >
                       {s.state === "done" ? <Check className="h-3.5 w-3.5" /> : s.state === "current" ? <CircleDot className="h-3.5 w-3.5 text-brand" /> : <Circle className="h-3.5 w-3.5" />}
@@ -71,13 +71,13 @@ export default async function PortalProject({ params }: { params: { id: string }
           <CardHeader title="Coming up" />
           <CardBody>
             {p.upcomingMilestones.length === 0 ? (
-              <p className="text-[13px] text-ink/50">Nothing scheduled right now.</p>
+              <p className="text-[13px] text-ink-muted">Nothing scheduled right now.</p>
             ) : (
               <ul className="divide-y divide-line">
                 {p.upcomingMilestones.map((m, i) => (
                   <li key={i} className="flex items-center justify-between gap-3 py-2.5 text-[13px]">
                     <span className="min-w-0 truncate text-ink">{m.title}</span>
-                    <span className="shrink-0 tabular-nums text-ink/55">{m.dueDate ? formatDate(m.dueDate) : ""}</span>
+                    <span className="shrink-0 tabular-nums text-ink-muted">{m.dueDate ? formatDate(m.dueDate) : ""}</span>
                   </li>
                 ))}
               </ul>
@@ -88,16 +88,16 @@ export default async function PortalProject({ params }: { params: { id: string }
           <CardHeader title="Done so far" />
           <CardBody>
             {p.completedMilestones.length === 0 ? (
-              <p className="text-[13px] text-ink/50">Milestones appear here as they&apos;re completed.</p>
+              <p className="text-[13px] text-ink-muted">Milestones appear here as they&apos;re completed.</p>
             ) : (
               <ul className="divide-y divide-line">
                 {p.completedMilestones.map((m, i) => (
                   <li key={i} className="flex items-center justify-between gap-3 py-2.5 text-[13px]">
                     <span className="flex min-w-0 items-center gap-2 text-ink">
-                      <Check className="h-3.5 w-3.5 shrink-0 text-success" />
+                      <Check className="h-3.5 w-3.5 shrink-0 text-success-ink" />
                       <span className="truncate">{m.title}</span>
                     </span>
-                    <span className="shrink-0 tabular-nums text-ink/55">{m.completedAt ? formatDate(m.completedAt) : ""}</span>
+                    <span className="shrink-0 tabular-nums text-ink-muted">{m.completedAt ? formatDate(m.completedAt) : ""}</span>
                   </li>
                 ))}
               </ul>
@@ -110,7 +110,7 @@ export default async function PortalProject({ params }: { params: { id: string }
         <CardHeader title="Updates from your team" />
         <CardBody>
           {p.updates.length === 0 ? (
-            <p className="text-[13px] text-ink/50">Your team will post updates here as the project moves.</p>
+            <p className="text-[13px] text-ink-muted">Your team will post updates here as the project moves.</p>
           ) : (
             <ul className="space-y-5">
               {p.updates.map((u) => (
@@ -118,8 +118,8 @@ export default async function PortalProject({ params }: { params: { id: string }
                   <Megaphone className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
                   <div className="min-w-0">
                     <p className="text-[14px] font-medium text-ink">{u.title}</p>
-                    <p className="mt-1 whitespace-pre-wrap text-[13px] leading-relaxed text-ink/75">{u.body}</p>
-                    <p className="mt-1 text-[11px] text-ink/40">
+                    <p className="mt-1 whitespace-pre-wrap text-[13px] leading-relaxed text-ink-2">{u.body}</p>
+                    <p className="mt-1 text-[11px] text-ink-muted">
                       {u.author ?? "Your team"} · {relativeFromNow(u.createdAt)}
                     </p>
                   </div>

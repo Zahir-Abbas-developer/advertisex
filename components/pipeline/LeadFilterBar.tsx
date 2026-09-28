@@ -132,7 +132,7 @@ export function LeadFilterBar({
           >
             <Input aria-label="View name" placeholder="Name this view" value={naming} onChange={(e) => setNaming(e.target.value)} />
             <Button type="submit" size="sm">Save</Button>
-            <button type="button" aria-label="Cancel" onClick={() => setNaming(null)} className="rounded-[8px] p-2 text-ink/40 hover:text-ink">
+            <button type="button" aria-label="Cancel" onClick={() => setNaming(null)} className="rounded-[8px] p-2 text-ink-muted hover:text-ink">
               <X className="h-4 w-4" />
             </button>
           </form>
@@ -162,7 +162,7 @@ export function LeadFilterBar({
                     }}
                     className={cn(
                       "rounded-pill border px-3 py-1.5 text-[13px] transition-colors",
-                      on ? "border-brand/50 bg-brand-tint text-brand" : "border-line text-ink/60 hover:border-line-strong",
+                      on ? "border-brand/50 bg-brand-tint text-brand" : "border-line text-ink-muted hover:border-line-strong",
                     )}
                   >
                     {s.label}

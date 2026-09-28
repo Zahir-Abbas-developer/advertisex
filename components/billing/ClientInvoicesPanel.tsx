@@ -53,7 +53,7 @@ export function ClientInvoicesPanel({ clientId }: { clientId: string }) {
                 <Link href={`/invoices/${r.id}`} className="flex flex-wrap items-center gap-x-4 gap-y-1 px-5 py-3.5 text-[13px] hover:bg-surface-2 sm:px-6">
                   <span className="min-w-[88px] font-medium text-ink">{r.numberLabel ?? "Draft"}</span>
                   <InvoiceStatusBadge status={r.status} />
-                  <span className="text-ink/50">{r.issueDate ? formatDate(r.issueDate) : "Not sent"} · due {formatDate(r.dueDate)}</span>
+                  <span className="text-ink-muted">{r.issueDate ? formatDate(r.issueDate) : "Not sent"} · due {formatDate(r.dueDate)}</span>
                   <span className="ml-auto tabular-nums text-ink">{formatMoney(r.totalMinor, r.currency)}</span>
                 </Link>
               </li>

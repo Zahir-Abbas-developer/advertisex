@@ -46,7 +46,7 @@ export default async function ReportPage({ params }: { params: { id: string } })
       <div className="no-print flex flex-wrap items-center justify-between gap-3">
         <Link
           href={backHref}
-          className="inline-flex items-center gap-1.5 text-[13px] text-ink/50 transition-colors hover:text-ink"
+          className="inline-flex items-center gap-1.5 text-[13px] text-ink-muted transition-colors hover:text-ink"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
           {isAdmin ? "All reports" : "My reports"}

@@ -108,13 +108,13 @@ export function ServiceLeadPanel() {
     <>
       <Card>
         <div className="flex items-center gap-2">
-          <ShieldCheck className="h-4 w-4 text-ink/40" />
+          <ShieldCheck className="h-4 w-4 text-ink-muted" />
           <h2 className="font-display text-base font-bold tracking-tight text-ink">
             Service leads
           </h2>
         </div>
 
-        <p className="mt-1 max-w-2xl text-[13px] leading-relaxed text-ink/55">
+        <p className="mt-1 max-w-2xl text-[13px] leading-relaxed text-ink-muted">
           A lead carries the owner&rsquo;s approval authority inside their own
           service lines: approving and rejecting work, excusing checks, ruling
           on outages and disputes. Two limits are enforced by the server, not by
@@ -140,7 +140,7 @@ export function ServiceLeadPanel() {
                       </Badge>
                     )}
                   </p>
-                  <p className="truncate text-[12px] text-ink/45">
+                  <p className="truncate text-[12px] text-ink-muted">
                     {leads.length > 0 ? `Leads ${leads.join(", ")}` : member.jobTitle}
                   </p>
                 </div>
@@ -171,7 +171,7 @@ export function ServiceLeadPanel() {
         title={editing ? `${editing.name} leads…` : "Service leads"}
       >
         <div className="space-y-4">
-          <p className="text-[13px] leading-relaxed text-ink/60">
+          <p className="text-[13px] leading-relaxed text-ink-muted">
             Pick the service lines this person can approve work in. Deselect
             everything to remove their authority.
           </p>
@@ -193,8 +193,8 @@ export function ServiceLeadPanel() {
                   className={cn(
                     "flex w-full items-center justify-between gap-3 rounded-[10px] border px-3.5 py-2.5 text-left text-[13px] transition-colors",
                     active
-                      ? "border-brand bg-brand-tint/50 text-ink"
-                      : "border-line bg-surface text-ink/60 hover:border-ink/25",
+                      ? "border-brand bg-brand/[0.05] text-ink"
+                      : "border-line bg-surface text-ink-muted hover:border-ink/25",
                   )}
                 >
                   {service.name}

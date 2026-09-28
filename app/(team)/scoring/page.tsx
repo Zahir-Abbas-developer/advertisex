@@ -154,7 +154,7 @@ export default async function ScoringPage() {
         <h2 className="font-display text-base font-bold tracking-tight text-ink">
           Two things the system will never do
         </h2>
-        <ul className="mt-3 space-y-2.5 text-[13px] leading-relaxed text-ink/60">
+        <ul className="mt-3 space-y-2.5 text-[13px] leading-relaxed text-ink-muted">
           <li>
             <strong className="font-medium text-ink">Delete a score event.</strong> Corrections are
             written beside the original, never over it. A ledger that can be edited to make an
@@ -185,7 +185,7 @@ function Section({
   return (
     <Card>
       <h2 className="font-display text-base font-bold tracking-tight text-ink">{title}</h2>
-      {lead && <p className="mt-2 text-[13px] leading-relaxed text-ink/60">{lead}</p>}
+      {lead && <p className="mt-2 text-[13px] leading-relaxed text-ink-muted">{lead}</p>}
       {children && <dl className="mt-4 divide-y divide-line">{children}</dl>}
     </Card>
   );
@@ -196,11 +196,11 @@ function Rule({ name, amount, detail }: { name: string; amount: string; detail: 
     <div className="py-3.5 first:pt-0 last:pb-0">
       <dt className="flex flex-wrap items-baseline justify-between gap-2">
         <span className="text-[13px] font-medium text-ink">{name}</span>
-        <span className="font-display text-[13px] font-bold tabular-nums text-ink/70">
+        <span className="font-display text-[13px] font-bold tabular-nums text-ink-2">
           {amount}
         </span>
       </dt>
-      <dd className="mt-1 text-[13px] leading-relaxed text-ink/55">{detail}</dd>
+      <dd className="mt-1 text-[13px] leading-relaxed text-ink-muted">{detail}</dd>
     </div>
   );
 }

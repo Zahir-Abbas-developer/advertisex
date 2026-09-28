@@ -18,9 +18,9 @@ import { fileURLToPath } from "node:url";
 const HERE = dirname(fileURLToPath(import.meta.url));
 const OUT = join(HERE, "..", "public", "icons");
 
-// The fixed palette, from CLAUDE.md.
-const BRAND = [0x1a, 0x6b, 0x3a];
-const PAPER = [0xfa, 0xfa, 0xf7];
+// The fixed palette, from CLAUDE.md §7 (Forest & Mint): brand green #0E5B37, white glyph.
+const BRAND = [0x0e, 0x5b, 0x37];
+const PAPER = [0xff, 0xff, 0xff];
 
 /** CRC-32, needed for every PNG chunk. */
 const CRC_TABLE = (() => {

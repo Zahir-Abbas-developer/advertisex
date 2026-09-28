@@ -63,7 +63,7 @@ export function AppShell({
       {/* Mobile top bar */}
       <div className="no-print sticky top-0 z-20 flex items-center justify-between border-b border-line bg-canvas/95 px-4 py-3 backdrop-blur lg:hidden">
         <div className="flex items-center gap-2.5">
-          <span className="flex h-7 w-7 items-center justify-center rounded-[8px] bg-brand font-display text-xs font-bold text-canvas">
+          <span className="flex h-7 w-7 items-center justify-center rounded-[8px] bg-brand font-display text-xs font-bold text-on-brand">
             A
           </span>
           <span className="font-display text-sm font-bold tracking-[-0.01em] text-ink">
@@ -76,7 +76,7 @@ export function AppShell({
             type="button"
             onClick={() => setDrawerOpen(true)}
             aria-label="Open navigation"
-            className="rounded-[10px] border border-line p-2 text-ink/70 transition-colors hover:bg-surface-2"
+            className="rounded-[10px] border border-line p-2 text-ink-2 transition-colors hover:bg-surface-2"
           >
             <Menu className="h-4 w-4" />
           </button>
@@ -90,7 +90,7 @@ export function AppShell({
             type="button"
             aria-label="Close navigation"
             onClick={() => setDrawerOpen(false)}
-            className="absolute inset-0 h-full w-full cursor-default bg-black/60 animate-fade-in"
+            className="absolute inset-0 h-full w-full cursor-default bg-green-950/40 animate-fade-in"
           />
           <div className="absolute inset-y-0 left-0 w-[264px] animate-fade-in">
             <Sidebar
@@ -104,7 +104,7 @@ export function AppShell({
               type="button"
               onClick={() => setDrawerOpen(false)}
               aria-label="Close navigation"
-              className="absolute right-3 top-5 rounded-pill p-2 text-ink/50 transition-colors hover:bg-ink/10 hover:text-ink"
+              className="absolute right-3 top-5 rounded-pill p-2 text-ink-muted transition-colors hover:bg-ink/10 hover:text-ink"
             >
               <X className="h-4 w-4" />
             </button>

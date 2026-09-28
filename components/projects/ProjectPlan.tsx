@@ -78,7 +78,7 @@ export function ProjectPlan({ project, viewer, onChanged }: { project: ProjectPa
                   <span
                     className={cn(
                       "rounded-pill border px-2.5 py-1 text-[12px]",
-                      s.status === "DONE" ? "border-success/30 bg-success-tint text-success" : s.status === "ACTIVE" ? "border-brand/50 bg-brand-tint text-ink" : "border-line text-ink/50",
+                      s.status === "DONE" ? "border-success/30 bg-success-tint text-success-ink" : s.status === "ACTIVE" ? "border-brand/50 bg-brand-tint text-ink" : "border-line text-ink-muted",
                     )}
                   >
                     {s.name}
@@ -93,10 +93,10 @@ export function ProjectPlan({ project, viewer, onChanged }: { project: ProjectPa
                 <li key={s.id} className="rounded-[12px] border border-line p-4">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="flex items-center gap-2">
-                      {s.status === "DONE" ? <Check className="h-4 w-4 text-success" /> : s.status === "ACTIVE" ? <CircleDot className="h-4 w-4 text-brand" /> : <Circle className="h-4 w-4 text-ink/30" />}
+                      {s.status === "DONE" ? <Check className="h-4 w-4 text-success-ink" /> : s.status === "ACTIVE" ? <CircleDot className="h-4 w-4 text-brand" /> : <Circle className="h-4 w-4 text-ink/30" />}
                       <span className="text-[14px] font-medium text-ink">{s.name}</span>
                       {s.status === "ACTIVE" && <Badge size="sm" tone="info">Current</Badge>}
-                      {s.completedAt && <span className="text-[12px] text-ink/40">done {formatDate(s.completedAt)}</span>}
+                      {s.completedAt && <span className="text-[12px] text-ink-muted">done {formatDate(s.completedAt)}</span>}
                     </div>
                     <div className="flex items-center gap-1.5">
                       {viewer.canWork && s.status !== "DONE" && (
@@ -121,7 +121,7 @@ export function ProjectPlan({ project, viewer, onChanged }: { project: ProjectPa
                           </Button>
                           <button
                             type="button"
-                            className="rounded p-1.5 text-ink/40 hover:bg-surface-2 hover:text-danger"
+                            className="rounded p-1.5 text-ink-muted hover:bg-surface-2 hover:text-danger"
                             aria-label={`Remove stage ${s.name}`}
                             onClick={() => window.confirm(`Remove the stage "${s.name}"? Its milestones stay, unstaged.`) && void call(`${base}/stages/${s.id}`, "DELETE", null, "Stage removed")}
                           >
@@ -151,7 +151,7 @@ export function ProjectPlan({ project, viewer, onChanged }: { project: ProjectPa
           }
         />
         <CardBody>
-          {milestonesOf(null).length ? <MilestoneList items={milestonesOf(null)} viewer={viewer} base={base} call={call} /> : <p className="text-[13px] text-ink/45">None.</p>}
+          {milestonesOf(null).length ? <MilestoneList items={milestonesOf(null)} viewer={viewer} base={base} call={call} /> : <p className="text-[13px] text-ink-muted">None.</p>}
         </CardBody>
       </Card>
 
@@ -185,15 +185,15 @@ function MilestoneList({
               onClick={() => void call(`${base}/milestones/${m.id}`, "PATCH", { status: m.status === "DONE" ? "OPEN" : "DONE" }, m.status === "DONE" ? "Milestone reopened" : "Milestone reached")}
               aria-label={m.status === "DONE" ? `Reopen ${m.title}` : `Mark ${m.title} done`}
               aria-pressed={m.status === "DONE"}
-              className={cn("flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition-colors", m.status === "DONE" ? "border-success bg-success text-canvas" : "border-line hover:border-ink/40", !viewer.canWork && "cursor-default")}
+              className={cn("flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition-colors", m.status === "DONE" ? "border-success bg-success text-on-brand" : "border-line hover:border-ink/40", !viewer.canWork && "cursor-default")}
             >
               {m.status === "DONE" && <Check className="h-3.5 w-3.5" strokeWidth={3} />}
             </button>
-            <span className={cn("min-w-0 flex-1 truncate text-[13px]", m.status === "DONE" ? "text-ink/45 line-through" : "text-ink")}>{m.title}</span>
-            <span className="text-[11px] tabular-nums text-ink/40" title="Weight: how much of the project this represents">
+            <span className={cn("min-w-0 flex-1 truncate text-[13px]", m.status === "DONE" ? "text-ink-muted line-through" : "text-ink")}>{m.title}</span>
+            <span className="text-[11px] tabular-nums text-ink-muted" title="Weight: how much of the project this represents">
               ×{m.weight}
             </span>
-            {m.dueDate && <span className={cn("text-[12px] tabular-nums", late ? "text-danger" : "text-ink/50")}>{formatDate(m.dueDate)}</span>}
+            {m.dueDate && <span className={cn("text-[12px] tabular-nums", late ? "text-danger" : "text-ink-muted")}>{formatDate(m.dueDate)}</span>}
             {m.assignee && <Avatar name={m.assignee.name} color={m.assignee.avatarColor} size="sm" />}
             {viewer.canShape && (
               <button

@@ -111,7 +111,7 @@ export function CredentialsPanel({ clientId }: { clientId: string }) {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="max-w-xl text-[13px] text-ink/55">
+        <p className="max-w-xl text-[13px] text-ink-muted">
           Encrypted at rest. Secrets stay masked; opening one is recorded in the audit log with your name.
         </p>
         {perms.canManage && (
@@ -136,34 +136,34 @@ export function CredentialsPanel({ clientId }: { clientId: string }) {
                   <p className="truncate text-[13px] font-medium text-ink">{c.label}</p>
                   <Badge size="sm">{kindLabel(c.kind)}</Badge>
                 </div>
-                {c.url && <p className="truncate text-[12px] text-ink/45">{c.url}</p>}
+                {c.url && <p className="truncate text-[12px] text-ink-muted">{c.url}</p>}
               </div>
               <div className="min-w-0 space-y-0.5 text-[13px]">
-                {c.username && <p className="truncate text-ink/70">{c.username}</p>}
+                {c.username && <p className="truncate text-ink-2">{c.username}</p>}
                 <p className="truncate font-mono tabular-nums text-ink/80" aria-live="polite">
                   {shown[c.id] ?? c.secret}
                 </p>
-                <p className="text-[11px] text-ink/40">
+                <p className="text-[11px] text-ink-muted">
                   {c.lastRevealedAt ? `Last opened ${relativeFromNow(c.lastRevealedAt)}` : "Never opened"} · updated {formatDate(c.updatedAt)}
                 </p>
               </div>
               <div className="flex items-center gap-1 justify-self-end">
                 {perms.canReveal && (
-                  <button type="button" onClick={() => void reveal(c)} className="rounded p-1.5 text-ink/50 hover:bg-surface-2 hover:text-ink" aria-label={shown[c.id] ? `Hide ${c.label}` : `Reveal ${c.label}`}>
+                  <button type="button" onClick={() => void reveal(c)} className="rounded p-1.5 text-ink-muted hover:bg-surface-2 hover:text-ink" aria-label={shown[c.id] ? `Hide ${c.label}` : `Reveal ${c.label}`}>
                     {shown[c.id] ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 )}
                 {shown[c.id] && (
-                  <button type="button" onClick={() => void copy(c)} className="rounded p-1.5 text-ink/50 hover:bg-surface-2 hover:text-ink" aria-label={`Copy ${c.label}`}>
+                  <button type="button" onClick={() => void copy(c)} className="rounded p-1.5 text-ink-muted hover:bg-surface-2 hover:text-ink" aria-label={`Copy ${c.label}`}>
                     <Copy className="h-4 w-4" />
                   </button>
                 )}
                 {perms.canManage && (
                   <>
-                    <button type="button" onClick={() => setEditing(c)} className="rounded p-1.5 text-ink/50 hover:bg-surface-2 hover:text-ink" aria-label={`Edit ${c.label}`}>
+                    <button type="button" onClick={() => setEditing(c)} className="rounded p-1.5 text-ink-muted hover:bg-surface-2 hover:text-ink" aria-label={`Edit ${c.label}`}>
                       <Pencil className="h-4 w-4" />
                     </button>
-                    <button type="button" onClick={() => void remove(c)} className="rounded p-1.5 text-ink/50 hover:bg-surface-2 hover:text-danger" aria-label={`Remove ${c.label}`}>
+                    <button type="button" onClick={() => void remove(c)} className="rounded p-1.5 text-ink-muted hover:bg-surface-2 hover:text-danger" aria-label={`Remove ${c.label}`}>
                       <Trash2 className="h-4 w-4" />
                     </button>
                   </>

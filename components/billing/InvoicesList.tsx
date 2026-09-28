@@ -133,13 +133,13 @@ export function InvoicesList() {
                     </TD>
                     <TD>
                       <span className="block text-ink/85">{i.client.businessName}</span>
-                      {i.project && <span className="block text-[12px] text-ink/45">{i.project.title}</span>}
+                      {i.project && <span className="block text-[12px] text-ink-muted">{i.project.title}</span>}
                     </TD>
                     <TD>
                       <InvoiceStatusBadge status={i.status} />
                     </TD>
-                    <TD className="text-ink/60">{i.issueDate ? formatDate(i.issueDate) : "—"}</TD>
-                    <TD className="text-ink/60">{formatDate(i.dueDate)}</TD>
+                    <TD className="text-ink-muted">{i.issueDate ? formatDate(i.issueDate) : "—"}</TD>
+                    <TD className="text-ink-muted">{formatDate(i.dueDate)}</TD>
                     <TD className="text-right tabular-nums text-ink">{formatMoney(i.totalMinor, i.currency)}</TD>
                     <TD className="text-right tabular-nums text-ink/80">{i.status === "DRAFT" || i.status === "VOID" ? "—" : formatMoney(i.balanceMinor, i.currency)}</TD>
                   </TR>

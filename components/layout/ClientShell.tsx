@@ -45,14 +45,14 @@ export function ClientShell({
       <header className="sticky top-0 z-20 border-b border-line bg-canvas/90 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between gap-4 px-4 sm:px-8">
           <div className="flex min-w-0 items-center gap-3">
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[9px] bg-brand font-display text-sm font-bold text-canvas">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[9px] bg-brand font-display text-sm font-bold text-on-brand">
               A
             </span>
             <div className="min-w-0">
               <p className="truncate font-display text-[15px] font-semibold tracking-[-0.01em] text-ink">
                 {accountName}
               </p>
-              <p className="text-[11px] text-ink/45">with Advertise X</p>
+              <p className="text-[11px] text-ink-muted">with Advertise X</p>
             </div>
           </div>
 
@@ -63,7 +63,7 @@ export function ClientShell({
                 <span className="flex items-center gap-2 rounded-[10px] border border-line px-2 py-1.5 transition-colors hover:bg-surface-2">
                   <Avatar name={user.name} color={user.avatarColor} size="sm" />
                   <span className="hidden text-[13px] text-ink/80 sm:inline">{user.name}</span>
-                  <ChevronDown className="h-3.5 w-3.5 text-ink/40" />
+                  <ChevronDown className="h-3.5 w-3.5 text-ink-muted" />
                 </span>
               }
               items={[
@@ -99,7 +99,7 @@ export function ClientShell({
                 aria-current={active ? "page" : undefined}
                 className={cn(
                   "-mb-px flex shrink-0 items-center border-b-2 px-3 py-2.5 text-[13px] transition-colors",
-                  active ? "border-brand font-medium text-ink" : "border-transparent text-ink/55 hover:text-ink",
+                  active ? "border-brand font-medium text-ink" : "border-transparent text-ink-muted hover:text-ink",
                 )}
               >
                 {section.label}

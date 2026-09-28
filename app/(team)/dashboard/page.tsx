@@ -276,7 +276,7 @@ export default async function DashboardPage({
       {searchParams.denied === "admin" && (
         <div
           role="alert"
-          className="flex items-start gap-2.5 rounded-card border border-warn/20 bg-warn-tint px-4 py-3 text-[13px] leading-relaxed text-warn"
+          className="flex items-start gap-2.5 rounded-card border border-warn/20 bg-warn-tint px-4 py-3 text-[13px] leading-relaxed text-ink"
         >
           <ShieldAlert aria-hidden className="mt-0.5 h-4 w-4 shrink-0" />
           <span>
@@ -503,7 +503,7 @@ export default async function DashboardPage({
                       className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-[9px] border ${
                         overdue
                           ? "border-danger/20 bg-danger-tint text-danger"
-                          : "border-warn/20 bg-warn-tint text-warn"
+                          : "border-warn/20 bg-warn-tint text-ink"
                       }`}
                     >
                       <TriangleAlert className="h-4 w-4" />
@@ -516,7 +516,7 @@ export default async function DashboardPage({
                       >
                         {milestone.title}
                       </Link>
-                      <p className="mt-0.5 truncate text-[12px] text-ink/45">
+                      <p className="mt-0.5 truncate text-[12px] text-ink-muted">
                         {milestone.module.project.client.businessName} ·{" "}
                         {formatDate(milestone.dueDate)} · {lateness(overdue, days)}
                       </p>
@@ -543,7 +543,7 @@ export default async function DashboardPage({
           )}
 
           {atRiskAll.length > atRiskRows.length && (
-            <p className="border-t border-line px-5 py-3 text-[12px] text-ink/40">
+            <p className="border-t border-line px-5 py-3 text-[12px] text-ink-muted">
               Showing the {atRiskRows.length} closest of {atRiskAll.length}.
             </p>
           )}
@@ -585,7 +585,7 @@ export default async function DashboardPage({
 
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-medium text-ink">{member.name}</p>
-                        <p className="truncate text-[12px] text-ink/45">{member.jobTitle}</p>
+                        <p className="truncate text-[12px] text-ink-muted">{member.jobTitle}</p>
                       </div>
 
                       {/* The triple, never the raw score alone. */}
@@ -615,7 +615,7 @@ export default async function DashboardPage({
             <h3 className="font-display text-base font-bold tracking-tight text-ink">
               Your standing
             </h3>
-            <p className="mt-1 text-[13px] text-ink/50">
+            <p className="mt-1 text-[13px] text-ink-muted">
               This month&rsquo;s deadlines, judged on when you submitted.
             </p>
 
@@ -635,7 +635,7 @@ export default async function DashboardPage({
                   } this month`}
                   showValue
                 />
-                <p className="text-[13px] leading-relaxed text-ink/55">
+                <p className="text-[13px] leading-relaxed text-ink-muted">
                   Every month starts at 100, and the clock stops when you hand
                   work in — not when it&rsquo;s approved.
                 </p>
@@ -725,7 +725,7 @@ async function MemberUpcoming({ userId }: { userId: string }) {
         <li key={milestone.id} className="flex items-center gap-3 px-5 py-3.5">
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-medium text-ink">{milestone.title}</p>
-            <p className="truncate text-[12px] text-ink/45">
+            <p className="truncate text-[12px] text-ink-muted">
               {milestone.module.project.client.businessName} ·{" "}
               {formatDate(milestone.dueDate)}
             </p>

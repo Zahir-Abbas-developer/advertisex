@@ -161,7 +161,7 @@ export function DepartmentsManager() {
                       <div className="min-w-0">
                         <p className="truncate text-[13px] font-medium text-ink">{dept.name}</p>
                         {dept.description && (
-                          <p className="truncate text-[12px] text-ink/45">{dept.description}</p>
+                          <p className="truncate text-[12px] text-ink-muted">{dept.description}</p>
                         )}
                       </div>
                     </div>
@@ -169,7 +169,7 @@ export function DepartmentsManager() {
 
                   <TD>
                     {dept.members.length === 0 ? (
-                      <span className="text-[13px] text-ink/40">Nobody yet</span>
+                      <span className="text-[13px] text-ink-muted">Nobody yet</span>
                     ) : (
                       <div className="flex items-center -space-x-1.5">
                         {dept.members.slice(0, 5).map((m) => (
@@ -181,7 +181,7 @@ export function DepartmentsManager() {
                           />
                         ))}
                         {dept.members.length > 5 && (
-                          <span className="pl-3 text-[12px] text-ink/45">
+                          <span className="pl-3 text-[12px] text-ink-muted">
                             +{dept.members.length - 5}
                           </span>
                         )}
@@ -190,7 +190,7 @@ export function DepartmentsManager() {
                   </TD>
 
                   <TD>
-                    <span className="text-[13px] tabular-nums text-ink/60">
+                    <span className="text-[13px] tabular-nums text-ink-muted">
                       {dept.counts.clients} client{dept.counts.clients === 1 ? "" : "s"} ·{" "}
                       {dept.counts.leads} deal{dept.counts.leads === 1 ? "" : "s"}
                     </span>
@@ -209,7 +209,7 @@ export function DepartmentsManager() {
                         aria-label={`Move ${dept.shortLabel} up`}
                         disabled={index === 0 || reordering}
                         onClick={() => void move(index, -1)}
-                        className="rounded-[8px] border border-line p-1.5 text-ink/60 transition-colors hover:bg-surface-2 disabled:opacity-30"
+                        className="rounded-[8px] border border-line p-1.5 text-ink-muted transition-colors hover:bg-surface-2 disabled:opacity-30"
                       >
                         <ArrowUp className="h-3.5 w-3.5" />
                       </button>
@@ -218,7 +218,7 @@ export function DepartmentsManager() {
                         aria-label={`Move ${dept.shortLabel} down`}
                         disabled={index === departments.length - 1 || reordering}
                         onClick={() => void move(index, 1)}
-                        className="rounded-[8px] border border-line p-1.5 text-ink/60 transition-colors hover:bg-surface-2 disabled:opacity-30"
+                        className="rounded-[8px] border border-line p-1.5 text-ink-muted transition-colors hover:bg-surface-2 disabled:opacity-30"
                       >
                         <ArrowDown className="h-3.5 w-3.5" />
                       </button>

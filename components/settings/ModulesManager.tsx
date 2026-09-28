@@ -105,7 +105,7 @@ export function ModulesManager() {
                         {on ? "On" : "Off"}
                       </Badge>
                     </div>
-                    <p className="mt-1.5 text-[13px] leading-relaxed text-ink/55">
+                    <p className="mt-1.5 text-[13px] leading-relaxed text-ink-muted">
                       {mod.description}
                     </p>
                   </div>
@@ -126,7 +126,7 @@ export function ModulesManager() {
                   >
                     <span
                       className={cn(
-                        "absolute top-[3px] h-4 w-4 rounded-pill bg-canvas shadow-sm transition-all",
+                        "absolute top-[3px] h-4 w-4 rounded-pill bg-surface shadow-sm transition-all",
                         on ? "left-[25px]" : "left-[3px]",
                       )}
                     />
@@ -136,7 +136,7 @@ export function ModulesManager() {
             );
           })}
 
-          <p className="flex items-start gap-2 px-1 pt-2 text-[13px] leading-relaxed text-ink/45">
+          <p className="flex items-start gap-2 px-1 pt-2 text-[13px] leading-relaxed text-ink-muted">
             <PowerOff className="mt-0.5 h-3.5 w-3.5 shrink-0" />
             Every module here is off by default. Their code is retained, so
             switching one back on restores it without a rebuild.

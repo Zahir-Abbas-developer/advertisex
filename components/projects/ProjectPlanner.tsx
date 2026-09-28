@@ -131,7 +131,7 @@ export function ProjectPlanner({
     <div className="space-y-8">
       <Link
         href={`/clients/${project.clientId}`}
-        className="inline-flex items-center gap-1.5 text-[13px] text-ink/50 transition-colors hover:text-ink"
+        className="inline-flex items-center gap-1.5 text-[13px] text-ink-muted transition-colors hover:text-ink"
       >
         <ArrowLeft className="h-3.5 w-3.5" />
         {project.clientName}
@@ -142,11 +142,11 @@ export function ProjectPlanner({
         <div className="px-6 py-8 sm:px-9 sm:py-10">
           <div className="flex flex-wrap items-start justify-between gap-5">
             <div className="min-w-0">
-              <p className="eyebrow mb-3 text-brand-tint/70">{project.clientName}</p>
+              <p className="eyebrow mb-3 text-ink-muted">{project.clientName}</p>
               <h1 className="font-display text-[30px] font-bold leading-[1.05] tracking-[-0.02em] text-ink sm:text-[38px]">
                 {project.title}
               </h1>
-              <p className="mt-3 text-[15px] text-ink/55">
+              <p className="mt-3 text-[15px] text-ink-muted">
                 {formatDate(project.startDate)} – {formatDate(project.endDate)}
               </p>
 
@@ -154,7 +154,7 @@ export function ProjectPlanner({
                 {project.services.map((service) => (
                   <span
                     key={service.id}
-                    className="rounded-pill border border-ink/15 px-2.5 py-1 text-[11px] text-ink/60"
+                    className="rounded-pill border border-ink/15 px-2.5 py-1 text-[11px] text-ink-muted"
                   >
                     {service.name}
                   </span>
@@ -170,7 +170,7 @@ export function ProjectPlanner({
                 <p className="font-display text-[40px] font-bold leading-none tracking-[-0.03em] text-ink">
                   {Math.abs(daysRemaining)}
                 </p>
-                <p className="eyebrow mt-1.5 text-ink/40">
+                <p className="eyebrow mt-1.5 text-ink-muted">
                   {daysRemaining < 0 ? "days overdue" : "days remaining"}
                 </p>
               </div>
@@ -217,7 +217,7 @@ export function ProjectPlanner({
                     <h2 className="font-display text-base font-bold tracking-tight text-ink">
                       {module.name}
                     </h2>
-                    <p className="mt-0.5 text-[13px] text-ink/50">
+                    <p className="mt-0.5 text-[13px] text-ink-muted">
                       {done} of {module.milestones.length} complete
                       {module.serviceName && ` · ${module.serviceName}`}
                     </p>
@@ -322,7 +322,7 @@ export function ProjectPlanner({
         <button
           type="button"
           onClick={() => setNewWorkstream("")}
-          className="flex w-full items-center justify-center gap-2 rounded-card border border-dashed border-line px-5 py-4 text-[13px] text-ink/45 transition-colors hover:border-ink/25 hover:bg-surface-2/50 hover:text-ink"
+          className="flex w-full items-center justify-center gap-2 rounded-card border border-dashed border-line px-5 py-4 text-[13px] text-ink-muted transition-colors hover:border-ink/25 hover:bg-surface-2/50 hover:text-ink"
         >
           <FolderPlus className="h-4 w-4" />
           Add a workstream
@@ -422,9 +422,9 @@ function HeaderStat({
       <p
         className={cn(
           "mt-1.5 font-display text-lg font-bold",
-          value === 0 && "text-ink/50",
-          value > 0 && tone === "warn" && "text-warn",
-          value > 0 && tone === "danger" && "text-danger",
+          value === 0 && "text-ink-muted",
+          // Counts stay ink — the label says what they are; red is for errors.
+          value > 0 && (tone === "warn" || tone === "danger") && "text-ink",
           value > 0 && !tone && "text-ink/85",
         )}
       >

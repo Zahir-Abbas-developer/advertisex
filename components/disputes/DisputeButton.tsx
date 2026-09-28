@@ -39,7 +39,7 @@ export function DisputeButton({
 
   if (existingStatus) {
     return (
-      <span className="shrink-0 rounded-pill border border-line bg-surface px-2 py-0.5 text-[10px] font-medium text-ink/50">
+      <span className="shrink-0 rounded-pill border border-line bg-surface px-2 py-0.5 text-[10px] font-medium text-ink-muted">
         {existingStatus === "OPEN"
           ? "Disputed"
           : existingStatus === "REVERSED"
@@ -78,7 +78,7 @@ export function DisputeButton({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="shrink-0 rounded-pill border border-line bg-surface px-2 py-0.5 text-[10px] font-medium text-ink/45 transition-colors hover:border-ink/25 hover:text-ink"
+        className="shrink-0 rounded-pill border border-line bg-surface px-2 py-0.5 text-[10px] font-medium text-ink-muted transition-colors hover:border-ink/25 hover:text-ink"
       >
         Dispute
       </button>
@@ -86,12 +86,12 @@ export function DisputeButton({
       <Modal open={open} onClose={() => setOpen(false)} title="Dispute this charge">
         <div className="space-y-4">
           <div className="flex items-start gap-2.5 rounded-card border border-line bg-surface-2/50 px-4 py-3">
-            <Scale className="mt-0.5 h-4 w-4 shrink-0 text-ink/40" />
+            <Scale className="mt-0.5 h-4 w-4 shrink-0 text-ink-muted" />
             <div className="min-w-0">
               <p className="text-[13px] font-medium text-ink">
                 {Math.abs(points)} points — {eventReason}
               </p>
-              <p className="mt-1 text-[13px] leading-relaxed text-ink/55">
+              <p className="mt-1 text-[13px] leading-relaxed text-ink-muted">
                 Whichever way this goes, the original event stays on the ledger and
                 you get the reasoning in writing.
               </p>

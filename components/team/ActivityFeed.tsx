@@ -84,7 +84,7 @@ export function ActivityFeed({ entries }: { entries: FeedEntry[] }) {
           <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-ink/30" aria-hidden />
           <div className="min-w-0">
             <p className="text-[13px] text-ink/85">{describe(e)}</p>
-            <p className="text-[11px] tabular-nums text-ink/40">
+            <p className="text-[11px] tabular-nums text-ink-muted">
               {new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(e.createdAt))}
               {e.actorName && ` · ${e.actorName}`}
               {e.actorType === "AI" && " (AI)"}

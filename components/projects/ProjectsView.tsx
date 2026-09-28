@@ -107,17 +107,17 @@ export function ProjectsView({ canCreate, canSeeAnalytics }: { canCreate: boolea
               aria-pressed={scope === s}
               className={cn(
                 "rounded-pill border px-3 py-1.5 text-[13px] transition-colors",
-                scope === s ? "border-brand/50 bg-brand-tint text-brand" : "border-line bg-surface text-ink/60 hover:border-ink/25 hover:text-ink",
+                scope === s ? "border-brand/50 bg-brand-tint text-brand" : "border-line bg-surface text-ink-muted hover:border-ink/25 hover:text-ink",
               )}
             >
               {s === "OPEN" ? "Open" : s === "COMPLETED" ? "Completed" : "All"}
             </button>
           ))}
-          <label className="ml-2 flex items-center gap-2 text-[13px] text-ink/60">
+          <label className="ml-2 flex items-center gap-2 text-[13px] text-ink-muted">
             <input type="checkbox" className="accent-brand" checked={mine} onChange={(e) => setMine(e.target.checked)} />
             Only mine
           </label>
-          {rows && delayed > 0 && <span className="ml-2 text-[13px] text-warn">{delayed} delayed</span>}
+          {rows && delayed > 0 && <span className="ml-2 text-[13px] text-ink">{delayed} delayed</span>}
         </div>
         <div className="w-full sm:w-64">
           <Input aria-label="Search projects" placeholder="Search projects or clients" icon={<Search className="h-4 w-4" />} value={query} onChange={(e) => setQuery(e.target.value)} />
@@ -158,9 +158,9 @@ export function ProjectsView({ canCreate, canSeeAnalytics }: { canCreate: boolea
             const items = visible.filter((r) => r.status === column);
             return (
               <section key={column} className="min-w-0 space-y-3" aria-label={PROJECT_STATUS_LABEL[column]}>
-                <h2 className="flex items-center justify-between text-[13px] font-medium text-ink/70">
+                <h2 className="flex items-center justify-between text-[13px] font-medium text-ink-2">
                   {PROJECT_STATUS_LABEL[column]}
-                  <span className="tabular-nums text-ink/40">{items.length}</span>
+                  <span className="tabular-nums text-ink-muted">{items.length}</span>
                 </h2>
                 {items.length === 0 ? (
                   <p className="rounded-card border border-dashed border-line px-4 py-6 text-center text-[12px] text-ink/35">None</p>
@@ -197,16 +197,16 @@ export function ProjectsView({ canCreate, canSeeAnalytics }: { canCreate: boolea
                       <PriorityBadge priority={r.priority} />
                     </div>
                   </TD>
-                  <TD className="text-ink/70">{r.client.businessName}</TD>
+                  <TD className="text-ink-2">{r.client.businessName}</TD>
                   <TD>
                     <ProjectStatusBadge status={r.status} />
                   </TD>
-                  <TD className="text-ink/60">{r.currentStage ?? "—"}</TD>
+                  <TD className="text-ink-muted">{r.currentStage ?? "—"}</TD>
                   <TD>
                     <ProgressBar value={r.progress} showValue size="sm" tone={progressTone(r.schedule)} />
                   </TD>
-                  <TD className="tabular-nums text-ink/70">{formatDate(r.deadline)}</TD>
-                  <TD className="text-ink/70">{r.owner?.name ?? "—"}</TD>
+                  <TD className="tabular-nums text-ink-2">{formatDate(r.deadline)}</TD>
+                  <TD className="text-ink-2">{r.owner?.name ?? "—"}</TD>
                 </TR>
               ))}
             </TBody>
@@ -222,12 +222,12 @@ export function ProjectsView({ canCreate, canSeeAnalytics }: { canCreate: boolea
 function ProjectCard({ row: r }: { row: Row }) {
   return (
     <Link href={`/projects/${r.id}`} className="group block rounded-card border border-line bg-surface p-4 transition-colors hover:border-ink/20">
-      <p className="truncate text-[12px] text-ink/45">{r.client.businessName}</p>
+      <p className="truncate text-[12px] text-ink-muted">{r.client.businessName}</p>
       <h3 className="mt-0.5 line-clamp-2 text-[14px] font-semibold leading-snug text-ink group-hover:text-brand">{r.title}</h3>
       <div className="mt-3">
         <ProgressBar value={r.progress} showValue size="sm" tone={progressTone(r.schedule)} />
       </div>
-      <p className="mt-2 truncate text-[12px] text-ink/50">
+      <p className="mt-2 truncate text-[12px] text-ink-muted">
         {r.currentStage ? `${r.currentStage} · ` : ""}due {formatDate(r.deadline)}
       </p>
       <div className="mt-3 flex items-center justify-between gap-2">

@@ -323,7 +323,7 @@ export function ClientWizard({
               Department <span className="text-danger">*</span>
             </p>
             {departments === null ? (
-              <p className="text-[13px] text-ink/45">Loading departments…</p>
+              <p className="text-[13px] text-ink-muted">Loading departments…</p>
             ) : (
               <DepartmentPicker
                 departments={departments}
@@ -445,7 +445,7 @@ export function ClientWizard({
 
       {step === 2 && (
         <div className="space-y-3">
-          <p className="text-sm leading-relaxed text-ink/60">
+          <p className="text-sm leading-relaxed text-ink-muted">
             Each service brings its own workstream and dated milestones. You can
             edit every one of them afterwards.
           </p>
@@ -457,7 +457,7 @@ export function ClientWizard({
           {services.length === 0 && (
             <div
               role="alert"
-              className="rounded-card border border-line bg-surface-2 p-4 text-[13px] leading-relaxed text-ink/70"
+              className="rounded-card border border-line bg-surface-2 p-4 text-[13px] leading-relaxed text-ink-2"
             >
               There are no services in the catalogue yet, and a client needs at
               least one. Close this, open <strong>Services</strong> at the top of
@@ -491,7 +491,7 @@ export function ClientWizard({
                 <span
                   className={cn(
                     "mt-0.5 flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-[5px] border transition-colors",
-                    selected ? "border-brand bg-brand text-canvas" : "border-line bg-surface",
+                    selected ? "border-brand bg-brand text-on-brand" : "border-line bg-surface",
                   )}
                 >
                   {selected && <Check className="h-3 w-3" strokeWidth={3} />}
@@ -500,11 +500,11 @@ export function ClientWizard({
                 <span className="min-w-0 flex-1">
                   <span className="block text-sm font-medium text-ink">{service.name}</span>
                   {service.description && (
-                    <span className="mt-0.5 block text-[13px] leading-relaxed text-ink/55">
+                    <span className="mt-0.5 block text-[13px] leading-relaxed text-ink-muted">
                       {service.description}
                     </span>
                   )}
-                  <span className="mt-1.5 block text-[12px] text-ink/40">
+                  <span className="mt-1.5 block text-[12px] text-ink-muted">
                     {service.stages?.length
                       ? `Stages: ${service.stages.join(" → ")}`
                       : "No stage template yet — starts with Planning → Delivery → Review"}
@@ -551,26 +551,26 @@ export function ClientWizard({
 
             <dl className="space-y-2 text-sm">
               <div className="flex justify-between gap-4">
-                <dt className="text-ink/55">Client</dt>
+                <dt className="text-ink-muted">Client</dt>
                 <dd className="font-medium text-ink">{draft.businessName || "—"}</dd>
               </div>
               <div className="flex justify-between gap-4">
-                <dt className="text-ink/55">Services</dt>
+                <dt className="text-ink-muted">Services</dt>
                 <dd className="text-right font-medium text-ink">
                   {selectedServices.map((service) => service.name).join(", ") || "—"}
                 </dd>
               </div>
               <div className="flex justify-between gap-4">
-                <dt className="text-ink/55">Service lines</dt>
+                <dt className="text-ink-muted">Service lines</dt>
                 <dd className="font-medium tabular-nums text-ink">{preview.lineCount}</dd>
               </div>
               <div className="flex justify-between gap-4">
-                <dt className="text-ink/55">Stages</dt>
+                <dt className="text-ink-muted">Stages</dt>
                 <dd className="font-medium tabular-nums text-ink">{preview.stageCount}</dd>
               </div>
             </dl>
 
-            <p className="mt-3 border-t border-line pt-3 text-[12px] leading-relaxed text-ink/45">
+            <p className="mt-3 border-t border-line pt-3 text-[12px] leading-relaxed text-ink-muted">
               The first project runs 90 days from the start date, planned from
               each service&apos;s stage template. The services are recorded at
               catalog price; adjust what the client pays on their profile.
@@ -594,9 +594,9 @@ function Stepper({ step }: { step: Step }) {
             <span
               className={cn(
                 "flex h-6 w-6 shrink-0 items-center justify-center rounded-pill text-[11px] font-bold transition-colors",
-                done && "bg-brand text-canvas",
+                done && "bg-brand text-on-brand",
                 active && "bg-brand-tint text-brand",
-                !done && !active && "border border-line bg-surface text-ink/40",
+                !done && !active && "border border-line bg-surface text-ink-muted",
               )}
             >
               {done ? <Check className="h-3 w-3" strokeWidth={3} /> : item.step}
@@ -605,7 +605,7 @@ function Stepper({ step }: { step: Step }) {
             <span
               className={cn(
                 "hidden text-[13px] font-medium sm:block",
-                active ? "text-ink" : "text-ink/40",
+                active ? "text-ink" : "text-ink-muted",
               )}
             >
               {item.label}

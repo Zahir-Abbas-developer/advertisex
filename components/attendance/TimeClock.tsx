@@ -139,7 +139,7 @@ export function TimeClock() {
             <p className="mt-3 font-display text-[40px] font-bold leading-none tabular-nums text-ink">
               {formatMinutes(liveWorked)}
             </p>
-            <p className="mt-2 text-[13px] text-ink/55">
+            <p className="mt-2 text-[13px] text-ink-muted">
               Scheduled {today.schedule.workDays.map((d) => DAYS[d]).join(" ")} · {clock(today.schedule.startMinute)}–
               {clock(today.schedule.endMinute)} · {tz.replace("_", " ")}
             </p>
@@ -148,7 +148,7 @@ export function TimeClock() {
                 {today.onBreak ? "On a break" : DAY_LABEL[today.result.status]}
               </Badge>
               {today.result.lateMinutes > 0 && <Badge tone="warning">{today.result.lateMinutes} min late</Badge>}
-              <span className="text-[13px] tabular-nums text-ink/55">
+              <span className="text-[13px] tabular-nums text-ink-muted">
                 In {time(today.clockInAt, tz)} · Out {time(today.clockOutAt, tz)} · Breaks {today.result.breakMinutes} min
               </span>
             </div>
@@ -176,7 +176,7 @@ export function TimeClock() {
                 </Button>
               </>
             )}
-            {today.clockOutAt && <p className="text-[13px] text-ink/55">Done for today.</p>}
+            {today.clockOutAt && <p className="text-[13px] text-ink-muted">Done for today.</p>}
           </div>
         </div>
       </Card>
@@ -218,9 +218,9 @@ export function TimeClock() {
                       <Badge tone={DAY_TONE[d.status]} size="sm">{DAY_LABEL[d.status]}</Badge>
                     </TD>
                     <TD className="text-right tabular-nums">{d.workedMinutes ? formatMinutes(d.workedMinutes) : "—"}</TD>
-                    <TD className="text-right tabular-nums text-ink/60">{d.breakMinutes ? `${d.breakMinutes}m` : "—"}</TD>
-                    <TD className="text-right tabular-nums text-ink/60">{d.lateMinutes ? `${d.lateMinutes}m` : "—"}</TD>
-                    <TD className="text-right tabular-nums text-ink/60">{d.earlyDepartureMinutes ? `${d.earlyDepartureMinutes}m` : "—"}</TD>
+                    <TD className="text-right tabular-nums text-ink-muted">{d.breakMinutes ? `${d.breakMinutes}m` : "—"}</TD>
+                    <TD className="text-right tabular-nums text-ink-muted">{d.lateMinutes ? `${d.lateMinutes}m` : "—"}</TD>
+                    <TD className="text-right tabular-nums text-ink-muted">{d.earlyDepartureMinutes ? `${d.earlyDepartureMinutes}m` : "—"}</TD>
                   </TR>
                 ))}
               </TBody>

@@ -59,7 +59,7 @@ export function ProjectsAnalytics() {
       ) : (
         <>
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-            <StatCard label="Active" value={String(data.totals.active)} hint="Planning, active or on hold" />
+            <StatCard variant="hero" label="Active" value={String(data.totals.active)} hint="Planning, active or on hold" />
             <StatCard label="Completed" value={String(data.totals.completed)} hint="All time" />
             <StatCard label="Delayed" value={String(data.totals.delayed)} hint="Past deadline or behind schedule" />
             <StatCard label="Due in 14 days" value={String(data.totals.upcomingDeadlines)} hint="Open projects" />
@@ -126,9 +126,9 @@ export function ProjectsAnalytics() {
                             {p.title}
                           </Link>
                         </TD>
-                        <TD className="text-ink/70">{p.client.businessName}</TD>
-                        <TD className="text-ink/70">{p.owner?.name ?? "—"}</TD>
-                        <TD className="tabular-nums text-ink/70">{formatDate(p.deadline)}</TD>
+                        <TD className="text-ink-2">{p.client.businessName}</TD>
+                        <TD className="text-ink-2">{p.owner?.name ?? "—"}</TD>
+                        <TD className="tabular-nums text-ink-2">{formatDate(p.deadline)}</TD>
                         <TD>
                           <ProgressBar value={p.progress} showValue size="sm" tone={p.schedule === "OVERDUE" ? "danger" : "warn"} />
                         </TD>
@@ -154,17 +154,17 @@ export function ProjectsAnalytics() {
                     {data.upcoming.map((p) => (
                       <li key={p.id} className="flex items-center gap-3 py-2.5 text-[13px]">
                         <Link href={`/projects/${p.id}`} className="min-w-0 flex-1 truncate text-ink hover:text-brand">
-                          {p.title} <span className="text-ink/45">· {p.client.businessName}</span>
+                          {p.title} <span className="text-ink-muted">· {p.client.businessName}</span>
                         </Link>
                         <span className="w-24">
                           <ProgressBar value={p.progress} size="sm" />
                         </span>
-                        <span className="w-24 text-right tabular-nums text-ink/60">{formatDate(p.deadline)}</span>
+                        <span className="w-24 text-right tabular-nums text-ink-muted">{formatDate(p.deadline)}</span>
                       </li>
                     ))}
                   </ul>
                 ) : (
-                  <p className="text-[13px] text-ink/45">No deadlines in the next two weeks.</p>
+                  <p className="text-[13px] text-ink-muted">No deadlines in the next two weeks.</p>
                 )}
               </CardBody>
             </Card>
@@ -177,15 +177,15 @@ export function ProjectsAnalytics() {
                       <li key={a.user.id} className="flex items-center gap-3 py-2.5 text-[13px]">
                         <Avatar name={a.user.name} color={a.user.avatarColor} size="sm" />
                         <span className="min-w-0 flex-1 truncate text-ink">{a.user.name}</span>
-                        <span className="tabular-nums text-ink/70">{a.projects} projects</span>
-                        <span className="w-28 text-right tabular-nums text-ink/50">
+                        <span className="tabular-nums text-ink-2">{a.projects} projects</span>
+                        <span className="w-28 text-right tabular-nums text-ink-muted">
                           {a.milestones} ms · {a.tasks} tasks
                         </span>
                       </li>
                     ))}
                   </ul>
                 ) : (
-                  <p className="text-[13px] text-ink/45">No one is on an open project.</p>
+                  <p className="text-[13px] text-ink-muted">No one is on an open project.</p>
                 )}
               </CardBody>
             </Card>

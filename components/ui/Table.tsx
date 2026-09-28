@@ -37,7 +37,7 @@ export function Table({
 }
 
 export function THead({ children }: { children: ReactNode }) {
-  return <thead className="bg-surface-2">{children}</thead>;
+  return <thead className="bg-surface-head">{children}</thead>;
 }
 
 export function TBody({ children }: { children: ReactNode }) {
@@ -58,7 +58,7 @@ export function TR({
     <tr
       className={cn(
         "transition-colors hover:bg-surface-2/50",
-        muted && "bg-canvas/60 text-ink/50",
+        muted && "bg-canvas/60 text-ink-muted",
         className,
       )}
     >
@@ -76,7 +76,7 @@ export function TH({
     <th
       scope="col"
       className={cn(
-        "eyebrow border-b border-line px-4 py-3 text-left text-ink/50 sm:px-5",
+        "eyebrow border-b border-line px-4 py-3 text-left text-ink-muted sm:px-5",
         className,
       )}
       {...props}

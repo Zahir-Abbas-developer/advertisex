@@ -185,7 +185,7 @@ describe("scoreBand", () => {
   });
 
   it("uses only palette colours", () => {
-    const palette = new Set(["#22C55E", "#38BDF8", "#F59E0B", "#EF4444"]);
+    const palette = new Set(["#279D61", "#50A6BC", "#D97706", "#656565"]);
     for (const score of [100, 80, 65, 20]) {
       assert.ok(palette.has(scoreBand(score).color), `score ${score}`);
     }

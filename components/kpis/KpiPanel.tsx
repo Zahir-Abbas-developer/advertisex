@@ -124,7 +124,7 @@ export function KpiPanel({ clientId, canEdit }: { clientId: string; canEdit: boo
           <h2 className="font-display text-base font-bold tracking-tight text-ink">
             Performance
           </h2>
-          <p className="mt-0.5 text-[13px] text-ink/50">
+          <p className="mt-0.5 text-[13px] text-ink-muted">
             {data.summary.weeks === 0
               ? "No weeks logged yet"
               : `Last ${data.summary.weeks} weeks · target ROAS ${data.targetRoas}`}
@@ -199,7 +199,7 @@ export function KpiPanel({ clientId, canEdit }: { clientId: string; canEdit: boo
               <h3 className="font-display text-base font-bold tracking-tight text-ink">
                 Weekly log
               </h3>
-              <p className="mt-0.5 text-[13px] text-ink/50">
+              <p className="mt-0.5 text-[13px] text-ink-muted">
                 Newest first. ROAS and conversion are computed, never typed.
               </p>
             </div>
@@ -212,7 +212,7 @@ export function KpiPanel({ clientId, canEdit }: { clientId: string; canEdit: boo
                       <th
                         key={label}
                         scope="col"
-                        className="eyebrow border-b border-line px-4 py-3 text-left text-ink/50"
+                        className="eyebrow border-b border-line px-4 py-3 text-left text-ink-muted"
                       >
                         {label}
                       </th>
@@ -230,10 +230,10 @@ export function KpiPanel({ clientId, canEdit }: { clientId: string; canEdit: boo
                           <span className="ml-2 text-[11px] text-ink/35">{week.enteredBy}</span>
                         )}
                       </td>
-                      <td className="px-4 py-3 tabular-nums text-ink/70">
+                      <td className="px-4 py-3 tabular-nums text-ink-2">
                         {formatMoney(week.spend, true)}
                       </td>
-                      <td className="px-4 py-3 tabular-nums text-ink/70">
+                      <td className="px-4 py-3 tabular-nums text-ink-2">
                         {formatMoney(week.revenue, true)}
                       </td>
                       <td
@@ -248,11 +248,11 @@ export function KpiPanel({ clientId, canEdit }: { clientId: string; canEdit: boo
                       >
                         {week.roas ?? "—"}
                       </td>
-                      <td className="px-4 py-3 tabular-nums text-ink/70">{week.orders}</td>
-                      <td className="px-4 py-3 tabular-nums text-ink/70">
+                      <td className="px-4 py-3 tabular-nums text-ink-2">{week.orders}</td>
+                      <td className="px-4 py-3 tabular-nums text-ink-2">
                         {week.conversionRate === null ? "—" : `${week.conversionRate}%`}
                       </td>
-                      <td className="px-4 py-3 tabular-nums text-ink/70">
+                      <td className="px-4 py-3 tabular-nums text-ink-2">
                         {week.averageOrderValue === null
                           ? "—"
                           : formatMoney(Math.round(week.averageOrderValue))}
@@ -314,7 +314,7 @@ function TrendHint({
   invert?: boolean;
 }) {
   if (trend.direction === "unknown") {
-    return <span className="text-ink/45">{suffix}</span>;
+    return <span className="text-ink-muted">{suffix}</span>;
   }
 
   const up = trend.direction === "up";
@@ -325,7 +325,7 @@ function TrendHint({
       <span
         className={cn(
           "inline-flex items-center gap-0.5 font-medium",
-          trend.direction === "flat" ? "text-ink/45" : good ? "text-brand" : "text-danger",
+          trend.direction === "flat" ? "text-ink-muted" : good ? "text-brand" : "text-danger",
         )}
       >
         {trend.direction === "flat" ? (
@@ -337,7 +337,7 @@ function TrendHint({
         )}
         {trend.deltaPercent !== null ? `${Math.abs(trend.deltaPercent)}%` : ""}
       </span>
-      <span className="text-ink/45">{suffix}</span>
+      <span className="text-ink-muted">{suffix}</span>
     </span>
   );
 }

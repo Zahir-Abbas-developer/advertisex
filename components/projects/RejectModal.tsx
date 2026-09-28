@@ -72,7 +72,7 @@ export function RejectModal({
           <div className="flex items-center justify-between gap-4 rounded-[10px] border border-line bg-surface-2 px-3.5 py-3">
             <div className="flex items-center gap-2.5">
               <WeightDots weight={milestone.weight} />
-              <span className="text-[13px] text-ink/60">
+              <span className="text-[13px] text-ink-muted">
                 Assigned to {milestone.assignee?.name ?? "nobody"}
               </span>
             </div>
@@ -96,7 +96,7 @@ export function RejectModal({
         />
 
         {milestone && (
-          <div className="flex items-start gap-2.5 rounded-[10px] border border-warn/20 bg-warn-tint px-3.5 py-3 text-[13px] leading-relaxed text-warn">
+          <div className="flex items-start gap-2.5 rounded-[10px] border border-warn/20 bg-warn-tint px-3.5 py-3 text-[13px] leading-relaxed text-ink">
             <AlertCircle aria-hidden className="mt-0.5 h-4 w-4 shrink-0" />
             <span>
               This moves the milestone back to In progress and charges{" "}

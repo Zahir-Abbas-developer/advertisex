@@ -56,7 +56,7 @@ export function AtRiskClients({ rows }: { rows: AtRiskRow[] }) {
 
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium text-ink">{row.clientName}</p>
-                  <p className="truncate text-[12px] text-ink/45">
+                  <p className="truncate text-[12px] text-ink-muted">
                     {row.headline ?? HEALTH_BAND_LABEL[row.band]}
                   </p>
                 </div>

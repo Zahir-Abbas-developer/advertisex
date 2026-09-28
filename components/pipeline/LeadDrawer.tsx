@@ -210,10 +210,10 @@ export function LeadDrawer({
                 {data.canSeeMoney && typeof lead.estimatedMonthlyValue === "number" && (
                   <p className="mb-1.5 font-display text-2xl font-bold tabular-nums leading-none text-ink">
                     {formatMoney(lead.estimatedMonthlyValue)}
-                    <span className="ml-1 text-[13px] font-medium text-ink/40">/month</span>
+                    <span className="ml-1 text-[13px] font-medium text-ink-muted">/month</span>
                   </p>
                 )}
-                <p className="break-words text-[13px] text-ink/55">
+                <p className="break-words text-[13px] text-ink-muted">
                   {lead.contactName}
                   {lead.country ? ` · ${lead.country}` : ""}
                 </p>
@@ -246,7 +246,7 @@ export function LeadDrawer({
               {lead.email && (
                 <a
                   href={`mailto:${lead.email}`}
-                  className="inline-flex min-w-0 items-center gap-1.5 break-all text-ink/60 hover:text-brand"
+                  className="inline-flex min-w-0 items-center gap-1.5 break-all text-ink-muted hover:text-brand"
                 >
                   <Mail className="h-3.5 w-3.5 shrink-0" />
                   {lead.email}
@@ -255,7 +255,7 @@ export function LeadDrawer({
               {lead.phone && (
                 <a
                   href={`tel:${lead.phone}`}
-                  className="inline-flex items-center gap-1.5 text-ink/60 hover:text-brand"
+                  className="inline-flex items-center gap-1.5 text-ink-muted hover:text-brand"
                 >
                   <Phone className="h-3.5 w-3.5" />
                   {lead.phone}
@@ -269,8 +269,8 @@ export function LeadDrawer({
               <dl className="mt-4 grid gap-x-4 gap-y-2.5 border-t border-line pt-3 sm:grid-cols-2">
                 {answers.map(({ field, value }) => (
                   <div key={field.key} className="min-w-0">
-                    <dt className="text-[11px] uppercase tracking-wide text-ink/40">{field.label}</dt>
-                    <dd className="whitespace-pre-line break-words text-[13px] text-ink/75">{value}</dd>
+                    <dt className="text-[11px] uppercase tracking-wide text-ink-muted">{field.label}</dt>
+                    <dd className="whitespace-pre-line break-words text-[13px] text-ink-2">{value}</dd>
                   </div>
                 ))}
               </dl>
@@ -281,13 +281,13 @@ export function LeadDrawer({
                 <Avatar name={lead.owner.name} color={lead.owner.avatarColor} size="sm" />
                 <div className="min-w-0">
                   <p className="truncate text-[13px] font-medium text-ink">{lead.owner.name}</p>
-                  <p className="truncate text-[11px] text-ink/45">{lead.owner.jobTitle}</p>
+                  <p className="truncate text-[11px] text-ink-muted">{lead.owner.jobTitle}</p>
                 </div>
               </div>
             )}
 
             {lead.notes && (
-              <p className="mt-3 whitespace-pre-line break-words border-t border-line pt-3 text-[13px] leading-relaxed text-ink/60">
+              <p className="mt-3 whitespace-pre-line break-words border-t border-line pt-3 text-[13px] leading-relaxed text-ink-muted">
                 {lead.notes}
               </p>
             )}

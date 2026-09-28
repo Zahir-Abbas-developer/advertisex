@@ -192,7 +192,7 @@ export function MilestoneModal({
             />
             <div className="mt-2 flex items-center gap-2">
               <WeightDots weight={weight} />
-              <span className="text-[12px] text-ink/45">
+              <span className="text-[12px] text-ink-muted">
                 Missing this costs {weight * 4} points
               </span>
             </div>
@@ -222,7 +222,7 @@ export function MilestoneModal({
           value={draft.assigneeId || null}
           onChange={(userId) => set("assigneeId", userId ?? "")}
         />
-        <p className="-mt-2 text-[12px] text-ink/45">
+        <p className="-mt-2 text-[12px] text-ink-muted">
           Only the assignee&rsquo;s score is affected by this milestone.
         </p>
       </form>

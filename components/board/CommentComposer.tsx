@@ -173,7 +173,7 @@ export function CommentComposer({
                     {member.name}
                   </span>
                   {member.jobTitle && (
-                    <span className="block truncate text-[11px] text-ink/45">
+                    <span className="block truncate text-[11px] text-ink-muted">
                       {member.jobTitle}
                     </span>
                   )}

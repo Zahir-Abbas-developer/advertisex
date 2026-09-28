@@ -73,7 +73,7 @@ export function MilestoneRowItem({
       className={cn(
         "group grid grid-cols-1 gap-3 px-4 py-3.5 transition-colors sm:px-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center",
         busy && "opacity-60",
-        milestone.status === "MISSED" && "bg-danger-tint/40",
+        milestone.status === "MISSED" && "bg-danger/[0.04]",
       )}
     >
       {/* Title, weight, description */}
@@ -84,13 +84,13 @@ export function MilestoneRowItem({
             <p
               className={cn(
                 "text-sm font-medium leading-snug text-ink",
-                settled && "text-ink/55",
+                settled && "text-ink-muted",
               )}
             >
               {milestone.title}
             </p>
             {milestone.description && (
-              <p className="mt-0.5 line-clamp-1 text-[12px] text-ink/45">
+              <p className="mt-0.5 line-clamp-1 text-[12px] text-ink-muted">
                 {milestone.description}
               </p>
             )}
@@ -130,8 +130,8 @@ export function MilestoneRowItem({
               className={cn(
                 "flex h-8 items-center gap-2 rounded-pill border px-2 pr-3 text-[12px] transition-colors",
                 milestone.assignee
-                  ? "border-line bg-surface text-ink/70 hover:border-ink/25"
-                  : "border-dashed border-line text-ink/40 hover:border-ink/25 hover:text-ink/70",
+                  ? "border-line bg-surface text-ink-2 hover:border-ink/25"
+                  : "border-dashed border-line text-ink-muted hover:border-ink/25 hover:text-ink-2",
               )}
             >
               {milestone.assignee ? (
@@ -158,8 +158,8 @@ export function MilestoneRowItem({
           className={cn(
             "whitespace-nowrap rounded-pill border px-2.5 py-1 text-[12px] tabular-nums",
             urgency === "overdue" && "border-danger/25 bg-danger-tint font-medium text-danger",
-            urgency === "soon" && "border-warn/25 bg-warn-tint font-medium text-warn",
-            urgency === "normal" && "border-line bg-surface text-ink/55",
+            urgency === "soon" && "border-warn/25 bg-warn-tint font-medium text-ink",
+            urgency === "normal" && "border-line bg-surface text-ink-muted",
           )}
           title={
             urgency === "overdue"
@@ -278,8 +278,8 @@ function IconButton({
       className={cn(
         "rounded-[7px] p-1.5 transition-colors disabled:opacity-30",
         tone === "danger"
-          ? "text-ink/40 hover:bg-danger-tint hover:text-danger"
-          : "text-ink/40 hover:bg-surface-2 hover:text-ink",
+          ? "text-ink-muted hover:bg-danger-tint hover:text-danger"
+          : "text-ink-muted hover:bg-surface-2 hover:text-ink",
       )}
     >
       {children}

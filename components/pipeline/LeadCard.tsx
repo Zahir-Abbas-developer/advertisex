@@ -43,7 +43,7 @@ export function LeadCard({
       className={cn(
         "group rounded-card border bg-surface p-3 transition-colors",
         overlay
-          ? "rotate-1 border-brand shadow-[0_14px_32px_-16px_rgba(12,12,10,0.5)]"
+          ? "rotate-1 border-brand shadow-[0_14px_32px_-16px_rgba(2,35,19,0.28)]"
           : "border-line hover:border-ink/20",
         isDragging && !overlay && "opacity-40",
       )}
@@ -55,7 +55,7 @@ export function LeadCard({
             {...attributes}
             {...listeners}
             aria-label={`Drag ${lead.businessName}`}
-            className="-ml-1 cursor-grab touch-none rounded p-0.5 text-ink/20 opacity-0 transition-opacity hover:text-ink/50 focus-visible:opacity-100 group-hover:opacity-100 active:cursor-grabbing"
+            className="-ml-1 cursor-grab touch-none rounded p-0.5 text-ink/20 opacity-0 transition-opacity hover:text-ink-muted focus-visible:opacity-100 group-hover:opacity-100 active:cursor-grabbing"
           >
             <GripVertical className="h-4 w-4" />
           </button>
@@ -65,7 +65,7 @@ export function LeadCard({
           <span className="block truncate text-[13px] font-medium leading-snug text-ink">
             {lead.businessName}
           </span>
-          <span className="mt-0.5 block truncate text-[12px] text-ink/45">
+          <span className="mt-0.5 block truncate text-[12px] text-ink-muted">
             {lead.contactName}
             {lead.country ? ` · ${lead.country}` : ""}
           </span>
@@ -100,7 +100,7 @@ export function LeadCard({
         )}
       </div>
 
-      <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 pl-1 text-[11px] text-ink/40">
+      <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 pl-1 text-[11px] text-ink-muted">
         <span className="rounded-pill border border-line px-1.5 py-0.5">
           {LEAD_SOURCE_LABEL[lead.source as LeadSource] ?? lead.source}
         </span>
@@ -113,7 +113,7 @@ export function LeadCard({
         )}
 
         <span
-          className={cn("tabular-nums", days >= 14 && "font-medium text-warn")}
+          className={cn("tabular-nums", days >= 14 && "font-medium text-ink")}
           title={`In this stage since ${new Date(lead.stageChangedAt).toDateString()}`}
         >
           {days === 0 ? "today" : `${days}d`}

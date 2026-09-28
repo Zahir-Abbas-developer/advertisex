@@ -35,7 +35,7 @@ export function ProgressBar({
       {(label || showValue) && (
         <div className="mb-1.5 flex items-baseline justify-between gap-3">
           {label && (
-            <span className={cn("eyebrow", onDark ? "text-ink/40" : "text-ink/45")}>
+            <span className={cn("eyebrow", onDark ? "text-ink-muted" : "text-ink-muted")}>
               {label}
             </span>
           )}
@@ -43,7 +43,7 @@ export function ProgressBar({
             <span
               className={cn(
                 "font-display text-[13px] font-bold tabular-nums",
-                onDark ? "text-ink/80" : "text-ink/70",
+                onDark ? "text-ink/80" : "text-ink-2",
               )}
             >
               {percent}%

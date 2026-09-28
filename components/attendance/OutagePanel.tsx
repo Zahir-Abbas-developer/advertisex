@@ -136,12 +136,12 @@ export function OutagePanel({ onChange }: { onChange?: () => void }) {
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <PlugZap className="h-4 w-4 text-ink/40" />
+              <PlugZap className="h-4 w-4 text-ink-muted" />
               <h2 className="font-display text-base font-bold tracking-tight text-ink">
                 Outages
               </h2>
             </div>
-            <p className="mt-1 text-[13px] leading-relaxed text-ink/55">
+            <p className="mt-1 text-[13px] leading-relaxed text-ink-muted">
               Power cut or internet down? Report it and any check in that window
               waits for the owner instead of costing you a point.
             </p>
@@ -152,7 +152,7 @@ export function OutagePanel({ onChange }: { onChange?: () => void }) {
           </Button>
         </div>
 
-        <p className="mt-3 text-[12px] text-ink/45">
+        <p className="mt-3 text-[12px] text-ink-muted">
           {data.quota.remaining} of {data.quota.allowance} reports left this month ·
           up to {data.quota.maxHours}h each
         </p>
@@ -170,13 +170,13 @@ export function OutagePanel({ onChange }: { onChange?: () => void }) {
                   <p className="text-[13px] text-ink">
                     {formatKarachiTime(new Date(report.startsAt))} –{" "}
                     {formatKarachiTime(new Date(report.endsAt))}
-                    <span className="ml-2 text-[12px] text-ink/40">
+                    <span className="ml-2 text-[12px] text-ink-muted">
                       {report.checksCovered} check
                       {report.checksCovered === 1 ? "" : "s"}
                     </span>
                   </p>
                   {report.adminNote && (
-                    <p className="mt-0.5 text-[12px] text-ink/50">{report.adminNote}</p>
+                    <p className="mt-0.5 text-[12px] text-ink-muted">{report.adminNote}</p>
                   )}
                 </div>
                 <Badge size="sm" tone={STATUS_TONE[report.status] ?? "neutral"}>
@@ -201,8 +201,8 @@ export function OutagePanel({ onChange }: { onChange?: () => void }) {
                   className={cn(
                     "rounded-pill border px-3.5 py-1.5 text-[13px] transition-colors",
                     type === option
-                      ? "border-brand bg-brand text-canvas"
-                      : "border-line bg-surface text-ink/55 hover:border-ink/25",
+                      ? "border-brand bg-brand text-on-brand"
+                      : "border-line bg-surface text-ink-muted hover:border-ink/25",
                   )}
                 >
                   {OUTAGE_TYPE_LABEL[option]}
@@ -237,7 +237,7 @@ export function OutagePanel({ onChange }: { onChange?: () => void }) {
             onChange={(event) => setNote(event.target.value)}
           />
 
-          <p className="text-[12px] leading-relaxed text-ink/45">
+          <p className="text-[12px] leading-relaxed text-ink-muted">
             Filing after a check has already expired is fine — an outage stops
             you filing too. It&rsquo;s flagged for the owner, not held against you.
           </p>

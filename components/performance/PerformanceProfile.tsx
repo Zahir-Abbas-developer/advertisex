@@ -93,7 +93,7 @@ export function PerformanceProfile({
       {viewerIsAdmin && !isSelf && (
         <Link
           href="/team"
-          className="inline-flex items-center gap-1.5 text-[13px] text-ink/50 transition-colors hover:text-ink"
+          className="inline-flex items-center gap-1.5 text-[13px] text-ink-muted transition-colors hover:text-ink"
         >
           <ArrowRight className="h-3.5 w-3.5 rotate-180" />
           All team members
@@ -105,7 +105,7 @@ export function PerformanceProfile({
         <div className="px-6 py-8 sm:px-9 sm:py-10">
           <div className="flex flex-col items-start gap-8 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
-              <p className="eyebrow mb-3 text-brand-tint/70">
+              <p className="eyebrow mb-3 text-ink-muted">
                 {formatCycle(cycle)} · performance
               </p>
 
@@ -120,13 +120,13 @@ export function PerformanceProfile({
                   <h1 className="font-display text-[26px] font-bold leading-tight tracking-[-0.02em] text-ink sm:text-[32px]">
                     {isSelf ? "Your performance" : member.name}
                   </h1>
-                  <p className="mt-0.5 text-[13px] text-ink/50">
+                  <p className="mt-0.5 text-[13px] text-ink-muted">
                     {isSelf ? member.name : member.jobTitle}
                   </p>
                 </div>
               </div>
 
-              <p className="mt-5 max-w-md text-[13px] leading-relaxed text-ink/50">
+              <p className="mt-5 max-w-md text-[13px] leading-relaxed text-ink-muted">
                 Everyone starts each month at {MONTHLY_BASELINE} points. Points come off for
                 late and missed deadlines and for rejected work, and early
                 delivery earns them back.
@@ -140,7 +140,7 @@ export function PerformanceProfile({
                 <TrendBlock trend={score.trend} />
                 <div>
                   <p className="eyebrow text-ink/35">This month</p>
-                  <p className="mt-1 text-sm text-ink/70">
+                  <p className="mt-1 text-sm text-ink-2">
                     {score.eventCount} event{score.eventCount === 1 ? "" : "s"}
                   </p>
                 </div>
@@ -232,7 +232,7 @@ export function PerformanceProfile({
             <h2 className="font-display text-base font-bold tracking-tight text-ink">
               Score history
             </h2>
-            <p className="mt-0.5 text-[13px] text-ink/50">
+            <p className="mt-0.5 text-[13px] text-ink-muted">
               Every change to {isSelf ? "your" : "this"} score in {formatCycle(cycle)},
               newest first.
             </p>
@@ -289,7 +289,7 @@ export function PerformanceProfile({
                         {entry.milestoneTitle ?? SCORE_EVENT_LABEL[type]}
                       </p>
                       {manual && (
-                        <span className="rounded-pill border border-line bg-surface px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-ink/50">
+                        <span className="rounded-pill border border-line bg-surface px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-ink-muted">
                           Manual
                         </span>
                       )}
@@ -307,7 +307,7 @@ export function PerformanceProfile({
                       )}
                     </div>
 
-                    <p className="mt-1 text-[13px] leading-relaxed text-ink/55">
+                    <p className="mt-1 text-[13px] leading-relaxed text-ink-muted">
                       {entry.reason}
                     </p>
 
@@ -344,7 +344,7 @@ function TrendBlock({ trend }: { trend: number | null }) {
     return (
       <div>
         <p className="eyebrow text-ink/35">vs last month</p>
-        <p className="mt-1 text-sm text-ink/50">No history</p>
+        <p className="mt-1 text-sm text-ink-muted">No history</p>
       </div>
     );
   }
@@ -358,9 +358,9 @@ function TrendBlock({ trend }: { trend: number | null }) {
       <p
         className={cn(
           "mt-1 flex items-center gap-1 font-display text-lg font-bold tabular-nums",
-          flat && "text-ink/60",
+          flat && "text-ink-muted",
           !flat && trend > 0 && "text-brand",
-          !flat && trend < 0 && "text-danger",
+          !flat && trend < 0 && "text-data-negative", // a fall is gray, never red
         )}
       >
         <Icon className="h-4 w-4" />

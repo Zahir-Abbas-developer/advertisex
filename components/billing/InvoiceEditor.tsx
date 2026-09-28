@@ -145,7 +145,7 @@ export function InvoiceEditor({ initial, presetClientId }: { initial?: EditorIni
   return (
     <div className="space-y-6">
       <div>
-        <Link href={initial ? `/invoices/${initial.id}` : "/invoices"} className="inline-flex items-center gap-1.5 text-[13px] text-ink/55 hover:text-ink">
+        <Link href={initial ? `/invoices/${initial.id}` : "/invoices"} className="inline-flex items-center gap-1.5 text-[13px] text-ink-muted hover:text-ink">
           <ArrowLeft className="h-3.5 w-3.5" /> {initial ? "Back to the invoice" : "All invoices"}
         </Link>
         <h1 className="mt-3 font-display text-[28px] font-bold tracking-[-0.02em] text-ink">{initial ? "Edit draft" : "New invoice"}</h1>
@@ -201,7 +201,7 @@ export function InvoiceEditor({ initial, presetClientId }: { initial?: EditorIni
                 <button
                   type="button"
                   onClick={() => setLines((ls) => (ls.length === 1 ? [blank()] : ls.filter((_, j) => j !== i)))}
-                  className="flex h-10 w-9 items-center justify-center rounded-lg text-ink/40 hover:bg-surface-2 hover:text-danger"
+                  className="flex h-10 w-9 items-center justify-center rounded-lg text-ink-muted hover:bg-surface-2 hover:text-danger"
                   aria-label={`Remove line ${i + 1}`}
                 >
                   <Trash2 className="h-4 w-4" />
@@ -213,7 +213,7 @@ export function InvoiceEditor({ initial, presetClientId }: { initial?: EditorIni
             <Button variant="secondary" size="sm" icon={<Plus className="h-4 w-4" />} onClick={() => setLines((ls) => [...ls, blank()])}>
               Add line
             </Button>
-            <p className="text-[15px] text-ink/70">
+            <p className="text-[15px] text-ink-2">
               Total <span className="ml-2 font-display text-[22px] font-bold tabular-nums text-ink">{formatMoney(total, currency || "USD")}</span>
             </p>
           </div>

@@ -94,12 +94,12 @@ export function ImportLeadsModal({
       }
     >
       <div className="space-y-5">
-        <p className="text-[13px] leading-relaxed text-ink/60">
+        <p className="text-[13px] leading-relaxed text-ink-muted">
           A CSV with a header row. <span className="text-ink/80">business_name</span> and <span className="text-ink/80">contact_name</span> are required; the rest are optional:{" "}
-          <span className="text-ink/45">{CSV_COLUMNS.slice(2).join(", ")}</span>. An export from this page is already in this format.
+          <span className="text-ink-muted">{CSV_COLUMNS.slice(2).join(", ")}</span>. An export from this page is already in this format.
         </p>
 
-        <label className="flex cursor-pointer items-center justify-center gap-2 rounded-card border border-dashed border-line-strong px-4 py-8 text-[13px] text-ink/60 hover:bg-surface-2">
+        <label className="flex cursor-pointer items-center justify-center gap-2 rounded-card border border-dashed border-line-strong px-4 py-8 text-[13px] text-ink-muted hover:bg-surface-2">
           <Upload className="h-4 w-4" />
           {file ? file.name : "Choose a CSV file"}
           <input
@@ -132,11 +132,11 @@ export function ImportLeadsModal({
               {preview.rows
                 .filter((r) => !r.ok || r.duplicateOf)
                 .map((r) => (
-                  <li key={r.line} className={r.ok ? "text-warn" : "text-danger"}>
+                  <li key={r.line} className={r.ok ? "text-ink" : "text-danger"}>
                     Line {r.line}: {r.ok ? `${r.businessName} — duplicate of ${r.duplicateOf}` : r.errors.join("; ")}
                   </li>
                 ))}
-              {preview.rows.every((r) => r.ok && !r.duplicateOf) && <li className="text-ink/50">Every row is valid and new.</li>}
+              {preview.rows.every((r) => r.ok && !r.duplicateOf) && <li className="text-ink-muted">Every row is valid and new.</li>}
             </ul>
           </div>
         )}

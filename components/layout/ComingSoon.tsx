@@ -44,10 +44,10 @@ export function ComingSoon({
       </Card>
 
       <Card surface="inset">
-        <p className="eyebrow mb-3 text-ink/40">What lands here</p>
+        <p className="eyebrow mb-3 text-ink-muted">What lands here</p>
         <ul className="space-y-2.5">
           {bullets.map((bullet) => (
-            <li key={bullet} className="flex items-start gap-3 text-sm text-ink/70">
+            <li key={bullet} className="flex items-start gap-3 text-sm text-ink-2">
               <span
                 aria-hidden
                 className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-pill bg-brand"

@@ -67,11 +67,11 @@ export function ClientProjectsPanel({ clientId, canCreate, onNew }: { clientId: 
             <h3 className="truncate text-[15px] font-semibold text-ink group-hover:text-brand">{p.title}</h3>
             <ProjectStatusBadge status={p.status} />
           </div>
-          <p className="mt-1 truncate text-[12px] text-ink/45">{p.services.map((s) => s.name).join(" · ") || "No services"}</p>
+          <p className="mt-1 truncate text-[12px] text-ink-muted">{p.services.map((s) => s.name).join(" · ") || "No services"}</p>
           <div className="mt-4">
             <ProgressBar value={p.progress} showValue size="sm" tone={progressTone(p.schedule)} />
           </div>
-          <div className="mt-3 flex flex-wrap items-center gap-2 text-[12px] text-ink/50">
+          <div className="mt-3 flex flex-wrap items-center gap-2 text-[12px] text-ink-muted">
             <span>Due {formatDate(p.deadline)}</span>
             {p.currentStage && <span>· Now: {p.currentStage}</span>}
             <ScheduleBadge schedule={p.schedule} daysOverdue={p.daysOverdue} />

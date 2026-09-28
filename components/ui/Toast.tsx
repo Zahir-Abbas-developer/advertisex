@@ -44,9 +44,10 @@ const ICONS: Record<ToastTone, typeof CheckCircle2> = {
 };
 
 const TONES: Record<ToastTone, string> = {
-  success: "border-brand/25 bg-brand-tint text-brand",
-  error: "border-danger/25 bg-danger-tint text-danger",
-  info: "border-info/25 bg-info-tint text-info",
+  // Solid white so a toast never shows the page through it; the icon carries the tone.
+  success: "border-brand/30 bg-surface text-ink [&>svg]:text-brand",
+  error: "border-danger/30 bg-surface text-ink [&>svg]:text-danger",
+  info: "border-info/40 bg-surface text-ink [&>svg]:text-ink-2",
 };
 
 /** Errors linger — you may need to read them twice. */
@@ -103,7 +104,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                   key={toast.id}
                   role={toast.tone === "error" ? "alert" : "status"}
                   className={cn(
-                    "pointer-events-auto flex animate-scale-in items-start gap-2.5 rounded-card border px-4 py-3 text-[13px] leading-relaxed shadow-[0_6px_24px_-12px_rgba(12,12,10,0.35)]",
+                    "pointer-events-auto flex animate-scale-in items-start gap-2.5 rounded-card border px-4 py-3 text-[13px] leading-relaxed shadow-[0_6px_24px_-12px_rgba(2,35,19,0.18)]",
                     TONES[toast.tone],
                   )}
                 >

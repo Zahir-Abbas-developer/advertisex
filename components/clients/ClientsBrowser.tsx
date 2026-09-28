@@ -138,15 +138,15 @@ export function ClientsBrowser({
                 className={cn(
                   "flex items-center gap-1.5 rounded-pill border px-3 py-1.5 text-[13px] transition-colors",
                   active
-                    ? "border-brand bg-brand text-canvas"
-                    : "border-line bg-surface text-ink/60 hover:border-ink/25 hover:text-ink",
+                    ? "border-brand bg-brand text-on-brand"
+                    : "border-line bg-surface text-ink-muted hover:border-ink/25 hover:text-ink",
                 )}
               >
                 {option.shortLabel}
                 <span
                   className={cn(
                     "text-[11px] tabular-nums",
-                    active ? "text-ink/60" : "text-ink/35",
+                    active ? "text-ink-muted" : "text-ink/35",
                   )}
                 >
                   {count}
@@ -172,11 +172,11 @@ export function ClientsBrowser({
                   "flex items-center gap-1.5 rounded-pill border px-3 py-1.5 text-[13px] transition-colors",
                   active
                     ? "border-brand/50 bg-brand-tint text-brand"
-                    : "border-line bg-surface text-ink/60 hover:border-ink/25 hover:text-ink",
+                    : "border-line bg-surface text-ink-muted hover:border-ink/25 hover:text-ink",
                 )}
               >
                 {value === "ALL" ? "All" : CLIENT_STATUS_LABEL[value]}
-                <span className={cn("text-[11px] tabular-nums", active ? "text-ink/50" : "text-ink/35")}>
+                <span className={cn("text-[11px] tabular-nums", active ? "text-ink-muted" : "text-ink/35")}>
                   {count}
                 </span>
               </button>

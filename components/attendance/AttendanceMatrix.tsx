@@ -28,9 +28,9 @@ type Matrix = {
 
 const CELL_STYLE: Record<string, string> = {
   PRESENT: "bg-brand-tint text-brand",
-  LATE: "bg-warn-tint text-warn",
+  LATE: "bg-warn-tint text-ink",
   ABSENT: "bg-danger-tint text-danger",
-  LEAVE: "bg-surface-2 text-ink/40",
+  LEAVE: "bg-surface-2 text-ink-muted",
   OFF: "bg-surface-2/50 text-ink/25",
 };
 
@@ -114,7 +114,7 @@ export function AttendanceMatrix() {
           <h2 className="font-display text-base font-bold tracking-tight text-ink">
             {monthLabel}
           </h2>
-          <p className="mt-0.5 text-[13px] text-ink/50">
+          <p className="mt-0.5 text-[13px] text-ink-muted">
             P present · L late · A absent · V leave · · day off
           </p>
         </div>
@@ -136,7 +136,7 @@ export function AttendanceMatrix() {
           />
           <a
             href={`/api/attendance/matrix?year=${period.year}&month=${period.month}&format=csv`}
-            className="ml-1 inline-flex items-center gap-1.5 rounded-pill border border-line bg-surface px-3 py-1.5 text-[13px] text-ink/70 transition-colors hover:border-ink/25 hover:text-ink"
+            className="ml-1 inline-flex items-center gap-1.5 rounded-pill border border-line bg-surface px-3 py-1.5 text-[13px] text-ink-2 transition-colors hover:border-ink/25 hover:text-ink"
           >
             <Download className="h-3.5 w-3.5" />
             CSV
@@ -157,7 +157,7 @@ export function AttendanceMatrix() {
               <tr>
                 <th
                   scope="col"
-                  className="eyebrow sticky left-0 z-10 border-b border-line bg-surface-2 px-4 py-3 text-left text-ink/50"
+                  className="eyebrow sticky left-0 z-10 border-b border-line bg-surface-2 px-4 py-3 text-left text-ink-muted"
                 >
                   Member
                 </th>
@@ -165,7 +165,7 @@ export function AttendanceMatrix() {
                   <th
                     key={date}
                     scope="col"
-                    className="border-b border-line px-0 py-3 text-center text-[10px] font-semibold tabular-nums text-ink/40"
+                    className="border-b border-line px-0 py-3 text-center text-[10px] font-semibold tabular-nums text-ink-muted"
                   >
                     {Number(date.slice(-2))}
                   </th>

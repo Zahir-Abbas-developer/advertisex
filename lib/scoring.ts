@@ -238,10 +238,12 @@ export type ScoreBand = {
 };
 
 export const SCORE_BANDS: readonly ScoreBand[] = [
-  { key: "EXCELLENT", label: "Excellent", tone: "success", color: "#22C55E", min: 90 },
-  { key: "GOOD", label: "Good", tone: "info", color: "#38BDF8", min: 75 },
-  { key: "ATTENTION", label: "Needs attention", tone: "warning", color: "#F59E0B", min: 60 },
-  { key: "CRITICAL", label: "Critical", tone: "danger", color: "#EF4444", min: 0 },
+  // Forest & Mint: good scores run down the green scale; a low score is data,
+  // so it is gray rather than red (CLAUDE.md §7).
+  { key: "EXCELLENT", label: "Excellent", tone: "success", color: "#279D61", min: 90 },
+  { key: "GOOD", label: "Good", tone: "info", color: "#50A6BC", min: 75 },
+  { key: "ATTENTION", label: "Needs attention", tone: "warning", color: "#D97706", min: 60 },
+  { key: "CRITICAL", label: "Critical", tone: "danger", color: "#656565", min: 0 },
 ];
 
 export function scoreBand(score: number): ScoreBand {

@@ -40,22 +40,22 @@ export default async function PortalProjects() {
 function Section({ title, projects, empty }: { title: string; projects: Awaited<ReturnType<typeof portalProjects>>; empty: string }) {
   return (
     <section className="space-y-3">
-      <h2 className="text-[13px] font-medium text-ink/60">{title}</h2>
+      <h2 className="text-[13px] font-medium text-ink-muted">{title}</h2>
       {projects.length === 0 ? (
-        <p className="text-[13px] text-ink/45">{empty}</p>
+        <p className="text-[13px] text-ink-muted">{empty}</p>
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
           {projects.map((p) => (
             <Link key={p.id} href={`/portal/projects/${p.id}`} className="group min-w-0 rounded-card border border-line bg-surface p-5 transition-colors hover:border-ink/20">
               <div className="flex items-start justify-between gap-3">
                 <h3 className="truncate text-[15px] font-semibold text-ink group-hover:text-brand">{p.title}</h3>
-                <span className="shrink-0 text-[12px] text-ink/50">{p.statusText}</span>
+                <span className="shrink-0 text-[12px] text-ink-muted">{p.statusText}</span>
               </div>
-              <p className="mt-1 truncate text-[12px] text-ink/45">{p.services.join(" · ")}</p>
+              <p className="mt-1 truncate text-[12px] text-ink-muted">{p.services.join(" · ")}</p>
               <div className="mt-4">
                 <ProgressBar value={p.progress} showValue size="sm" />
               </div>
-              <p className="mt-2 text-[12px] text-ink/45">
+              <p className="mt-2 text-[12px] text-ink-muted">
                 {p.currentStage ? `Now: ${p.currentStage} · ` : ""}
                 {p.open ? `planned to finish ${formatDate(p.deadline)}` : `finished`}
               </p>

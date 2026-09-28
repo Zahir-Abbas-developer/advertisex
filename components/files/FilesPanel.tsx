@@ -144,7 +144,7 @@ export function FilesPanel({
             Upload file
           </Button>
           {canChangeVisibility && (
-            <label className="flex items-center gap-2 text-[13px] text-ink/60">
+            <label className="flex items-center gap-2 text-[13px] text-ink-muted">
               <input
                 type="checkbox"
                 className="accent-brand"
@@ -154,7 +154,7 @@ export function FilesPanel({
               Visible to the client
             </label>
           )}
-          <span className="text-[12px] text-ink/40">Images, PDFs, documents and archives · up to 10 MB</span>
+          <span className="text-[12px] text-ink-muted">Images, PDFs, documents and archives · up to 10 MB</span>
         </div>
       )}
 
@@ -174,10 +174,10 @@ export function FilesPanel({
         <ul className="divide-y divide-line rounded-card border border-line">
           {files.map((f) => (
             <li key={f.id} className="flex items-center gap-3 px-4 py-3">
-              {f.mimeType.startsWith("image/") ? <ImageIcon className="h-4 w-4 shrink-0 text-ink/40" /> : <FileText className="h-4 w-4 shrink-0 text-ink/40" />}
+              {f.mimeType.startsWith("image/") ? <ImageIcon className="h-4 w-4 shrink-0 text-ink-muted" /> : <FileText className="h-4 w-4 shrink-0 text-ink-muted" />}
               <div className="min-w-0 flex-1">
                 <p className="truncate text-[13px] font-medium text-ink">{f.filename}</p>
-                <p className="text-[12px] text-ink/45">
+                <p className="text-[12px] text-ink-muted">
                   {formatBytes(f.size)} · {formatDate(f.createdAt)}
                   {f.uploader ? ` · ${f.uploader.name}` : ""}
                 </p>
@@ -187,25 +187,25 @@ export function FilesPanel({
               </Badge>
               <div className="flex items-center gap-1">
                 {f.previewUrl && (
-                  <button type="button" onClick={() => void open(f, "preview")} className="rounded p-1.5 text-ink/50 hover:bg-surface-2 hover:text-ink" aria-label={`Preview ${f.filename}`}>
+                  <button type="button" onClick={() => void open(f, "preview")} className="rounded p-1.5 text-ink-muted hover:bg-surface-2 hover:text-ink" aria-label={`Preview ${f.filename}`}>
                     <Eye className="h-4 w-4" />
                   </button>
                 )}
-                <button type="button" onClick={() => void open(f, "download")} className="rounded p-1.5 text-ink/50 hover:bg-surface-2 hover:text-ink" aria-label={`Download ${f.filename}`}>
+                <button type="button" onClick={() => void open(f, "download")} className="rounded p-1.5 text-ink-muted hover:bg-surface-2 hover:text-ink" aria-label={`Download ${f.filename}`}>
                   <Download className="h-4 w-4" />
                 </button>
                 {canChangeVisibility && (
                   <button
                     type="button"
                     onClick={() => void toggle(f)}
-                    className="rounded p-1.5 text-ink/50 hover:bg-surface-2 hover:text-ink"
+                    className="rounded p-1.5 text-ink-muted hover:bg-surface-2 hover:text-ink"
                     aria-label={f.visibility === "CLIENT" ? `Make ${f.filename} internal` : `Share ${f.filename} with the client`}
                   >
-                    {f.visibility === "CLIENT" ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4 text-data-1" />}
+                    {f.visibility === "CLIENT" ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4 text-success-ink" />}
                   </button>
                 )}
                 {canUpload && (canChangeVisibility || (viewerId && f.uploader?.id === viewerId)) && (
-                  <button type="button" onClick={() => void remove(f)} className="rounded p-1.5 text-ink/50 hover:bg-surface-2 hover:text-danger" aria-label={`Remove ${f.filename}`}>
+                  <button type="button" onClick={() => void remove(f)} className="rounded p-1.5 text-ink-muted hover:bg-surface-2 hover:text-danger" aria-label={`Remove ${f.filename}`}>
                     <Trash2 className="h-4 w-4" />
                   </button>
                 )}

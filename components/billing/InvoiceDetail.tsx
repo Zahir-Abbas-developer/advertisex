@@ -69,7 +69,7 @@ export function InvoiceDetail({ id }: { id: string }) {
   return (
     <div className="space-y-6">
       <div>
-        <Link href="/invoices" className="inline-flex items-center gap-1.5 text-[13px] text-ink/55 hover:text-ink">
+        <Link href="/invoices" className="inline-flex items-center gap-1.5 text-[13px] text-ink-muted hover:text-ink">
           <ArrowLeft className="h-3.5 w-3.5" /> All invoices
         </Link>
         <div className="mt-3 flex flex-wrap items-start justify-between gap-4">
@@ -78,7 +78,7 @@ export function InvoiceDetail({ id }: { id: string }) {
               <h1 className="font-display text-[28px] font-bold tracking-[-0.02em] text-ink">{inv.numberLabel ?? "Draft invoice"}</h1>
               <InvoiceStatusBadge status={inv.status} size="md" />
             </div>
-            <p className="mt-1 text-[14px] text-ink/60">
+            <p className="mt-1 text-[14px] text-ink-muted">
               <Link href={`/clients/${inv.client.id}`} className="hover:text-brand">
                 {inv.client.businessName}
               </Link>
@@ -138,14 +138,14 @@ export function InvoiceDetail({ id }: { id: string }) {
           [inv.status === "DRAFT" ? "Due (when sent)" : "Due", formatDate(inv.dueDate)],
         ].map(([label, value]) => (
           <div key={label} className="min-w-0 rounded-card border border-line bg-surface p-4 sm:p-5">
-            <p className="eyebrow text-ink/45">{label}</p>
-            <p className={cn("mt-3 truncate font-display text-[19px] font-bold tabular-nums text-ink sm:text-[24px]", label === "Balance due" && inv.status === "OVERDUE" && "text-danger")}>{value}</p>
+            <p className="eyebrow text-ink-muted">{label}</p>
+            <p className={cn("mt-3 truncate font-display text-[19px] font-bold tabular-nums text-ink sm:text-[24px]")}>{value}</p>
           </div>
         ))}
       </div>
 
       {inv.status === "VOID" && (
-        <p className="rounded-card border border-line bg-surface-2 px-5 py-3 text-[13px] text-ink/70">
+        <p className="rounded-card border border-line bg-surface-2 px-5 py-3 text-[13px] text-ink-2">
           Voided {inv.voidedAt ? formatDate(inv.voidedAt) : ""} — {inv.voidReason}
         </p>
       )}
@@ -156,7 +156,7 @@ export function InvoiceDetail({ id }: { id: string }) {
           <CardBody className="p-0 sm:p-0">
             <div className="overflow-x-auto">
               <table className="w-full min-w-[520px] text-sm">
-                <thead className="bg-surface-2 text-left text-[12px] text-ink/50">
+                <thead className="bg-surface-2 text-left text-[12px] text-ink-muted">
                   <tr>
                     <th className="px-5 py-2.5 font-medium">Description</th>
                     <th className="px-3 py-2.5 text-right font-medium">Qty</th>
@@ -169,10 +169,10 @@ export function InvoiceDetail({ id }: { id: string }) {
                     <tr key={l.id}>
                       <td className="px-5 py-3 text-ink">
                         {l.description}
-                        {l.serviceName && l.serviceName !== l.description && <span className="block text-[12px] text-ink/45">{l.serviceName}</span>}
+                        {l.serviceName && l.serviceName !== l.description && <span className="block text-[12px] text-ink-muted">{l.serviceName}</span>}
                       </td>
-                      <td className="px-3 py-3 text-right tabular-nums text-ink/70">{formatQuantity(l.quantityMilli)}</td>
-                      <td className="px-3 py-3 text-right tabular-nums text-ink/70">{m(l.rateMinor)}</td>
+                      <td className="px-3 py-3 text-right tabular-nums text-ink-2">{formatQuantity(l.quantityMilli)}</td>
+                      <td className="px-3 py-3 text-right tabular-nums text-ink-2">{m(l.rateMinor)}</td>
                       <td className="px-5 py-3 text-right tabular-nums text-ink">{m(l.amountMinor)}</td>
                     </tr>
                   ))}
@@ -187,7 +187,7 @@ export function InvoiceDetail({ id }: { id: string }) {
                 </tfoot>
               </table>
             </div>
-            {inv.notes && <p className="whitespace-pre-wrap border-t border-line px-5 py-4 text-[13px] text-ink/70">{inv.notes}</p>}
+            {inv.notes && <p className="whitespace-pre-wrap border-t border-line px-5 py-4 text-[13px] text-ink-2">{inv.notes}</p>}
           </CardBody>
         </Card>
 
@@ -197,12 +197,12 @@ export function InvoiceDetail({ id }: { id: string }) {
             <CardBody className="space-y-1 text-[13px]">
               <p className="text-ink">{inv.billTo.name ?? inv.client.businessName}</p>
               {(inv.billTo.address ?? "").split("\n").filter(Boolean).map((line) => (
-                <p key={line} className="text-ink/60">
+                <p key={line} className="text-ink-muted">
                   {line}
                 </p>
               ))}
-              <p className="text-ink/60">{inv.billTo.email ?? inv.client.email}</p>
-              {inv.status === "DRAFT" && <p className="pt-2 text-[12px] text-ink/45">Frozen from the client&apos;s details when sent.</p>}
+              <p className="text-ink-muted">{inv.billTo.email ?? inv.client.email}</p>
+              {inv.status === "DRAFT" && <p className="pt-2 text-[12px] text-ink-muted">Frozen from the client&apos;s details when sent.</p>}
             </CardBody>
           </Card>
 
@@ -210,7 +210,7 @@ export function InvoiceDetail({ id }: { id: string }) {
             <CardHeader title="Payments" />
             <CardBody>
               {inv.payments.length === 0 ? (
-                <p className="text-[13px] text-ink/50">{inv.status === "DRAFT" ? "Payments can be recorded once it's sent." : "No payments yet."}</p>
+                <p className="text-[13px] text-ink-muted">{inv.status === "DRAFT" ? "Payments can be recorded once it's sent." : "No payments yet."}</p>
               ) : (
                 <ul className="space-y-3">
                   {inv.payments.map((p) => (
@@ -218,19 +218,19 @@ export function InvoiceDetail({ id }: { id: string }) {
                       <div className="flex items-center justify-between gap-2">
                         <span className={cn("font-medium tabular-nums text-ink", p.reversedAt && "line-through")}>{m(p.amountMinor)}</span>
                         {!p.reversedAt && (
-                          <button type="button" onClick={() => setDialog({ kind: "reverse", paymentId: p.id, amount: m(p.amountMinor) })} className="inline-flex items-center gap-1 text-[12px] text-ink/45 hover:text-danger">
+                          <button type="button" onClick={() => setDialog({ kind: "reverse", paymentId: p.id, amount: m(p.amountMinor) })} className="inline-flex items-center gap-1 text-[12px] text-ink-muted hover:text-danger">
                             <Undo2 className="h-3.5 w-3.5" /> Reverse
                           </button>
                         )}
                       </div>
-                      <p className="text-ink/55">
+                      <p className="text-ink-muted">
                         {formatDate(p.paidAt)} · {PAYMENT_METHOD_LABEL[p.method as PaymentMethod] ?? p.method}
                         {p.source === "STRIPE" ? " · online" : ""}
                         {p.reference ? ` · ${p.reference}` : ""}
                       </p>
-                      {p.recordedBy && <p className="text-[12px] text-ink/40">Recorded by {p.recordedBy}</p>}
+                      {p.recordedBy && <p className="text-[12px] text-ink-muted">Recorded by {p.recordedBy}</p>}
                       {p.reversedAt && (
-                        <p className="text-[12px] text-ink/50">
+                        <p className="text-[12px] text-ink-muted">
                           Reversed {formatDateTime(p.reversedAt)}
                           {p.reversedBy ? ` by ${p.reversedBy}` : ""} — {p.reverseReason}
                         </p>

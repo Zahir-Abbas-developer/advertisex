@@ -160,7 +160,7 @@ export function TeamPlanPanel({ projectId, onChanged }: { projectId: string; onC
         />
         <CardBody className="space-y-4">
           {data.roles.length === 0 ? (
-            <p className="text-[13px] text-ink/55">No required skills yet — add services or skills to this project and re-analyze.</p>
+            <p className="text-[13px] text-ink-muted">No required skills yet — add services or skills to this project and re-analyze.</p>
           ) : (
             data.roles.map((role) => {
               const rec = role.recommendation;
@@ -173,19 +173,19 @@ export function TeamPlanPanel({ projectId, onChanged }: { projectId: string; onC
                     <div className="min-w-0">
                       <p className="flex flex-wrap items-center gap-2 text-[14px] font-medium text-ink">
                         {role.skillName}
-                        <span className="text-[11px] font-normal text-ink/40">weight {role.weight} · {SOURCE_LABEL[role.source] ?? role.source}</span>
+                        <span className="text-[11px] font-normal text-ink-muted">weight {role.weight} · {SOURCE_LABEL[role.source] ?? role.source}</span>
                       </p>
                       <p className="mt-1 flex items-center gap-2 text-[13px] text-ink/80">
                         {holder ? (
                           <>
-                            <UserCheck className="h-3.5 w-3.5 text-data-1" />
+                            <UserCheck className="h-3.5 w-3.5 text-success-ink" />
                             {holder.name}
-                            {holder.role === "AI_AGENT" && <Bot className="h-3.5 w-3.5 text-data-2" aria-label="AI agent" />}
+                            {holder.role === "AI_AGENT" && <Bot className="h-3.5 w-3.5 text-ink-2" aria-label="AI agent" />}
                           </>
                         ) : rec?.status === "DISMISSED" ? (
-                          <span className="text-ink/45">No one assigned</span>
+                          <span className="text-ink-muted">No one assigned</span>
                         ) : !rec && live ? (
-                          <span className="text-ink/60">Suggested: {live.name}</span>
+                          <span className="text-ink-muted">Suggested: {live.name}</span>
                         ) : null}
                       </p>
                     </div>
@@ -194,12 +194,12 @@ export function TeamPlanPanel({ projectId, onChanged }: { projectId: string; onC
                     </Badge>
                   </div>
 
-                  <p className="mt-2 text-[13px] leading-relaxed text-ink/65">{rec?.status === "OVERRIDDEN" ? `You chose ${rec.chosen?.name}${rec.overrideReason ? ` — "${rec.overrideReason}"` : ""}. Recommended was ${rec.recommended?.name ?? "no one"}: ${rec.explanation}` : rec?.explanation ?? live?.explanation ?? role.gap}</p>
+                  <p className="mt-2 text-[13px] leading-relaxed text-ink-2">{rec?.status === "OVERRIDDEN" ? `You chose ${rec.chosen?.name}${rec.overrideReason ? ` — "${rec.overrideReason}"` : ""}. Recommended was ${rec.recommended?.name ?? "no one"}: ${rec.explanation}` : rec?.explanation ?? live?.explanation ?? role.gap}</p>
 
                   {rec?.components && (rec.status === "PROPOSED" || rec.status === "ACCEPTED") && <Breakdown components={rec.components} weights={data.weights} />}
 
                   {rec?.decidedAt && (
-                    <p className="mt-2 text-[11px] text-ink/40">
+                    <p className="mt-2 text-[11px] text-ink-muted">
                       {rec.mode === "AUTO" && !rec.decidedBy ? "Assigned automatically" : `Decided by ${rec.decidedBy ?? "someone"}`} · {formatDate(rec.decidedAt)}
                     </p>
                   )}
@@ -249,7 +249,7 @@ function Breakdown({ components, weights }: { components: Record<string, number>
     <dl className="mt-3 grid gap-x-4 gap-y-1.5 sm:grid-cols-5">
       {Object.entries(weights).map(([key, w]) => (
         <div key={key} className="min-w-0">
-          <dt className="truncate text-[11px] text-ink/45" title={`${w.label} — ${Math.round(w.share * 100)}% of the score`}>
+          <dt className="truncate text-[11px] text-ink-muted" title={`${w.label} — ${Math.round(w.share * 100)}% of the score`}>
             {w.label} <span className="text-ink/30">· {Math.round(w.share * 100)}%</span>
           </dt>
           <dd className="mt-1 h-1.5 overflow-hidden rounded-full bg-surface-2" aria-label={`${w.label}: ${Math.round((components[key] ?? 0) * 100)}%`}>
@@ -315,7 +315,7 @@ function OverrideModal({
     >
       <div className="space-y-4">
         <Select label="Person" value={userId} onChange={(e) => setUserId(e.target.value)} options={options} />
-        <p className={cn("text-[13px] leading-relaxed", picked ? "text-ink/65" : "text-warn")}>
+        <p className={cn("text-[13px] leading-relaxed", picked ? "text-ink-2" : "text-ink")}>
           {picked ? picked.explanation : "Not a ranked option — they don't meet the skill or capacity rules right now. You can still assign them."}
         </p>
         <Textarea label="Why (optional)" rows={2} value={reason} onChange={(e) => setReason(e.target.value)} placeholder="e.g. worked with this client before" />

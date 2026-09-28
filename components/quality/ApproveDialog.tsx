@@ -74,7 +74,7 @@ export function ApproveDialog({
         <div>
           <p className="text-[13px] font-medium text-ink">{title}</p>
           {memberName && (
-            <p className="mt-0.5 text-[13px] text-ink/50">Delivered by {memberName}</p>
+            <p className="mt-0.5 text-[13px] text-ink-muted">Delivered by {memberName}</p>
           )}
         </div>
 
@@ -117,7 +117,7 @@ export function ApproveDialog({
                 <span
                   className={cn(
                     "block text-[12px]",
-                    shown === 5 ? "text-brand" : shown <= 2 ? "text-danger" : "text-ink/45",
+                    shown === 5 ? "text-brand" : shown <= 2 ? "text-danger" : "text-ink-muted",
                   )}
                 >
                   {IMPACT[shown]}

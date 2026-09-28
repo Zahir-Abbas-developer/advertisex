@@ -42,7 +42,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(function Che
             {error}
           </span>
         ) : hint ? (
-          <span id={`${inputId}-hint`} className="mt-0.5 block text-ink/45">
+          <span id={`${inputId}-hint`} className="mt-0.5 block text-ink-muted">
             {hint}
           </span>
         ) : null}

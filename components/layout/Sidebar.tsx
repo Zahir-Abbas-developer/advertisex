@@ -111,7 +111,7 @@ export function Sidebar({
             onClick={onNavigate}
             className="flex items-center gap-2.5 rounded-[10px]"
           >
-            <span className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-brand font-display text-sm font-bold text-canvas">
+            <span className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-brand font-display text-sm font-bold text-on-brand">
               A
             </span>
             <span className="font-display text-[15px] font-bold tracking-[-0.01em] text-ink">
@@ -139,20 +139,20 @@ export function Sidebar({
                       "group flex items-center gap-3 rounded-[10px] px-3 py-2.5 text-sm transition-colors",
                       active
                         ? "bg-ink/[0.08] font-medium text-ink"
-                        : "text-ink/55 hover:bg-ink/[0.05] hover:text-ink/90",
+                        : "text-ink-muted hover:bg-ink/[0.05] hover:text-ink/90",
                     )}
                   >
                     <Icon
                       className={cn(
                         "h-[18px] w-[18px] shrink-0",
-                        active ? "text-brand" : "text-ink/40 group-hover:text-ink/70",
+                        active ? "text-brand" : "text-ink-muted group-hover:text-ink-2",
                       )}
                     />
                     <span className="flex-1 truncate">{item.label}</span>
                     {item.key === "errors" && errorBadge > 0 && (
                       <span
                         aria-label={`${errorBadge} new`}
-                        className="rounded-pill bg-danger px-1.5 py-0.5 text-[10px] font-semibold tabular-nums text-ink"
+                        className="rounded-pill bg-danger px-1.5 py-0.5 text-[10px] font-semibold tabular-nums text-on-brand"
                       >
                         {errorBadge > 99 ? "99+" : errorBadge}
                       </span>
@@ -183,7 +183,7 @@ export function Sidebar({
               <p className="truncate text-[13px] font-medium text-ink">
                 {user.name}
               </p>
-              <p className="truncate text-[11px] text-ink/45">
+              <p className="truncate text-[11px] text-ink-muted">
                 {ROLE_LABEL[user.role]} · {user.jobTitle}
               </p>
             </div>
@@ -192,7 +192,7 @@ export function Sidebar({
           <button
             type="button"
             onClick={() => signOut({ callbackUrl: "/login" })}
-            className="mt-3 flex w-full items-center gap-2.5 rounded-[10px] px-3 py-2 text-[13px] text-ink/50 transition-colors hover:bg-ink/[0.05] hover:text-ink/90"
+            className="mt-3 flex w-full items-center gap-2.5 rounded-[10px] px-3 py-2 text-[13px] text-ink-muted transition-colors hover:bg-ink/[0.05] hover:text-ink/90"
           >
             <LogOut className="h-4 w-4" />
             Sign out

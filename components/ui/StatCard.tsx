@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 export type StatTone = "neutral" | "success" | "warning" | "danger" | "info";
 
 const ICON_TONES: Record<StatTone, string> = {
-  neutral: "bg-surface-2 text-ink/60 border-line",
+  neutral: "bg-surface-2 text-ink-muted border-line",
   success: "bg-brand-tint text-brand border-brand/15",
   warning: "bg-warn-tint text-warn border-warn/15",
   danger: "bg-danger-tint text-danger border-danger/15",
@@ -23,6 +23,11 @@ export interface StatCardProps {
   tone?: StatTone;
   /** Renders a shimmer placeholder in place of the value. */
   loading?: boolean;
+  /**
+   * `hero` fills the tile with the brand green (white text) — the view's one
+   * headline figure. At most ONE hero tile per view (CLAUDE.md §7).
+   */
+  variant?: "default" | "hero";
   className?: string;
 }
 
@@ -35,22 +40,25 @@ export function StatCard({
   icon: Icon,
   tone = "neutral",
   loading = false,
+  variant = "default",
   className,
 }: StatCardProps) {
+  const hero = variant === "hero";
   return (
     <div
       className={cn(
-        "rounded-card border border-line bg-surface p-5 transition-colors hover:border-ink/15",
+        "rounded-card border p-5 transition-colors",
+        hero ? "border-brand bg-brand text-on-brand" : "border-line bg-surface hover:border-brand/25",
         className,
       )}
     >
       <div className="flex items-start justify-between gap-3">
-        <p className="eyebrow pt-1 text-ink/45">{label}</p>
+        <p className={cn("eyebrow pt-1", hero ? "text-on-brand/80" : "text-ink-muted")}>{label}</p>
         {Icon && (
           <span
             className={cn(
               "flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] border",
-              ICON_TONES[tone],
+              hero ? "border-on-brand/20 bg-on-brand/10 text-on-brand" : ICON_TONES[tone],
             )}
           >
             <Icon className="h-4 w-4" />
@@ -65,17 +73,17 @@ export function StatCard({
           </span>
         ) : (
           <>
-            <span className="font-display text-[34px] font-bold leading-none tracking-[-0.03em] text-ink">
+            <span className={cn("font-display text-[34px] font-bold leading-none tracking-[-0.03em] tabular-nums", hero ? "text-on-brand" : "text-ink")}>
               {value}
             </span>
             {unit && (
-              <span className="font-display text-lg font-bold text-ink/35">{unit}</span>
+              <span className={cn("font-display text-lg font-bold", hero ? "text-on-brand/60" : "text-ink/35")}>{unit}</span>
             )}
           </>
         )}
       </div>
 
-      {hint && <p className="mt-2.5 text-[13px] leading-snug text-ink/45">{hint}</p>}
+      {hint && <p className={cn("mt-2.5 text-[13px] leading-snug", hero ? "text-on-brand/80" : "text-ink-muted")}>{hint}</p>}
     </div>
   );
 }

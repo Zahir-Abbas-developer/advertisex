@@ -175,8 +175,8 @@ export function TaskDrawer({
                     }}
                     className={cn(
                       "rounded-pill border px-3 py-1.5 text-[13px] transition-colors",
-                      current ? "border-brand/50 bg-brand-tint text-brand" : "border-line text-ink/60 hover:border-line-strong hover:text-ink",
-                      "disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:border-line disabled:hover:text-ink/60",
+                      current ? "border-brand/50 bg-brand-tint text-brand" : "border-line text-ink-muted hover:border-line-strong hover:text-ink",
+                      "disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:border-line disabled:hover:text-ink-muted",
                     )}
                   >
                     {TASK_STATUS_LABEL[s]}
@@ -184,7 +184,7 @@ export function TaskDrawer({
                 );
               })}
             </div>
-            <p className="mt-2 text-[12px] text-ink/40">One step at a time, back from review, or straight to Completed.</p>
+            <p className="mt-2 text-[12px] text-ink-muted">One step at a time, back from review, or straight to Completed.</p>
           </div>
 
           <div>
@@ -212,7 +212,7 @@ export function TaskDrawer({
               <Skeleton className="h-24" />
             ) : (
               <div className="space-y-3">
-                {items.length > 0 && <p className="text-[12px] tabular-nums text-ink/45">{done} of {items.length} done</p>}
+                {items.length > 0 && <p className="text-[12px] tabular-nums text-ink-muted">{done} of {items.length} done</p>}
                 {items.map((item) => (
                   <div key={item.id} className="flex items-start justify-between gap-2">
                     <Checkbox label={item.label} checked={item.done} onChange={(e) => void checklist("PATCH", { itemId: item.id, done: e.target.checked })} />
@@ -243,12 +243,12 @@ export function TaskDrawer({
               <Skeleton className="h-24" />
             ) : (
               <div className="space-y-4">
-                {comments.length === 0 && <p className="text-[13px] text-ink/40">No comments yet.</p>}
+                {comments.length === 0 && <p className="text-[13px] text-ink-muted">No comments yet.</p>}
                 {comments.map((c) => (
                   <div key={c.id} className="flex gap-3">
                     {c.author && <Avatar name={c.author.name} color={c.author.avatarColor} size="sm" />}
                     <div className="min-w-0">
-                      <p className="text-[12px] text-ink/45">
+                      <p className="text-[12px] text-ink-muted">
                         {c.author?.name ?? "Someone"} ·{" "}
                         {new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(c.createdAt))}
                       </p>
@@ -268,11 +268,11 @@ export function TaskDrawer({
               <Skeleton className="h-24" />
             ) : (
               <div className="space-y-3">
-                {files.length === 0 && <p className="text-[13px] text-ink/40">No files attached.</p>}
+                {files.length === 0 && <p className="text-[13px] text-ink-muted">No files attached.</p>}
                 {files.map((f) => (
                   <div key={f.id} className="flex items-center justify-between gap-3 rounded-[10px] border border-line px-3 py-2">
                     <a href={`/api/files/${f.id}`} className="min-w-0 truncate text-[13px] text-ink hover:text-brand">{f.filename}</a>
-                    <span className="flex shrink-0 items-center gap-2 text-[12px] tabular-nums text-ink/40">
+                    <span className="flex shrink-0 items-center gap-2 text-[12px] tabular-nums text-ink-muted">
                       {formatBytes(f.size)}
                       <button type="button" aria-label={`Remove ${f.filename}`} onClick={() => void removeFile(f.id)} className="rounded-[8px] p-1 hover:bg-surface-2 hover:text-ink">
                         <Trash2 className="h-3.5 w-3.5" />

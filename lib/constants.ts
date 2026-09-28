@@ -270,18 +270,32 @@ export const JOB_TITLES = [
 ] as const;
 
 /**
- * Avatar chips. Every value is an accent token from the fixed palette, so
- * member avatars can never drift outside the product's identity.
- *
- * Obsidian is deliberately excluded: it's the page's own background, and
- * a chip using it vanishes against the dark rail.
+ * Avatar chips — deep palette colors that carry white initials (Forest &
+ * Mint). Light greens and teal are excluded: white initials fail on them.
  */
 export const AVATAR_COLORS = [
-  "#D4AF37", // champagne gold
-  "#2DD4BF", // teal
-  "#818CF8", // indigo
-  "#F472B6", // rose
+  "#0E5B37", // green-800 · brand
+  "#022313", // green-950
+  "#3D5E4C", // ink-2
+  "#656565", // gray-600
 ] as const;
+
+/** The Obsidian & Gold avatar palette, still stored on existing users. */
+const LEGACY_AVATAR_COLORS = ["#D4AF37", "#2DD4BF", "#818CF8", "#F472B6"] as const;
+
+/**
+ * The color to show for a stored avatar color: current palette values as
+ * they are; an old-theme value mapped to its current counterpart; anything
+ * else (a hand-edited hex) re-picked from the palette. Display only — the
+ * stored value is never rewritten.
+ */
+export function avatarDisplayColor(stored: string | null | undefined, seed = ""): string {
+  const value = (stored ?? "").toUpperCase();
+  if ((AVATAR_COLORS as readonly string[]).includes(value)) return value;
+  const legacy = (LEGACY_AVATAR_COLORS as readonly string[]).indexOf(value);
+  if (legacy >= 0) return AVATAR_COLORS[legacy];
+  return avatarColorFor(seed || value);
+}
 
 export type AvatarColor = (typeof AVATAR_COLORS)[number];
 

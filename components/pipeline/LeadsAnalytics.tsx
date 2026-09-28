@@ -50,7 +50,7 @@ function ChartCard({ question, detail, children, empty }: { question: string; de
   return (
     <Card>
       <h3 className="font-display text-base font-semibold tracking-[-0.01em] text-ink">{question}</h3>
-      <p className="mt-0.5 text-[13px] text-ink/50">{detail}</p>
+      <p className="mt-0.5 text-[13px] text-ink-muted">{detail}</p>
       <div className="mt-5 h-64">
         {empty ? <div className="flex h-full items-center justify-center text-[13px] text-ink/35">Not enough data yet</div> : children}
       </div>
@@ -111,7 +111,7 @@ export function LeadsAnalytics() {
       {range}
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-        <StatCard label="New leads" value={t.new.toLocaleString()} hint={`${t.total.toLocaleString()} in total`} />
+        <StatCard variant="hero" label="New leads" value={t.new.toLocaleString()} hint={`${t.total.toLocaleString()} in total`} />
         <StatCard label="Contacted" value={t.contacted.toLocaleString()} />
         <StatCard label="Qualified" value={t.qualified.toLocaleString()} />
         <StatCard label="Follow-ups" value={t.followUps.toLocaleString()} />

@@ -57,13 +57,13 @@ export function Drawer({
         type="button"
         aria-label="Close panel"
         onClick={onClose}
-        className="absolute inset-0 h-full w-full cursor-default bg-black/60 animate-fade-in backdrop-blur-[2px]"
+        className="absolute inset-0 h-full w-full cursor-default bg-green-950/40 animate-fade-in backdrop-blur-[2px]"
       />
 
       <div
         ref={panelRef}
         className={cn(
-          "absolute inset-y-0 right-0 flex w-full flex-col border-l border-line bg-canvas",
+          "absolute inset-y-0 right-0 flex w-full flex-col border-l border-line bg-surface",
           // Slides in on transform alone. Opacity is never animated here, so
           // the panel cannot end up invisible if the animation is skipped.
           "animate-slide-in-right",
@@ -82,7 +82,7 @@ export function Drawer({
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="-mr-1 -mt-1 rounded-pill p-2 text-ink/40 transition-colors hover:bg-surface-2 hover:text-ink"
+            className="-mr-1 -mt-1 rounded-pill p-2 text-ink-muted transition-colors hover:bg-surface-2 hover:text-ink"
           >
             <X className="h-4 w-4" />
           </button>

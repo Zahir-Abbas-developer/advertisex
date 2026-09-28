@@ -90,7 +90,7 @@ export function LeadTable({ filters, onOpen }: { filters: LeadFilters; onOpen: (
 
   return (
     <div className="space-y-4">
-      <p className="text-[13px] tabular-nums text-ink/50">{data.total.toLocaleString()} lead{data.total === 1 ? "" : "s"}</p>
+      <p className="text-[13px] tabular-nums text-ink-muted">{data.total.toLocaleString()} lead{data.total === 1 ? "" : "s"}</p>
       <TableShell>
         <Table>
           <THead>
@@ -110,18 +110,18 @@ export function LeadTable({ filters, onOpen }: { filters: LeadFilters; onOpen: (
                 <TD>
                   <button type="button" onClick={() => onOpen(lead.id)} className="text-left hover:text-brand">
                     <span className="block text-[13px] font-medium text-ink">{lead.businessName}</span>
-                    <span className="block text-[12px] text-ink/45">
+                    <span className="block text-[12px] text-ink-muted">
                       {lead.contactName}
                       {lead.location ? ` · ${lead.location}` : ""} · {lead.department}
                     </span>
                   </button>
                 </TD>
                 <TD><Badge size="sm" tone="neutral">{lead.stageLabel}</Badge></TD>
-                <TD className="text-[13px] text-ink/60">{LEAD_SOURCE_LABEL[lead.source as LeadSource] ?? lead.source}</TD>
-                <TD className="text-[13px] text-ink/60">{lead.owner?.name ?? "—"}</TD>
+                <TD className="text-[13px] text-ink-muted">{LEAD_SOURCE_LABEL[lead.source as LeadSource] ?? lead.source}</TD>
+                <TD className="text-[13px] text-ink-muted">{lead.owner?.name ?? "—"}</TD>
                 {data.canSeeValues && <TD className="text-right tabular-nums">{lead.dealValue !== undefined ? formatMoney(lead.dealValue, true) : "—"}</TD>}
-                <TD className="text-[13px] tabular-nums text-ink/50">{lead.createdAt.slice(0, 10)}</TD>
-                <TD className="text-[13px] tabular-nums text-ink/50">{lead.stageChangedAt.slice(0, 10)}</TD>
+                <TD className="text-[13px] tabular-nums text-ink-muted">{lead.createdAt.slice(0, 10)}</TD>
+                <TD className="text-[13px] tabular-nums text-ink-muted">{lead.stageChangedAt.slice(0, 10)}</TD>
               </TR>
             ))}
           </TBody>

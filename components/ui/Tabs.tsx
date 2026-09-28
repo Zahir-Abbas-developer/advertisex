@@ -45,7 +45,7 @@ export function Tabs<T extends string>({
                 "flex items-center gap-2 whitespace-nowrap border-b-2 px-3.5 py-3 text-sm transition-colors",
                 selected
                   ? "border-brand font-medium text-ink"
-                  : "border-transparent text-ink/50 hover:border-line hover:text-ink/80",
+                  : "border-transparent text-ink-muted hover:border-line hover:text-ink/80",
               )}
             >
               {item.label}
@@ -53,7 +53,7 @@ export function Tabs<T extends string>({
                 <span
                   className={cn(
                     "rounded-pill px-1.5 py-0.5 text-[11px] font-medium tabular-nums",
-                    selected ? "bg-brand-tint text-brand" : "bg-surface-2 text-ink/50",
+                    selected ? "bg-brand-tint text-brand" : "bg-surface-2 text-ink-muted",
                   )}
                 >
                   {item.count}

@@ -30,7 +30,7 @@ export default async function PortalOverview() {
       <header>
         <p className="eyebrow text-brand">Overview</p>
         <h1 className="mt-2 font-display text-[28px] font-bold leading-tight tracking-[-0.02em] text-ink sm:text-[32px]">Hello, {first}</h1>
-        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink/60">
+        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-muted">
           {data.projects.length === 0
             ? "Your team is getting everything ready. Your projects will appear here as soon as work begins."
             : `We're working on ${data.projects.length} project${data.projects.length === 1 ? "" : "s"} for you${onTrack ? ", and everything is moving along." : "."}`}
@@ -59,13 +59,13 @@ export default async function PortalOverview() {
                       <Link href={`/portal/projects/${p.id}`} className="group block">
                         <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
                           <span className="text-[15px] font-medium text-ink group-hover:text-brand">{p.title}</span>
-                          <span className="text-[12px] text-ink/50">
+                          <span className="text-[12px] text-ink-muted">
                             {p.statusText}
                             {p.currentStage ? ` · now: ${p.currentStage}` : ""}
                           </span>
                         </div>
                         <ProgressBar value={p.progress} showValue />
-                        <p className="mt-1.5 text-[12px] text-ink/45">Planned to finish {formatDate(p.deadline)}</p>
+                        <p className="mt-1.5 text-[12px] text-ink-muted">Planned to finish {formatDate(p.deadline)}</p>
                       </Link>
                     </li>
                   ))}
@@ -78,21 +78,21 @@ export default async function PortalOverview() {
             <CardHeader title="Coming up" description="The next milestones on your projects." />
             <CardBody>
               {data.upcoming.length === 0 ? (
-                <p className="text-[13px] text-ink/50">Nothing scheduled right now.</p>
+                <p className="text-[13px] text-ink-muted">Nothing scheduled right now.</p>
               ) : (
                 <ul className="divide-y divide-line">
                   {data.upcoming.map((u, i) => (
                     <li key={`${u.title}-${i}`} className="flex items-center justify-between gap-3 py-3">
                       <span className="flex min-w-0 items-center gap-3">
-                        <CalendarClock className="h-4 w-4 shrink-0 text-ink/40" />
+                        <CalendarClock className="h-4 w-4 shrink-0 text-ink-muted" />
                         <span className="min-w-0">
                           <span className="block truncate text-[13px] text-ink">{u.title}</span>
-                          <Link href={`/portal/projects/${u.project.id}`} className="block truncate text-[12px] text-ink/45 hover:text-brand">
+                          <Link href={`/portal/projects/${u.project.id}`} className="block truncate text-[12px] text-ink-muted hover:text-brand">
                             {u.project.title}
                           </Link>
                         </span>
                       </span>
-                      <span className="shrink-0 text-[12px] tabular-nums text-ink/60">{formatDate(u.dueDate)}</span>
+                      <span className="shrink-0 text-[12px] tabular-nums text-ink-muted">{formatDate(u.dueDate)}</span>
                     </li>
                   ))}
                 </ul>
@@ -106,16 +106,16 @@ export default async function PortalOverview() {
             <CardHeader title="What's new" />
             <CardBody>
               {data.activity.length === 0 ? (
-                <p className="text-[13px] text-ink/50">Updates and reports from your team will appear here.</p>
+                <p className="text-[13px] text-ink-muted">Updates and reports from your team will appear here.</p>
               ) : (
                 <ul className="space-y-4">
                   {data.activity.map((a) => (
                     <li key={`${a.kind}-${a.id}`}>
                       <Link href={a.href} className="group flex gap-3">
-                        {a.kind === "report" ? <FileText className="mt-0.5 h-4 w-4 shrink-0 text-data-1" /> : <Megaphone className="mt-0.5 h-4 w-4 shrink-0 text-brand" />}
+                        {a.kind === "report" ? <FileText className="mt-0.5 h-4 w-4 shrink-0 text-success-ink" /> : <Megaphone className="mt-0.5 h-4 w-4 shrink-0 text-brand" />}
                         <span className="min-w-0">
                           <span className="block text-[13px] text-ink group-hover:text-brand">{a.title}</span>
-                          <span className="block text-[12px] text-ink/45">
+                          <span className="block text-[12px] text-ink-muted">
                             {a.detail} · {relativeFromNow(a.at)}
                           </span>
                         </span>
@@ -131,7 +131,7 @@ export default async function PortalOverview() {
             <CardHeader title="Your services" />
             <CardBody>
               {data.services.length === 0 ? (
-                <p className="text-[13px] text-ink/50">Your services will be listed here.</p>
+                <p className="text-[13px] text-ink-muted">Your services will be listed here.</p>
               ) : (
                 <ul className="space-y-2">
                   {data.services.map((s) => (

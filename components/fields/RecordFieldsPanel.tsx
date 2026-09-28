@@ -150,14 +150,14 @@ export function RecordFieldsPanel({
           </div>
         </div>
       ) : answered.length === 0 ? (
-        <p className="mt-4 text-[13px] text-ink/50">
+        <p className="mt-4 text-[13px] text-ink-muted">
           Nothing recorded yet for this business line.
         </p>
       ) : (
         <dl className="mt-5 grid gap-x-6 gap-y-4 sm:grid-cols-2">
           {answered.map((definition) => (
             <div key={definition.id}>
-              <dt className="eyebrow text-ink/40">{definition.label}</dt>
+              <dt className="eyebrow text-ink-muted">{definition.label}</dt>
               <dd className="mt-1 whitespace-pre-wrap break-words text-sm text-ink">
                 {displayValue(definition, values[definition.key])}
               </dd>

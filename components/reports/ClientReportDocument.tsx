@@ -31,7 +31,7 @@ export function ClientReportDocument({
     <article className="report-document space-y-6">
       <header className="report-header surface-dark overflow-hidden rounded-card border border-line-strong">
         <div className="relative px-7 py-8 sm:px-10 sm:py-10">
-          <p className="eyebrow mb-3 text-brand-tint/70">
+          <p className="eyebrow mb-3 text-ink-muted">
             {REPORT_TYPE_LABEL.CLIENT_WEEKLY} · {payload.period.label}
           </p>
 
@@ -40,13 +40,13 @@ export function ClientReportDocument({
           </h1>
 
           {payload.project && (
-            <p className="mt-2 text-[13px] text-ink/50">
+            <p className="mt-2 text-[13px] text-ink-muted">
               {payload.project.title} · {formatDate(payload.project.startDate)} –{" "}
               {formatDate(payload.project.endDate)}
             </p>
           )}
 
-          <p className="mt-7 max-w-2xl text-[15px] leading-relaxed text-ink/75">
+          <p className="mt-7 max-w-2xl text-[15px] leading-relaxed text-ink-2">
             {payload.narrative}
           </p>
 
@@ -103,7 +103,7 @@ export function ClientReportDocument({
               <h2 className="font-display text-base font-bold tracking-tight text-ink">
                 What the work returned
               </h2>
-              <p className="mt-0.5 text-[13px] text-ink/50">
+              <p className="mt-0.5 text-[13px] text-ink-muted">
                 Week of {formatDate(payload.kpis.week.weekStart)} · target ROAS{" "}
                 {payload.kpis.targetRoas}
               </p>
@@ -148,7 +148,7 @@ export function ClientReportDocument({
           </div>
 
           {payload.kpis.summary.weeks > 1 && (
-            <p className="border-t border-line px-6 py-3 text-[13px] text-ink/50">
+            <p className="border-t border-line px-6 py-3 text-[13px] text-ink-muted">
               Across {payload.kpis.summary.weeks} weeks: $
               {payload.kpis.summary.spend.toLocaleString("en-US")} spent, $
               {payload.kpis.summary.revenue.toLocaleString("en-US")} returned
@@ -167,7 +167,7 @@ export function ClientReportDocument({
           empty=""
           count={payload.awaitingInput.items.length}
         >
-          <p className="px-6 pb-1 pt-1 text-[13px] leading-relaxed text-ink/55">
+          <p className="px-6 pb-1 pt-1 text-[13px] leading-relaxed text-ink-muted">
             These are paused on our side until we hear back —{" "}
             {payload.awaitingInput.totalDays}{" "}
             {payload.awaitingInput.totalDays === 1 ? "day" : "days"} in total so
@@ -205,7 +205,7 @@ export function ClientReportDocument({
         </Section>
       )}
 
-      <footer className="report-footer flex flex-wrap items-center justify-between gap-2 border-t border-line pt-4 text-[12px] text-ink/40">
+      <footer className="report-footer flex flex-wrap items-center justify-between gap-2 border-t border-line pt-4 text-[12px] text-ink-muted">
         <span>
           Advertise X · {REPORT_TYPE_LABEL.CLIENT_WEEKLY} · {payload.period.label}
         </span>
@@ -235,7 +235,7 @@ function KpiCell({
 
   return (
     <div className="bg-surface px-6 py-5">
-      <p className="eyebrow text-ink/45">{label}</p>
+      <p className="eyebrow text-ink-muted">{label}</p>
       <p
         className={cn(
           "mt-2.5 font-display text-2xl font-bold tabular-nums",
@@ -248,7 +248,7 @@ function KpiCell({
         <p
           className={cn(
             "mt-1.5 inline-flex items-center gap-1 text-[12px] font-medium",
-            trend.direction === "flat" ? "text-ink/40" : good ? "text-brand" : "text-danger",
+            trend.direction === "flat" ? "text-ink-muted" : good ? "text-brand" : "text-danger",
           )}
         >
           {trend.direction === "flat" ? (
@@ -287,13 +287,13 @@ function Section({
           <Icon className={tone === "bad" ? "h-4 w-4 text-danger" : "h-4 w-4 text-brand"} />
           {title}
         </h2>
-        <span className="font-display text-sm font-bold tabular-nums text-ink/40">
+        <span className="font-display text-sm font-bold tabular-nums text-ink-muted">
           {count}
         </span>
       </div>
 
       {count === 0 ? (
-        <p className="px-6 py-8 text-center text-sm text-ink/45">{empty}</p>
+        <p className="px-6 py-8 text-center text-sm text-ink-muted">{empty}</p>
       ) : (
         <ul className="divide-y divide-line">{children}</ul>
       )}
@@ -320,7 +320,7 @@ function Row({
         className={
           tone === "bad"
             ? "mt-0.5 text-[12px] text-danger"
-            : "mt-0.5 text-[12px] text-ink/45"
+            : "mt-0.5 text-[12px] text-ink-muted"
         }
       >
         {meta}

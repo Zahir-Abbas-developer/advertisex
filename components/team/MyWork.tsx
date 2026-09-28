@@ -36,18 +36,18 @@ type Item = {
 };
 
 function TaskList({ items, empty }: { items: Item[]; empty: string }) {
-  if (items.length === 0) return <p className="px-4 py-5 text-[13px] text-ink/40">{empty}</p>;
+  if (items.length === 0) return <p className="px-4 py-5 text-[13px] text-ink-muted">{empty}</p>;
   return (
     <ul className="divide-y divide-line">
       {items.map((t) => (
         <li key={t.id} className="flex items-center justify-between gap-3 px-4 py-3">
           <div className="min-w-0">
             <p className="truncate text-[13px] text-ink">{t.title}</p>
-            {t.project && <p className="truncate text-[12px] text-ink/40">{t.project}</p>}
+            {t.project && <p className="truncate text-[12px] text-ink-muted">{t.project}</p>}
           </div>
           <div className="flex shrink-0 items-center gap-2">
             {t.dueAt && (
-              <span className={t.state === "OVERDUE" ? "text-[12px] tabular-nums text-danger" : "text-[12px] tabular-nums text-ink/45"}>
+              <span className={t.state === "OVERDUE" ? "text-[12px] tabular-nums text-danger" : "text-[12px] tabular-nums text-ink-muted"}>
                 {t.dueAt.toISOString().slice(5, 10).replace("-", "/")}
               </span>
             )}
@@ -66,7 +66,7 @@ function Panel({ title, count, children }: { title: string; count?: number; chil
     <div className="overflow-hidden rounded-card border border-line bg-surface">
       <div className="flex items-center justify-between border-b border-line px-4 py-3">
         <p className="text-[13px] font-medium text-ink">{title}</p>
-        {count !== undefined && <span className="text-[12px] tabular-nums text-ink/40">{count}</span>}
+        {count !== undefined && <span className="text-[12px] tabular-nums text-ink-muted">{count}</span>}
       </div>
       {children}
     </div>
@@ -145,7 +145,7 @@ export async function MyWork({ userId, name, capacity }: { userId: string; name:
           <h1 className="mt-2 font-display text-[30px] font-bold leading-tight tracking-[-0.02em] text-ink">
             {greeting}, {name.split(" ")[0]}
           </h1>
-          <p className="mt-1.5 text-sm text-ink/55">
+          <p className="mt-1.5 text-sm text-ink-muted">
             {items.length === 0
               ? "Nothing open right now."
               : `${items.length} open task${items.length === 1 ? "" : "s"}${overdue.length ? `, ${overdue.length} overdue` : ""}.`}
@@ -156,7 +156,7 @@ export async function MyWork({ userId, name, capacity }: { userId: string; name:
           <Link href="/my-attendance" className="inline-flex items-center gap-1.5 rounded-pill border border-line px-4 py-2 text-[13px] text-ink/80 transition-colors hover:bg-surface-2">
             Time clock <ArrowRight className="h-3.5 w-3.5" />
           </Link>
-          <Link href="/tasks" className="inline-flex items-center gap-1.5 rounded-pill bg-brand px-4 py-2 text-[13px] font-medium text-canvas transition-colors hover:bg-brand-hover">
+          <Link href="/tasks" className="inline-flex items-center gap-1.5 rounded-pill bg-brand px-4 py-2 text-[13px] font-medium text-on-brand transition-colors hover:bg-brand-hover">
             All tasks <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
@@ -190,7 +190,7 @@ export async function MyWork({ userId, name, capacity }: { userId: string; name:
                   <Link href={`/projects/${pr.id}`} className="grid gap-2 px-4 py-3 hover:bg-surface-2 sm:grid-cols-[minmax(0,1fr)_10rem] sm:items-center">
                     <span className="min-w-0">
                       <span className="block truncate text-[13px] font-medium text-ink">{pr.title}</span>
-                      <span className="block truncate text-[12px] text-ink/45">
+                      <span className="block truncate text-[12px] text-ink-muted">
                         {pr.client.businessName}
                         {pr.recommendations.length ? ` · your role: ${pr.recommendations.map((r) => r.skill.name).join(", ")}` : ""}
                         {pr.stages[0] ? ` · now: ${pr.stages[0].name}` : ""}
@@ -228,8 +228,8 @@ export async function MyWork({ userId, name, capacity }: { userId: string; name:
 
       <section className="space-y-4">
         <div>
-          <p className="eyebrow text-ink/45">My performance · {key}</p>
-          <p className="mt-1 text-[13px] text-ink/50">Delivery and attendance are measured separately — definitions on your attendance page and in the team docs.</p>
+          <p className="eyebrow text-ink-muted">My performance · {key}</p>
+          <p className="mt-1 text-[13px] text-ink-muted">Delivery and attendance are measured separately — definitions on your attendance page and in the team docs.</p>
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <StatCard label="Workload" value={pct(p.workload)} hint={`${p.openTasks} open · ${capacity}h/week`} />

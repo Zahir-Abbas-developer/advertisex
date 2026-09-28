@@ -75,12 +75,12 @@ export function TargetBar({ userId }: { userId: string }) {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <Crosshair className="h-4 w-4 text-ink/40" />
+            <Crosshair className="h-4 w-4 text-ink-muted" />
             <h2 className="font-display text-base font-bold tracking-tight text-ink">
               This week&rsquo;s targets
             </h2>
           </div>
-          <p className="mt-1 text-[13px] leading-relaxed text-ink/55">
+          <p className="mt-1 text-[13px] leading-relaxed text-ink-muted">
             Settled on Monday morning. Each target met is a point; only a week
             under 60% costs one.
           </p>
@@ -90,13 +90,13 @@ export function TargetBar({ userId }: { userId: string }) {
           <p
             className={cn(
               "font-display text-2xl font-bold tabular-nums leading-none",
-              outcome.points > 0 ? "text-brand" : outcome.points < 0 ? "text-danger" : "text-ink",
+              outcome.points > 0 ? "text-brand" : outcome.points < 0 ? "text-data-negative" : "text-ink",
             )}
           >
             {outcome.points > 0 ? "+" : ""}
             {outcome.points}
           </p>
-          <p className="mt-1 text-[12px] text-ink/45">if the week ended now</p>
+          <p className="mt-1 text-[12px] text-ink-muted">if the week ended now</p>
         </div>
       </div>
 
@@ -117,7 +117,7 @@ export function TargetBar({ userId }: { userId: string }) {
                     ? "text-brand"
                     : progress.missed
                       ? "text-danger"
-                      : "text-ink/55",
+                      : "text-ink-muted",
                 )}
               >
                 {progress.logged}
@@ -140,7 +140,7 @@ export function TargetBar({ userId }: { userId: string }) {
 
       <Link
         href="/pipeline"
-        className="mt-4 inline-block text-[13px] text-ink/50 transition-colors hover:text-brand"
+        className="mt-4 inline-block text-[13px] text-ink-muted transition-colors hover:text-brand"
       >
         Open the pipeline →
       </Link>

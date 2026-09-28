@@ -172,7 +172,7 @@ export function ReviewQueue() {
 
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium text-ink">{row.title}</p>
-                  <p className="truncate text-[12px] text-ink/45">
+                  <p className="truncate text-[12px] text-ink-muted">
                     {row.clientName} · {row.moduleName}
                     {row.assignee ? ` · ${row.assignee.name}` : ""}
                   </p>
@@ -225,12 +225,12 @@ export function ReviewQueue() {
 
         {data.viewer.isAdmin && data.reviewers.length > 1 && (
           <div className="border-t border-line px-5 py-3">
-            <p className="eyebrow mb-2 text-ink/45">Average decision time</p>
-            <ul className="flex flex-wrap gap-x-5 gap-y-1 text-[12px] text-ink/55">
+            <p className="eyebrow mb-2 text-ink-muted">Average decision time</p>
+            <ul className="flex flex-wrap gap-x-5 gap-y-1 text-[12px] text-ink-muted">
               {data.reviewers.map((reviewer) => (
                 <li key={reviewer.userId} className="tabular-nums">
                   {reviewer.name}{" "}
-                  <span className="font-medium text-ink/75">
+                  <span className="font-medium text-ink-2">
                     {formatWait(reviewer.averageMinutes)}
                   </span>{" "}
                   <span className="text-ink/35">over {reviewer.decided}</span>
@@ -267,7 +267,7 @@ export function ReviewQueue() {
         title="Send back for rework"
       >
         <div className="space-y-4">
-          <p className="text-[13px] leading-relaxed text-ink/60">
+          <p className="text-[13px] leading-relaxed text-ink-muted">
             {rejecting?.assignee?.name ?? "The member"} is charged{" "}
             {(rejecting?.weight ?? 0) * 0.5} points for a rejection, so the reason
             has to be specific enough to act on.

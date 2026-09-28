@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { initialsFor } from "@/lib/constants";
+import { avatarDisplayColor, initialsFor } from "@/lib/constants";
 
 export interface AvatarProps {
   name: string;
@@ -16,13 +16,13 @@ const SIZES = {
 };
 
 /** Initial-based avatar chip — no image uploads anywhere in the product. */
-export function Avatar({ name, color = "#D4AF37", size = "md", className }: AvatarProps) {
+export function Avatar({ name, color, size = "md", className }: AvatarProps) {
   return (
     <span
       aria-hidden
-      style={{ backgroundColor: color }}
+      style={{ backgroundColor: avatarDisplayColor(color, name) }}
       className={cn(
-        "inline-flex shrink-0 items-center justify-center rounded-pill font-display font-bold uppercase tracking-wide text-ink",
+        "inline-flex shrink-0 items-center justify-center rounded-pill font-display font-bold uppercase tracking-wide text-white",
         SIZES[size],
         className,
       )}

@@ -58,9 +58,9 @@ type MonthPayload = {
 /** Status → colour. Green present, amber late, red absent, grey off or leave. */
 const STATUS_STYLE: Record<string, string> = {
   PRESENT: "border-brand/25 bg-brand-tint text-brand",
-  LATE: "border-warn/25 bg-warn-tint text-warn",
+  LATE: "border-warn/25 bg-warn-tint text-ink",
   ABSENT: "border-danger/25 bg-danger-tint text-danger",
-  LEAVE: "border-line bg-surface-2 text-ink/45",
+  LEAVE: "border-line bg-surface-2 text-ink-muted",
   OFF: "border-line bg-surface-2/60 text-ink/30",
 };
 
@@ -330,14 +330,14 @@ export function MyAttendance() {
 
               <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-line pt-4">
                 {Object.entries(STATUS_LABEL).map(([status, label]) => (
-                  <span key={status} className="flex items-center gap-1.5 text-[12px] text-ink/50">
+                  <span key={status} className="flex items-center gap-1.5 text-[12px] text-ink-muted">
                     <span
                       className={cn("h-2.5 w-2.5 rounded-[3px] border", STATUS_STYLE[status])}
                     />
                     {label}
                   </span>
                 ))}
-                <span className="flex items-center gap-1.5 text-[12px] text-ink/50">
+                <span className="flex items-center gap-1.5 text-[12px] text-ink-muted">
                   <span className="h-1.5 w-1.5 rounded-pill bg-info" />
                   Leave requested
                 </span>
@@ -368,7 +368,7 @@ export function MyAttendance() {
               </div>
 
               {detail.clockInAt && (
-                <p className="mt-3 text-[13px] text-ink/60">
+                <p className="mt-3 text-[13px] text-ink-muted">
                   {formatKarachiTime(new Date(detail.clockInAt))}
                   {detail.clockOutAt && ` – ${formatKarachiTime(new Date(detail.clockOutAt))}`}
                   {detail.autoClosed && " · closed automatically"}
@@ -376,10 +376,10 @@ export function MyAttendance() {
               )}
 
               <div className="mt-5">
-                <p className="eyebrow mb-2 text-ink/40">Availability checks</p>
+                <p className="eyebrow mb-2 text-ink-muted">Availability checks</p>
 
                 {detail.checks.length === 0 ? (
-                  <p className="text-[13px] text-ink/45">
+                  <p className="text-[13px] text-ink-muted">
                     No checks were recorded for this day.
                   </p>
                 ) : (
@@ -389,13 +389,13 @@ export function MyAttendance() {
                         key={check.id}
                         className="flex items-center justify-between gap-3 rounded-[10px] border border-line bg-surface px-3.5 py-2.5"
                       >
-                        <span className="text-[13px] text-ink/70">
+                        <span className="text-[13px] text-ink-2">
                           {formatKarachiTime(new Date(check.scheduledAt))}
                         </span>
 
                         <span className="flex items-center gap-2.5">
                           {check.responseSeconds !== null && (
-                            <span className="text-[12px] text-ink/45">
+                            <span className="text-[12px] text-ink-muted">
                               answered in{" "}
                               {check.responseSeconds < 60
                                 ? `${check.responseSeconds}s`
@@ -439,7 +439,7 @@ export function MyAttendance() {
                   <li key={request.id} className="flex items-start justify-between gap-3 px-5 py-3.5">
                     <div className="min-w-0">
                       <p className="text-[13px] font-medium text-ink">{request.date}</p>
-                      <p className="mt-0.5 text-[12px] text-ink/55">{request.reason}</p>
+                      <p className="mt-0.5 text-[12px] text-ink-muted">{request.reason}</p>
                     </div>
                     <Badge
                       size="sm"

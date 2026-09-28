@@ -46,7 +46,7 @@ function Who({ member }: { member: Row["member"] }) {
   return (
     <Link href={`/team/${member.id}`} className="flex items-center gap-2.5 hover:text-brand">
       {member.isAgent ? (
-        <span className="flex h-7 w-7 items-center justify-center rounded-full border border-data-2/30 bg-data-2/10 text-data-2">
+        <span className="flex h-7 w-7 items-center justify-center rounded-full border border-info/30 bg-info-tint text-ink-2">
           <Bot className="h-3.5 w-3.5" />
         </span>
       ) : (
@@ -54,7 +54,7 @@ function Who({ member }: { member: Row["member"] }) {
       )}
       <span className="min-w-0">
         <span className="block truncate text-[13px] font-medium text-ink">{member.name}</span>
-        <span className="block truncate text-[12px] text-ink/45">{member.jobTitle}</span>
+        <span className="block truncate text-[12px] text-ink-muted">{member.jobTitle}</span>
       </span>
     </Link>
   );
@@ -122,7 +122,7 @@ export function TeamPerformance() {
         <div className="flex items-end justify-between gap-3">
           <div>
             <h2 className="font-display text-lg font-semibold text-ink">Delivery</h2>
-            <p className="text-[13px] text-ink/50">
+            <p className="text-[13px] text-ink-muted">
               {team.people - team.agents} people and {team.agents} AI agent{team.agents === 1 ? "" : "s"}.
             </p>
           </div>
@@ -154,9 +154,9 @@ export function TeamPerformance() {
                   <TD><Who member={r.member} /></TD>
                   <TD className="text-right tabular-nums">{r.performance.tasksCompleted}</TD>
                   <TD className="text-right tabular-nums">{percent(r.performance.onTimeRate)}</TD>
-                  <TD className={r.performance.tasksOverdue > 0 ? "text-right tabular-nums text-danger" : "text-right tabular-nums"}>{r.performance.tasksOverdue}</TD>
+                  <TD className={r.performance.tasksOverdue > 0 ? "text-right font-semibold tabular-nums text-ink" : "text-right tabular-nums"}>{r.performance.tasksOverdue}</TD>
                   <TD className="text-right tabular-nums">{r.performance.openTasks}</TD>
-                  <TD className={(r.performance.workload ?? 0) > 1 ? "text-right tabular-nums text-warn" : "text-right tabular-nums"}>{percent(r.performance.workload)}</TD>
+                  <TD className={(r.performance.workload ?? 0) > 1 ? "text-right tabular-nums text-ink" : "text-right tabular-nums"}>{percent(r.performance.workload)}</TD>
                   <TD className="text-right tabular-nums">{r.performance.projectsDelivered}</TD>
                 </TR>
               ))}
@@ -169,7 +169,7 @@ export function TeamPerformance() {
         <div className="flex items-end justify-between gap-3">
           <div>
             <h2 className="font-display text-lg font-semibold text-ink">Attendance</h2>
-            <p className="text-[13px] text-ink/50">People only — AI agents have no attendance.</p>
+            <p className="text-[13px] text-ink-muted">People only — AI agents have no attendance.</p>
           </div>
           <HowCalculated topic="attendance" />
         </div>

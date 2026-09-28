@@ -44,7 +44,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0B0B0D",
+  themeColor: "#0E5B37",
   // The app is a real working surface on a phone; letting iOS zoom the layout
   // on an input focus makes answering a check fiddly.
   width: "device-width",

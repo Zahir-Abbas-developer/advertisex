@@ -2,9 +2,59 @@
 @tailwind components;
 @tailwind utilities;
 
+/* =============================================================================
+   Advertise X — "Forest & Mint" (light). CLAUDE.md §7, docs/DESIGN_SYSTEM.md.
+
+   Every color is defined ONCE here, as an RGB channel triple (so Tailwind's
+   opacity modifiers work): the raw scale is exact (the founder's palette,
+   sampled from the reference dashboard); role tokens point at it. Tailwind
+   (tailwind.config.ts) reads only the role variables. A dark panel
+   (.surface-dark) re-scopes the role variables, so everything inside it
+   inverts without changing its markup.
+   ========================================================================== */
 @layer base {
   :root {
-    color-scheme: dark;
+    color-scheme: light;
+
+    /* Raw green scale [measured] */
+    --c-green-950: 2 35 19; /* #022313 */
+    --c-green-800: 14 91 55; /* #0E5B37 · brand */
+    --c-green-600: 39 157 97; /* #279D61 */
+    --c-green-400: 81 184 131; /* #51B883 */
+    --c-green-200: 155 212 180; /* #9BD4B4 */
+    --c-green-100: 206 228 217; /* #CEE4D9 */
+    --c-green-50: 231 244 235; /* #E7F4EB · page bg */
+
+    /* Neutrals [measured] */
+    --c-white: 255 255 255; /* #FFFFFF · card */
+    --c-gray-50: 248 248 251; /* #F8F8FB · surface-2 */
+    --c-gray-100: 241 241 244; /* #F1F1F4 · table header */
+    --c-gray-300: 203 203 205; /* #CBCBCD */
+    --c-gray-400: 175 176 177; /* #AFB0B1 · baseline */
+    --c-gray-600: 101 101 101; /* #656565 · negative data, muted text */
+    --c-chart-fill: 213 224 220; /* #D5E0DC · area fill */
+    --c-teal-500: 80 166 188; /* #50A6BC · teal accent */
+
+    /* Derived (not in the screenshot) — from forest-mint-theme.css */
+    --c-ink-2: 61 94 76; /* #3D5E4C · secondary text */
+    --c-accent-hover: 22 106 65; /* #166A41 */
+    --c-warning: 217 119 6; /* #D97706 */
+    --c-danger: 220 38 38; /* #DC2626 · destructive actions and errors only */
+
+    /* Role tokens */
+    --bg: var(--c-green-50);
+    --surface-1: var(--c-white);
+    --surface-2: var(--c-gray-50);
+    --surface-head: var(--c-gray-100);
+    --line: var(--c-green-950); /* hairlines: 8% and 14% of the darkest green */
+    --ink: var(--c-green-950); /* primary text — 16.8:1 on white */
+    --ink-heading: var(--c-green-800); /* card titles — 8.2:1 */
+    --ink-2: var(--c-ink-2); /* secondary text */
+    --ink-muted: var(--c-gray-600); /* muted text — 5.8:1 */
+    --on-accent: var(--c-white); /* text on brand, danger and hero fills */
+    --accent: var(--c-green-800);
+    --accent-hover: var(--c-accent-hover);
+    --accent-strong: var(--c-green-950);
   }
 
   html {
@@ -29,12 +79,12 @@
   /* Native checkboxes and radios take the accent, not the browser's blue. */
   input[type="checkbox"],
   input[type="radio"] {
-    accent-color: theme("colors.brand.DEFAULT");
+    accent-color: rgb(var(--accent));
   }
 
   ::selection {
-    background-color: rgba(212, 175, 55, 0.25);
-    color: #f5f3ee;
+    background-color: rgb(var(--c-green-100));
+    color: rgb(var(--c-green-950));
   }
 
   /* Focus rings follow the brand rather than the browser default. */
@@ -63,10 +113,26 @@
 }
 
 @layer utilities {
-  /* Hero panels sit a step *below* the page — near-true black under the one
-     permitted gold glow (CLAUDE.md §7). */
+  /* The deep panel: green-950 under a faint brand glow — the sidebar, hero
+     cards, report mastheads. It re-scopes the role tokens, so text, hairlines
+     and hovers inside it turn light without touching the markup. Muted text
+     here is neutral gray, never a light green (CLAUDE.md §7 text rule). */
   .surface-dark {
-    @apply relative bg-[#08080A] text-ink;
+    --bg: var(--c-green-950);
+    --surface-1: var(--c-green-950);
+    --surface-2: var(--c-green-800);
+    --surface-head: var(--c-green-800);
+    --line: var(--c-white);
+    --ink: var(--c-white);
+    --ink-heading: var(--c-white);
+    --ink-2: var(--c-gray-100);
+    --ink-muted: var(--c-gray-300);
+    /* The accent turns white here: a white button with deep-green text, white
+       active states. Light greens stay data and glow, never text. */
+    --accent: var(--c-white);
+    --accent-hover: var(--c-gray-100);
+    --on-accent: var(--c-green-950);
+    @apply relative bg-canvas text-ink;
   }
 
   .surface-dark::before {
@@ -76,7 +142,7 @@
 
   .scrollbar-thin {
     scrollbar-width: thin;
-    scrollbar-color: rgba(250, 250, 247, 0.18) transparent;
+    scrollbar-color: rgb(var(--line) / 0.18) transparent;
   }
 
   .scrollbar-thin::-webkit-scrollbar {
@@ -85,7 +151,7 @@
   }
 
   .scrollbar-thin::-webkit-scrollbar-thumb {
-    background-color: rgba(250, 250, 247, 0.18);
+    background-color: rgb(var(--line) / 0.18);
     border-radius: 999px;
   }
 
@@ -137,7 +203,7 @@
   }
 
   .report-header {
-    /* Keep the dark masthead — it is the identity of the document. */
+    /* Keep the deep green masthead — it is the identity of the document. */
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
     border-radius: 6px !important;

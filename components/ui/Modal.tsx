@@ -114,7 +114,7 @@ export function Modal({
         aria-label="Close dialog"
         data-modal-close
         onClick={() => !busy && onClose()}
-        className="fixed inset-0 h-full w-full cursor-default bg-black/60 animate-fade-in backdrop-blur-[2px]"
+        className="fixed inset-0 h-full w-full cursor-default bg-green-950/40 animate-fade-in backdrop-blur-[2px]"
       />
 
       <div className="flex min-h-full items-end justify-center sm:items-center sm:p-6">
@@ -137,7 +137,7 @@ export function Modal({
                 {title}
               </h2>
               {description && (
-                <p className="mt-1.5 text-sm leading-relaxed text-ink/60">
+                <p className="mt-1.5 text-sm leading-relaxed text-ink-muted">
                   {description}
                 </p>
               )}
@@ -148,7 +148,7 @@ export function Modal({
               onClick={onClose}
               disabled={busy}
               aria-label="Close"
-              className="-mr-1 -mt-1 rounded-pill p-2 text-ink/40 transition-colors hover:bg-surface-2 hover:text-ink disabled:opacity-40"
+              className="-mr-1 -mt-1 rounded-pill p-2 text-ink-muted transition-colors hover:bg-surface-2 hover:text-ink disabled:opacity-40"
             >
               <X className="h-4 w-4" />
             </button>

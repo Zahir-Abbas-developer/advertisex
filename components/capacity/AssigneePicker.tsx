@@ -120,7 +120,7 @@ export function AssigneePicker({
       <div>
         <div className="mb-2 flex items-baseline justify-between gap-2">
           <p className="text-[13px] font-medium text-ink/80">{label}</p>
-          <p className="text-[12px] text-ink/45">
+          <p className="text-[12px] text-ink-muted">
             Load in {formatWeek(data.week)} · {estimatedHours}h of work
           </p>
         </div>
@@ -146,7 +146,7 @@ export function AssigneePicker({
                 className={cn(
                   "flex w-full items-center gap-3 rounded-[10px] border p-2.5 text-left transition-colors",
                   selected
-                    ? "border-brand bg-brand-tint/50"
+                    ? "border-brand bg-brand/[0.05]"
                     : "border-line bg-surface hover:border-ink/25",
                 )}
               >
@@ -156,7 +156,7 @@ export function AssigneePicker({
                   <p className="flex items-center gap-1.5 truncate text-[13px] font-medium text-ink">
                     {candidate.name}
                     {candidate.qualified && (
-                      <span className="rounded-pill bg-surface-2 px-1.5 py-0.5 text-[10px] font-normal text-ink/50">
+                      <span className="rounded-pill bg-surface-2 px-1.5 py-0.5 text-[10px] font-normal text-ink-muted">
                         fits
                       </span>
                     )}
@@ -179,8 +179,8 @@ export function AssigneePicker({
                     band === "OVER"
                       ? "font-medium text-danger"
                       : band === "TIGHT"
-                        ? "text-warn"
-                        : "text-ink/50",
+                        ? "text-ink"
+                        : "text-ink-muted",
                   )}
                 >
                   {projected}%
@@ -196,8 +196,8 @@ export function AssigneePicker({
             onClick={() => pick(data.suggestion!.candidate)}
             className="mt-2 flex w-full items-start gap-2 rounded-[10px] border border-info/20 bg-info-tint px-3 py-2.5 text-left transition-colors hover:border-info/40"
           >
-            <Lightbulb className="mt-0.5 h-3.5 w-3.5 shrink-0 text-info" />
-            <span className="text-[12px] leading-relaxed text-info">
+            <Lightbulb className="mt-0.5 h-3.5 w-3.5 shrink-0 text-ink-2" />
+            <span className="text-[12px] leading-relaxed text-ink-2">
               Try {data.suggestion.candidate.name.split(" ")[0]} —{" "}
               {data.suggestion.reason.toLowerCase()}
             </span>
@@ -227,7 +227,7 @@ export function AssigneePicker({
               </p>
             </div>
 
-            <p className="text-[13px] leading-relaxed text-ink/60">
+            <p className="text-[13px] leading-relaxed text-ink-muted">
               Overloading someone is how a deadline gets missed, and a missed
               deadline costs them points. Assign it anyway if that&rsquo;s the
               call — or pick someone with room.

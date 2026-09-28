@@ -218,7 +218,7 @@ export function MyTasks({
               <Flame className="h-4 w-4 text-danger" />
               Focus today
             </h2>
-            <p className="mt-0.5 text-[13px] text-ink/50">
+            <p className="mt-0.5 text-[13px] text-ink-muted">
               The {focus.length === 1 ? "one thing" : `${focus.length} things`} to
               deal with before anything else.
             </p>
@@ -239,7 +239,7 @@ export function MyTasks({
                   )}
                 >
                   <span className="flex items-center justify-between gap-2">
-                    <span className="eyebrow text-ink/40">{task.clientName}</span>
+                    <span className="eyebrow text-ink-muted">{task.clientName}</span>
                     <span className="font-display text-[11px] font-bold text-ink/25">
                       {index + 1}
                     </span>
@@ -254,8 +254,8 @@ export function MyTasks({
                       className={cn(
                         "rounded-pill border px-2 py-0.5 text-[11px]",
                         urgency === "overdue" && "border-danger/25 bg-danger-tint font-medium text-danger",
-                        urgency === "soon" && "border-warn/25 bg-warn-tint font-medium text-warn",
-                        urgency === "normal" && "border-line bg-surface text-ink/50",
+                        urgency === "soon" && "border-warn/25 bg-warn-tint font-medium text-ink",
+                        urgency === "normal" && "border-line bg-surface text-ink-muted",
                       )}
                     >
                       {urgency === "overdue" ? "Overdue" : formatDate(task.dueDate)}
@@ -295,13 +295,13 @@ export function MyTasks({
                         "ml-2 rounded-pill px-2 py-0.5 text-[12px] font-medium tabular-nums",
                         group.key === "overdue"
                           ? "bg-danger-tint text-danger"
-                          : "bg-surface-2 text-ink/50",
+                          : "bg-surface-2 text-ink-muted",
                       )}
                     >
                       {group.tasks.length}
                     </span>
                   </h2>
-                  <p className="mt-0.5 text-[13px] text-ink/50">{group.description}</p>
+                  <p className="mt-0.5 text-[13px] text-ink-muted">{group.description}</p>
                 </div>
               </div>
 
@@ -364,7 +364,7 @@ function TaskCard({
     >
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0 flex-1">
-          <p className="eyebrow mb-1.5 text-ink/40">
+          <p className="eyebrow mb-1.5 text-ink-muted">
             {task.clientName} · {task.moduleName}
           </p>
           <button
@@ -372,13 +372,13 @@ function TaskCard({
             onClick={onOpen}
             className={cn(
               "text-left text-[15px] font-medium text-ink transition-colors hover:text-brand",
-              settled && "text-ink/55",
+              settled && "text-ink-muted",
             )}
           >
             {task.title}
           </button>
           {task.description && (
-            <p className="mt-1 text-[13px] leading-relaxed text-ink/50">{task.description}</p>
+            <p className="mt-1 text-[13px] leading-relaxed text-ink-muted">{task.description}</p>
           )}
 
           <div className="mt-3 flex flex-wrap items-center gap-2.5">
@@ -386,8 +386,8 @@ function TaskCard({
               className={cn(
                 "flex items-center gap-1.5 rounded-pill border px-2.5 py-1 text-[12px]",
                 urgency === "overdue" && "border-danger/25 bg-danger-tint font-medium text-danger",
-                urgency === "soon" && "border-warn/25 bg-warn-tint font-medium text-warn",
-                urgency === "normal" && "border-line bg-surface text-ink/55",
+                urgency === "soon" && "border-warn/25 bg-warn-tint font-medium text-ink",
+                urgency === "normal" && "border-line bg-surface text-ink-muted",
               )}
             >
               <Clock aria-hidden className="h-3 w-3" />
@@ -400,7 +400,7 @@ function TaskCard({
               {MILESTONE_STATUS_LABEL[task.status]}
             </Badge>
 
-            <span className="flex items-center gap-1.5 text-[12px] text-ink/40">
+            <span className="flex items-center gap-1.5 text-[12px] text-ink-muted">
               <WeightDots weight={task.weight} />
               weight {task.weight}
             </span>
@@ -408,12 +408,12 @@ function TaskCard({
             {canOpenProject ? (
               <Link
                 href={`/projects/${task.projectId}`}
-                className="text-[12px] text-ink/40 underline-offset-2 hover:text-ink/70 hover:underline"
+                className="text-[12px] text-ink-muted underline-offset-2 hover:text-ink-2 hover:underline"
               >
                 {task.projectTitle}
               </Link>
             ) : (
-              <span className="text-[12px] text-ink/40">{task.projectTitle}</span>
+              <span className="text-[12px] text-ink-muted">{task.projectTitle}</span>
             )}
           </div>
         </div>
@@ -432,7 +432,7 @@ function TaskCard({
           )}
 
           {task.status === "SUBMITTED" && (
-            <span className="rounded-pill border border-warn/25 bg-warn-tint px-3 py-1.5 text-[12px] font-medium text-warn">
+            <span className="rounded-pill border border-warn/25 bg-warn-tint px-3 py-1.5 text-[12px] font-medium text-ink">
               Awaiting approval
             </span>
           )}

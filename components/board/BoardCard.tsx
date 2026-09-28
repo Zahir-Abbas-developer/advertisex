@@ -60,7 +60,7 @@ export function BoardCard({
         // Muted, not alarming: a block is a paused clock, not a failure.
         blocked ? "border-dashed border-line bg-surface-2/50" : "bg-surface",
         overlay
-          ? "rotate-1 border-brand shadow-[0_14px_32px_-16px_rgba(12,12,10,0.5)]"
+          ? "rotate-1 border-brand shadow-[0_14px_32px_-16px_rgba(2,35,19,0.28)]"
           : "border-line hover:border-ink/20",
         isDragging && !overlay && "opacity-40",
       )}
@@ -72,7 +72,7 @@ export function BoardCard({
             {...attributes}
             {...listeners}
             aria-label={`Drag ${milestone.title}`}
-            className="-ml-1 cursor-grab touch-none rounded p-0.5 text-ink/20 opacity-0 transition-opacity hover:text-ink/50 focus-visible:opacity-100 group-hover:opacity-100 active:cursor-grabbing"
+            className="-ml-1 cursor-grab touch-none rounded p-0.5 text-ink/20 opacity-0 transition-opacity hover:text-ink-muted focus-visible:opacity-100 group-hover:opacity-100 active:cursor-grabbing"
           >
             <GripVertical className="h-4 w-4" />
           </button>
@@ -83,13 +83,13 @@ export function BoardCard({
           onClick={onOpen}
           className="min-w-0 flex-1 text-left"
         >
-          <span className="eyebrow block truncate text-ink/40">
+          <span className="eyebrow block truncate text-ink-muted">
             {milestone.clientName}
           </span>
           <span
             className={cn(
               "mt-1 block text-[13px] font-medium leading-snug text-ink",
-              settled && "text-ink/55",
+              settled && "text-ink-muted",
             )}
           >
             {milestone.title}
@@ -99,12 +99,12 @@ export function BoardCard({
 
       {blocked && milestone.blockedReason && (
         <p className="mt-2.5 flex flex-wrap items-center gap-1.5 pl-1">
-          <span className="rounded-pill border border-line bg-surface px-2 py-0.5 text-[10px] font-medium text-ink/60">
+          <span className="rounded-pill border border-line bg-surface px-2 py-0.5 text-[10px] font-medium text-ink-muted">
             {BLOCK_REASON_LABEL[milestone.blockedReason as BlockReason] ??
               milestone.blockedReason}
           </span>
           {milestone.blockedNote && (
-            <span className="min-w-0 flex-1 truncate text-[11px] text-ink/45">
+            <span className="min-w-0 flex-1 truncate text-[11px] text-ink-muted">
               {milestone.blockedNote}
             </span>
           )}
@@ -118,8 +118,8 @@ export function BoardCard({
             className={cn(
               "whitespace-nowrap rounded-pill border px-2 py-0.5 text-[11px] tabular-nums",
               urgency === "overdue" && "border-danger/25 bg-danger-tint font-medium text-danger",
-              urgency === "soon" && "border-warn/25 bg-warn-tint font-medium text-warn",
-              urgency === "normal" && "border-line bg-surface text-ink/50",
+              urgency === "soon" && "border-warn/25 bg-warn-tint font-medium text-ink",
+              urgency === "normal" && "border-line bg-surface text-ink-muted",
             )}
           >
             {formatDate(milestone.dueDate)}
@@ -127,7 +127,7 @@ export function BoardCard({
 
           {shifted && (
             <span
-              className="whitespace-nowrap rounded-pill border border-info/25 bg-info-tint px-2 py-0.5 text-[11px] tabular-nums text-info"
+              className="whitespace-nowrap rounded-pill border border-info/25 bg-info-tint px-2 py-0.5 text-[11px] tabular-nums text-ink-2"
               title={`Deadline extended by blocked time to ${formatDate(shifted)}`}
             >
               → {formatDate(shifted)}

@@ -284,7 +284,7 @@ export function TeamManager({ currentUserId }: { currentUserId: string }) {
                     a phone the actions sat far off-screen behind a sideways
                     scroll, and the only way to reset a password looked like it
                     did not exist. */}
-                <TH className="sticky right-0 z-10 bg-surface-2 text-right shadow-[-8px_0_8px_-8px_rgba(12,12,10,0.15)]">
+                <TH className="sticky right-0 z-10 bg-surface-2 text-right shadow-[-8px_0_8px_-8px_rgba(2,35,19,0.10)]">
                   Actions
                 </TH>
               </TR>
@@ -305,12 +305,12 @@ export function TeamManager({ currentUserId }: { currentUserId: string }) {
                           <p className="flex items-center gap-2 truncate font-medium text-ink group-hover/name:text-brand">
                             {member.name}
                             {isSelf && (
-                              <span className="text-[11px] font-normal text-ink/40">
+                              <span className="text-[11px] font-normal text-ink-muted">
                                 you
                               </span>
                             )}
                           </p>
-                          <p className="truncate text-[13px] text-ink/50">
+                          <p className="truncate text-[13px] text-ink-muted">
                             {member.email}
                           </p>
                         </div>
@@ -325,7 +325,7 @@ export function TeamManager({ currentUserId }: { currentUserId: string }) {
                         <button
                           type="button"
                           onClick={() => setEditingDepartments(member)}
-                          className="text-[13px] text-ink/40 underline decoration-line hover:text-ink/70"
+                          className="text-[13px] text-ink-muted underline decoration-line hover:text-ink-2"
                         >
                           None — assign
                         </button>
@@ -353,7 +353,7 @@ export function TeamManager({ currentUserId }: { currentUserId: string }) {
                               new Set(member.departments.flatMap((d) => d.skills)),
                             );
                             return skills.length > 0 ? (
-                              <span className="mt-1 block truncate text-[12px] text-ink/45 group-hover/dept:text-ink/65">
+                              <span className="mt-1 block truncate text-[12px] text-ink-muted group-hover/dept:text-ink-2">
                                 {skills.join(" · ")}
                               </span>
                             ) : null;
@@ -379,7 +379,7 @@ export function TeamManager({ currentUserId }: { currentUserId: string }) {
                           <span
                             className={cn(
                               "text-[11px] font-medium tabular-nums",
-                              member.trend > 0 ? "text-brand" : "text-danger",
+                              member.trend > 0 ? "text-brand" : "text-data-negative",
                             )}
                           >
                             {member.trend > 0 ? "+" : "−"}
@@ -398,7 +398,7 @@ export function TeamManager({ currentUserId }: { currentUserId: string }) {
                             : member.onTimeRate >= 90
                               ? "text-brand"
                               : member.onTimeRate >= 70
-                                ? "text-ink/70"
+                                ? "text-ink-2"
                                 : "text-danger",
                         )}
                       >
@@ -407,7 +407,7 @@ export function TeamManager({ currentUserId }: { currentUserId: string }) {
                     </TD>
 
                     <TD>
-                      <span className="text-sm tabular-nums text-ink/70">
+                      <span className="text-sm tabular-nums text-ink-2">
                         {member.load}
                       </span>
                       {member.load > 0 && (
@@ -429,13 +429,13 @@ export function TeamManager({ currentUserId }: { currentUserId: string }) {
                       </Badge>
                     </TD>
 
-                    <TD className="whitespace-nowrap text-ink/60">
+                    <TD className="whitespace-nowrap text-ink-muted">
                       {formatDate(member.createdAt)}
                     </TD>
 
                     <TD
                       className={cn(
-                        "sticky right-0 z-10 shadow-[-8px_0_8px_-8px_rgba(12,12,10,0.15)]",
+                        "sticky right-0 z-10 shadow-[-8px_0_8px_-8px_rgba(2,35,19,0.10)]",
                         member.isActive ? "bg-surface" : "bg-canvas",
                       )}
                     >
@@ -561,7 +561,7 @@ function SortHeader({
       aria-label={`Sort by ${label}, currently ${active ? direction : "unsorted"}`}
       className={cn(
         "eyebrow flex items-center gap-1 transition-colors",
-        active ? "text-ink/70" : "text-ink/50 hover:text-ink/70",
+        active ? "text-ink-2" : "text-ink-muted hover:text-ink-2",
       )}
     >
       {label}

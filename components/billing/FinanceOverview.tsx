@@ -23,7 +23,7 @@ const monthLabel = (key: string) => new Date(`${key}-15T12:00:00Z`).toLocaleDate
 /** A share bar list: each row's part of the whole, largest first. */
 function Breakdown({ rows, currency, empty }: { rows: { key: string; name: string; amountMinor: number; href?: string }[]; currency: string; empty: string }) {
   const max = Math.max(1, ...rows.map((r) => r.amountMinor));
-  if (rows.length === 0) return <p className="text-[13px] text-ink/50">{empty}</p>;
+  if (rows.length === 0) return <p className="text-[13px] text-ink-muted">{empty}</p>;
   return (
     <ul className="space-y-3.5">
       {rows.slice(0, 8).map((r) => (
@@ -105,7 +105,7 @@ export function FinanceOverview() {
       ) : (
         <>
           <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <StatCard label="Payments received" value={money(o.receivedMinor)} icon={CircleDollarSign} tone="success" hint={`${RANGE_LABEL[range]} · ${o.counts.paidInRange} invoice${o.counts.paidInRange === 1 ? "" : "s"}`} />
+            <StatCard variant="hero" label="Payments received" value={money(o.receivedMinor)} icon={CircleDollarSign} tone="success" hint={`${RANGE_LABEL[range]} · ${o.counts.paidInRange} invoice${o.counts.paidInRange === 1 ? "" : "s"}`} />
             <StatCard label="Outstanding" value={money(o.outstandingMinor)} icon={Hourglass} tone="info" hint="Sent and not yet paid, today" />
             <StatCard label="Overdue" value={money(o.overdueMinor)} icon={AlertCircle} tone={o.overdueMinor > 0 ? "danger" : "neutral"} hint={`${o.counts.overdue} invoice${o.counts.overdue === 1 ? "" : "s"} past due`} />
             <StatCard label="MRR" value={money(o.mrrMinor)} icon={Repeat} tone="neutral" hint={`${money(o.arrMinor)} a year, from recurring services`} />
@@ -116,7 +116,7 @@ export function FinanceOverview() {
           </section>
 
           {o.counts.otherCurrency > 0 && (
-            <p className="text-[12px] text-ink/50">
+            <p className="text-[12px] text-ink-muted">
               {o.counts.otherCurrency} invoice{o.counts.otherCurrency === 1 ? " is" : "s are"} in another currency and not included (figures are in {o.currency}, never converted).
             </p>
           )}
@@ -165,7 +165,7 @@ export function FinanceOverview() {
             </Card>
           </section>
 
-          <p className="text-[12px] text-ink/45">
+          <p className="text-[12px] text-ink-muted">
             {o.range.from} to {o.range.to}, company calendar. Revenue is money received in the period; pending, overdue and outstanding are balances as of today.
           </p>
         </>

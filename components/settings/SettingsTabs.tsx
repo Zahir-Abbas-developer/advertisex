@@ -38,7 +38,7 @@ export function SettingsTabs() {
                 "whitespace-nowrap border-b-2 px-4 py-2.5 text-sm transition-colors",
                 active
                   ? "border-brand font-medium text-ink"
-                  : "border-transparent text-ink/55 hover:border-line hover:text-ink/80",
+                  : "border-transparent text-ink-muted hover:border-line hover:text-ink/80",
               )}
             >
               {section.label}

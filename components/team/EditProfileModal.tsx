@@ -160,7 +160,7 @@ export function EditProfileModal({
                       }
                       className={cn(
                         "h-7 w-7 rounded-[8px] border text-[12px] tabular-nums transition-colors",
-                        n <= held.proficiency ? "border-brand/50 bg-brand-tint text-brand" : "border-line text-ink/40 hover:border-line-strong",
+                        n <= held.proficiency ? "border-brand/50 bg-brand-tint text-brand" : "border-line text-ink-muted hover:border-line-strong",
                       )}
                     >
                       {n}
@@ -170,7 +170,7 @@ export function EditProfileModal({
                     type="button"
                     aria-label={`Remove ${nameOf(held.skillId)}`}
                     onClick={() => setForm({ ...form, skills: form.skills.filter((x) => x.skillId !== held.skillId) })}
-                    className="ml-1 rounded-[8px] p-1.5 text-ink/40 hover:bg-surface-2 hover:text-ink"
+                    className="ml-1 rounded-[8px] p-1.5 text-ink-muted hover:bg-surface-2 hover:text-ink"
                   >
                     <X className="h-3.5 w-3.5" />
                   </button>
@@ -220,7 +220,7 @@ export function EditProfileModal({
                     }
                     className={cn(
                       "rounded-pill border px-3 py-1.5 text-[13px] transition-colors",
-                      on ? "border-brand/50 bg-brand-tint text-brand" : "border-line text-ink/50 hover:border-line-strong",
+                      on ? "border-brand/50 bg-brand-tint text-brand" : "border-line text-ink-muted hover:border-line-strong",
                     )}
                   >
                     {label}

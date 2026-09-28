@@ -119,15 +119,15 @@ export function BlockControl({
         {blocked ? (
           <>
             <div className="flex items-start gap-2.5">
-              <Ban className="mt-0.5 h-4 w-4 shrink-0 text-ink/40" />
+              <Ban className="mt-0.5 h-4 w-4 shrink-0 text-ink-muted" />
               <div className="min-w-0 flex-1">
                 <p className="text-[13px] font-medium text-ink">
                   {BLOCK_REASON_LABEL[blockedReason as BlockReason] ?? "Blocked"}
                 </p>
-                <p className="mt-0.5 text-[13px] leading-relaxed text-ink/55">
+                <p className="mt-0.5 text-[13px] leading-relaxed text-ink-muted">
                   {blockedNote}
                 </p>
-                <p className="mt-2 text-[12px] text-ink/45">
+                <p className="mt-2 text-[12px] text-ink-muted">
                   Paused {describeBlocked(blockedMinutes)}
                   {shifted && ` · due ${formatDate(dueDate)} → ${formatDate(shifted)}`}
                 </p>
@@ -165,7 +165,7 @@ export function BlockControl({
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="min-w-0">
               <p className="text-[13px] font-medium text-ink">Waiting on someone?</p>
-              <p className="mt-0.5 text-[13px] leading-relaxed text-ink/55">
+              <p className="mt-0.5 text-[13px] leading-relaxed text-ink-muted">
                 Block it and the deadline pauses. You&rsquo;re never charged for
                 time you can&rsquo;t act in.
                 {shifted && ` Already extended to ${formatDate(shifted)}.`}
@@ -199,8 +199,8 @@ export function BlockControl({
                   className={cn(
                     "rounded-pill border px-3 py-1.5 text-[13px] transition-colors",
                     reason === option
-                      ? "border-brand bg-brand text-canvas"
-                      : "border-line bg-surface text-ink/55 hover:border-ink/25",
+                      ? "border-brand bg-brand text-on-brand"
+                      : "border-line bg-surface text-ink-muted hover:border-ink/25",
                   )}
                 >
                   {BLOCK_REASON_LABEL[option]}
@@ -232,7 +232,7 @@ export function BlockControl({
 
       <Modal open={open === "veto"} onClose={() => setOpen(null)} title="Overrule this block">
         <div className="space-y-4">
-          <p className="text-[13px] leading-relaxed text-ink/60">
+          <p className="text-[13px] leading-relaxed text-ink-muted">
             The block period stays on the record — nothing is deleted — but it
             contributes no time, so the original deadline stands.
           </p>

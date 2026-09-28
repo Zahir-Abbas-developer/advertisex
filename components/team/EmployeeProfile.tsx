@@ -128,7 +128,7 @@ export function EmployeeProfile({ id }: { id: string }) {
         <div className="flex flex-wrap items-start justify-between gap-6">
           <div className="flex items-start gap-4">
             {member.isAgent ? (
-              <span className="flex h-14 w-14 items-center justify-center rounded-full border border-data-2/30 bg-data-2/10 text-data-2">
+              <span className="flex h-14 w-14 items-center justify-center rounded-full border border-info/30 bg-info-tint text-ink-2">
                 <Bot className="h-7 w-7" />
               </span>
             ) : (
@@ -138,19 +138,19 @@ export function EmployeeProfile({ id }: { id: string }) {
               <div className="flex flex-wrap items-center gap-2">
                 <h1 className="font-display text-[28px] font-bold leading-tight tracking-[-0.02em] text-ink">{member.name}</h1>
                 {member.isAgent ? (
-                  <span className="rounded-pill border border-data-2/30 bg-data-2/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-data-2">AI agent</span>
+                  <span className="rounded-pill border border-info/30 bg-info-tint px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-ink-2">AI agent</span>
                 ) : (
                   <Badge tone={member.employmentStatus === "ACTIVE" ? "success" : member.employmentStatus === "ON_LEAVE" ? "warning" : "neutral"} size="sm">
                     {member.employmentStatus === "ACTIVE" ? "Active" : member.employmentStatus === "ON_LEAVE" ? "On leave" : "Inactive"}
                   </Badge>
                 )}
               </div>
-              <p className="mt-1 text-sm text-ink/60">
+              <p className="mt-1 text-sm text-ink-muted">
                 {member.jobTitle}
                 {!member.isAgent && ` · ${ROLE_LABEL[member.role]}`}
                 {member.departments.length > 0 && ` · ${member.departments.map((d) => d.shortLabel).join(", ")}`}
               </p>
-              <p className="mt-2 text-[13px] tabular-nums text-ink/45">
+              <p className="mt-2 text-[13px] tabular-nums text-ink-muted">
                 Capacity {member.weeklyCapacityHours}h/week
                 {data.schedule &&
                   ` · ${data.schedule.workDays.split(",").map((d) => DAYS[Number(d)]).join(" ")} ${clock(data.schedule.startMinute)}–${clock(data.schedule.endMinute)} (${data.schedule.timezone.replace("_", " ")})`}
@@ -163,19 +163,19 @@ export function EmployeeProfile({ id }: { id: string }) {
             </Button>
           )}
         </div>
-        {data.responsibilities && <p className="mt-5 max-w-3xl text-sm leading-relaxed text-ink/70">{data.responsibilities}</p>}
+        {data.responsibilities && <p className="mt-5 max-w-3xl text-sm leading-relaxed text-ink-2">{data.responsibilities}</p>}
       </Card>
 
       <Section title="Skills">
         {data.skills.length === 0 ? (
-          <p className="text-sm text-ink/45">No skills recorded yet.</p>
+          <p className="text-sm text-ink-muted">No skills recorded yet.</p>
         ) : (
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {data.skills.map((s) => (
               <div key={s.skill.id} className="flex items-center justify-between rounded-[10px] border border-line bg-surface px-4 py-3">
                 <div>
                   <p className="text-[13px] font-medium text-ink">{s.skill.name}</p>
-                  <p className="text-[11px] text-ink/40">{s.skill.category}</p>
+                  <p className="text-[11px] text-ink-muted">{s.skill.category}</p>
                 </div>
                 <Proficiency value={s.proficiency} />
               </div>
@@ -198,13 +198,13 @@ export function EmployeeProfile({ id }: { id: string }) {
 
       {member.isAgent ? (
         <Section title="Capabilities">
-          <p className="text-[13px] text-ink/50">An agent may do exactly these things and nothing else. Attendance does not apply to agents.</p>
+          <p className="text-[13px] text-ink-muted">An agent may do exactly these things and nothing else. Attendance does not apply to agents.</p>
           {data.capabilities.length === 0 ? (
-            <p className="text-sm text-ink/45">No capabilities granted — this agent can&rsquo;t act yet.</p>
+            <p className="text-sm text-ink-muted">No capabilities granted — this agent can&rsquo;t act yet.</p>
           ) : (
             <div className="flex flex-wrap gap-2">
               {data.capabilities.map((c) => (
-                <span key={`${c.resource}:${c.action}`} className="rounded-pill border border-data-2/30 bg-data-2/10 px-3 py-1 text-[12px] text-data-2">
+                <span key={`${c.resource}:${c.action}`} className="rounded-pill border border-info/30 bg-info-tint px-3 py-1 text-[12px] text-ink-2">
                   {c.action} {c.resource}s
                 </span>
               ))}
@@ -227,7 +227,7 @@ export function EmployeeProfile({ id }: { id: string }) {
       <div className="grid gap-8 lg:grid-cols-2">
         <Section title="Current work">
           {projects.length > 0 && (
-            <p className="text-[13px] text-ink/55">Projects: {projects.map((pr) => pr.title).join(", ")}</p>
+            <p className="text-[13px] text-ink-muted">Projects: {projects.map((pr) => pr.title).join(", ")}</p>
           )}
           {open.length === 0 ? (
             <Card padded={false}>
@@ -239,7 +239,7 @@ export function EmployeeProfile({ id }: { id: string }) {
                 <li key={t.id} className="flex items-center justify-between gap-3 px-4 py-3">
                   <span className="min-w-0 truncate text-[13px] text-ink">{t.title}</span>
                   <span className="flex shrink-0 items-center gap-2">
-                    {t.dueAt && <span className="text-[12px] tabular-nums text-ink/45">{t.dueAt.slice(0, 10)}</span>}
+                    {t.dueAt && <span className="text-[12px] tabular-nums text-ink-muted">{t.dueAt.slice(0, 10)}</span>}
                     <Badge size="sm" tone={normalizeTaskStatus(t.status) === "REVIEW" ? "info" : "neutral"}>
                       {TASK_STATUS_LABEL[normalizeTaskStatus(t.status)]}
                     </Badge>
@@ -250,10 +250,10 @@ export function EmployeeProfile({ id }: { id: string }) {
           )}
           {done.length > 0 && (
             <>
-              <p className="pt-2 text-[12px] uppercase tracking-wider text-ink/40">Recently completed</p>
+              <p className="pt-2 text-[12px] uppercase tracking-wider text-ink-muted">Recently completed</p>
               <ul className="space-y-1.5">
                 {done.map((t) => (
-                  <li key={t.id} className="flex justify-between gap-3 text-[13px] text-ink/55">
+                  <li key={t.id} className="flex justify-between gap-3 text-[13px] text-ink-muted">
                     <span className="truncate line-through decoration-ink/25">{t.title}</span>
                     <span className="shrink-0 tabular-nums">{t.completedAt?.slice(0, 10)}</span>
                   </li>

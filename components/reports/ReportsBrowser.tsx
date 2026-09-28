@@ -221,11 +221,11 @@ export function ReportsBrowser({
               {report.subject.kind === "MEMBER" ? (
                 <Avatar
                   name={report.subject.name}
-                  color={report.subject.color ?? "#D4AF37"}
+                  color={report.subject.color ?? "#0E5B37"}
                   size="md"
                 />
               ) : (
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] border border-line bg-surface-2 text-ink/50">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] border border-line bg-surface-2 text-ink-muted">
                   <FileText className="h-4 w-4" />
                 </span>
               )}
@@ -238,10 +238,10 @@ export function ReportsBrowser({
                   <Badge size="sm" tone={REPORT_TYPE_TONE[report.type]}>
                     {REPORT_TYPE_LABEL[report.type]}
                   </Badge>
-                  <span className="text-[12px] text-ink/40">{report.periodLabel}</span>
+                  <span className="text-[12px] text-ink-muted">{report.periodLabel}</span>
                 </div>
 
-                <p className="mt-1.5 line-clamp-2 text-[13px] leading-relaxed text-ink/55">
+                <p className="mt-1.5 line-clamp-2 text-[13px] leading-relaxed text-ink-muted">
                   {report.headline}
                 </p>
 

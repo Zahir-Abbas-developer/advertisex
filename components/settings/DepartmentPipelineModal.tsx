@@ -177,7 +177,7 @@ export function DepartmentPipelineModal({
       }
     >
       <div className="space-y-4">
-        <p className="text-[13px] leading-relaxed text-ink/55">
+        <p className="text-[13px] leading-relaxed text-ink-muted">
           These are {department.shortLabel}&rsquo;s board columns, in order. A
           stage&rsquo;s <em>kind</em> is what the app reads — reaching a winning
           stage converts the deal and notifies, and a losing one asks for a
@@ -231,7 +231,7 @@ export function DepartmentPipelineModal({
                 </div>
 
                 <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-3">
-                  <label className="flex items-center gap-2 text-[13px] text-ink/70">
+                  <label className="flex items-center gap-2 text-[13px] text-ink-2">
                     <input
                       type="checkbox"
                       checked={row.isActive}
@@ -247,7 +247,7 @@ export function DepartmentPipelineModal({
                       aria-label={`Move ${row.label || "stage"} up`}
                       disabled={index === 0}
                       onClick={() => move(index, -1)}
-                      className="rounded-[8px] border border-line p-1.5 text-ink/60 transition-colors hover:bg-surface-2 disabled:opacity-30"
+                      className="rounded-[8px] border border-line p-1.5 text-ink-muted transition-colors hover:bg-surface-2 disabled:opacity-30"
                     >
                       <ArrowUp className="h-3.5 w-3.5" />
                     </button>
@@ -256,7 +256,7 @@ export function DepartmentPipelineModal({
                       aria-label={`Move ${row.label || "stage"} down`}
                       disabled={index === rows.length - 1}
                       onClick={() => move(index, 1)}
-                      className="rounded-[8px] border border-line p-1.5 text-ink/60 transition-colors hover:bg-surface-2 disabled:opacity-30"
+                      className="rounded-[8px] border border-line p-1.5 text-ink-muted transition-colors hover:bg-surface-2 disabled:opacity-30"
                     >
                       <ArrowDown className="h-3.5 w-3.5" />
                     </button>
@@ -283,10 +283,10 @@ export function DepartmentPipelineModal({
             about the stages that hold records. */}
         {retiring.length > 0 && destinations.length > 0 && (
           <div className="rounded-card border border-warn/20 bg-warn-tint p-4">
-            <p className="text-[13px] font-medium text-warn">
+            <p className="text-[13px] font-medium text-ink">
               Where should their deals go?
             </p>
-            <p className="mt-1 text-[13px] leading-relaxed text-ink/60">
+            <p className="mt-1 text-[13px] leading-relaxed text-ink-muted">
               Any deal still sitting on a stage you are retiring is moved to the
               stage you pick, in the same save.
             </p>

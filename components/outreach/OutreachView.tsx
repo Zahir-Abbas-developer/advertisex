@@ -112,7 +112,7 @@ export function OutreachView() {
           {data.scope !== "self" && !person && data.people.length > 0 && (
             <section className="space-y-3">
               <h2 className="font-display text-lg font-semibold text-ink">
-                By person <span className="text-[13px] font-normal text-ink/50">· {spanLabel(data.spanDays)}</span>
+                By person <span className="text-[13px] font-normal text-ink-muted">· {spanLabel(data.spanDays)}</span>
               </h2>
               <TableShell>
                 <Table>

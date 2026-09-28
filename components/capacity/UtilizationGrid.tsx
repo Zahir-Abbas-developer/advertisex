@@ -40,9 +40,9 @@ type Grid = {
  * everybody is on the same axis.
  */
 const CELL: Record<LoadBand, string> = {
-  LIGHT: "bg-surface-2 text-ink/40",
+  LIGHT: "bg-surface-2 text-ink-muted",
   HEALTHY: "bg-brand-tint text-brand",
-  TIGHT: "bg-warn-tint text-warn",
+  TIGHT: "bg-warn-tint text-ink",
   OVER: "bg-danger-tint text-danger",
 };
 
@@ -93,7 +93,7 @@ export function UtilizationGrid() {
           <h2 className="font-display text-base font-bold tracking-tight text-ink">
             Utilization
           </h2>
-          <p className="mt-0.5 text-[13px] text-ink/50">
+          <p className="mt-0.5 text-[13px] text-ink-muted">
             Estimated hours against weekly capacity. Live work only — completed
             milestones don&rsquo;t occupy a week.
           </p>
@@ -136,7 +136,7 @@ export function UtilizationGrid() {
                 <tr>
                   <th
                     scope="col"
-                    className="eyebrow sticky left-0 z-10 border-b border-line bg-surface-2 px-4 py-3 text-left text-ink/50"
+                    className="eyebrow sticky left-0 z-10 border-b border-line bg-surface-2 px-4 py-3 text-left text-ink-muted"
                   >
                     Member
                   </th>
@@ -144,7 +144,7 @@ export function UtilizationGrid() {
                     <th
                       key={week.week}
                       scope="col"
-                      className="border-b border-line px-1 py-3 text-center text-[10px] font-semibold tabular-nums text-ink/40"
+                      className="border-b border-line px-1 py-3 text-center text-[10px] font-semibold tabular-nums text-ink-muted"
                     >
                       W{Number(week.week.split("-W")[1])}
                     </th>
@@ -170,7 +170,7 @@ export function UtilizationGrid() {
                           <span className="block text-[13px] font-medium text-ink">
                             {member.name}
                           </span>
-                          <span className="block text-[11px] text-ink/40">
+                          <span className="block text-[11px] text-ink-muted">
                             {member.capacityHours}h/week
                           </span>
                         </span>
@@ -198,7 +198,7 @@ export function UtilizationGrid() {
             </table>
           </div>
 
-          <div className="flex flex-wrap items-center gap-4 border-t border-line px-5 py-3 text-[12px] text-ink/45">
+          <div className="flex flex-wrap items-center gap-4 border-t border-line px-5 py-3 text-[12px] text-ink-muted">
             {(["LIGHT", "HEALTHY", "TIGHT", "OVER"] as LoadBand[]).map((band) => (
               <span key={band} className="inline-flex items-center gap-1.5">
                 <span className={cn("h-3 w-3 rounded-[3px]", CELL[band].split(" ")[0])} />

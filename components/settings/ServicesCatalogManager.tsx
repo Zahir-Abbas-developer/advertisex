@@ -58,7 +58,7 @@ export function ServicesCatalogManager() {
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="max-w-2xl text-[13px] text-ink/55">
+        <p className="max-w-2xl text-[13px] text-ink-muted">
           Prices are defaults: what a client pays is set on their profile. Stage templates are copied into each new project, so editing one never rewrites work already under way.
         </p>
         <Button icon={<Plus className="h-4 w-4" />} onClick={() => setEditing("new")}>
@@ -88,14 +88,14 @@ export function ServicesCatalogManager() {
                 }
               />
               <CardBody className="space-y-3">
-                <p className="text-[12px] text-ink/60">{s.stageTemplates.map((t) => t.name).join(" → ") || "No stages"}</p>
+                <p className="text-[12px] text-ink-muted">{s.stageTemplates.map((t) => t.name).join(" → ") || "No stages"}</p>
                 <div className="flex flex-wrap gap-1">
                   {s.skills.map((k) => (
                     <Badge key={k.id} size="sm">
-                      {k.name} <span className="text-ink/40">· {k.weight}</span>
+                      {k.name} <span className="text-ink-muted">· {k.weight}</span>
                     </Badge>
                   ))}
-                  {s.skills.length === 0 && <span className="text-[12px] text-ink/40">No skills listed</span>}
+                  {s.skills.length === 0 && <span className="text-[12px] text-ink-muted">No skills listed</span>}
                 </div>
               </CardBody>
             </Card>
@@ -174,7 +174,7 @@ function ServiceModal({ service, skills, onClose, onSaved }: { service: Service 
             {skills.map((k) => {
               const on = form.skillIds.includes(k.id);
               return (
-                <button key={k.id} type="button" aria-pressed={on} onClick={() => setForm((f) => ({ ...f, skillIds: on ? f.skillIds.filter((x) => x !== k.id) : [...f.skillIds, k.id] }))} className={cn("rounded-pill border px-2.5 py-1 text-[12px]", on ? "border-brand bg-brand-tint text-ink" : "border-line text-ink/55 hover:border-ink/25")}>
+                <button key={k.id} type="button" aria-pressed={on} onClick={() => setForm((f) => ({ ...f, skillIds: on ? f.skillIds.filter((x) => x !== k.id) : [...f.skillIds, k.id] }))} className={cn("rounded-pill border px-2.5 py-1 text-[12px]", on ? "border-brand bg-brand-tint text-ink" : "border-line text-ink-muted hover:border-ink/25")}>
                   {k.name}
                 </button>
               );
@@ -184,7 +184,7 @@ function ServiceModal({ service, skills, onClose, onSaved }: { service: Service 
         {form.skillIds.length > 0 && (
           <div className="space-y-2">
             <p className="text-[13px] font-medium text-ink/80">How central each skill is</p>
-            <p className="text-[12px] text-ink/45">5 = the core of the service; it weighs most when staffing a project.</p>
+            <p className="text-[12px] text-ink-muted">5 = the core of the service; it weighs most when staffing a project.</p>
             <div className="grid gap-2 sm:grid-cols-2">
               {form.skillIds.map((id) => (
                 <label key={id} className="flex items-center justify-between gap-3 rounded-lg border border-line px-3 py-2 text-[13px] text-ink">
@@ -207,7 +207,7 @@ function ServiceModal({ service, skills, onClose, onSaved }: { service: Service 
           </div>
         )}
         {service && (
-          <label className="flex items-center gap-2 text-[13px] text-ink/70">
+          <label className="flex items-center gap-2 text-[13px] text-ink-2">
             <input type="checkbox" className="accent-brand" checked={form.isActive} onChange={(e) => setForm((f) => ({ ...f, isActive: e.target.checked }))} />
             Offered (unticking retires it from new projects)
           </label>

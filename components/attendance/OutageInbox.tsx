@@ -117,7 +117,7 @@ export function OutageInbox() {
               <h2 className="font-display text-base font-bold tracking-tight text-ink">
                 Outage reports
               </h2>
-              <p className="mt-0.5 text-[13px] text-ink/50">
+              <p className="mt-0.5 text-[13px] text-ink-muted">
                 Checks on hold. Nothing is charged until you decide.
               </p>
             </div>
@@ -140,7 +140,7 @@ export function OutageInbox() {
                   <div className="min-w-0 flex-1">
                     <p className="flex flex-wrap items-center gap-2 text-sm font-medium text-ink">
                       {row.member.name}
-                      <span className="inline-flex items-center gap-1 text-[12px] font-normal text-ink/45">
+                      <span className="inline-flex items-center gap-1 text-[12px] font-normal text-ink-muted">
                         {row.type === "POWER" ? (
                           <PlugZap className="h-3 w-3" />
                         ) : (
@@ -154,8 +154,8 @@ export function OutageInbox() {
                         </Badge>
                       )}
                     </p>
-                    <p className="mt-0.5 text-[13px] leading-relaxed text-ink/60">{row.note}</p>
-                    <p className="mt-1 text-[12px] text-ink/40">
+                    <p className="mt-0.5 text-[13px] leading-relaxed text-ink-muted">{row.note}</p>
+                    <p className="mt-1 text-[12px] text-ink-muted">
                       Covers {row.checksCovered} check{row.checksCovered === 1 ? "" : "s"}
                     </p>
                   </div>
@@ -203,7 +203,7 @@ export function OutageInbox() {
                     <p className="truncate text-[13px] font-medium text-ink">
                       {row.member.name} · {formatDateTime(row.startsAt)}
                     </p>
-                    <p className="truncate text-[12px] text-ink/45">
+                    <p className="truncate text-[12px] text-ink-muted">
                       {row.adminNote ?? row.note}
                       {row.reviewedBy && ` · decided by ${row.reviewedBy}`}
                     </p>
@@ -224,7 +224,7 @@ export function OutageInbox() {
         title="Reject this outage report"
       >
         <div className="space-y-4">
-          <p className="text-[13px] leading-relaxed text-ink/60">
+          <p className="text-[13px] leading-relaxed text-ink-muted">
             The held checks become missed and the penalty applies. The reason is
             sent to {rejecting?.member.name ?? "the member"}.
           </p>

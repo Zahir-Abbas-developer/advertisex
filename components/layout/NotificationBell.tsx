@@ -67,11 +67,12 @@ const ICONS: Record<NotificationType, typeof Bell> = {
 };
 
 const TONE_CLASSES: Record<string, string> = {
-  info: "border-info/20 bg-info-tint text-info",
+  // Icon chips: the hue is carried by the icon, which may use any palette color.
+  info: "border-info/25 bg-info-tint text-info",
   warning: "border-warn/20 bg-warn-tint text-warn",
   danger: "border-danger/20 bg-danger-tint text-danger",
-  success: "border-brand/20 bg-brand-tint text-brand",
-  neutral: "border-line bg-surface-2 text-ink/60",
+  success: "border-success/25 bg-success-tint text-success-ink",
+  neutral: "border-line bg-surface-2 text-ink-muted",
 };
 
 /**
@@ -160,11 +161,11 @@ export function NotificationBell({
         onClick={() => setOpen((value) => !value)}
         aria-label={unread > 0 ? `Notifications, ${unread} unread` : "Notifications"}
         aria-expanded={open}
-        className="relative rounded-[10px] border border-line bg-surface p-2 text-ink/60 transition-colors hover:border-ink/25 hover:text-ink"
+        className="relative rounded-[10px] border border-line bg-surface p-2 text-ink-muted transition-colors hover:border-ink/25 hover:text-ink"
       >
         <Bell className="h-4 w-4" />
         {unread > 0 && (
-          <span className="absolute -right-1 -top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-pill bg-danger px-1 text-[10px] font-bold text-ink">
+          <span className="absolute -right-1 -top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-pill bg-danger px-1 text-[10px] font-bold text-on-brand">
             {unread > 9 ? "9+" : unread}
           </span>
         )}
@@ -177,7 +178,7 @@ export function NotificationBell({
               <p className="font-display text-sm font-bold tracking-tight text-ink">
                 Notifications
               </p>
-              <p className="text-[12px] text-ink/45">
+              <p className="text-[12px] text-ink-muted">
                 {unread === 0 ? "All caught up" : `${unread} unread`}
               </p>
             </div>
@@ -186,7 +187,7 @@ export function NotificationBell({
               <button
                 type="button"
                 onClick={markAllRead}
-                className="flex items-center gap-1.5 rounded-pill px-2.5 py-1 text-[12px] text-ink/55 transition-colors hover:bg-surface-2 hover:text-ink"
+                className="flex items-center gap-1.5 rounded-pill px-2.5 py-1 text-[12px] text-ink-muted transition-colors hover:bg-surface-2 hover:text-ink"
               >
                 <CheckCheck className="h-3.5 w-3.5" />
                 Mark all read
@@ -196,7 +197,7 @@ export function NotificationBell({
 
           <div className="scrollbar-thin max-h-[380px] overflow-y-auto">
             {loading ? (
-              <p className="px-4 py-8 text-center text-[13px] text-ink/40">Loading…</p>
+              <p className="px-4 py-8 text-center text-[13px] text-ink-muted">Loading…</p>
             ) : rows.length === 0 ? (
               <EmptyState
                 icon={Bell}
@@ -217,7 +218,7 @@ export function NotificationBell({
                         onClick={() => openOne(row)}
                         className={cn(
                           "flex w-full items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-surface-2/60",
-                          !row.readAt && "bg-brand-tint/30",
+                          !row.readAt && "bg-brand/[0.03]",
                         )}
                       >
                         <span
@@ -241,7 +242,7 @@ export function NotificationBell({
                               />
                             )}
                           </span>
-                          <span className="mt-0.5 line-clamp-2 block text-[12px] leading-relaxed text-ink/55">
+                          <span className="mt-0.5 line-clamp-2 block text-[12px] leading-relaxed text-ink-muted">
                             {row.body}
                           </span>
                           <span className="mt-1 block text-[11px] text-ink/35">
@@ -261,7 +262,7 @@ export function NotificationBell({
             <Link
               href={reportsHref}
               onClick={() => setOpen(false)}
-              className="text-[12px] text-ink/55 transition-colors hover:text-ink"
+              className="text-[12px] text-ink-muted transition-colors hover:text-ink"
             >
               View your reports
             </Link>

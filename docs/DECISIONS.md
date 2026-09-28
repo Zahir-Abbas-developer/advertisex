@@ -762,3 +762,63 @@ A client reads its own account's invoices, and only its OWNER.
 - A stored PDF per invoice: two sources of truth.
 - Recording a payment on Stripe's success redirect: forgeable and unreliable.
 
+
+## ADR-017 — Retheme: "Obsidian & Gold" (dark) → "Forest & Mint" (light)
+
+**Date:** 2026-09-28 · **Status:** accepted (founder direction)
+
+**Decision.** The whole product (team app, command center, client portal,
+emails, invoice PDF, icons) moves from the dark Obsidian & Gold theme to the
+light Forest & Mint palette the founder supplied (`forest-mint-theme.css`,
+sampled from a reference dashboard). The palette's hex values are taken
+exactly and are not tuned. No behaviour changes; this is presentation only.
+
+**Rationale.** Brand direction: the founder wants a premium, luxurious,
+eye-catching look built on a single deep green, with a light, calm canvas
+closer to the reference dashboard.
+
+**How.**
+- **One source of values.** The palette is defined once in
+  `app/globals.css` as RGB triples; Tailwind reads role variables through
+  `rgb(var(--x) / <alpha-value>)`, so opacity modifiers still work. Token
+  class names are kept (`canvas`, `surface`, `ink`, `brand`, `line`, `data`…),
+  so call sites didn't churn. The raw hexes are copied only where CSS
+  variables can't reach (charts, emails, PDF, icons), and a test checks they
+  match.
+- **Dark panels re-scope, not re-class.** `.surface-dark` (sidebar, hero
+  cards, report mastheads) redefines the role variables. Text turns white,
+  muted text turns neutral gray, and the accent turns white, so no light
+  green is used as text even on the deep panel.
+- **Muted text became a token.** On white, `ink` at 40–60% opacity falls to
+  about 2.5–4.4:1. About 660 such usages became `ink-muted` (gray-600,
+  5.8:1), and about 100 at 65–75% became `ink-2`. Disabled and placeholder
+  states stay faint on purpose.
+- **Semantic text tokens.** `success-ink` (brand green) replaces green-600
+  text. Info and warning text is ink, with the hue kept on tints, borders
+  and icons, because teal and `#D97706` fail as text on white.
+
+**The founder's two rules, enforced by tests** (`tests/design-tokens.test.ts`):
+1. **Negative data is gray, never red.** Falling trends, negative deltas and
+   low scores use gray-600. Red is kept for destructive actions, errors and
+   alert *statuses* (an "Overdue" badge, a late date). Those are states that
+   need action, not negative numbers. A number is never red.
+2. **Green-600 and lighter are never body text** (nor teal, nor the data
+   series). This covers class strings and the inline styles in emails, error
+   pages and the PDF. Icons may carry the hue.
+
+Also tested:
+- the palette's values, to the digit;
+- no stock Tailwind colors or off-palette shades;
+- no leftover Obsidian & Gold hex.
+
+**Consequences.**
+- Stored avatar colors from the old palette are mapped to the new one at
+  display time; no data is rewritten.
+- The legacy retainer "Collections" amounts are ink, not red.
+- A "Critical" score band is gray.
+
+**Alternatives rejected:**
+- Keeping ink opacities for muted text: fails AA on white.
+- A separate dark-panel class set: hundreds of duplicated classes.
+- Adjusting the palette for contrast: the founder fixed the values, so
+  contrast is solved by *which* token is used for text.

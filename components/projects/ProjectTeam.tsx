@@ -90,11 +90,11 @@ export function ProjectTeam({ project, viewer, onChanged }: { project: ProjectPa
                         <span className="min-w-0 flex-1">
                           <span className="flex items-center gap-1.5 text-[13px] text-ink">
                             {p.name}
-                            {p.isAgent && <Bot className="h-3.5 w-3.5 text-data-2" aria-label="AI agent" />}
+                            {p.isAgent && <Bot className="h-3.5 w-3.5 text-ink-2" aria-label="AI agent" />}
                           </span>
-                          <span className="block truncate text-[11px] text-ink/45">{p.jobTitle ?? ""}</span>
+                          <span className="block truncate text-[11px] text-ink-muted">{p.jobTitle ?? ""}</span>
                         </span>
-                        {p.match > 0 && <span className="text-[11px] text-data-1">{p.match} of {required.size} skills</span>}
+                        {p.match > 0 && <span className="text-[11px] text-success-ink">{p.match} of {required.size} skills</span>}
                       </label>
                     </li>
                   ))}
@@ -125,10 +125,10 @@ export function ProjectTeam({ project, viewer, onChanged }: { project: ProjectPa
                   <Avatar name={m.name} color={m.avatarColor} size="sm" />
                   <span className="text-ink">{m.name}</span>
                   {m.projectRole === "LEAD" && <Badge size="sm" tone="info">Lead</Badge>}
-                  <span className="text-ink/45">{m.jobTitle}</span>
+                  <span className="text-ink-muted">{m.jobTitle}</span>
                 </li>
               ))}
-              {project.team.length === 0 && <p className="text-[13px] text-ink/45">No one yet.</p>}
+              {project.team.length === 0 && <p className="text-[13px] text-ink-muted">No one yet.</p>}
             </ul>
           )}
         </CardBody>
@@ -143,18 +143,18 @@ export function ProjectTeam({ project, viewer, onChanged }: { project: ProjectPa
                 <li key={s.id}>
                   <Badge size="sm" tone={people.length && s.holders === 0 ? "warning" : "neutral"}>
                     {s.name}
-                    {people.length > 0 && <span className="ml-1 text-ink/45">· {s.holders === 0 ? "no one on the team" : `${s.holders} on team`}</span>}
-                    {s.source === "MANUAL" && <span className="ml-1 text-ink/40">(added)</span>}
+                    {people.length > 0 && <span className="ml-1 text-ink-muted">· {s.holders === 0 ? "no one on the team" : `${s.holders} on team`}</span>}
+                    {s.source === "MANUAL" && <span className="ml-1 text-ink-muted">(added)</span>}
                   </Badge>
                 </li>
               ))}
-              {coverage.length === 0 && <li className="text-[13px] text-ink/45">None listed.</li>}
+              {coverage.length === 0 && <li className="text-[13px] text-ink-muted">None listed.</li>}
             </ul>
             {viewer.canShape && skills.length > 0 && (
               <>
                 <div className="flex max-h-40 flex-wrap gap-1.5 overflow-y-auto border-t border-line pt-4">
                   {skills.map((k) => (
-                    <button key={k.id} type="button" aria-pressed={skillIds.includes(k.id)} onClick={() => toggle(skillIds, setSkillIds, k.id)} className={cn("rounded-pill border px-2.5 py-1 text-[12px]", skillIds.includes(k.id) ? "border-brand bg-brand-tint text-ink" : "border-line text-ink/55 hover:border-ink/25")}>
+                    <button key={k.id} type="button" aria-pressed={skillIds.includes(k.id)} onClick={() => toggle(skillIds, setSkillIds, k.id)} className={cn("rounded-pill border px-2.5 py-1 text-[12px]", skillIds.includes(k.id) ? "border-brand bg-brand-tint text-ink" : "border-line text-ink-muted hover:border-ink/25")}>
                       {k.name}
                     </button>
                   ))}
@@ -175,7 +175,7 @@ export function ProjectTeam({ project, viewer, onChanged }: { project: ProjectPa
             <CardBody className="space-y-4">
               <div className="flex flex-wrap gap-1.5">
                 {services.map((s) => (
-                  <button key={s.id} type="button" aria-pressed={serviceIds.includes(s.id)} onClick={() => toggle(serviceIds, setServiceIds, s.id)} className={cn("rounded-pill border px-2.5 py-1 text-[12px]", serviceIds.includes(s.id) ? "border-brand bg-brand-tint text-ink" : "border-line text-ink/55 hover:border-ink/25")}>
+                  <button key={s.id} type="button" aria-pressed={serviceIds.includes(s.id)} onClick={() => toggle(serviceIds, setServiceIds, s.id)} className={cn("rounded-pill border px-2.5 py-1 text-[12px]", serviceIds.includes(s.id) ? "border-brand bg-brand-tint text-ink" : "border-line text-ink-muted hover:border-ink/25")}>
                     {s.name}
                   </button>
                 ))}

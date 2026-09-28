@@ -125,15 +125,15 @@ export function MessagesView({ audience, clientId }: { audience: "client" | "tea
               aria-current={t.id === active ? "true" : undefined}
               className={cn("flex w-full items-start gap-3 px-4 py-3.5 text-left transition-colors hover:bg-surface-2", t.id === active && "bg-surface-2")}
             >
-              <span className={cn("mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full", t.kind === "FOUNDER" ? "bg-brand-tint text-brand" : "bg-surface-2 text-ink/60")}>
+              <span className={cn("mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full", t.kind === "FOUNDER" ? "bg-brand-tint text-brand" : "bg-surface-2 text-ink-muted")}>
                 {t.kind === "FOUNDER" ? <Lock className="h-4 w-4" /> : <Users className="h-4 w-4" />}
               </span>
               <span className="min-w-0 flex-1">
                 <span className="flex items-center justify-between gap-2">
                   <span className={cn("truncate text-[13px]", t.unread ? "font-semibold text-ink" : "font-medium text-ink/85")}>{label(t)}</span>
-                  {t.unread > 0 && <span className="rounded-pill bg-brand px-1.5 text-[11px] font-semibold tabular-nums text-canvas">{t.unread}</span>}
+                  {t.unread > 0 && <span className="rounded-pill bg-brand px-1.5 text-[11px] font-semibold tabular-nums text-on-brand">{t.unread}</span>}
                 </span>
-                <span className="mt-0.5 block truncate text-[12px] text-ink/45">{t.preview ? `${t.preview.author ? `${t.preview.author}: ` : ""}${t.preview.body}` : "No messages yet"}</span>
+                <span className="mt-0.5 block truncate text-[12px] text-ink-muted">{t.preview ? `${t.preview.author ? `${t.preview.author}: ` : ""}${t.preview.body}` : "No messages yet"}</span>
               </span>
             </button>
           </li>
@@ -143,12 +143,12 @@ export function MessagesView({ audience, clientId }: { audience: "client" | "tea
       {current ? (
         <section className={cn("flex min-w-0 flex-col", !active && "hidden md:flex")} aria-label={label(current)}>
           <header className="flex items-center gap-3 border-b border-line px-5 py-3.5">
-            <button type="button" onClick={() => setActive(null)} className="rounded p-1 text-ink/50 hover:text-ink md:hidden" aria-label="Back to conversations">
+            <button type="button" onClick={() => setActive(null)} className="rounded p-1 text-ink-muted hover:text-ink md:hidden" aria-label="Back to conversations">
               <X className="h-4 w-4" />
             </button>
             <div className="min-w-0">
               <p className="truncate text-[14px] font-semibold text-ink">{label(current)}</p>
-              <p className="text-[12px] text-ink/45">
+              <p className="text-[12px] text-ink-muted">
                 {current.kind === "FOUNDER"
                   ? audience === "client"
                     ? "Only you and the Advertise X founders can read this."
@@ -164,13 +164,13 @@ export function MessagesView({ audience, clientId }: { audience: "client" | "tea
             {!messages ? (
               <Skeleton className="h-24" />
             ) : messages.length === 0 ? (
-              <p className="py-10 text-center text-[13px] text-ink/45">{audience === "client" ? "Say hello — your team usually replies within a working day." : "No messages yet."}</p>
+              <p className="py-10 text-center text-[13px] text-ink-muted">{audience === "client" ? "Say hello — your team usually replies within a working day." : "No messages yet."}</p>
             ) : (
               messages.map((m) => (
                 <div key={m.id} className={cn("flex gap-3", m.mine && "flex-row-reverse")}>
                   <Avatar name={m.author?.name ?? "?"} color={m.author?.avatarColor} size="sm" />
                   <div className={cn("max-w-[80%] min-w-0", m.mine && "text-right")}>
-                    <p className="text-[11px] text-ink/45">
+                    <p className="text-[11px] text-ink-muted">
                       {m.mine ? "You" : m.author?.name ?? "Someone"} · <time dateTime={m.createdAt}>{relativeFromNow(m.createdAt)}</time>
                     </p>
                     <div className={cn("mt-1 inline-block rounded-[12px] px-3.5 py-2.5 text-left text-[13px] leading-relaxed", m.mine ? "bg-brand-tint text-ink" : "bg-surface-2 text-ink/90")}>
@@ -182,7 +182,7 @@ export function MessagesView({ audience, clientId }: { audience: "client" | "tea
                               <a href={f.downloadUrl} className="flex items-center gap-2 rounded-lg border border-line px-2.5 py-1.5 text-[12px] text-ink/80 hover:text-ink" target="_blank" rel="noopener noreferrer">
                                 <Download className="h-3.5 w-3.5 shrink-0" />
                                 <span className="truncate">{f.filename}</span>
-                                <span className="shrink-0 text-ink/40">{formatBytes(f.size)}</span>
+                                <span className="shrink-0 text-ink-muted">{formatBytes(f.size)}</span>
                               </a>
                             </li>
                           ))}
@@ -190,7 +190,7 @@ export function MessagesView({ audience, clientId }: { audience: "client" | "tea
                       )}
                     </div>
                     {m.mine && m.seenBy.length > 0 && (
-                      <p className="mt-1 flex items-center justify-end gap-1 text-[11px] text-data-1">
+                      <p className="mt-1 flex items-center justify-end gap-1 text-[11px] text-success-ink">
                         <CheckCheck className="h-3.5 w-3.5" /> Seen{audience === "team" ? ` by ${m.seenBy.join(", ")}` : ""}
                       </p>
                     )}
@@ -205,9 +205,9 @@ export function MessagesView({ audience, clientId }: { audience: "client" | "tea
             {files.length > 0 && (
               <ul className="mb-2 flex flex-wrap gap-1.5">
                 {files.map((f, i) => (
-                  <li key={`${f.name}-${i}`} className="flex items-center gap-1.5 rounded-pill border border-line px-2.5 py-1 text-[12px] text-ink/75">
+                  <li key={`${f.name}-${i}`} className="flex items-center gap-1.5 rounded-pill border border-line px-2.5 py-1 text-[12px] text-ink-2">
                     {f.name}
-                    <button type="button" aria-label={`Remove ${f.name}`} onClick={() => setFiles((fs) => fs.filter((_, j) => j !== i))} className="text-ink/40 hover:text-danger">
+                    <button type="button" aria-label={`Remove ${f.name}`} onClick={() => setFiles((fs) => fs.filter((_, j) => j !== i))} className="text-ink-muted hover:text-danger">
                       <X className="h-3 w-3" />
                     </button>
                   </li>
@@ -225,7 +225,7 @@ export function MessagesView({ audience, clientId }: { audience: "client" | "tea
                   e.target.value = "";
                 }}
               />
-              <button type="button" onClick={() => input.current?.click()} className="rounded-lg border border-line p-2.5 text-ink/55 hover:text-ink" aria-label="Attach files">
+              <button type="button" onClick={() => input.current?.click()} className="rounded-lg border border-line p-2.5 text-ink-muted hover:text-ink" aria-label="Attach files">
                 <Paperclip className="h-4 w-4" />
               </button>
               <textarea

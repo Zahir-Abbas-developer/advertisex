@@ -5,11 +5,12 @@ import { cn } from "@/lib/utils";
 export type BadgeTone = "success" | "warning" | "danger" | "info" | "neutral";
 
 const TONES: Record<BadgeTone, string> = {
-  success: "bg-success-tint text-success border-success/25",
-  warning: "bg-warn-tint text-warn border-warn/20",
+  success: "bg-success-tint text-success-ink border-success/25",
+  // Warning text is ink, not orange: #D97706 is 3.2:1 on white. The dot carries the hue.
+  warning: "bg-warn-tint text-ink border-warn/25",
   danger: "bg-danger-tint text-danger border-danger/20",
-  info: "bg-info-tint text-info border-info/20",
-  neutral: "bg-surface-2 text-ink/70 border-line",
+  info: "bg-info-tint text-ink border-info/25",
+  neutral: "bg-surface-2 text-ink-2 border-line",
 };
 
 const DOTS: Record<BadgeTone, string> = {
@@ -17,7 +18,7 @@ const DOTS: Record<BadgeTone, string> = {
   warning: "bg-warn",
   danger: "bg-danger",
   info: "bg-info",
-  neutral: "bg-ink/40",
+  neutral: "bg-data-neutral",
 };
 
 export interface BadgeProps {

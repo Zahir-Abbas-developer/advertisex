@@ -38,7 +38,7 @@ export default async function PortalInvoices() {
       <header>
         <p className="eyebrow text-brand">Invoices</p>
         <h1 className="mt-2 font-display text-[28px] font-bold leading-tight tracking-[-0.02em] text-ink">Invoices and payments</h1>
-        <p className="mt-2 text-[14px] text-ink/60">
+        <p className="mt-2 text-[14px] text-ink-muted">
           {due.length === 0
             ? "You're all paid up — thank you."
             : currencies.length === 1
@@ -58,14 +58,14 @@ export default async function PortalInvoices() {
                 <li key={inv.id} className="flex items-center gap-3 px-5 py-4 sm:px-6">
                   <Link href={`/portal/invoices/${inv.id}`} className="group flex min-w-0 flex-1 flex-wrap items-center gap-x-4 gap-y-1">
                     <span className="min-w-[96px] font-medium text-ink group-hover:text-brand">{inv.number}</span>
-                    <span className="text-[13px] text-ink/55">{inv.issuedAt ? formatDate(inv.issuedAt) : ""} · due {formatDate(inv.dueAt)}</span>
+                    <span className="text-[13px] text-ink-muted">{inv.issuedAt ? formatDate(inv.issuedAt) : ""} · due {formatDate(inv.dueAt)}</span>
                     <InvoiceStatusBadge status={inv.status} />
                     <span className="ml-auto text-right tabular-nums text-ink">
                       {formatMoney(inv.totalMinor, inv.currency)}
-                      {inv.balanceMinor > 0 && inv.balanceMinor !== inv.totalMinor && <span className="block text-[12px] text-ink/50">{formatMoney(inv.balanceMinor, inv.currency)} left</span>}
+                      {inv.balanceMinor > 0 && inv.balanceMinor !== inv.totalMinor && <span className="block text-[12px] text-ink-muted">{formatMoney(inv.balanceMinor, inv.currency)} left</span>}
                     </span>
                   </Link>
-                  <a href={`${inv.downloadUrl}?download=1`} className="rounded-lg p-2 text-ink/45 hover:bg-surface-2 hover:text-ink" aria-label={`Download ${inv.number}`}>
+                  <a href={`${inv.downloadUrl}?download=1`} className="rounded-lg p-2 text-ink-muted hover:bg-surface-2 hover:text-ink" aria-label={`Download ${inv.number}`}>
                     <Download className="h-4 w-4" />
                   </a>
                   <ChevronRight className="hidden h-4 w-4 text-ink/30 sm:block" />
@@ -80,7 +80,7 @@ export default async function PortalInvoices() {
         <CardHeader title="Your plan" description="The services you have with us, as agreed." />
         <CardBody>
           {plan.services.length === 0 ? (
-            <p className="text-[13px] text-ink/50">Your services will be listed here.</p>
+            <p className="text-[13px] text-ink-muted">Your services will be listed here.</p>
           ) : (
             <>
               <ul className="divide-y divide-line">
@@ -88,15 +88,15 @@ export default async function PortalInvoices() {
                   <li key={s.id} className="flex flex-wrap items-center justify-between gap-2 py-3 text-[13px]">
                     <span className="text-ink">
                       {s.name}
-                      {s.status === "PAUSED" && <span className="ml-2 text-ink/45">(paused)</span>}
+                      {s.status === "PAUSED" && <span className="ml-2 text-ink-muted">(paused)</span>}
                     </span>
-                    <span className="tabular-nums text-ink/75">
-                      {whole(s.price)} <span className="text-ink/45">{(BILLING_LABEL[s.billing as Billing] ?? "").toLowerCase()}</span>
+                    <span className="tabular-nums text-ink-2">
+                      {whole(s.price)} <span className="text-ink-muted">{(BILLING_LABEL[s.billing as Billing] ?? "").toLowerCase()}</span>
                     </span>
                   </li>
                 ))}
               </ul>
-              {plan.monthly > 0 && <p className="mt-3 text-[13px] text-ink/60">About {whole(plan.monthly)} a month for ongoing services.</p>}
+              {plan.monthly > 0 && <p className="mt-3 text-[13px] text-ink-muted">About {whole(plan.monthly)} a month for ongoing services.</p>}
             </>
           )}
         </CardBody>

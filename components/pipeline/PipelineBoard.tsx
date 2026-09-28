@@ -357,8 +357,8 @@ export function PipelineBoard() {
                 className={cn(
                   "rounded-pill border px-3 py-1.5 text-[13px] transition-colors",
                   active
-                    ? "border-brand bg-brand text-canvas"
-                    : "border-line bg-surface text-ink/60 hover:border-ink/25 hover:text-ink",
+                    ? "border-brand bg-brand text-on-brand"
+                    : "border-line bg-surface text-ink-muted hover:border-ink/25 hover:text-ink",
                 )}
               >
                 {option.shortLabel}
@@ -497,7 +497,7 @@ export function PipelineBoard() {
                           type="button"
                           onClick={() => void loadMore(stage.key)}
                           disabled={loadingMore === stage.key}
-                          className="w-full rounded-[10px] border border-dashed border-line py-2 text-[12px] text-ink/55 transition-colors hover:bg-surface-2 hover:text-ink disabled:opacity-50"
+                          className="w-full rounded-[10px] border border-dashed border-line py-2 text-[12px] text-ink-muted transition-colors hover:bg-surface-2 hover:text-ink disabled:opacity-50"
                         >
                           {loadingMore === stage.key ? "Loading…" : `Show more (${(totals.count - leads.length).toLocaleString()} left)`}
                         </button>
@@ -531,7 +531,7 @@ export function PipelineBoard() {
                       className="text-sm text-ink underline-offset-2 hover:underline"
                     >
                       {lead.businessName}
-                      <span className="ml-2 text-ink/45">{lead.stage}</span>
+                      <span className="ml-2 text-ink-muted">{lead.stage}</span>
                     </button>
                   </li>
                 ))}
@@ -566,8 +566,8 @@ export function PipelineBoard() {
                     {data.commissions.map((row) => (
                       <TR key={row.leadId}>
                         <TD>{row.businessName}</TD>
-                        <TD className="text-ink/60">{row.stageLabel}</TD>
-                        <TD className="text-ink/60">{row.ownerName ?? "—"}</TD>
+                        <TD className="text-ink-muted">{row.stageLabel}</TD>
+                        <TD className="text-ink-muted">{row.ownerName ?? "—"}</TD>
                         <TD className="text-right tabular-nums">
                           {formatMoney(row.dealValue, true)}
                         </TD>

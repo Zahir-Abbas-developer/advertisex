@@ -57,7 +57,7 @@ export function PerformanceBadge({
         {formatScoreValue(figures.score)}
       </span>
 
-      <span className={cn("tabular-nums text-ink/50", metaSize)}>
+      <span className={cn("tabular-nums text-ink-muted", metaSize)}>
         {onTimeRate === null ? "—" : `${onTimeRate}% on time`}
         <span className="px-1 text-ink/25">·</span>
         {load} {load === 1 ? "task" : "tasks"}
@@ -87,7 +87,7 @@ export function PerformanceInline({
       <span className="font-display text-sm font-bold" style={{ color: band.color }}>
         {formatScoreValue(figures.score)}
       </span>
-      <span className="text-[12px] text-ink/45">
+      <span className="text-[12px] text-ink-muted">
         · {figures.onTimeRate === null ? "—" : `${figures.onTimeRate}%`} ·{" "}
         {figures.load} {figures.load === 1 ? "task" : "tasks"}
       </span>
@@ -101,7 +101,7 @@ export function PerformanceInline({
  */
 export function VolumeFootnote({ className }: { className?: string }) {
   return (
-    <p className={cn("text-[12px] leading-relaxed text-ink/40", className)}>
+    <p className={cn("text-[12px] leading-relaxed text-ink-muted", className)}>
       Scores are volume-adjusted context — compare on-time rate across different
       workloads, not the raw number.
     </p>

@@ -108,7 +108,7 @@ export function ResetPasswordModal({
       }
     >
       {member && !issued && (
-        <div className="space-y-3 text-sm leading-relaxed text-ink/70">
+        <div className="space-y-3 text-sm leading-relaxed text-ink-2">
           <p>
             <strong className="text-ink">{member.name}</strong>&rsquo;s current password stops
             working immediately, and a new temporary one is shown here once.
@@ -120,19 +120,19 @@ export function ResetPasswordModal({
       {issued && (
         <div className="space-y-4">
           <div>
-            <p className="text-[13px] text-ink/55">{issued.name}</p>
-            <p className="text-[13px] text-ink/55">{issued.email}</p>
+            <p className="text-[13px] text-ink-muted">{issued.name}</p>
+            <p className="text-[13px] text-ink-muted">{issued.email}</p>
           </div>
 
           <div className="rounded-card border border-line bg-surface-2 px-4 py-3 text-center">
-            <p className="eyebrow mb-1 text-ink/40">Temporary password</p>
+            <p className="eyebrow mb-1 text-ink-muted">Temporary password</p>
             <p
               data-testid="issued-password"
               className="select-all break-all font-mono text-2xl font-semibold tracking-wide text-ink"
             >
               {issued.password}
             </p>
-            <p className="mt-1 text-[12px] text-ink/45">Capital letters matter.</p>
+            <p className="mt-1 text-[12px] text-ink-muted">Capital letters matter.</p>
           </div>
 
           <div className="grid gap-2 sm:grid-cols-2">
@@ -154,7 +154,7 @@ export function ResetPasswordModal({
             </Button>
           </div>
 
-          <p className="text-[12px] leading-relaxed text-ink/50">
+          <p className="text-[12px] leading-relaxed text-ink-muted">
             This is the only time it&rsquo;s shown. Send it to {issued.name.split(" ")[0]} privately.
           </p>
         </div>

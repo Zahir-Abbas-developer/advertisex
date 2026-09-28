@@ -128,11 +128,11 @@ export function CommandPalette() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="hidden items-center gap-2 rounded-[10px] border border-line bg-surface px-3 py-2 text-[13px] text-ink/45 transition-colors hover:border-ink/25 hover:text-ink/70 sm:flex"
+        className="hidden items-center gap-2 rounded-[10px] border border-line bg-surface px-3 py-2 text-[13px] text-ink-muted transition-colors hover:border-ink/25 hover:text-ink-2 sm:flex"
       >
         <Search className="h-3.5 w-3.5" />
         Search
-        <kbd className="ml-2 rounded border border-line bg-surface-2 px-1.5 py-0.5 font-sans text-[10px] font-medium text-ink/45">
+        <kbd className="ml-2 rounded border border-line bg-surface-2 px-1.5 py-0.5 font-sans text-[10px] font-medium text-ink-muted">
           ⌘K
         </kbd>
       </button>
@@ -144,7 +144,7 @@ export function CommandPalette() {
               type="button"
               aria-label="Close search"
               onClick={() => setOpen(false)}
-              className="absolute inset-0 h-full w-full cursor-default bg-black/60 animate-fade-in backdrop-blur-[2px]"
+              className="absolute inset-0 h-full w-full cursor-default bg-green-950/40 animate-fade-in backdrop-blur-[2px]"
             />
 
             <div
@@ -182,15 +182,15 @@ export function CommandPalette() {
 
               <div className="scrollbar-thin max-h-[52vh] overflow-y-auto">
                 {query.trim().length < 2 ? (
-                  <p className="px-4 py-8 text-center text-[13px] text-ink/40">
+                  <p className="px-4 py-8 text-center text-[13px] text-ink-muted">
                     Type at least two characters.
                   </p>
                 ) : loading && results.length === 0 ? (
-                  <p className="px-4 py-8 text-center text-[13px] text-ink/40">
+                  <p className="px-4 py-8 text-center text-[13px] text-ink-muted">
                     Searching…
                   </p>
                 ) : results.length === 0 ? (
-                  <p className="px-4 py-8 text-center text-[13px] text-ink/40">
+                  <p className="px-4 py-8 text-center text-[13px] text-ink-muted">
                     Nothing matches &ldquo;{query.trim()}&rdquo;.
                   </p>
                 ) : (
@@ -215,14 +215,14 @@ export function CommandPalette() {
                                   index === highlight ? "bg-surface-2" : "hover:bg-surface-2/60",
                                 )}
                               >
-                                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[8px] border border-line bg-surface text-ink/50">
+                                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[8px] border border-line bg-surface text-ink-muted">
                                   <Icon className="h-3.5 w-3.5" />
                                 </span>
                                 <span className="min-w-0 flex-1">
                                   <span className="block truncate text-[13px] font-medium text-ink">
                                     {result.title}
                                   </span>
-                                  <span className="block truncate text-[12px] text-ink/45">
+                                  <span className="block truncate text-[12px] text-ink-muted">
                                     {result.subtitle}
                                   </span>
                                 </span>
@@ -239,7 +239,7 @@ export function CommandPalette() {
                 )}
               </div>
 
-              <div className="flex items-center justify-between border-t border-line bg-surface-2/60 px-4 py-2 text-[11px] text-ink/40">
+              <div className="flex items-center justify-between border-t border-line bg-surface-2/60 px-4 py-2 text-[11px] text-ink-muted">
                 <span>↑↓ to move · ⏎ to open</span>
                 <span>esc to close</span>
               </div>

@@ -9,7 +9,7 @@ import type { ClientSummary } from "@/lib/types";
 import { HEALTH_LABEL } from "@/modules/clients/health";
 import { SCHEDULE_LABEL } from "@/modules/projects/domain";
 
-const HEALTH_COLOR = { HEALTHY: "#22C55E", WATCH: "#F59E0B", AT_RISK: "#EF4444" } as const;
+const HEALTH_COLOR = { HEALTHY: "#279D61", WATCH: "#D97706", AT_RISK: "#DC2626" } as const;
 
 /** Compact money — a retainer book reads better as $4.5k than $4,500. */
 function formatBudget(amount: number): string {
@@ -45,7 +45,7 @@ export function ClientCard({ client }: { client: ClientSummary }) {
             />
             <span className="truncate">{client.businessName}</span>
           </h3>
-          <p className="mt-1 truncate text-[13px] text-ink/50">
+          <p className="mt-1 truncate text-[13px] text-ink-muted">
             {client.industry ?? "Industry not set"}
           </p>
           {/* Which business line owns this account — the first thing that
@@ -65,17 +65,17 @@ export function ClientCard({ client }: { client: ClientSummary }) {
           </Badge>
 
           {client.assignee && (
-            <span className="text-[11px] text-ink/45">{client.assignee.name}</span>
+            <span className="text-[11px] text-ink-muted">{client.assignee.name}</span>
           )}
 
         </div>
       </div>
 
-      <div className="mt-4 flex items-center gap-4 text-[13px] text-ink/55">
+      <div className="mt-4 flex items-center gap-4 text-[13px] text-ink-muted">
         {client.monthlyRecurring !== null && (
           <span className="font-display text-base font-bold tabular-nums text-ink">
             {formatBudget(client.monthlyRecurring)}
-            <span className="ml-1 text-[11px] font-medium text-ink/40">/mo</span>
+            <span className="ml-1 text-[11px] font-medium text-ink-muted">/mo</span>
           </span>
         )}
         <span className="tabular-nums">
@@ -116,13 +116,13 @@ export function ClientCard({ client }: { client: ClientSummary }) {
               size="sm"
               tone={project.schedule === "OVERDUE" ? "danger" : project.schedule === "BEHIND" ? "warn" : "brand"}
             />
-            <p className="mt-2 text-[12px] text-ink/40">
+            <p className="mt-2 text-[12px] text-ink-muted">
               {SCHEDULE_LABEL[project.schedule]} · due {formatDate(project.deadline)}
             </p>
           </>
         ) : (
           <div className="flex items-center justify-between rounded-[10px] border border-dashed border-line px-3 py-2.5">
-            <span className="text-[13px] text-ink/45">No open project</span>
+            <span className="text-[13px] text-ink-muted">No open project</span>
             <ArrowUpRight
               aria-hidden
               className="h-3.5 w-3.5 text-ink/30 transition-colors group-hover:text-brand"

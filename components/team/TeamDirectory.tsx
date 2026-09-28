@@ -49,7 +49,7 @@ function MemberCard({ member }: { member: Member }) {
     >
       <div className="flex items-start gap-3">
         {member.isAgent ? (
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-data-2/30 bg-data-2/10 text-data-2">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-info/30 bg-info-tint text-ink-2">
             <Bot className="h-5 w-5" />
           </span>
         ) : (
@@ -59,7 +59,7 @@ function MemberCard({ member }: { member: Member }) {
           <div className="flex items-center gap-2">
             <p className="truncate font-display text-[15px] font-semibold text-ink">{member.name}</p>
             {member.isAgent ? (
-              <span className="rounded-pill border border-data-2/30 bg-data-2/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-data-2">
+              <span className="rounded-pill border border-info/30 bg-info-tint px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-ink-2">
                 AI agent
               </span>
             ) : (
@@ -70,7 +70,7 @@ function MemberCard({ member }: { member: Member }) {
               )
             )}
           </div>
-          <p className="truncate text-[13px] text-ink/55">
+          <p className="truncate text-[13px] text-ink-muted">
             {member.jobTitle}
             {!member.isAgent && ` · ${ROLE_LABEL[member.role]}`}
           </p>
@@ -78,12 +78,12 @@ function MemberCard({ member }: { member: Member }) {
       </div>
 
       {member.departments.length > 0 && (
-        <p className="mt-3 truncate text-[12px] text-ink/45">{member.departments.map((d) => d.shortLabel).join(" · ")}</p>
+        <p className="mt-3 truncate text-[12px] text-ink-muted">{member.departments.map((d) => d.shortLabel).join(" · ")}</p>
       )}
 
       <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5">
         {member.skills.slice(0, 3).map((s) => (
-          <span key={s.name} className="inline-flex items-center gap-1.5 text-[12px] text-ink/70">
+          <span key={s.name} className="inline-flex items-center gap-1.5 text-[12px] text-ink-2">
             {s.name} <Proficiency value={s.proficiency} />
           </span>
         ))}
@@ -146,7 +146,7 @@ export function TeamDirectory() {
             <h2 className="font-display text-lg font-semibold text-ink">
               AI agents <span className="text-ink/35 tabular-nums">{agents.length}</span>
             </h2>
-            <p className="mt-1 text-[13px] text-ink/50">
+            <p className="mt-1 text-[13px] text-ink-muted">
               Agents take assigned work and are measured on delivery. They have no attendance, and act only within the capabilities granted to them.
             </p>
           </div>

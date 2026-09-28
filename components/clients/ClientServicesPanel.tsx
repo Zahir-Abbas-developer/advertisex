@@ -96,14 +96,14 @@ export function ClientServicesPanel({ clientId, billing }: { clientId: string; b
                 <li key={r.id} className="flex flex-wrap items-center gap-3 py-3">
                   <div className="min-w-0 flex-1">
                     <p className="text-[13px] font-medium text-ink">{r.service.name}</p>
-                    <p className="text-[12px] text-ink/45">
+                    <p className="text-[12px] text-ink-muted">
                       Since {formatDate(r.startDate)}
                       {r.endDate ? ` · until ${formatDate(r.endDate)}` : ""}
                     </p>
                   </div>
                   {r.price !== null && (
                     <span className="tabular-nums text-[13px] text-ink">
-                      {money(r.price)} <span className="text-ink/45">{BILLING_LABEL[r.billing as Billing]?.toLowerCase()}</span>
+                      {money(r.price)} <span className="text-ink-muted">{BILLING_LABEL[r.billing as Billing]?.toLowerCase()}</span>
                     </span>
                   )}
                   <Badge dot tone={STATUS_TONE[r.status] ?? "neutral"} size="sm">

@@ -27,13 +27,13 @@ const ICONS: Record<ActivityType, typeof ActivityIcon> = {
 };
 
 const TONES: Record<ActivityType, string> = {
-  MILESTONE_CREATED: "border-line bg-surface-2 text-ink/55",
-  STATUS_CHANGED: "border-info/20 bg-info-tint text-info",
-  REASSIGNED: "border-info/20 bg-info-tint text-info",
-  DUE_DATE_CHANGED: "border-warn/20 bg-warn-tint text-warn",
+  MILESTONE_CREATED: "border-line bg-surface-2 text-ink-muted",
+  STATUS_CHANGED: "border-info/20 bg-info-tint text-ink-2",
+  REASSIGNED: "border-info/20 bg-info-tint text-ink-2",
+  DUE_DATE_CHANGED: "border-warn/20 bg-warn-tint text-ink",
   SCORE_EVENT: "border-danger/20 bg-danger-tint text-danger",
-  COMMENT_ADDED: "border-line bg-surface-2 text-ink/55",
-  ATTACHMENT_ADDED: "border-line bg-surface-2 text-ink/55",
+  COMMENT_ADDED: "border-line bg-surface-2 text-ink-muted",
+  ATTACHMENT_ADDED: "border-line bg-surface-2 text-ink-muted",
 };
 
 /** The workspace feed — everything that happened, newest first. */
@@ -66,7 +66,7 @@ export function ActivityFeed({ activity }: { activity: ActivityRow[] }) {
             </span>
 
             <div className="min-w-0 flex-1">
-              <p className="text-[13px] leading-snug text-ink/75">
+              <p className="text-[13px] leading-snug text-ink-2">
                 {entry.actor ? (
                   <span className="inline-flex items-center gap-1.5 align-middle">
                     <Avatar
@@ -84,7 +84,7 @@ export function ActivityFeed({ activity }: { activity: ActivityRow[] }) {
               </p>
 
               {entry.detail && (
-                <p className="mt-0.5 line-clamp-1 text-[12px] text-ink/45">
+                <p className="mt-0.5 line-clamp-1 text-[12px] text-ink-muted">
                   {entry.detail}
                 </p>
               )}

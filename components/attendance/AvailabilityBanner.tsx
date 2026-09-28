@@ -65,19 +65,19 @@ export function AvailabilityBanner() {
       <div className="mx-auto flex max-w-shell flex-wrap items-center gap-x-4 gap-y-2 px-5 py-3 sm:px-8 lg:px-10">
         <ShieldAlert
           aria-hidden
-          className={cn("h-4 w-4 shrink-0", critical ? "text-danger" : "text-warn")}
+          className={critical ? "h-4 w-4 shrink-0 text-danger" : "h-4 w-4 shrink-0 text-warn"}
         />
 
         <div className="min-w-0 flex-1">
           <p
             className={cn(
               "text-[13px] font-medium",
-              critical ? "text-danger" : "text-warn",
+              critical ? "text-danger" : "text-ink",
             )}
           >
             Availability check — confirm you&rsquo;re at work
           </p>
-          <p className={cn("text-[12px]", critical ? "text-danger/75" : "text-warn/75")}>
+          <p className={cn("text-[12px]", critical ? "text-danger/75" : "text-ink-2")}>
             {remaining === 0
               ? "This window has closed."
               : `${minutes}:${String(seconds).padStart(2, "0")} left to respond`}

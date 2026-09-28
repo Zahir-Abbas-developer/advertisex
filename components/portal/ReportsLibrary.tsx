@@ -53,7 +53,7 @@ export function ReportsLibrary({ reports: initial }: { reports: Report[] }) {
                   <span className={cn("h-2 w-2 shrink-0 rounded-full", r.unread ? "bg-brand" : "bg-transparent")} aria-label={r.unread ? "New" : undefined} />
                   <div className="min-w-0 flex-1">
                     <p className={cn("truncate text-[14px]", r.unread ? "font-semibold text-ink" : "text-ink/85")}>{r.title}</p>
-                    <p className="text-[12px] text-ink/45">
+                    <p className="text-[12px] text-ink-muted">
                       {REPORT_KIND_LABEL[r.kind as keyof typeof REPORT_KIND_LABEL] ?? "Report"} · {formatBytes(r.size)}
                       {r.unread ? " · new" : ""}
                     </p>

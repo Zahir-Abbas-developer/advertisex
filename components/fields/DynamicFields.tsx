@@ -116,7 +116,7 @@ function DynamicField({
             {definition.label}
             {definition.required && <span className="ml-0.5 text-danger">*</span>}
             {definition.helpText && (
-              <span className="ml-2 font-normal text-ink/45">{definition.helpText}</span>
+              <span className="ml-2 font-normal text-ink-muted">{definition.helpText}</span>
             )}
           </p>
           <div className="flex flex-wrap gap-1.5">
@@ -144,8 +144,8 @@ function DynamicField({
                   className={cn(
                     "rounded-pill border px-3 py-1.5 text-[13px] transition-colors",
                     active
-                      ? "border-brand bg-brand text-canvas"
-                      : "border-line bg-surface text-ink/55 hover:border-ink/25",
+                      ? "border-brand bg-brand text-on-brand"
+                      : "border-line bg-surface text-ink-muted hover:border-ink/25",
                     disabled && "cursor-not-allowed opacity-60",
                   )}
                 >
@@ -172,7 +172,7 @@ function DynamicField({
           <span>
             {definition.label}
             {definition.helpText && (
-              <span className="ml-2 text-ink/45">{definition.helpText}</span>
+              <span className="ml-2 text-ink-muted">{definition.helpText}</span>
             )}
             {error && <span className="mt-1 block text-[12px] text-danger">{error}</span>}
           </span>

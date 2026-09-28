@@ -17,6 +17,7 @@ import {
 import { Card } from "@/components/ui/Card";
 import { formatMoney } from "@/lib/pipeline-types";
 import type { KpiWeekRow } from "@/components/kpis/KpiPanel";
+import { AXIS, CHART, CURSOR, TOOLTIP } from "@/components/charts/theme";
 
 /**
  * Spend against revenue, ROAS against target, and orders.
@@ -26,23 +27,14 @@ import type { KpiWeekRow } from "@/components/kpis/KpiPanel";
  * misreading a client conversation doesn't need.
  *
  * The palette comes from CLAUDE.md §7 rather than recharts' defaults: series
- * draw with the data-* tokens — never gold, which is reserved for identity —
- * so these look like part of the product instead of a library dropped into it.
+ * draw down the green scale (the data-* tokens), with a gray dashed target
+ * line, so these look like part of the product instead of a library dropped
+ * into it.
  */
 
-const INK = "#F5F3EE";
-const DATA_PRIMARY = "#2DD4BF";
-const LINE = "rgba(255,255,255,0.08)";
-const DANGER = "#EF4444";
-const DATA_SECONDARY = "#818CF8";
-const WARN = "#F59E0B";
-
-const AXIS = {
-  stroke: "#F5F3EE",
-  strokeOpacity: 0.25,
-  tick: { fill: INK, fillOpacity: 0.45, fontSize: 11 },
-  tickLine: false,
-} as const;
+const DATA_PRIMARY = CHART.data1;
+const DATA_SECONDARY = CHART.data4;
+const LINE = CHART.line;
 
 export function KpiCharts({
   weeks,
@@ -77,7 +69,7 @@ export function KpiCharts({
               <XAxis dataKey="week" {...AXIS} />
               <YAxis {...AXIS} tickFormatter={(value) => formatMoney(Number(value), true)} />
               <Tooltip
-                cursor={{ fill: "rgba(12,12,10,0.04)" }}
+                cursor={CURSOR}
                 contentStyle={TOOLTIP}
                 formatter={(value, name) => [formatMoney(Number(value ?? 0)), String(name)]}
               />
@@ -106,7 +98,7 @@ export function KpiCharts({
               />
               <ReferenceLine
                 y={targetRoas}
-                stroke={WARN}
+                stroke={CHART.baseline}
                 strokeDasharray="4 4"
                 strokeWidth={1.5}
               />
@@ -136,7 +128,7 @@ export function KpiCharts({
               <XAxis dataKey="week" {...AXIS} />
               <YAxis {...AXIS} allowDecimals={false} />
               <Tooltip
-                cursor={{ fill: "rgba(12,12,10,0.04)" }}
+                cursor={CURSOR}
                 contentStyle={TOOLTIP}
                 formatter={(value) => [String(value ?? 0), "Orders"]}
               />
@@ -149,25 +141,15 @@ export function KpiCharts({
   );
 }
 
-const TOOLTIP = {
-  border: "1px solid rgba(255,255,255,0.14)",
-  borderRadius: 10,
-  background: "#18181C",
-  boxShadow: "0 14px 32px -18px rgba(12,12,10,0.4)",
-  fontSize: 13,
-  color: INK,
-} as const;
+
 
 const LEGEND = { fontSize: 12, paddingTop: 8 } as const;
 
 function ChartHeading({ title, description }: { title: string; description: string }) {
   return (
     <div>
-      <h3 className="font-display text-base font-bold tracking-tight text-ink">{title}</h3>
-      <p className="mt-0.5 text-[13px] text-ink/50">{description}</p>
+      <h3 className="font-display text-base font-bold tracking-tight text-ink-heading">{title}</h3>
+      <p className="mt-0.5 text-[13px] text-ink-muted">{description}</p>
     </div>
   );
 }
-
-/** Referenced by the ROAS chart's colour choice; kept for the danger tone. */
-export const ROAS_BELOW_COLOR = DANGER;

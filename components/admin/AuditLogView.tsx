@@ -102,7 +102,7 @@ export function AuditLogView() {
           />
         </div>
 
-        <label className="flex cursor-pointer items-center gap-2 pb-2.5 text-[13px] text-ink/70">
+        <label className="flex cursor-pointer items-center gap-2 pb-2.5 text-[13px] text-ink-2">
           <input
             type="checkbox"
             checked={leadOnly}
@@ -148,7 +148,7 @@ export function AuditLogView() {
                   <div className="min-w-0 flex-1">
                     <p className="flex flex-wrap items-center gap-2 text-[13px] text-ink">
                       <span className="font-medium">{entry.actor?.name ?? "System"}</span>
-                      <span className="text-ink/55">{entry.summary}</span>
+                      <span className="text-ink-muted">{entry.summary}</span>
                       {entry.asLead && (
                         <Badge size="sm" tone="info">
                           as Service Lead
@@ -157,7 +157,7 @@ export function AuditLogView() {
                     </p>
 
                     {(entry.before || entry.after) && (
-                      <p className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 font-mono text-[11px] text-ink/45">
+                      <p className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 font-mono text-[11px] text-ink-muted">
                         {Object.keys({ ...entry.before, ...entry.after }).map((key) => (
                           <span key={key}>
                             {key}: {format(entry.before?.[key])} → {format(entry.after?.[key])}
@@ -176,7 +176,7 @@ export function AuditLogView() {
             </ul>
           )}
 
-          <p className="flex items-center gap-2 border-t border-line px-5 py-3 text-[12px] text-ink/40">
+          <p className="flex items-center gap-2 border-t border-line px-5 py-3 text-[12px] text-ink-muted">
             <ShieldCheck className="h-3.5 w-3.5" />
             Append-only. Nothing here is edited or removed, including by the owner.
           </p>

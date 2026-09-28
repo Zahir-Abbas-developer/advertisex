@@ -54,7 +54,7 @@ export function RunEvaluationButton() {
       </Button>
 
       {result && (
-        <p className="flex items-center gap-1.5 text-right text-[12px] text-ink/50">
+        <p className="flex items-center gap-1.5 text-right text-[12px] text-ink-muted">
           <CheckCircle2 aria-hidden className="h-3.5 w-3.5 text-brand" />
           {summarize(result)}
         </p>

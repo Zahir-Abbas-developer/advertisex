@@ -86,7 +86,7 @@ export function AssigneePicker({
               <span className="block text-sm font-medium text-ink">
                 Decide automatically
               </span>
-              <span className="mt-0.5 block truncate text-[12px] text-ink/50">
+              <span className="mt-0.5 block truncate text-[12px] text-ink-muted">
                 {autoHint ?? "Routed by skill, then by who is carrying the least"}
               </span>
             </span>
@@ -130,7 +130,7 @@ export function AssigneePicker({
                 </span>
 
                 {member.matchedSkills.length > 0 && (
-                  <span className="mt-0.5 block truncate text-[12px] text-ink/50">
+                  <span className="mt-0.5 block truncate text-[12px] text-ink-muted">
                     {member.matchedSkills.join(" · ")}
                   </span>
                 )}
@@ -138,7 +138,7 @@ export function AssigneePicker({
 
               {/* Load at the moment of assignment — the number that stops every
                   new lead landing on whoever comes first alphabetically. */}
-              <span className="shrink-0 text-[12px] text-ink/45">
+              <span className="shrink-0 text-[12px] text-ink-muted">
                 {member.openLeads === 0
                   ? "no open leads"
                   : `${member.openLeads} open`}

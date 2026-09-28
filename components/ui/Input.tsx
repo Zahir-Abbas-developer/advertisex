@@ -57,7 +57,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
         {icon && (
           <span
             aria-hidden
-            className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-ink/40"
+            className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-muted"
           >
             {icon}
           </span>
@@ -80,7 +80,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
           {error}
         </p>
       ) : hint ? (
-        <p id={`${inputId}-hint`} className="mt-1.5 text-[13px] text-ink/50">
+        <p id={`${inputId}-hint`} className="mt-1.5 text-[13px] text-ink-muted">
           {hint}
         </p>
       ) : null}

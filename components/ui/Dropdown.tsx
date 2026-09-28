@@ -117,7 +117,7 @@ export function Dropdown({
                 "disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent",
               )}
             >
-              {item.icon && <span className="text-ink/50 [&>svg]:h-4 [&>svg]:w-4">{item.icon}</span>}
+              {item.icon && <span className="text-ink-muted [&>svg]:h-4 [&>svg]:w-4">{item.icon}</span>}
               {item.label}
             </button>
           ))}

@@ -116,7 +116,7 @@ export function FollowUpDialog({
                 disabled={saving}
                 onClick={() => void send({ action: "snooze", days: option.days })}
                 className={cn(
-                  "rounded-pill border border-line bg-surface px-3 py-1.5 text-[13px] text-ink/60 transition-colors",
+                  "rounded-pill border border-line bg-surface px-3 py-1.5 text-[13px] text-ink-muted transition-colors",
                   "hover:border-ink/25 hover:text-ink disabled:opacity-50",
                 )}
               >
@@ -160,7 +160,7 @@ export function FollowUpDialog({
               hint="When should we speak next?"
             />
 
-            <label className="flex items-start gap-2.5 text-[13px] text-ink/70">
+            <label className="flex items-start gap-2.5 text-[13px] text-ink-2">
               <input
                 type="checkbox"
                 checked={close}
@@ -169,7 +169,7 @@ export function FollowUpDialog({
               />
               <span>
                 No further follow-up needed
-                <span className="mt-0.5 block text-ink/45">
+                <span className="mt-0.5 block text-ink-muted">
                   Only tick this if the conversation is genuinely finished — it
                   stops the reminders entirely.
                 </span>

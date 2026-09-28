@@ -1,93 +1,120 @@
-# Design System — Obsidian & Gold
+# Design System — Forest & Mint
 
 > How CLAUDE.md §7 is implemented in this codebase. §7 is the doctrine; this
 > document is the map from doctrine to code. If they disagree, §7 wins and this
-> file has a bug. Established Phase 1 (2026-09-25); founder decision D3.
+> file has a bug. Established Phase 1 as "Obsidian & Gold" (D3); rethemed to
+> the light "Forest & Mint" palette by the founder on 2026-09-28 (ADR-017).
+> The palette comes from `forest-mint-theme.css`, sampled pixel-exact from the
+> founder's reference dashboard. Its values are fixed: never adjust a hex.
 
 ## Where the system lives
 
 | Layer | File | What it holds |
 |---|---|---|
-| Tokens | `tailwind.config.ts` | Colors, fonts, radii, glow gradients — the only place a color value is defined |
-| Base styles | `app/globals.css` | Page background, selection, focus ring, `.surface-dark`, scrollbars |
-| Fonts | `app/layout.tsx` | Inter Tight (display) + Inter (body) via `next/font`, exposed as `--font-display` / `--font-sans` |
-| Primitives | `components/ui/*` | Button, Card, Badge, Input, Select, Textarea, Checkbox, Modal (dialog), Drawer (sheet), Dropdown, Tooltip, Table, Tabs, Toast, StatCard (KPI tile), Pagination, EmptyState, Skeleton, Avatar… |
-| Showcase | `/design-system` (dev-only route) | Every token and primitive rendered live; if the page and this file disagree, one has a bug |
-| Charts | `components/kpis/KpiCharts.tsx` | The recharts theme constants (data-series hexes live here, mirrored from the tokens) |
-| Emails | `lib/email/templates.ts` | Inline-styled palette — deliberately light-canvas (see below) |
-| Icons | `scripts/generate-icons.mjs` | PWA/touch icons: gold "A" on obsidian |
+| Values | `app/globals.css` | **The only place a color value is defined**: the raw palette as RGB triples (`--c-green-800: 14 91 55`), the role variables that point at it, and the `.surface-dark` re-scope |
+| Tokens | `tailwind.config.ts` | Maps class names to the role variables (`rgb(var(--ink) / <alpha-value>)`), plus fonts, radii and the glow |
+| Fonts | `app/layout.tsx` | Inter Tight (display) + Inter (body) via `next/font` |
+| Primitives | `components/ui/*` | Button, Card, Badge, Input, Select, Textarea, Checkbox, Modal, Drawer, Dropdown, Tooltip, Table, Tabs, Toast, StatCard, Pagination, EmptyState, Skeleton, Avatar… |
+| Charts | `components/charts/theme.ts` | `PALETTE` (the hexes, for recharts and SVG), `CHART` roles, `STACK` order, `AXIS`, `TOOLTIP`, `CURSOR` |
+| Showcase | `/design-system` (dev-only) | The palette ramp, role tokens, data rules and every primitive, rendered live |
+| Guards | `tests/design-tokens.test.ts` | The palette is exact; the two text/data rules; no off-palette color |
+| Emails · PDF · icons | `lib/email/templates.ts` · `modules/billing/pdf.ts` · `scripts/generate-icons.mjs` | Inline copies of the same hexes (they can't read CSS variables) |
 
-## Tokens
+## The palette (exact)
 
-Class-name → value → §7 variable. The class names predate the retheme — they are
-kept so seven hundred call sites didn't churn — but every **value** is §7's.
+| Raw | Hex | Role |
+|---|---|---|
+| green-950 | `#022313` | primary ink; darkest stacked segment; deep panels |
+| green-800 | `#0E5B37` | **brand**: CTA, active nav, the hero KPI card, card titles |
+| green-600 | `#279D61` | series 1 / positive · success fill |
+| green-400 | `#51B883` | series 2 |
+| green-200 | `#9BD4B4` | series 3 |
+| green-100 | `#CEE4D9` | donut/progress track, light fills |
+| green-50 | `#E7F4EB` | page background |
+| white | `#FFFFFF` | cards |
+| gray-50 | `#F8F8FB` | surface-2: hover, elevated, inset |
+| gray-100 | `#F1F1F4` | table header row |
+| gray-300 | `#CBCBCD` | neutral data |
+| gray-400 | `#AFB0B1` | baselines, reference lines |
+| gray-600 | `#656565` | **negative data**; muted text |
+| chart-fill | `#D5E0DC` | area fill |
+| teal-500 | `#50A6BC` | the one contrasting accent (final stacked segment, info fills) |
 
-| Tailwind token | Value | §7 name | Use |
-|---|---|---|---|
-| `canvas` | `#0B0B0D` | `--bg` | Page background (`bg-canvas`); also text on gold (`bg-brand text-canvas`). **Not** `base`: Tailwind owns `text-base` as a font size, and a color token of that name silently loses to it |
-| `surface` | `#121215` | `--surface-1` | Cards |
-| `surface-2` | `#18181C` | `--surface-2` | Elevated: hovers, popovers, inset panels |
-| `ink` | `#F5F3EE` | `--text` | All foreground text. Secondary/muted text is opacity, not a second token: `text-ink/60`, `text-ink/45` |
-| `line` / `line-strong` | white 8% / 14% | `--border(-strong)` | Hairlines. Depth = surface steps + hairlines, never shadows |
-| `brand` / `brand-hover` / `brand-tint` | `#D4AF37` / `#E5C558` / gold 12% | `--accent*` | Identity & emphasis **only**: primary CTA, active nav/chips, headline KPIs. Swappable in one place |
-| `data-1/2/3` | `#2DD4BF` / `#818CF8` / `#F472B6` | `--data-*` | Chart series. **Charts never use gold.** |
-| `success/warn/danger/info` (+`-tint`) | `#22C55E` / `#F59E0B` / `#EF4444` / `#38BDF8` | semantic | Status only. Badge `success` is green, not gold |
+Derived in the theme file (not in the screenshot): `#3D5E4C` secondary text,
+`#166A41` brand hover, `#D97706` warning, `#DC2626` danger.
 
-Recurring compositions:
+## Tokens (class → role)
 
-- **Active/selected chip:** `border-brand/50 bg-brand-tint text-brand` (was the
-  old solid-ink chip — gold-soft is the selected state everywhere now).
-- **Gold CTA:** `bg-brand text-canvas hover:bg-brand-hover` — dark text on gold,
-  never white on gold.
-- **Overlay scrims** (Modal, Drawer, command palette): `bg-black/60` — true
-  black, not a token, because the scrim must darken regardless of theme.
-- **Hero panels:** the `.surface-dark` utility — `#08080A` (one step *below*
-  the page) with the `bg-glow-brand` radial gold glow as a `::before`. Used by
-  `<Card surface="dark">` and `PageHeader`. This is the one permitted glow.
-- **Hairlines on heroes:** `border-ink/10`, `ring-ink/15` — ink-alpha, since
-  ink is the warm white.
+| Tailwind | Role | Notes |
+|---|---|---|
+| `canvas` | `--bg` green-50 | page. Not `base`: Tailwind owns `text-base` |
+| `surface` / `surface-2` / `surface-head` | white / gray-50 / gray-100 | depth = mint → gray-50 → white + hairlines |
+| `ink` | green-950 | primary text, 16.8:1 |
+| `ink-heading` | green-800 | card titles (`CardHeader`), 8.2:1 |
+| `ink-2` | `#3D5E4C` | secondary text |
+| `ink-muted` | gray-600 | muted text, 5.8:1. Replaced the old `text-ink/40…60` opacities, which fail on white |
+| `on-brand` | white | text on brand, danger and hero fills |
+| `line` / `line-strong` | green-950 at 8% / 14% | hairlines |
+| `brand` (`-hover`, `-strong`, `-tint`) | green-800 · `#166A41` · green-950 · 10% | identity and emphasis |
+| `data-1…5`, `data-negative`, `data-neutral`, `data-alt`, `data-track`, `data-area`, `data-baseline` | the green scale · gray-600 · gray-300 · teal · green-100 · chart-fill · gray-400 | fills only |
+| `success` / `success-ink` / `success-tint` | green-600 / green-800 / 12% | fill green-600; **text** is `success-ink` |
+| `warn`, `danger`, `info` (+`-tint`) | `#D97706`, `#DC2626`, teal | see rules |
+| `green-*`, `gray-*`, `teal-500` | the raw palette | only the listed steps exist in use (tested) |
 
-## Typography
+## The rules (enforced by `tests/design-tokens.test.ts`)
 
-- **Display** (`font-display`): Inter Tight 500/600/700 — headings, KPI
-  numbers, the wordmark. Weight caps at **700**: `font-extrabold` is banned
-  (the face isn't loaded above 700; the class silently falls back).
-- **Body** (`font-sans`, default): Inter 400/500/600.
-- Numbers use tabular figures (`tabular-nums`) wherever they align in columns.
-- Scale and line-heights follow §7 (12/14/16/20/24/32/40; 1.5 body, 1.15 display).
+1. **Negative data is gray, never red.** Falling trends, negative deltas,
+   bars below zero and low scores use `data-negative` (gray-600). `danger` is
+   for destructive actions and errors. Alert **statuses** (an "Overdue" or
+   "Absent" badge, a late date, an "at risk" dot) keep danger red: they are
+   states that need action, not numbers. A number itself is never red.
+2. **Green-600 and lighter are never text**, and neither is teal. The test
+   fails any `text-green-600…50`, `text-teal-500`, `text-data-*` (except
+   `data-negative`), `text-success`, `text-info` or `text-warn` in a class
+   string. Icons are exempt: a literal that sizes an icon (`h-4 w-4 …`), plus
+   the two icon-chip maps (StatCard, NotificationBell). Text uses `ink`,
+   `ink-2`, `ink-muted`, `ink-heading`, `brand` or `success-ink`. The
+   warning orange is 3.2:1 on white, so warning text is ink; the orange
+   stays on tints, borders and icons.
+3. **One filled hero card per view:** `<StatCard variant="hero">` (brand fill,
+   white text) on Finance, Leads analytics and Projects analytics.
+4. **Stacked bars run dark → light** (`STACK`: 950, 800, 600, 400, 200), with
+   teal for one contrasting final segment.
+5. **Card titles are brand green** (`ink-heading`); body numbers are `ink`.
+6. **Depth:** mint page → gray-50 → white cards, hairlines, no heavy shadows.
+   Scrims are green-950 at 40%.
+7. **New colors enter through `app/globals.css` or not at all.** No stock
+   Tailwind palette, no off-palette steps, no Obsidian & Gold hex (tested).
+
+## Deep panels (`.surface-dark`)
+
+The sidebar, dashboard hero, attendance and performance hero cards, the
+login panel and report mastheads use `.surface-dark`: a green-950 panel under
+a faint green glow. It **re-scopes the role variables**: `ink` becomes white,
+`ink-2`/`ink-muted` become gray-100/gray-300, hairlines become white-alpha,
+`surface-2` becomes green-800, and the **accent turns white** (a white button
+with green-950 text, white active states). So nothing inside needs different
+classes, and no light green is ever used as text.
 
 ## Charts
 
-recharts, themed in `KpiCharts.tsx`: series draw with `data-1`/`data-2`
-(teal/indigo; rose is rare), grid lines white-8%, axis text ink at low opacity,
-tooltips on `surface-2` with a strong hairline. Semantic exceptions are allowed
-where the color *is* the meaning (ROAS below target = danger). Area fills ≤ 8%
-opacity, 1.5–2px strokes, 1–3 series, no gradients beyond the permitted fills.
-The MRR hero sparkline is `data-1` teal — a chart, so not gold, even on the
-gold-glow panel.
+`components/charts/theme.ts` is the only chart palette. Series follow the
+green scale (`data1` green-600 first). Negatives are gray, and a target line
+is a dashed gray baseline. Tooltips are white with a hairline. Axis text is
+gray-600, and gridlines are the hairline.
 
-## The deliberate exceptions
+## Typography
 
-- **Emails** (`lib/email/templates.ts`) keep a light canvas: dark-themed HTML
-  is what email clients mangle most. They carry the brand as an obsidian
-  header, an obsidian CTA with gold text, and a **deep gold** (`#8C6D1F`) for
-  accent text — `#D4AF37` fails contrast on white.
-- **`app/global-error.tsx`** uses inline styles (it renders before any CSS
-  pipeline exists) — obsidian page, gold CTA, values hard-coded on purpose.
-- **Report documents** (`components/reports/*Document.tsx`) currently render
-  on app tokens (dark). If a print/PDF path is added later, they will need a
-  light token set — noted, not built (over-engineering ahead of need).
+Unchanged: Inter Tight (display, ≤700) and Inter (body), tabular figures for
+aligned numbers, scale 12/14/16/20/24/32/40.
 
-## Rules that keep it premium
+## Outside the CSS pipeline
 
-Straight from §7, enforced in review:
-
-1. Gold is scarce. If a screen has more than one solid-gold element visible at
-   rest, something is misusing the token.
-2. No shadows for depth; surface steps + hairlines only. One glow, on heroes.
-3. Motion 150–200ms ease-out, state changes only.
-4. No emojis in UI, no decorative gradients, no oversized icons (Lucide
-   16–20px, 1.5 stroke).
-5. New colors enter through `tailwind.config.ts` or not at all. A literal hex
-   in a component is a review failure (charts/email/global-error excepted, as
-   above).
+- **Emails**: mint page, white card, green-950 header band with white title
+  and gray-300 eyebrow, brand-green CTA with white text, gray-600 muted text.
+- **`app/global-error.tsx`** and **`public/offline.html`**: inline styles, mint
+  page, brand CTA.
+- **Invoice PDF**: green-950 header band with a green-600 rule, a brand mark,
+  white title, a mint amount panel and brand table rule.
+- **PWA icons and manifest**: white "A" on brand green; theme color brand,
+  background mint.

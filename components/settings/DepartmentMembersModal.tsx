@@ -143,7 +143,7 @@ export function DepartmentMembersModal({
         </div>
       ) : (
         <div className="space-y-2">
-          <p className="mb-3 text-[13px] leading-relaxed text-ink/55">
+          <p className="mb-3 text-[13px] leading-relaxed text-ink-muted">
             Members see only the departments they belong to. Skills are free
             text — whatever this business line actually needs.
           </p>
@@ -157,7 +157,7 @@ export function DepartmentMembersModal({
                 key={person.id}
                 className={cn(
                   "rounded-card border px-4 py-3 transition-colors",
-                  active ? "border-brand/25 bg-brand-tint/40" : "border-line bg-canvas",
+                  active ? "border-brand/25 bg-brand/[0.04]" : "border-line bg-canvas",
                 )}
               >
                 <label className="flex items-center gap-3">
@@ -172,7 +172,7 @@ export function DepartmentMembersModal({
                     <span className="block truncate text-[13px] font-medium text-ink">
                       {person.name}
                     </span>
-                    <span className="block truncate text-[12px] text-ink/45">
+                    <span className="block truncate text-[12px] text-ink-muted">
                       {person.email}
                     </span>
                   </span>
@@ -189,7 +189,7 @@ export function DepartmentMembersModal({
                           ),
                         )
                       }
-                      className="rounded-[8px] border border-line bg-canvas px-2 py-1 text-[12px] text-ink/70"
+                      className="rounded-[8px] border border-line bg-canvas px-2 py-1 text-[12px] text-ink-2"
                     >
                       {DEPT_ROLES.map((r) => (
                         <option key={r} value={r}>
@@ -201,12 +201,12 @@ export function DepartmentMembersModal({
                 </label>
 
                 {active && (
-                  <div className="mt-3 border-t border-line/70 pl-7 pt-3">
+                  <div className="mt-3 border-t border-line pl-7 pt-3">
                     <div className="flex flex-wrap items-center gap-1.5">
                       {draft!.skills.map((skill) => (
                         <span
                           key={skill}
-                          className="inline-flex items-center gap-1 rounded-pill border border-line bg-canvas px-2 py-0.5 text-[12px] text-ink/70"
+                          className="inline-flex items-center gap-1 rounded-pill border border-line bg-canvas px-2 py-0.5 text-[12px] text-ink-2"
                         >
                           {skill}
                           <button
@@ -228,7 +228,7 @@ export function DepartmentMembersModal({
                         </span>
                       ))}
                       {draft!.skills.length === 0 && (
-                        <span className="text-[12px] text-ink/40">No skills recorded</span>
+                        <span className="text-[12px] text-ink-muted">No skills recorded</span>
                       )}
                     </div>
 
@@ -258,7 +258,7 @@ export function DepartmentMembersModal({
           })}
 
           {people.length > 0 && (
-            <p className="pt-2 text-[12px] text-ink/45">
+            <p className="pt-2 text-[12px] text-ink-muted">
               <Badge tone="neutral">{drafts.length}</Badge> of {people.length} people
               assigned.
             </p>

@@ -38,10 +38,10 @@ export default async function LoginPage({
       <section className="surface-dark flex min-h-[38vh] flex-col justify-between overflow-hidden px-7 py-10 sm:px-12 lg:min-h-screen lg:w-[46%] lg:px-14 lg:py-14">
         <div className="relative">
           <div className="flex items-center gap-2.5">
-            <span className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-brand font-display text-sm font-bold text-canvas">
+            <span className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-brand font-display text-sm font-bold text-on-brand">
               A
             </span>
-            <span className="eyebrow text-ink/50">Internal platform</span>
+            <span className="eyebrow text-ink-muted">Internal platform</span>
           </div>
         </div>
 
@@ -51,7 +51,7 @@ export default async function LoginPage({
             <br />
             X
           </h1>
-          <p className="mt-6 max-w-sm text-[15px] leading-relaxed text-ink/55">
+          <p className="mt-6 max-w-sm text-[15px] leading-relaxed text-ink-muted">
             AI marketing for food &amp; drink brands — every lead, client and
             campaign in one place, so nothing is carried in someone&rsquo;s head.
           </p>
@@ -78,12 +78,12 @@ export default async function LoginPage({
           <h2 className="font-display text-[28px] font-bold leading-tight tracking-[-0.02em] text-ink">
             Sign in to your workspace
           </h2>
-          <p className="mt-2.5 text-sm leading-relaxed text-ink/55">
+          <p className="mt-2.5 text-sm leading-relaxed text-ink-muted">
             Use the credentials issued by your administrator.
           </p>
 
           {searchParams.ended && (
-            <p role="status" className="mt-6 rounded-lg border border-line bg-surface px-4 py-3 text-[13px] text-ink/70">
+            <p role="status" className="mt-6 rounded-lg border border-line bg-surface px-4 py-3 text-[13px] text-ink-2">
               Your previous session ended. Please sign in again.
             </p>
           )}
@@ -94,8 +94,8 @@ export default async function LoginPage({
 
           {process.env.NODE_ENV !== "production" && (
             <div className="mt-8 rounded-card border border-line bg-surface-2 px-4 py-3.5">
-              <p className="eyebrow mb-2 text-ink/40">Development</p>
-              <p className="text-[13px] leading-relaxed text-ink/60">
+              <p className="eyebrow mb-2 text-ink-muted">Development</p>
+              <p className="text-[13px] leading-relaxed text-ink-muted">
                 Seeded accounts use the shared placeholder password and are
                 forced to change it on first sign-in.
               </p>

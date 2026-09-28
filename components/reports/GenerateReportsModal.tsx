@@ -137,7 +137,7 @@ export function GenerateReportsModal({
                 <span
                   className={cn(
                     "mt-0.5 flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-[5px] border",
-                    selected ? "border-brand bg-brand text-canvas" : "border-line bg-surface",
+                    selected ? "border-brand bg-brand text-on-brand" : "border-line bg-surface",
                   )}
                 >
                   {selected && <Check className="h-3 w-3" strokeWidth={3} />}
@@ -146,7 +146,7 @@ export function GenerateReportsModal({
                   <span className="block text-sm font-medium text-ink">
                     {REPORT_TYPE_LABEL[value]}
                   </span>
-                  <span className="mt-0.5 block text-[12px] leading-relaxed text-ink/50">
+                  <span className="mt-0.5 block text-[12px] leading-relaxed text-ink-muted">
                     {DESCRIPTIONS[value]}
                   </span>
                 </span>
@@ -161,11 +161,11 @@ export function GenerateReportsModal({
             checked={regenerate}
             onChange={(event) => setRegenerate(event.target.checked)}
             disabled={saving}
-            className="mt-0.5 h-4 w-4 accent-[#D4AF37]"
+            className="mt-0.5 h-4 w-4 accent-brand"
           />
-          <span className="text-[13px] leading-relaxed text-ink/70">
+          <span className="text-[13px] leading-relaxed text-ink-2">
             Overwrite reports that already exist for this period.
-            <span className="mt-0.5 block text-[12px] text-ink/45">
+            <span className="mt-0.5 block text-[12px] text-ink-muted">
               A report is normally a frozen record. Only do this when the period&rsquo;s
               data was corrected after the fact.
             </span>

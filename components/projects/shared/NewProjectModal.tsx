@@ -146,12 +146,12 @@ export function NewProjectModal({ open, onClose, clientId }: { open: boolean; on
                   aria-pressed={on}
                   className={cn("flex items-start gap-2.5 rounded-[10px] border p-3 text-left transition-colors", on ? "border-brand bg-brand-tint" : "border-line hover:border-ink/20")}
                 >
-                  <span className={cn("mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border", on ? "border-brand bg-brand text-canvas" : "border-line")}>
+                  <span className={cn("mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border", on ? "border-brand bg-brand text-on-brand" : "border-line")}>
                     {on && <Check className="h-3 w-3" strokeWidth={3} />}
                   </span>
                   <span className="min-w-0">
                     <span className="block text-[13px] font-medium text-ink">{s.name}</span>
-                    <span className="block truncate text-[11px] text-ink/45">{s.stageTemplates.map((t) => t.name).join(" → ")}</span>
+                    <span className="block truncate text-[11px] text-ink-muted">{s.stageTemplates.map((t) => t.name).join(" → ")}</span>
                   </span>
                 </button>
               );
@@ -177,7 +177,7 @@ export function NewProjectModal({ open, onClose, clientId }: { open: boolean; on
 
         <fieldset>
           <legend className="mb-1.5 block text-[13px] font-medium text-ink/80">
-            Team {needed.size > 0 && <span className="font-normal text-ink/45">— people with the skills these services need come first</span>}
+            Team {needed.size > 0 && <span className="font-normal text-ink-muted">— people with the skills these services need come first</span>}
           </legend>
           <div className="flex max-h-44 flex-wrap gap-1.5 overflow-y-auto">
             {ranked.map((p) => {
@@ -188,11 +188,11 @@ export function NewProjectModal({ open, onClose, clientId }: { open: boolean; on
                   type="button"
                   aria-pressed={on}
                   onClick={() => toggle("memberIds", p.id)}
-                  className={cn("rounded-pill border px-3 py-1 text-[12px] transition-colors", on ? "border-brand bg-brand-tint text-ink" : "border-line text-ink/65 hover:border-ink/25")}
+                  className={cn("rounded-pill border px-3 py-1 text-[12px] transition-colors", on ? "border-brand bg-brand-tint text-ink" : "border-line text-ink-2 hover:border-ink/25")}
                 >
                   {p.name}
-                  {p.isAgent && <span className="ml-1 text-data-2">AI</span>}
-                  {p.match > 0 && <span className="ml-1 text-data-1">· {p.match} skill{p.match > 1 ? "s" : ""}</span>}
+                  {p.isAgent && <span className="ml-1 text-ink-2">AI</span>}
+                  {p.match > 0 && <span className="ml-1 text-success-ink">· {p.match} skill{p.match > 1 ? "s" : ""}</span>}
                 </button>
               );
             })}

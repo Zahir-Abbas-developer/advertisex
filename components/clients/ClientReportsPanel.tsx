@@ -122,7 +122,7 @@ export function ClientReportsPanel({ clientId }: { clientId: string }) {
                 {file ? file.name : "Choose file"}
               </Button>
               {errors.file && <span className="text-[12px] text-danger">{errors.file}</span>}
-              <label className="flex items-center gap-2 text-[13px] text-ink/65">
+              <label className="flex items-center gap-2 text-[13px] text-ink-2">
                 <input type="checkbox" className="accent-brand" checked={form.publish} onChange={(e) => setForm({ ...form, publish: e.target.checked })} />
                 Publish to the client now
               </label>
@@ -146,7 +146,7 @@ export function ClientReportsPanel({ clientId }: { clientId: string }) {
                 <li key={r.id} className="flex flex-wrap items-center gap-3 px-5 py-3.5 sm:px-6">
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-[14px] text-ink">{r.title}</p>
-                    <p className="text-[12px] text-ink/45">
+                    <p className="text-[12px] text-ink-muted">
                       {r.periodLabel} · {REPORT_KIND_LABEL[r.kind as keyof typeof REPORT_KIND_LABEL] ?? "Report"} · {formatBytes(r.file.size)}
                       {r.publishedAt ? ` · published ${formatDate(r.publishedAt)}` : ""}
                       {r.status === "PUBLISHED" ? (r.readBy.length ? ` · opened by ${r.readBy.join(", ")}` : " · not opened yet") : ""}
@@ -160,7 +160,7 @@ export function ClientReportsPanel({ clientId }: { clientId: string }) {
                       <Button size="sm" variant="ghost" onClick={() => void patch(r, r.status === "PUBLISHED" ? "DRAFT" : "PUBLISHED")}>
                         {r.status === "PUBLISHED" ? "Withdraw" : "Publish"}
                       </Button>
-                      <button type="button" onClick={() => void remove(r)} className="rounded p-1.5 text-ink/45 hover:text-danger" aria-label={`Delete ${r.title}`}>
+                      <button type="button" onClick={() => void remove(r)} className="rounded p-1.5 text-ink-muted hover:text-danger" aria-label={`Delete ${r.title}`}>
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </>

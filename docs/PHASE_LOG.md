@@ -5,6 +5,36 @@ phase → status → done → next → blockers.*
 
 ---
 
+## 2026-09-28 — Retheme to "Forest & Mint" (founder directive, between gates)
+
+**Status:** ✅ done. Phase 7 is still at its gate, waiting for *"Phase 7 approved"*. This was a founder-directed presentation change, not Phase 8.
+
+**Done:**
+- CLAUDE.md §7 replaced with the Forest & Mint palette (exact hexes from `forest-mint-theme.css`, light theme, same token names). DESIGN_SYSTEM.md rewritten; ADR-017.
+- Values live once in `app/globals.css` (RGB triples), and Tailwind reads the role variables. `.surface-dark` re-scopes them for deep green-950 panels (sidebar, heroes, report mastheads): text and the accent turn white there.
+- About 760 muted-text usages moved from ink opacities (which fail on white) to the `ink-muted`/`ink-2` tokens.
+- Semantic text tokens: success text is brand green; info and warning text is ink, with the hue kept on tints, borders and icons.
+- Tints are solid `color-mix` values, so a red tint doesn't turn brown on the mint page.
+- The founder's two rules, enforced by `tests/design-tokens.test.ts`:
+  - negative data is gray, never red (trends, deltas, low scores; the chart theme has no red);
+  - green-600 and lighter (and teal) are never text, in class strings and in email/error-page/PDF inline styles.
+- Also tested: the palette's values are exact; no stock or off-palette colors; no leftover Obsidian & Gold hex.
+- One filled brand-green hero KPI card per view (Finance, Leads analytics, Projects analytics).
+- Charts, the invoice PDF, emails, the error and offline pages, PWA icons and the manifest all moved to the palette.
+- Stored avatar colors are mapped to the new palette at display time (no data rewritten).
+- `/design-system` re-rendered: the palette ramp, role tokens, data rules and every primitive.
+
+**Gate:** all green:
+- 895 unit tests;
+- every harness;
+- smoke:empty (134), build and bundle scan.
+
+The built CSS carries the exact palette. The first leak-scan run lost its server connection mid-run; the re-run passed. Browser check at 375 and 1280 of the main screens for founder, employee and client, plus the login, design-system and portal pages: no overflow, no console errors. One muddy danger tint on the mint page was found and fixed.
+
+**Behaviour:** unchanged. Presentation only.
+
+---
+
 ## 2026-09-28 — Phase 7: DELIVERED, awaiting gate
 
 **Phase:** 7 — Invoices, Payments & Financial Overview (prompt verbatim in `docs/PHASES.md`)

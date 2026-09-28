@@ -139,7 +139,7 @@ export function PushSetup() {
 
       <div className="mt-3 min-w-0 flex-1 sm:mt-0">
         <p className="text-sm font-medium text-ink">Turn on notifications?</p>
-        <p className="mt-0.5 text-[13px] leading-relaxed text-ink/55">
+        <p className="mt-0.5 text-[13px] leading-relaxed text-ink-muted">
           So you never miss an availability check. They&rsquo;re random and the
           window closes — a notification is the difference between answering in
           time and losing a point.
@@ -154,7 +154,7 @@ export function PushSetup() {
           type="button"
           onClick={dismiss}
           aria-label="Not now"
-          className="rounded-[9px] p-2 text-ink/35 transition-colors hover:bg-surface-2 hover:text-ink/70"
+          className="rounded-[9px] p-2 text-ink/35 transition-colors hover:bg-surface-2 hover:text-ink-2"
         >
           <X className="h-4 w-4" />
         </button>

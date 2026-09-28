@@ -76,9 +76,10 @@ export const HEALTH_BAND_TONE: Record<HealthBand, "success" | "warning" | "dange
 
 /** Hex from the fixed palette, for the dot on a client card. */
 export const HEALTH_BAND_COLOR: Record<HealthBand, string> = {
-  HEALTHY: "#22C55E",
-  WATCH: "#F59E0B",
-  AT_RISK: "#EF4444",
+  HEALTHY: "#279D61",
+  WATCH: "#D97706",
+  // A status alert (like an "Overdue" badge), so it keeps the danger red.
+  AT_RISK: "#DC2626",
 };
 
 export type HealthComponent = {

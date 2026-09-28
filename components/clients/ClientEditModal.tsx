@@ -268,7 +268,7 @@ export function ClientEditModal({
             <span className="block text-[13px] font-medium text-ink">
               Renew this retainer automatically
             </span>
-            <span className="mt-0.5 block text-[13px] leading-relaxed text-ink/55">
+            <span className="mt-0.5 block text-[13px] leading-relaxed text-ink-muted">
               When the cycle ends, the next month&rsquo;s plan is created
               overnight from this one — same structure, same assignees, shifted
               dates. Unfinished work carries over with a new deadline and no

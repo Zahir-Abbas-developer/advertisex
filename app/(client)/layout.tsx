@@ -45,7 +45,7 @@ export default async function ClientLayout({ children }: { children: ReactNode }
     <ClientShell
       accountName={clientAccount.name}
       isOwner={account?.clientRole === "OWNER"}
-      user={{ name: account?.name ?? user.name ?? "You", avatarColor: account?.avatarColor ?? "#D4AF37" }}
+      user={{ name: account?.name ?? user.name ?? "You", avatarColor: account?.avatarColor ?? "#0E5B37" }}
     >
       {children}
     </ClientShell>

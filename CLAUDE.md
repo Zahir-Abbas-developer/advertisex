@@ -148,30 +148,46 @@ A module exposes a small public API; other modules import only that. No cross-mo
 
 ---
 
-## 7. Design System — "Obsidian & Gold"
+## 7. Design System — "Forest & Mint"
 
-The product must read as **AI + Technology + Marketing + Enterprise + Premium SaaS** — and, per the founder, *elite and luxurious*. Luxury comes from **restraint, depth, and space**, never decoration. Striking through darkness, one precious accent, and generous whitespace — not through many colors, gradients, or motion.
+The product must read as **AI + Technology + Marketing + Enterprise + Premium SaaS** — *elite and luxurious*, and eye-catching. Luxury comes from **restraint, depth, and space**, never decoration: a calm mint page, crisp white cards, one deep brand green, and data that runs down a single green scale. (Rethemed from the dark "Obsidian & Gold" by founder decision, 2026-09-28 — ADR-017. The palette is from `forest-mint-theme.css`, sampled pixel-exact from the reference dashboard; **its values are fixed — never adjust a hex**.)
 
 ### Color tokens
-Dark is the default premium theme. A light theme is an inverse token set, optional later.
+Light is the theme. Every value lives once in `app/globals.css` (as RGB triples) and reaches components through `tailwind.config.ts`; `docs/DESIGN_SYSTEM.md` maps names to classes.
 ```
---bg:             #0B0B0D   /* obsidian page background */
---surface-1:      #121215   /* cards */
---surface-2:      #18181C   /* elevated · hover · popovers */
---border:         rgba(255,255,255,0.08)   /* hairline */
---border-strong:  rgba(255,255,255,0.14)
---text:           #F5F3EE   /* warm white */
---text-2:         #A1A1AA
---text-muted:     #6B6B75
---accent:         #D4AF37   /* champagne gold — the signature. Use sparingly. */
---accent-hover:   #E5C558
---accent-soft:    rgba(212,175,55,0.12)    /* gold tint: selected / active */
---data-1:         #2DD4BF   /* electric teal — primary data / positive */
---data-2:         #818CF8   /* indigo — secondary series */
---data-3:         #F472B6   /* rose — tertiary series (rare) */
---success: #22C55E   --warning: #F59E0B   --danger: #EF4444   --info: #38BDF8
+/* Raw scale [measured] */
+--green-950: #022313   /* darkest — ink, darkest bar segment, deep panels */
+--green-800: #0E5B37   /* BRAND — KPI hero card, CTA, active nav, card titles */
+--green-600: #279D61   /* primary series / positive */
+--green-400: #51B883   /* secondary series */
+--green-200: #9BD4B4   /* tertiary series */
+--green-100: #CEE4D9   /* donut track, light fills */
+--green-50:  #E7F4EB   /* page background */
+--white:     #FFFFFF   /* cards */
+--gray-50:   #F8F8FB   /* elevated · hover · popovers */
+--gray-100:  #F1F1F4   /* table header */
+--gray-300:  #CBCBCD   /* neutral data */
+--gray-400:  #AFB0B1   /* baselines */
+--gray-600:  #656565   /* NEGATIVE data · muted text */
+--chart-fill:#D5E0DC   /* area fill */
+--teal-500:  #50A6BC   /* the one contrasting accent */
+
+/* Roles (same names as before) */
+--bg: green-50        --surface-1: white        --surface-2: gray-50
+--border: rgba(2,35,19,0.08)                    --border-strong: rgba(2,35,19,0.14)
+--text: green-950 (16.8:1)   --text-heading: green-800   --text-2: #3D5E4C   --text-muted: gray-600 (5.8:1)
+--accent: green-800   --accent-hover: #166A41   --accent-soft: rgba(14,91,55,0.10)   --on-accent: white
+--data-1..5: green-600, green-400, green-200, green-800, green-950
+--data-negative: gray-600   --data-alt: teal-500   --data-track: green-100
+--success: green-600   --info: teal-500   --warning: #D97706   --danger: #DC2626
 ```
-**Rule:** gold is for **identity and emphasis** — primary CTA, active navigation, headline KPIs, hairline dividers on premium panels. Charts use `--data-*`; never gold for every series. The signature accent is **one token** — it can be swapped (emerald / sapphire) without touching a component.
+**Rules (tested — `tests/design-tokens.test.ts`):**
+- **Negative data is gray, never red.** `--danger` is for destructive actions and errors (and alert *statuses* like an "Overdue" badge) — never for a number, a bar or a delta.
+- **Green-600 and lighter (and teal) are never text** — data, fills and icons only. Text is ink, `text-2`, `text-muted`, `text-heading` or the brand green.
+- **One filled hero card per view:** the brand-green KPI tile with white text; every other card is white with ink.
+- **Stacked bars run dark → light** (950 → 800 → 600 → 400 → 200), teal for one contrasting final segment.
+- **Card titles are brand green;** body numbers are ink. Depth: mint → gray-50 → white + hairlines; no heavy shadows.
+- **Deep panels** (`.surface-dark`: sidebar, heroes, report mastheads) are green-950; inside them the tokens re-scope — text and the accent turn white.
 
 ### Typography
 Two families maximum. **Headings:** *Geist* or *Inter Tight* (tight tracking, weights 500–700). **Body:** *Inter* (400/500). **All numbers use tabular figures.** Scale: 12 / 14 / 16 / 20 / 24 / 32 / 40. Line-height 1.5 body, 1.15 display. An editorial serif (*Instrument Serif*) is allowed for marketing/hero moments only — never inside the app UI.
@@ -180,13 +196,13 @@ Two families maximum. **Headings:** *Geist* or *Inter Tight* (tight tracking, we
 4-pt grid. Card padding 24. Section gaps 32–48. Max content width 1440. Fixed, collapsible left navigation + slim top bar. Generous margins — **if it feels slightly too spacious, it's right.**
 
 ### Depth & shape
-Dark UIs get depth from **surface steps + hairline borders**, not heavy shadows. Radius: 12 (cards), 8 (inputs/buttons), 999 (pills). One subtle gold glow is permitted — on the primary CTA hover only.
+Depth comes from **surface steps (mint → gray-50 → white) + hairline borders**, not heavy shadows. Radius: 12 (cards), 8 (inputs/buttons), 999 (pills). One subtle green glow is permitted — on deep green-950 panels only.
 
 ### Components
 Cards = `surface-1` + hairline. Elegant tables: sticky header, 44px rows, row hover, tabular numbers, no zebra striping. KPI tiles: label, large tabular number, delta with semantic color, tiny sparkline. Professional forms: clear labels, inline validation, never placeholder-as-label. Command palette (⌘K). Toasts. Skeleton loaders. **Elegant empty states with one clear action.** Icons: Lucide, 16–20px, 1.5 stroke — never oversized.
 
 ### Charts
-1–3 series max. Thin 1.5–2px lines. Area fills ≤ 8% opacity. Clean axes. No 3D, no gradients, no chart junk. Precise tooltips. **Every chart answers one question and its title states that question.**
+1–3 series max (stacked shares excepted), down the green scale; negatives gray. Thin 1.5–2px lines. Area fills in `--chart-fill` or ≤ 8% opacity. Clean axes. No 3D, no gradients, no chart junk. Precise tooltips. **Every chart answers one question and its title states that question.**
 
 ### Motion
 150–200ms ease-out for state changes only. No bounce, no decorative animation, no parallax.

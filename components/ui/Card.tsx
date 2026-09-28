@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 export interface CardProps {
   children: ReactNode;
   className?: string;
-  /** `inset` for sunken panels, `dark` for hero-style blocks with the gold glow. */
+  /** `inset` for sunken panels, `dark` for deep green hero blocks (one per view). */
   surface?: "card" | "inset" | "dark";
   padded?: boolean;
 }
@@ -52,11 +52,11 @@ export function CardHeader({
       )}
     >
       <div className="min-w-0">
-        <h3 className="font-display text-base font-bold tracking-tight text-ink">
+        <h3 className="font-display text-base font-bold tracking-tight text-ink-heading">
           {title}
         </h3>
         {description && (
-          <p className="mt-1 text-sm text-ink/60">{description}</p>
+          <p className="mt-1 text-sm text-ink-muted">{description}</p>
         )}
       </div>
       {action && <div className="shrink-0">{action}</div>}

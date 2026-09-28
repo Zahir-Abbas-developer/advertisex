@@ -85,12 +85,12 @@ export function ProjectUpdates({ projectId, viewerId }: { projectId: string; vie
           <Textarea label="Update" rows={3} value={form.body} onChange={(e) => setForm({ ...form, body: e.target.value })} />
           <div className="flex flex-wrap items-center justify-between gap-3">
             {canShare ? (
-              <label className={cn("flex items-center gap-2 rounded-lg border px-3 py-2 text-[13px]", form.share ? "border-brand/50 bg-brand-tint text-ink" : "border-line text-ink/65")}>
+              <label className={cn("flex items-center gap-2 rounded-lg border px-3 py-2 text-[13px]", form.share ? "border-brand/50 bg-brand-tint text-ink" : "border-line text-ink-2")}>
                 <input type="checkbox" className="accent-brand" checked={form.share} onChange={(e) => setForm({ ...form, share: e.target.checked })} />
                 Share with the client (appears in their portal)
               </label>
             ) : (
-              <span className="flex items-center gap-1.5 text-[12px] text-ink/45">
+              <span className="flex items-center gap-1.5 text-[12px] text-ink-muted">
                 <Lock className="h-3.5 w-3.5" /> Posted for the team; a manager can share it with the client.
               </span>
             )}
@@ -114,7 +114,7 @@ export function ProjectUpdates({ projectId, viewerId }: { projectId: string; vie
                   <Avatar name={u.author?.name ?? "?"} color={u.author?.avatarColor} size="sm" />
                   <div className="min-w-0">
                     <p className="text-[14px] font-medium text-ink">{u.title}</p>
-                    <p className="text-[12px] text-ink/45">
+                    <p className="text-[12px] text-ink-muted">
                       {u.author?.name ?? "Someone"} · {relativeFromNow(u.createdAt)}
                     </p>
                   </div>
@@ -127,14 +127,14 @@ export function ProjectUpdates({ projectId, viewerId }: { projectId: string; vie
                     <button
                       type="button"
                       onClick={() => void setVisibility(u, u.visibility === "CLIENT" ? "INTERNAL" : "CLIENT")}
-                      className="rounded p-1.5 text-ink/45 hover:bg-surface-2 hover:text-ink"
+                      className="rounded p-1.5 text-ink-muted hover:bg-surface-2 hover:text-ink"
                       aria-label={u.visibility === "CLIENT" ? `Make "${u.title}" internal` : `Share "${u.title}" with the client`}
                     >
                       {u.visibility === "CLIENT" ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   )}
                   {(canShare || u.author?.id === viewerId) && (
-                    <button type="button" onClick={() => void remove(u)} className="rounded p-1.5 text-ink/45 hover:bg-surface-2 hover:text-danger" aria-label={`Delete "${u.title}"`}>
+                    <button type="button" onClick={() => void remove(u)} className="rounded p-1.5 text-ink-muted hover:bg-surface-2 hover:text-danger" aria-label={`Delete "${u.title}"`}>
                       <Trash2 className="h-4 w-4" />
                     </button>
                   )}

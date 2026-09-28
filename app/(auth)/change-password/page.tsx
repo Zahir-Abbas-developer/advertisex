@@ -39,10 +39,10 @@ export default async function ChangePasswordPage() {
     <main className="flex min-h-screen items-center justify-center bg-canvas px-6 py-12">
       <div className="w-full max-w-[380px]">
         <div className="mb-7 flex items-center gap-2.5">
-          <span className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-brand font-display text-sm font-bold text-ink">
+          <span className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-brand font-display text-sm font-bold text-on-brand">
             M
           </span>
-          <span className="eyebrow text-ink/45">Advertise X</span>
+          <span className="eyebrow text-ink-muted">Advertise X</span>
         </div>
 
         <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-card border border-line bg-surface-2">
@@ -53,7 +53,7 @@ export default async function ChangePasswordPage() {
         <h1 className="font-display text-[28px] font-bold leading-tight tracking-[-0.02em] text-ink">
           Set your own password
         </h1>
-        <p className="mt-2.5 text-sm leading-relaxed text-ink/55">
+        <p className="mt-2.5 text-sm leading-relaxed text-ink-muted">
           Your account was created with a shared placeholder password. Choose
           your own before you carry on — it cannot be skipped.
         </p>

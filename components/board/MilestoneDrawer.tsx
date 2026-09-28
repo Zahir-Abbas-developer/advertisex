@@ -387,8 +387,8 @@ export function MilestoneDrawer({
                     dueUrgency(milestone.dueDate) === "overdue" && milestone.status !== "COMPLETED"
                       ? "border-danger/25 bg-danger-tint font-medium text-danger"
                       : dueUrgency(milestone.dueDate) === "soon" && milestone.status !== "COMPLETED"
-                        ? "border-warn/25 bg-warn-tint font-medium text-warn"
-                        : "border-line bg-surface text-ink/55",
+                        ? "border-warn/25 bg-warn-tint font-medium text-ink"
+                        : "border-line bg-surface text-ink-muted",
                   )}
                 >
                   Due {formatDate(milestone.dueDate)}
@@ -408,7 +408,7 @@ export function MilestoneDrawer({
               </div>
 
               {milestone.description && (
-                <p className="text-sm leading-relaxed text-ink/70">
+                <p className="text-sm leading-relaxed text-ink-2">
                   {milestone.description}
                 </p>
               )}
@@ -426,13 +426,13 @@ export function MilestoneDrawer({
                       {milestone.assignee.name}
                     </span>
                   ) : (
-                    <span className="text-ink/40">Unassigned</span>
+                    <span className="text-ink-muted">Unassigned</span>
                   )}
                 </Row>
                 <Row label="Weight">
                   <span className="flex items-center gap-2">
                     <WeightDots weight={milestone.weight} />
-                    <span className="text-ink/55">{milestone.weight} of 5</span>
+                    <span className="text-ink-muted">{milestone.weight} of 5</span>
                   </span>
                 </Row>
                 <Row label="Workstream">{milestone.moduleName}</Row>
@@ -459,7 +459,7 @@ export function MilestoneDrawer({
                     <span className="inline-flex items-center gap-2">
                       <QualityStars rating={milestone.qualityRating} />
                       {milestone.qualityComment && (
-                        <span className="text-ink/55">{milestone.qualityComment}</span>
+                        <span className="text-ink-muted">{milestone.qualityComment}</span>
                       )}
                     </span>
                   </Row>
@@ -546,7 +546,7 @@ export function MilestoneDrawer({
                         <button
                           type="button"
                           onClick={() => setReplyTo(root.id)}
-                          className="mt-2.5 text-[12px] text-ink/45 transition-colors hover:text-ink"
+                          className="mt-2.5 text-[12px] text-ink-muted transition-colors hover:text-ink"
                         >
                           Reply
                         </button>
@@ -577,10 +577,10 @@ export function MilestoneDrawer({
                 className="flex w-full flex-col items-center gap-2 rounded-card border border-dashed border-line px-4 py-7 text-center transition-colors hover:border-ink/25 hover:bg-surface-2/50 disabled:opacity-50"
               >
                 <Upload className="h-5 w-5 text-ink/35" />
-                <span className="text-[13px] font-medium text-ink/70">
+                <span className="text-[13px] font-medium text-ink-2">
                   Upload a file
                 </span>
-                <span className="text-[12px] text-ink/40">
+                <span className="text-[12px] text-ink-muted">
                   Images, PDFs, documents and archives, up to 10 MB
                 </span>
               </button>
@@ -607,7 +607,7 @@ export function MilestoneDrawer({
                           className="h-12 w-12 shrink-0 rounded-[8px] border border-line object-cover"
                         />
                       ) : (
-                        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[8px] border border-line bg-surface-2 text-ink/45">
+                        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[8px] border border-line bg-surface-2 text-ink-muted">
                           <FileText className="h-5 w-5" />
                         </span>
                       )}
@@ -621,7 +621,7 @@ export function MilestoneDrawer({
                         >
                           {attachment.filename}
                         </a>
-                        <p className="mt-0.5 truncate text-[12px] text-ink/45">
+                        <p className="mt-0.5 truncate text-[12px] text-ink-muted">
                           {formatBytes(attachment.size)} · {attachment.uploader.name} ·{" "}
                           {formatDate(attachment.createdAt)}
                         </p>
@@ -675,7 +675,7 @@ export function MilestoneDrawer({
                           {entry.summary}
                         </p>
                         {entry.detail && (
-                          <p className="mt-0.5 text-[12px] leading-relaxed text-ink/45">
+                          <p className="mt-0.5 text-[12px] leading-relaxed text-ink-muted">
                             {entry.detail}
                           </p>
                         )}
@@ -698,7 +698,7 @@ export function MilestoneDrawer({
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex items-center justify-between gap-4 border-b border-line pb-3 last:border-0 last:pb-0">
-      <dt className="text-ink/50">{label}</dt>
+      <dt className="text-ink-muted">{label}</dt>
       <dd className="text-right font-medium text-ink">{children}</dd>
     </div>
   );
@@ -733,7 +733,7 @@ function CommentBody({
           </span>
         </p>
 
-        <p className="mt-1 whitespace-pre-wrap text-[13px] leading-relaxed text-ink/75">
+        <p className="mt-1 whitespace-pre-wrap text-[13px] leading-relaxed text-ink-2">
           {segments.map((segment, index) =>
             segment.kind === "mention" ? (
               <span
@@ -741,7 +741,7 @@ function CommentBody({
                 className={cn(
                   "rounded px-1 font-medium",
                   segment.id === viewerId
-                    ? "bg-warn-tint text-warn"
+                    ? "bg-warn-tint text-ink"
                     : "bg-brand-tint text-brand",
                 )}
               >

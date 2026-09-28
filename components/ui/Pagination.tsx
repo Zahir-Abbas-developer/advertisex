@@ -26,7 +26,7 @@ export function Pagination({
   if (pageCount <= 1) return null;
 
   const arrow =
-    "inline-flex h-8 w-8 items-center justify-center rounded-[8px] border border-line text-ink/60 " +
+    "inline-flex h-8 w-8 items-center justify-center rounded-[8px] border border-line text-ink-muted " +
     "transition-colors hover:bg-surface-2 hover:text-ink disabled:opacity-30 disabled:hover:bg-transparent " +
     "focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/40";
 
@@ -42,7 +42,7 @@ export function Pagination({
         <ChevronLeft className="h-4 w-4" />
       </button>
 
-      <span className="text-[13px] tabular-nums text-ink/60">
+      <span className="text-[13px] tabular-nums text-ink-muted">
         Page {page} of {pageCount}
       </span>
 

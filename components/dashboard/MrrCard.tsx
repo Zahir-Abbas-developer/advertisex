@@ -1,6 +1,7 @@
 import { ArrowDownRight, ArrowUpRight, Minus } from "lucide-react";
 
 import { formatMoney } from "@/lib/pipeline-types";
+import { CHART } from "@/components/charts/theme";
 import { cn } from "@/lib/utils";
 
 export type MrrPoint = {
@@ -45,11 +46,11 @@ export function MrrCard({
       <div className="relative p-5 sm:p-6">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
-            <p className="eyebrow text-brand-tint/70">Monthly recurring revenue</p>
+            <p className="eyebrow text-ink-muted">Monthly recurring revenue</p>
             <p className="mt-3 font-display text-[38px] font-bold leading-none tracking-[-0.03em] tabular-nums text-ink">
               {formatMoney(current)}
             </p>
-            <p className="mt-2 text-[13px] text-ink/50">
+            <p className="mt-2 text-[13px] text-ink-muted">
               {activeClients} active client{activeClients === 1 ? "" : "s"} on retainer
             </p>
 
@@ -57,13 +58,13 @@ export function MrrCard({
                 pays salaries. */}
             {collected !== null && collected !== undefined && (
               <p className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px]">
-                <span className="inline-flex items-center gap-1.5 text-brand-tint">
-                  <span className="h-1.5 w-1.5 rounded-full bg-brand-tint" />
+                <span className="inline-flex items-center gap-1.5 text-ink">
+                  <span className="h-1.5 w-1.5 rounded-full bg-data-2" />
                   {formatMoney(collected, true)} collected
                 </span>
                 {(outstanding ?? 0) > 0 && (
-                  <span className="inline-flex items-center gap-1.5 text-ink/55">
-                    <span className="h-1.5 w-1.5 rounded-full bg-ink/40" />
+                  <span className="inline-flex items-center gap-1.5 text-ink-muted">
+                    <span className="h-1.5 w-1.5 rounded-full bg-data-neutral" />
                     {formatMoney(outstanding ?? 0, true)} outstanding
                   </span>
                 )}
@@ -75,10 +76,11 @@ export function MrrCard({
             className={cn(
               "inline-flex shrink-0 items-center gap-1 rounded-pill px-2.5 py-1 text-[12px] font-medium tabular-nums",
               flat
-                ? "bg-ink/10 text-ink/60"
+                ? "bg-ink/10 text-ink-2"
                 : up
-                  ? "bg-brand/25 text-brand-tint"
-                  : "bg-danger/25 text-danger-tint",
+                  ? "bg-brand/40 text-ink"
+                  : // A fall is data, not an error: gray, never red (CLAUDE.md §7).
+                    "bg-data-negative/40 text-ink",
             )}
           >
             {flat ? (
@@ -126,15 +128,15 @@ function Sparkline({ series }: { series: MrrPoint[] }) {
       >
         <defs>
           <linearGradient id="mrr-fill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#2DD4BF" stopOpacity="0.30" />
-            <stop offset="100%" stopColor="#2DD4BF" stopOpacity="0" />
+            <stop offset="0%" stopColor={CHART.data2} stopOpacity="0.35" />
+            <stop offset="100%" stopColor={CHART.data2} stopOpacity="0" />
           </linearGradient>
         </defs>
         <path d={area} fill="url(#mrr-fill)" />
         <path
           d={line}
           fill="none"
-          stroke="#2DD4BF"
+          stroke={CHART.data2}
           strokeWidth="1.5"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -144,7 +146,7 @@ function Sparkline({ series }: { series: MrrPoint[] }) {
           cx={scaleX(series.length - 1)}
           cy={scaleY(series[series.length - 1].amount)}
           r="3"
-          fill="#2DD4BF"
+          fill={CHART.data2}
         />
       </svg>
 

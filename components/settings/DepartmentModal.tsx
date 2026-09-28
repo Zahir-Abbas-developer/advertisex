@@ -157,7 +157,7 @@ export function DepartmentModal({
                 onChange={(e) => setIsActive(e.target.checked)}
                 className="mt-0.5 h-4 w-4 rounded border-line accent-brand"
               />
-              <span className="text-[13px] leading-relaxed text-ink/70">
+              <span className="text-[13px] leading-relaxed text-ink-2">
                 <span className="font-medium text-ink">Active</span>
                 <br />
                 An inactive department stops appearing in pickers and dashboards.
@@ -167,7 +167,7 @@ export function DepartmentModal({
 
             {needsReassign && (
               <div className="mt-4 border-t border-line pt-3.5">
-                <p className="mb-2 text-[13px] leading-relaxed text-ink/70">
+                <p className="mb-2 text-[13px] leading-relaxed text-ink-2">
                   {department.shortLabel} still holds{" "}
                   <span className="font-medium text-ink">
                     {department.counts.clients} client

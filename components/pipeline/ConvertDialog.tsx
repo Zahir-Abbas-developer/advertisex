@@ -91,7 +91,7 @@ export function ConvertDialog({
     return (
       <Modal open onClose={() => onConverted(done.clientId)} title="Client login created" eyebrow={lead.businessName}>
         <div className="space-y-4">
-          <p className="text-[13px] leading-relaxed text-ink/65">
+          <p className="text-[13px] leading-relaxed text-ink-2">
             Share this with {inviteName} securely. It is shown once and not stored anywhere readable; they&rsquo;ll set their own password on first sign-in.
           </p>
           <div className="space-y-2 rounded-[10px] border border-line bg-surface-2 p-4 text-[13px] tabular-nums">
@@ -102,7 +102,7 @@ export function ConvertDialog({
                 type="button"
                 aria-label="Copy password"
                 onClick={() => void navigator.clipboard.writeText(done.temporaryPassword).then(() => toast.success("Copied."))}
-                className="rounded-[8px] p-1 text-ink/50 hover:bg-surface hover:text-ink"
+                className="rounded-[8px] p-1 text-ink-muted hover:bg-surface hover:text-ink"
               >
                 <Copy className="h-3.5 w-3.5" />
               </button>
@@ -131,7 +131,7 @@ export function ConvertDialog({
       }
     >
       <div className="space-y-6">
-        <p className="text-[13px] leading-relaxed text-ink/60">
+        <p className="text-[13px] leading-relaxed text-ink-muted">
           One step: the client, its portal account and first project are created from this lead — contact details, notes,
           tags and answers carry over, and the lead&rsquo;s history moves with it. The lead is marked Won.
         </p>
@@ -150,7 +150,7 @@ export function ConvertDialog({
                   onClick={() => setSelected((cur) => (on ? cur.filter((x) => x !== s.id) : [...cur, s.id!]))}
                   className={cn(
                     "rounded-pill border px-3 py-1.5 text-[13px] transition-colors",
-                    on ? "border-brand/50 bg-brand-tint text-brand" : "border-line text-ink/60 hover:border-line-strong",
+                    on ? "border-brand/50 bg-brand-tint text-brand" : "border-line text-ink-muted hover:border-line-strong",
                   )}
                 >
                   {s.name}

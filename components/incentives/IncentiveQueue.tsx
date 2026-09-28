@@ -147,7 +147,7 @@ export function IncentiveQueue() {
 
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium text-ink">{award.member.name}</p>
-                  <p className="truncate text-[12px] text-ink/45">
+                  <p className="truncate text-[12px] text-ink-muted">
                     {award.streakMonths} consecutive months · earned{" "}
                     {monthLabel(award.year, award.month)}
                     {award.bonusPercent !== null && ` · ${award.bonusPercent}% reference`}
@@ -203,7 +203,7 @@ export function IncentiveQueue() {
 
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium text-ink">{award.member.name}</p>
-                    <p className="text-[12px] text-ink/45">
+                    <p className="text-[12px] text-ink-muted">
                       {award.streakMonths} low months · raised {monthLabel(award.year, award.month)}
                     </p>
 
@@ -218,7 +218,7 @@ export function IncentiveQueue() {
                                 ? "border-line bg-surface text-ink/30"
                                 : month.score < 60
                                   ? "border-danger/25 bg-danger-tint text-danger"
-                                  : "border-line bg-surface text-ink/55",
+                                  : "border-line bg-surface text-ink-muted",
                             )}
                           >
                             {monthLabel(month.year, month.month)} {month.active ? month.score : "—"}
@@ -228,7 +228,7 @@ export function IncentiveQueue() {
                     )}
 
                     {award.evidence.attendance && (
-                      <p className="mt-2 text-[12px] text-ink/50">
+                      <p className="mt-2 text-[12px] text-ink-muted">
                         Attendance that month: {award.evidence.attendance.present} present,{" "}
                         {award.evidence.attendance.late} late, {award.evidence.attendance.absent} absent
                       </p>
@@ -236,13 +236,13 @@ export function IncentiveQueue() {
 
                     {award.evidence.events && award.evidence.events.length > 0 && (
                       <details className="mt-2">
-                        <summary className="cursor-pointer text-[12px] text-ink/50 hover:text-ink">
+                        <summary className="cursor-pointer text-[12px] text-ink-muted hover:text-ink">
                           {award.evidence.events.length} score events
                         </summary>
                         <ul className="mt-2 space-y-1 border-l border-line pl-3">
                           {award.evidence.events.slice(0, 12).map((event, index) => (
-                            <li key={index} className="text-[12px] text-ink/55">
-                              <span className="font-medium tabular-nums text-ink/70">
+                            <li key={index} className="text-[12px] text-ink-muted">
+                              <span className="font-medium tabular-nums text-ink-2">
                                 {formatPoints(event.points)}
                               </span>{" "}
                               {event.reason}
@@ -287,7 +287,7 @@ export function IncentiveQueue() {
           <div className="space-y-4">
             {open.type === "EXCELLENCE_STREAK" ? (
               <>
-                <p className="text-[13px] leading-relaxed text-ink/60">
+                <p className="text-[13px] leading-relaxed text-ink-muted">
                   A payroll reference for {open.member.name}. Nothing here moves money — it is the
                   record of what you decided.
                 </p>
@@ -311,7 +311,7 @@ export function IncentiveQueue() {
                 </div>
               </>
             ) : (
-              <p className="text-[13px] leading-relaxed text-ink/60">
+              <p className="text-[13px] leading-relaxed text-ink-muted">
                 Marking this handled records that the conversation happened. The evidence stays
                 attached either way.
               </p>

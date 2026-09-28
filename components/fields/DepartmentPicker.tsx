@@ -64,7 +64,7 @@ export function DepartmentPicker({
             </div>
 
             {department.description && (
-              <p className="mt-2 line-clamp-2 text-[13px] leading-relaxed text-ink/55">
+              <p className="mt-2 line-clamp-2 text-[13px] leading-relaxed text-ink-muted">
                 {department.description}
               </p>
             )}
@@ -83,7 +83,7 @@ export function DepartmentPicker({
                   />
                 ))}
               </div>
-              <span className="text-[12px] text-ink/45">
+              <span className="text-[12px] text-ink-muted">
                 {department.members.length === 0
                   ? "no members yet"
                   : department.members.length === 1

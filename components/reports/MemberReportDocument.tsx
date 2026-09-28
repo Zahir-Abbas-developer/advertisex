@@ -69,7 +69,7 @@ export function MemberReportDocument({
         <div className="relative px-7 py-8 sm:px-10 sm:py-10">
           <div className="flex flex-wrap items-start justify-between gap-6">
             <div className="min-w-0">
-              <p className="eyebrow mb-3 text-brand-tint/70">
+              <p className="eyebrow mb-3 text-ink-muted">
                 {REPORT_TYPE_LABEL[type]} · {payload.period.label}
               </p>
 
@@ -84,7 +84,7 @@ export function MemberReportDocument({
                   <h1 className="font-display text-[28px] font-bold leading-tight tracking-[-0.02em] text-ink sm:text-[34px]">
                     {payload.member.name}
                   </h1>
-                  <p className="mt-0.5 text-[13px] text-ink/50">
+                  <p className="mt-0.5 text-[13px] text-ink-muted">
                     {payload.member.jobTitle}
                   </p>
                 </div>
@@ -107,7 +107,7 @@ export function MemberReportDocument({
             </div>
           </div>
 
-          <p className="mt-8 max-w-2xl text-[15px] leading-relaxed text-ink/75">
+          <p className="mt-8 max-w-2xl text-[15px] leading-relaxed text-ink-2">
             {narrative}
           </p>
         </div>
@@ -179,7 +179,7 @@ export function MemberReportDocument({
             <h2 className="font-display text-base font-bold tracking-tight text-ink">
               Business development
             </h2>
-            <p className="mt-0.5 text-[13px] text-ink/50">
+            <p className="mt-0.5 text-[13px] text-ink-muted">
               Pipeline work is scored on activity and outcomes rather than
               milestones — into the same ledger, so the score means the same thing.
             </p>
@@ -215,14 +215,14 @@ export function MemberReportDocument({
 
           {payload.businessDevelopment.byBucket.length > 0 && (
             <div className="rounded-card border border-line bg-surface px-6 py-4">
-              <p className="eyebrow mb-3 text-ink/45">Activity mix</p>
+              <p className="eyebrow mb-3 text-ink-muted">Activity mix</p>
               <ul className="grid gap-2 sm:grid-cols-2">
                 {payload.businessDevelopment.byBucket.map((entry) => (
                   <li
                     key={entry.bucket}
                     className="flex items-baseline justify-between gap-3 text-[13px]"
                   >
-                    <span className="text-ink/60">{bucketLabel(entry.bucket)}</span>
+                    <span className="text-ink-muted">{bucketLabel(entry.bucket)}</span>
                     <span className="font-medium tabular-nums text-ink">{entry.count}</span>
                   </li>
                 ))}
@@ -232,7 +232,7 @@ export function MemberReportDocument({
 
           {payload.businessDevelopment.stageConversion.some((row) => row.entered > 0) && (
             <div className="rounded-card border border-line bg-surface px-6 py-4">
-              <p className="eyebrow mb-3 text-ink/45">Pipeline carried, by stage</p>
+              <p className="eyebrow mb-3 text-ink-muted">Pipeline carried, by stage</p>
               <ul className="space-y-2">
                 {payload.businessDevelopment.stageConversion
                   .filter((row) => row.entered > 0)
@@ -241,7 +241,7 @@ export function MemberReportDocument({
                       key={row.from}
                       className="flex items-baseline justify-between gap-3 text-[13px]"
                     >
-                      <span className="text-ink/60">{stageLabel(row.from)}</span>
+                      <span className="text-ink-muted">{stageLabel(row.from)}</span>
                       <span className="font-medium tabular-nums text-ink">{row.entered}</span>
                     </li>
                   ))}
@@ -258,7 +258,7 @@ export function MemberReportDocument({
             <h2 className="font-display text-base font-bold tracking-tight text-ink">
               Attendance
             </h2>
-            <p className="mt-0.5 text-[13px] text-ink/50">
+            <p className="mt-0.5 text-[13px] text-ink-muted">
               Days worked and the random availability checks that were answered.
             </p>
           </div>
@@ -317,7 +317,7 @@ export function MemberReportDocument({
           <h2 className="font-display text-base font-bold tracking-tight text-ink">
             Points this period
           </h2>
-          <p className="mt-0.5 text-[13px] text-ink/50">
+          <p className="mt-0.5 text-[13px] text-ink-muted">
             Every member starts each month at 100.
           </p>
         </div>
@@ -335,7 +335,7 @@ export function MemberReportDocument({
           <h2 className="font-display text-base font-bold tracking-tight text-ink">
             What changed the score
           </h2>
-          <p className="mt-0.5 text-[13px] text-ink/50">
+          <p className="mt-0.5 text-[13px] text-ink-muted">
             {payload.events.length === 0
               ? "Nothing affected the score this period."
               : `${payload.events.length} event${payload.events.length === 1 ? "" : "s"}, newest first.`}
@@ -343,7 +343,7 @@ export function MemberReportDocument({
         </div>
 
         {payload.events.length === 0 ? (
-          <p className="px-6 py-10 text-center text-sm text-ink/45">
+          <p className="px-6 py-10 text-center text-sm text-ink-muted">
             A clean sheet — the score held at {score.value}.
           </p>
         ) : (
@@ -369,7 +369,7 @@ export function MemberReportDocument({
                     <p className="text-sm font-medium text-ink">
                       {event.milestoneTitle ?? SCORE_EVENT_LABEL[event.type]}
                     </p>
-                    <p className="mt-1 text-[13px] leading-relaxed text-ink/55">
+                    <p className="mt-1 text-[13px] leading-relaxed text-ink-muted">
                       {event.reason}
                     </p>
                     <p className="mt-1.5 text-[12px] text-ink/35">
@@ -396,7 +396,7 @@ export function MemberReportDocument({
         )}
       </section>
 
-      <footer className="report-footer flex flex-wrap items-center justify-between gap-2 border-t border-line pt-4 text-[12px] text-ink/40">
+      <footer className="report-footer flex flex-wrap items-center justify-between gap-2 border-t border-line pt-4 text-[12px] text-ink-muted">
         <span>
           Advertise X · {REPORT_TYPE_LABEL[type]} · {payload.period.label}
         </span>
@@ -411,7 +411,7 @@ function Delta({ delta, phrase }: { delta: number | null; phrase: string }) {
     return (
       <div>
         <p className="eyebrow text-ink/35">vs last {phrase}</p>
-        <p className="mt-1 text-sm text-ink/50">No history</p>
+        <p className="mt-1 text-sm text-ink-muted">No history</p>
       </div>
     );
   }
@@ -425,9 +425,9 @@ function Delta({ delta, phrase }: { delta: number | null; phrase: string }) {
       <p
         className={cn(
           "mt-1 flex items-center gap-1 font-display text-lg font-bold tabular-nums",
-          flat && "text-ink/60",
+          flat && "text-ink-muted",
           !flat && delta > 0 && "text-brand",
-          !flat && delta < 0 && "text-danger",
+          !flat && delta < 0 && "text-data-negative", // a fall is gray, never red
         )}
       >
         <Icon className="h-4 w-4" />
@@ -451,7 +451,7 @@ function Figure({
 }) {
   return (
     <div className="rounded-card border border-line bg-surface p-5">
-      <p className="eyebrow text-ink/45">{label}</p>
+      <p className="eyebrow text-ink-muted">{label}</p>
       <p
         className={cn(
           "mt-4 font-display text-[32px] font-bold leading-none tracking-[-0.03em] tabular-nums",
@@ -462,7 +462,7 @@ function Figure({
       >
         {value}
       </p>
-      <p className="mt-2 text-[12px] text-ink/45">{hint}</p>
+      <p className="mt-2 text-[12px] text-ink-muted">{hint}</p>
     </div>
   );
 }
@@ -507,11 +507,11 @@ function PointsCell({
 }) {
   return (
     <div className="bg-surface px-6 py-5">
-      <p className="eyebrow text-ink/45">{label}</p>
+      <p className="eyebrow text-ink-muted">{label}</p>
       <p
         className={cn(
           "mt-3 font-display text-2xl font-bold tabular-nums",
-          value === 0 ? "text-ink/40" : tone === "good" ? "text-brand" : "text-danger",
+          value === 0 ? "text-ink-muted" : tone === "good" ? "text-brand" : "text-danger",
         )}
       >
         {value === 0 ? "0.0" : formatPoints(value)}

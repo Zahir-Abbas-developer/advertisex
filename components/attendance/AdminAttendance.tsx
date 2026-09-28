@@ -203,7 +203,7 @@ export function AdminAttendance({ testTriggersEnabled }: { testTriggersEnabled: 
                     <h2 className="font-display text-base font-bold tracking-tight text-ink">
                       Live board
                     </h2>
-                    <p className="mt-0.5 text-[13px] text-ink/50">
+                    <p className="mt-0.5 text-[13px] text-ink-muted">
                       Karachi time {formatKarachiClock(board.karachiMinutes)} · refreshes
                       every minute
                     </p>
@@ -217,7 +217,7 @@ export function AdminAttendance({ testTriggersEnabled }: { testTriggersEnabled: 
 
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-medium text-ink">{row.name}</p>
-                        <p className="truncate text-[12px] text-ink/45">{row.jobTitle}</p>
+                        <p className="truncate text-[12px] text-ink-muted">{row.jobTitle}</p>
                       </div>
 
                       <div className="w-32">
@@ -226,7 +226,7 @@ export function AdminAttendance({ testTriggersEnabled }: { testTriggersEnabled: 
                             <p className="text-[13px] font-medium text-ink tabular-nums">
                               {formatKarachiTime(new Date(row.clockInAt))}
                             </p>
-                            <p className="text-[11px] text-ink/45">
+                            <p className="text-[11px] text-ink-muted">
                               {row.clockOutAt
                                 ? `ended ${formatKarachiTime(new Date(row.clockOutAt))}`
                                 : formatDuration(row.minutesWorked)}
@@ -238,7 +238,7 @@ export function AdminAttendance({ testTriggersEnabled }: { testTriggersEnabled: 
                               "text-[13px] font-medium",
                               row.status === "NOT_STARTED" || row.status === "ABSENT"
                                 ? "text-danger"
-                                : "text-ink/40",
+                                : "text-ink-muted",
                             )}
                           >
                             {row.status === "NOT_STARTED"
@@ -261,7 +261,7 @@ export function AdminAttendance({ testTriggersEnabled }: { testTriggersEnabled: 
                           <span
                             className={cn(
                               "text-[12px] tabular-nums",
-                              row.breaks.exceeded ? "text-warn" : "text-ink/45",
+                              row.breaks.exceeded ? "text-ink" : "text-ink-muted",
                             )}
                             title={`${row.breaks.usedMinutes} of ${row.breaks.allowanceMinutes} protected minutes used`}
                           >
@@ -329,7 +329,7 @@ export function AdminAttendance({ testTriggersEnabled }: { testTriggersEnabled: 
               </Card>
 
               {testTriggersEnabled && (
-                <p className="flex items-center gap-2 rounded-card border border-warn/25 bg-warn-tint px-4 py-3 text-[12px] leading-relaxed text-warn">
+                <p className="flex items-center gap-2 rounded-card border border-warn/25 bg-warn-tint px-4 py-3 text-[12px] leading-relaxed text-ink">
                   <FlaskConical aria-hidden className="h-3.5 w-3.5 shrink-0" />
                   Test triggers are enabled on this deployment. They can manufacture
                   and dismiss checks, so unset ALLOW_TEST_TRIGGERS before real use.

@@ -66,7 +66,7 @@ export function ProjectDiscussion({ projectId, canPost, viewerId }: { projectId:
                 <li key={c.id} className="flex gap-3">
                   <Avatar name={c.author?.name ?? "?"} color={c.author?.avatarColor} size="sm" />
                   <div className="min-w-0">
-                    <p className="text-[12px] text-ink/45">
+                    <p className="text-[12px] text-ink-muted">
                       <span className="font-medium text-ink/80">{c.author?.id === viewerId ? "You" : c.author?.name ?? "Someone"}</span> · <time dateTime={c.createdAt} title={formatDateTime(c.createdAt)}>{relativeFromNow(c.createdAt)}</time>
                     </p>
                     <p className="whitespace-pre-wrap text-[13px] leading-relaxed text-ink/85">{c.body}</p>
@@ -99,8 +99,8 @@ export function ProjectDiscussion({ projectId, canPost, viewerId }: { projectId:
             <ol className="space-y-3">
               {activity.map((e) => (
                 <li key={e.id} className="text-[13px] leading-snug">
-                  <span className="font-medium text-ink/85">{e.actor}</span> <span className="text-ink/65">{e.text}</span>
-                  <span className="block text-[11px] text-ink/40">{relativeFromNow(e.at)}</span>
+                  <span className="font-medium text-ink/85">{e.actor}</span> <span className="text-ink-2">{e.text}</span>
+                  <span className="block text-[11px] text-ink-muted">{relativeFromNow(e.at)}</span>
                 </li>
               ))}
             </ol>

@@ -97,7 +97,7 @@ export function MemberStatusModal({
           <span>{error}</span>
         </div>
       ) : (
-        <p className="text-sm leading-relaxed text-ink/60">
+        <p className="text-sm leading-relaxed text-ink-muted">
           {deactivating
             ? "You can restore access at any time from this page."
             : "Assignments made while they were away are unaffected."}

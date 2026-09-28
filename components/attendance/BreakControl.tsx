@@ -127,7 +127,7 @@ export function BreakControl({ onChange }: { onChange?: () => void }) {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <Coffee className="h-4 w-4 text-ink/40" />
+            <Coffee className="h-4 w-4 text-ink-muted" />
             <h2 className="font-display text-base font-bold tracking-tight text-ink">
               Breaks
             </h2>
@@ -138,7 +138,7 @@ export function BreakControl({ onChange }: { onChange?: () => void }) {
             )}
           </div>
 
-          <p className="mt-1 text-[13px] leading-relaxed text-ink/55">
+          <p className="mt-1 text-[13px] leading-relaxed text-ink-muted">
             Prayer and meal breaks are protected time — {allowance.allowance} minutes
             a day, never penalized. Checks pause while you&rsquo;re away.
           </p>
@@ -148,13 +148,13 @@ export function BreakControl({ onChange }: { onChange?: () => void }) {
           <p
             className={cn(
               "font-display text-2xl font-bold tabular-nums leading-none",
-              allowance.exceeded ? "text-warn" : "text-ink",
+              allowance.exceeded ? "text-ink" : "text-ink",
             )}
           >
             {open ? openMinutes : allowance.remaining}
-            <span className="ml-1 text-[13px] font-medium text-ink/40">min</span>
+            <span className="ml-1 text-[13px] font-medium text-ink-muted">min</span>
           </p>
-          <p className="mt-1 text-[12px] text-ink/45">
+          <p className="mt-1 text-[12px] text-ink-muted">
             {open
               ? "on this break"
               : allowance.exceeded
@@ -186,8 +186,8 @@ export function BreakControl({ onChange }: { onChange?: () => void }) {
                 className={cn(
                   "rounded-pill border px-3 py-1.5 text-[13px] transition-colors",
                   reason === option
-                    ? "border-brand bg-brand text-canvas"
-                    : "border-line bg-surface text-ink/55 hover:border-ink/25",
+                    ? "border-brand bg-brand text-on-brand"
+                    : "border-line bg-surface text-ink-muted hover:border-ink/25",
                 )}
               >
                 {BREAK_REASON_LABEL[option]}
@@ -208,7 +208,7 @@ export function BreakControl({ onChange }: { onChange?: () => void }) {
       )}
 
       {allowance.exceeded && (
-        <p className="mt-3 text-[12px] leading-relaxed text-warn">
+        <p className="mt-3 text-[12px] leading-relaxed text-ink">
           You&rsquo;re past the daily allowance. Nothing is deducted for it — the
           owner just sees the total.
         </p>

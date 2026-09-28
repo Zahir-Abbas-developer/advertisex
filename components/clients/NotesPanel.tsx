@@ -78,7 +78,7 @@ export function NotesPanel({ clientId, canEdit, viewerId, isManager }: { clientI
           <div className="space-y-2">
             <Textarea aria-label="New note" rows={3} value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="What should everyone working with this client know?" />
             <div className="flex items-center justify-between gap-3">
-              <label className="flex items-center gap-2 text-[13px] text-ink/60">
+              <label className="flex items-center gap-2 text-[13px] text-ink-muted">
                 <input type="checkbox" className="accent-brand" checked={pin} onChange={(e) => setPin(e.target.checked)} />
                 Pin as important
               </label>
@@ -99,18 +99,18 @@ export function NotesPanel({ clientId, canEdit, viewerId, isManager }: { clientI
                 <Avatar name={n.author?.name ?? "?"} color={n.author?.avatarColor} size="sm" />
                 <div className="min-w-0 flex-1">
                   <p className="whitespace-pre-wrap text-[13px] leading-relaxed text-ink/85">{n.body}</p>
-                  <p className="mt-1 text-[11px] text-ink/40">
+                  <p className="mt-1 text-[11px] text-ink-muted">
                     {n.author?.name ?? "Someone"} · {formatDateTime(n.createdAt)}
                     {n.pinned ? " · Pinned" : ""}
                   </p>
                 </div>
                 {canEdit && (
                   <div className="flex items-start gap-1">
-                    <button type="button" onClick={() => void update(n, { pinned: !n.pinned })} className="rounded p-1.5 text-ink/50 hover:bg-surface-2 hover:text-ink" aria-label={n.pinned ? "Unpin" : "Pin as important"}>
+                    <button type="button" onClick={() => void update(n, { pinned: !n.pinned })} className="rounded p-1.5 text-ink-muted hover:bg-surface-2 hover:text-ink" aria-label={n.pinned ? "Unpin" : "Pin as important"}>
                       {n.pinned ? <PinOff className="h-4 w-4" /> : <Pin className="h-4 w-4" />}
                     </button>
                     {(isManager || n.author?.id === viewerId) && (
-                      <button type="button" onClick={() => void remove(n)} className="rounded p-1.5 text-ink/50 hover:bg-surface-2 hover:text-danger" aria-label="Delete note">
+                      <button type="button" onClick={() => void remove(n)} className="rounded p-1.5 text-ink-muted hover:bg-surface-2 hover:text-danger" aria-label="Delete note">
                         <Trash2 className="h-4 w-4" />
                       </button>
                     )}

@@ -1,11 +1,21 @@
 import type { Config } from "tailwindcss";
 
+/** A color from a CSS variable holding an RGB channel triple (see app/globals.css). */
+const v = (name: string) => `rgb(var(${name}) / <alpha-value>)`;
+
 /**
- * BWM design tokens.
+ * A tint: `percent` of a token mixed into the card surface — solid, so it reads
+ * the same on the mint page as on a white card (a translucent red over mint
+ * turns brown). Inside a deep panel the surface is green-950, so tints stay dark.
+ */
+const mix = (name: string, percent: number) => `color-mix(in srgb, rgb(var(${name})) ${percent}%, rgb(var(--surface-1)))`;
+
+/**
+ * Advertise X design tokens — "Forest & Mint" (CLAUDE.md §7).
  *
- * The palette is fixed by CLAUDE.md — every colour below maps 1:1 to a token
- * documented there. No extra hues are invented: secondary text uses opacity
- * modifiers on `ink` (e.g. `text-ink/60`) rather than new greys.
+ * The palette is fixed by the founder: every color below maps 1:1 to a value
+ * in app/globals.css. No hue is invented; secondary and muted text use the
+ * `ink-2` and `ink-muted` tokens, which pass WCAG AA on white.
  */
 const config: Config = {
   content: [
@@ -16,30 +26,76 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        /**
-         * Obsidian page background — the ground everything sits on. Named
-         * `canvas`, not `base`: Tailwind already owns `text-base` (a font size),
-         * and a color token called `base` silently loses to it.
+        /*
+         * "Forest & Mint" (CLAUDE.md §7). Every value is a CSS variable from
+         * app/globals.css, where the exact hex lives once; a dark panel
+         * (.surface-dark) re-scopes the role variables. `<alpha-value>` keeps
+         * Tailwind's opacity modifiers (bg-brand/10) working.
          */
-        canvas: "#0B0B0D",
-        /** Cards */
-        surface: { DEFAULT: "#121215", 2: "#18181C" },
-        /** Warm white — all foreground text; secondary text via opacity (text-ink/60) */
-        ink: "#F5F3EE",
-        /** Hairline borders — depth comes from surface steps + hairlines, not shadows */
-        line: { DEFAULT: "rgba(255,255,255,0.08)", strong: "rgba(255,255,255,0.14)" },
-        /** Champagne gold — the signature. Identity and emphasis only; never a chart series. */
+        /** Page background — mint. Named `canvas`: `base` would collide with text-base. */
+        canvas: v("--bg"),
+        /** Cards (white) and elevated/hover panels; `head` is the table header row. */
+        surface: { DEFAULT: v("--surface-1"), 2: v("--surface-2"), head: v("--surface-head") },
+        /**
+         * Text. `ink` is the darkest green (primary); `ink-heading` brand green
+         * for card titles; `ink-2` secondary; `ink-muted` gray. Never a green
+         * at 600 or lighter for text (tests/design-tokens.test.ts).
+         */
+        ink: { DEFAULT: v("--ink"), heading: v("--ink-heading"), 2: v("--ink-2"), muted: v("--ink-muted") },
+        /** Text on brand, danger and hero fills. */
+        "on-brand": v("--on-accent"),
+        /** Hairlines — 8% and 14% of the darkest green. No heavy shadows. */
+        line: { DEFAULT: "rgb(var(--line) / 0.08)", strong: "rgb(var(--line) / 0.14)" },
+        /** Brand green — identity and emphasis: primary CTA, active nav, the hero KPI. */
         brand: {
-          DEFAULT: "#D4AF37",
-          hover: "#E5C558",
-          tint: "rgba(212,175,55,0.12)",
+          DEFAULT: v("--accent"),
+          hover: v("--accent-hover"),
+          strong: v("--accent-strong"),
+          tint: mix("--accent", 10),
         },
-        /** Chart series — charts never use gold */
-        data: { 1: "#2DD4BF", 2: "#818CF8", 3: "#F472B6" },
-        success: { DEFAULT: "#22C55E", tint: "rgba(34,197,94,0.14)" },
-        warn: { DEFAULT: "#F59E0B", tint: "rgba(245,158,11,0.14)" },
-        danger: { DEFAULT: "#EF4444", tint: "rgba(239,68,68,0.14)" },
-        info: { DEFAULT: "#38BDF8", tint: "rgba(56,189,248,0.14)" },
+        /**
+         * Data. Positive and categorical series run down the green scale; a
+         * NEGATIVE value is gray (`data-negative`), never red. Fills only —
+         * never text (tests/design-tokens.test.ts).
+         */
+        data: {
+          1: v("--c-green-600"),
+          2: v("--c-green-400"),
+          3: v("--c-green-200"),
+          4: v("--c-green-800"),
+          5: v("--c-green-950"),
+          negative: v("--c-gray-600"),
+          neutral: v("--c-gray-300"),
+          alt: v("--c-teal-500"),
+          track: v("--c-green-100"),
+          area: v("--c-chart-fill"),
+          baseline: v("--c-gray-400"),
+        },
+        /** The raw palette, for the rare direct use (charts, the design-system page). */
+        green: {
+          950: v("--c-green-950"),
+          800: v("--c-green-800"),
+          600: v("--c-green-600"),
+          400: v("--c-green-400"),
+          200: v("--c-green-200"),
+          100: v("--c-green-100"),
+          50: v("--c-green-50"),
+        },
+        gray: {
+          50: v("--c-gray-50"),
+          100: v("--c-gray-100"),
+          300: v("--c-gray-300"),
+          400: v("--c-gray-400"),
+          600: v("--c-gray-600"),
+        },
+        teal: { 500: v("--c-teal-500") },
+        /** Success is green-600 as a fill; as text it is `success-ink` (brand green, 8.2:1). */
+        success: { DEFAULT: v("--c-green-600"), ink: v("--c-green-800"), tint: mix("--c-green-600", 12) },
+        warn: { DEFAULT: v("--c-warning"), tint: mix("--c-warning", 12) },
+        /** Destructive actions and errors only — negative DATA is gray. */
+        danger: { DEFAULT: v("--c-danger"), tint: mix("--c-danger", 8) },
+        /** Teal — a fill and icon accent; its text is `ink-2` (teal fails as text). */
+        info: { DEFAULT: v("--c-teal-500"), tint: mix("--c-teal-500", 14) },
       },
       fontFamily: {
         display: ["var(--font-display)", "ui-sans-serif", "system-ui", "sans-serif"],
@@ -59,11 +115,11 @@ const config: Config = {
         sidebar: "240px",
       },
       backgroundImage: {
-        /** The one permitted glow, barely there — dark hero panels only */
+        /** The one permitted glow, barely there — deep green panels only */
         "glow-brand":
-          "radial-gradient(60% 80% at 15% 0%, rgba(212,175,55,0.10) 0%, rgba(212,175,55,0.03) 42%, rgba(11,11,13,0) 72%)",
+          "radial-gradient(60% 80% at 15% 0%, rgb(var(--c-green-600) / 0.22) 0%, rgb(var(--c-green-800) / 0.08) 45%, rgb(var(--c-green-950) / 0) 75%)",
         "glow-brand-soft":
-          "radial-gradient(70% 120% at 85% 110%, rgba(212,175,55,0.06) 0%, rgba(11,11,13,0) 65%)",
+          "radial-gradient(70% 120% at 85% 110%, rgb(var(--c-green-600) / 0.10) 0%, rgb(var(--c-green-950) / 0) 65%)",
       },
       keyframes: {
         "fade-in": {

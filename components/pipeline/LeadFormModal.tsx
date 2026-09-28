@@ -356,8 +356,8 @@ export function LeadFormModal({
 
         {duplicate && (
           <div className="rounded-card border border-warn/30 bg-warn-tint p-4">
-            <p className="text-[13px] font-medium text-warn">{duplicate.message}</p>
-            <p className="mt-1 text-[13px] text-ink/60">
+            <p className="text-[13px] font-medium text-ink">{duplicate.message}</p>
+            <p className="mt-1 text-[13px] text-ink-muted">
               Two leads for one business means two people chasing the same deal. Open the existing one, or create this
               anyway if it really is a different business.
             </p>
@@ -510,7 +510,7 @@ export function LeadFormModal({
             <div>
               <p className="mb-2 text-[13px] font-medium text-ink/80">
                 Interested in
-                <span className="ml-2 font-normal text-ink/45">
+                <span className="ml-2 font-normal text-ink-muted">
                   pre-fills onboarding when they sign
                 </span>
               </p>
@@ -532,8 +532,8 @@ export function LeadFormModal({
                       className={cn(
                         "rounded-pill border px-3 py-1.5 text-[13px] transition-colors",
                         active
-                          ? "border-brand bg-brand text-canvas"
-                          : "border-line bg-surface text-ink/55 hover:border-ink/25",
+                          ? "border-brand bg-brand text-on-brand"
+                          : "border-line bg-surface text-ink-muted hover:border-ink/25",
                       )}
                     >
                       {service.name}
@@ -583,7 +583,7 @@ export function LeadFormModal({
                 autoHint={autoHint(context?.assignees ?? [])}
               />
             ) : (
-              <p className="text-[13px] text-ink/55">
+              <p className="text-[13px] text-ink-muted">
                 {autoHint(context?.assignees ?? []) ??
                   "This lead will be yours. Only an admin can assign it to someone else."}
               </p>
@@ -650,7 +650,7 @@ function StepRail({ step }: { step: number }) {
           <span
             className={cn(
               "eyebrow",
-              index === step ? "text-brand" : index < step ? "text-ink/45" : "text-ink/25",
+              index === step ? "text-brand" : index < step ? "text-ink-muted" : "text-ink/25",
             )}
           >
             {label}

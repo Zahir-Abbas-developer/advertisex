@@ -58,12 +58,12 @@ export function CollectionsCard({ collections }: { collections: Collections }) {
                   >
                     {row.clientName}
                   </Link>
-                  <p className="truncate text-[12px] text-ink/45">
+                  <p className="truncate text-[12px] text-ink-muted">
                     {row.title} · {row.daysOverdue} days
                   </p>
                 </div>
 
-                <span className="shrink-0 font-display text-sm font-bold tabular-nums text-danger">
+                <span className="shrink-0 font-display text-sm font-bold tabular-nums text-ink">
                   {formatMoney(row.amount, true)}
                 </span>
               </li>
@@ -71,7 +71,7 @@ export function CollectionsCard({ collections }: { collections: Collections }) {
           </ul>
 
           {overdueClients.length > 5 && (
-            <p className="border-t border-line px-5 py-3 text-[12px] text-ink/40">
+            <p className="border-t border-line px-5 py-3 text-[12px] text-ink-muted">
               Showing the 5 oldest of {overdueClients.length}.
             </p>
           )}

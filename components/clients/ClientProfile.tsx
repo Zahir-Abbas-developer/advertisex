@@ -125,7 +125,7 @@ export function ClientProfile({ data }: { data: ClientProfileData }) {
               {t}
             </Badge>
           ))}
-          <span className="text-[12px] text-ink/40">Client since {formatDate(client.onboardedAt)}</span>
+          <span className="text-[12px] text-ink-muted">Client since {formatDate(client.onboardedAt)}</span>
         </div>
       </PageHeader>
 
@@ -215,7 +215,7 @@ function Overview({ data, onOpen }: { data: ClientProfileData; onOpen: (t: Tab) 
                   <ScheduleBadge schedule={overview.currentProject.schedule} />
                 </div>
                 <ProgressBar value={overview.currentProject.progress} showValue tone={progressTone(overview.currentProject.schedule)} />
-                <p className="mt-2 text-[12px] text-ink/45">
+                <p className="mt-2 text-[12px] text-ink-muted">
                   Due {formatDate(overview.currentProject.deadline)}
                   {overview.openProjects > 1 ? ` · ${overview.openProjects - 1} more open project${overview.openProjects > 2 ? "s" : ""}` : ""}
                 </p>
@@ -234,13 +234,13 @@ function Overview({ data, onOpen }: { data: ClientProfileData; onOpen: (t: Tab) 
                 {HEALTH_LABEL[overview.health.band]}
               </Badge>
               {overview.health.reasons.length ? (
-                <ul className="space-y-1 text-[13px] text-ink/70">
+                <ul className="space-y-1 text-[13px] text-ink-2">
                   {overview.health.reasons.map((r) => (
                     <li key={r}>{r}</li>
                   ))}
                 </ul>
               ) : (
-                <p className="text-[13px] text-ink/55">Nothing late, nothing overdue, no contract about to lapse.</p>
+                <p className="text-[13px] text-ink-muted">Nothing late, nothing overdue, no contract about to lapse.</p>
               )}
             </div>
           </CardBody>
@@ -264,7 +264,7 @@ function Overview({ data, onOpen }: { data: ClientProfileData; onOpen: (t: Tab) 
                     <Pin className="mt-1 h-3.5 w-3.5 shrink-0 text-brand" />
                     <span>
                       {n.body}
-                      <span className="block text-[11px] text-ink/40">
+                      <span className="block text-[11px] text-ink-muted">
                         {n.author ?? "Someone"} · {formatDate(n.updatedAt)}
                       </span>
                     </span>
@@ -272,7 +272,7 @@ function Overview({ data, onOpen }: { data: ClientProfileData; onOpen: (t: Tab) 
                 ))}
               </ul>
             ) : (
-              <p className="text-[13px] text-ink/45">Pin a note to keep it here — allergies, the owner&apos;s preferences, what not to do.</p>
+              <p className="text-[13px] text-ink-muted">Pin a note to keep it here — allergies, the owner&apos;s preferences, what not to do.</p>
             )}
           </CardBody>
         </Card>
@@ -283,25 +283,25 @@ function Overview({ data, onOpen }: { data: ClientProfileData; onOpen: (t: Tab) 
           <CardHeader title="Contact" />
           <CardBody className="space-y-2.5 text-[13px]">
             <p className="font-medium text-ink">{client.contactName}</p>
-            <a href={`mailto:${client.email}`} className="flex items-center gap-2 text-ink/70 hover:text-ink">
+            <a href={`mailto:${client.email}`} className="flex items-center gap-2 text-ink-2 hover:text-ink">
               <Mail className="h-3.5 w-3.5 text-ink/35" /> {client.email}
             </a>
             {client.phone && (
-              <a href={`tel:${client.phone}`} className="flex items-center gap-2 text-ink/70 hover:text-ink">
+              <a href={`tel:${client.phone}`} className="flex items-center gap-2 text-ink-2 hover:text-ink">
                 <Phone className="h-3.5 w-3.5 text-ink/35" /> {client.phone}
               </a>
             )}
             {client.website && (
-              <a href={client.website.startsWith("http") ? client.website : `https://${client.website}`} target="_blank" rel="noreferrer noopener" className="flex items-center gap-2 text-ink/70 hover:text-ink">
+              <a href={client.website.startsWith("http") ? client.website : `https://${client.website}`} target="_blank" rel="noreferrer noopener" className="flex items-center gap-2 text-ink-2 hover:text-ink">
                 <Globe className="h-3.5 w-3.5 text-ink/35" /> {client.website} <ArrowUpRight className="h-3 w-3" />
               </a>
             )}
             {(client.location || client.country) && (
-              <p className="flex items-center gap-2 text-ink/70">
+              <p className="flex items-center gap-2 text-ink-2">
                 <MapPin className="h-3.5 w-3.5 text-ink/35" /> {[client.location, client.country].filter(Boolean).join(", ")}
               </p>
             )}
-            <p className="pt-1 text-[12px] text-ink/45">{client.hasPortal ? "Has a client portal login" : "No portal login yet"}</p>
+            <p className="pt-1 text-[12px] text-ink-muted">{client.hasPortal ? "Has a client portal login" : "No portal login yet"}</p>
           </CardBody>
         </Card>
 
@@ -315,7 +315,7 @@ function Overview({ data, onOpen }: { data: ClientProfileData; onOpen: (t: Tab) 
                     <Avatar name={m.name} color={m.avatarColor} size="sm" />
                     <span className="min-w-0">
                       <span className="block truncate text-[13px] font-medium text-ink">{m.name}</span>
-                      <span className="block truncate text-[11px] text-ink/45">
+                      <span className="block truncate text-[11px] text-ink-muted">
                         {m.role}
                         {m.jobTitle ? ` · ${m.jobTitle}` : ""}
                       </span>
@@ -324,7 +324,7 @@ function Overview({ data, onOpen }: { data: ClientProfileData; onOpen: (t: Tab) 
                 ))}
               </ul>
             ) : (
-              <p className="text-[13px] text-ink/45">No one is assigned yet.</p>
+              <p className="text-[13px] text-ink-muted">No one is assigned yet.</p>
             )}
           </CardBody>
         </Card>
@@ -341,7 +341,7 @@ function Overview({ data, onOpen }: { data: ClientProfileData; onOpen: (t: Tab) 
                 ))}
               </div>
             ) : (
-              <p className="text-[13px] text-ink/45">No active services.</p>
+              <p className="text-[13px] text-ink-muted">No active services.</p>
             )}
           </CardBody>
         </Card>

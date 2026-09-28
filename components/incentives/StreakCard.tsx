@@ -32,21 +32,21 @@ export function StreakCard({
   const pips = Array.from({ length: streak.required }, (_, index) => index < streak.months);
 
   return (
-    <Card className={cn(streak.earned && "border-brand/30 bg-brand-tint/30")}>
+    <Card className={cn(streak.earned && "border-brand/30 bg-brand/[0.03]")}>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             {streak.earned ? (
               <Trophy className="h-4 w-4 text-brand" />
             ) : (
-              <Sparkles className="h-4 w-4 text-ink/40" />
+              <Sparkles className="h-4 w-4 text-ink-muted" />
             )}
             <h2 className="font-display text-base font-bold tracking-tight text-ink">
               {streak.earned ? "Excellence bonus earned" : "Excellence streak"}
             </h2>
           </div>
 
-          <p className="mt-1 text-[13px] leading-relaxed text-ink/55">
+          <p className="mt-1 text-[13px] leading-relaxed text-ink-muted">
             {streak.earned
               ? `${streak.months} months at ${threshold} or above. The owner has been told${
                   bonusPercent ? ` — the standing bonus is ${bonusPercent}%` : ""

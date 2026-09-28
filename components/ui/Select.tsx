@@ -69,7 +69,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select
         </select>
         <ChevronDown
           aria-hidden
-          className="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink/40"
+          className="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted"
         />
       </div>
 
@@ -78,7 +78,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select
           {error}
         </p>
       ) : hint ? (
-        <p id={`${selectId}-hint`} className="mt-1.5 text-[13px] text-ink/50">
+        <p id={`${selectId}-hint`} className="mt-1.5 text-[13px] text-ink-muted">
           {hint}
         </p>
       ) : null}

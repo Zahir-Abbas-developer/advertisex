@@ -51,7 +51,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function 
           {error}
         </p>
       ) : hint ? (
-        <p id={`${fieldId}-hint`} className="mt-1.5 text-[13px] text-ink/50">
+        <p id={`${fieldId}-hint`} className="mt-1.5 text-[13px] text-ink-muted">
           {hint}
         </p>
       ) : null}

@@ -78,8 +78,8 @@ export function ProjectTasks({ project, viewer, onChanged }: { project: ProjectP
                     <Badge dot tone={TONE[status]} size="sm">
                       {TASK_STATUS_LABEL[status]}
                     </Badge>
-                    <span className={status === "COMPLETED" ? "min-w-0 flex-1 truncate text-[13px] text-ink/45 line-through" : "min-w-0 flex-1 truncate text-[13px] text-ink"}>{t.title}</span>
-                    {t.dueAt && <span className={late ? "text-[12px] tabular-nums text-danger" : "text-[12px] tabular-nums text-ink/50"}>{formatDate(t.dueAt)}</span>}
+                    <span className={status === "COMPLETED" ? "min-w-0 flex-1 truncate text-[13px] text-ink-muted line-through" : "min-w-0 flex-1 truncate text-[13px] text-ink"}>{t.title}</span>
+                    {t.dueAt && <span className={late ? "text-[12px] tabular-nums text-danger" : "text-[12px] tabular-nums text-ink-muted"}>{formatDate(t.dueAt)}</span>}
                     {t.assignee && <Avatar name={t.assignee.name} color={t.assignee.avatarColor} size="sm" />}
                   </button>
                 </li>

@@ -166,7 +166,7 @@ export function DisputeInbox({ isAdmin }: { isAdmin: boolean }) {
           </div>
 
           {/* The number never appears without the sentence. */}
-          <p className="mt-4 border-t border-line pt-4 text-[13px] leading-relaxed text-ink/60">
+          <p className="mt-4 border-t border-line pt-4 text-[13px] leading-relaxed text-ink-muted">
             {data.stats.insight}
           </p>
         </Card>
@@ -212,9 +212,9 @@ export function DisputeInbox({ isAdmin }: { isAdmin: boolean }) {
                       )}
                     </p>
 
-                    <p className="mt-1.5 text-[13px] leading-relaxed text-ink/70">{row.reason}</p>
+                    <p className="mt-1.5 text-[13px] leading-relaxed text-ink-2">{row.reason}</p>
 
-                    <p className="mt-2 rounded-[10px] border border-line bg-surface-2/50 px-3 py-2 text-[12px] leading-relaxed text-ink/55">
+                    <p className="mt-2 rounded-[10px] border border-line bg-surface-2/50 px-3 py-2 text-[12px] leading-relaxed text-ink-muted">
                       The charge: {row.event.reason}
                       <span className="ml-1 text-ink/35">· {formatDateTime(row.event.at)}</span>
                     </p>
@@ -264,13 +264,13 @@ export function DisputeInbox({ isAdmin }: { isAdmin: boolean }) {
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-[13px] font-medium text-ink">
                       {row.member.name}
-                      <span className="ml-2 font-normal text-ink/45">
+                      <span className="ml-2 font-normal text-ink-muted">
                         {formatPoints(row.event.points)}{" "}
                         {SCORE_EVENT_LABEL[row.event.type as ScoreEventType] ?? row.event.type}
                       </span>
                     </p>
                     {row.responseNote && (
-                      <p className="mt-0.5 text-[13px] leading-relaxed text-ink/60">
+                      <p className="mt-0.5 text-[13px] leading-relaxed text-ink-muted">
                         {row.responseNote}
                       </p>
                     )}
@@ -297,8 +297,8 @@ export function DisputeInbox({ isAdmin }: { isAdmin: boolean }) {
       >
         <div className="space-y-4">
           <div className="flex items-start gap-2.5 rounded-card border border-line bg-surface-2/50 px-4 py-3">
-            <Gavel className="mt-0.5 h-4 w-4 shrink-0 text-ink/40" />
-            <p className="text-[13px] leading-relaxed text-ink/60">
+            <Gavel className="mt-0.5 h-4 w-4 shrink-0 text-ink-muted" />
+            <p className="text-[13px] leading-relaxed text-ink-muted">
               {ruling?.uphold
                 ? "The charge stands and nothing changes on the ledger. The member gets your reasoning."
                 : `A compensating adjustment of ${
@@ -352,11 +352,11 @@ function Figure({
 }) {
   return (
     <div>
-      <p className="eyebrow text-ink/45">{label}</p>
+      <p className="eyebrow text-ink-muted">{label}</p>
       <p
         className={cn(
           "mt-2 font-display text-2xl font-bold tabular-nums",
-          tone === "warn" ? "text-warn" : "text-ink",
+          tone === "warn" ? "text-ink" : "text-ink",
         )}
       >
         {value}

@@ -43,7 +43,7 @@ export function LostDialog({
       title={lead ? `Why did ${lead.businessName} not close?` : "Deal lost"}
     >
       <div className="space-y-4">
-        <p className="text-[13px] leading-relaxed text-ink/60">
+        <p className="text-[13px] leading-relaxed text-ink-muted">
           This is the one number worth having about deals that didn&rsquo;t land.
           Pick the closest reason — the note carries the detail.
         </p>
@@ -58,7 +58,7 @@ export function LostDialog({
                 "rounded-pill border px-3 py-1.5 text-[13px] transition-colors",
                 reason === option
                   ? "border-brand/50 bg-brand-tint text-brand"
-                  : "border-line bg-surface text-ink/55 hover:border-ink/25",
+                  : "border-line bg-surface text-ink-muted hover:border-ink/25",
               )}
             >
               {LOST_REASON_LABEL[option]}

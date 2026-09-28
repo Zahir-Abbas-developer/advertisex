@@ -244,7 +244,7 @@ export function BoardView({ role, userId }: { role: Role; userId: string }) {
             />
           ) : (
             <div className="flex items-end">
-              <p className="flex items-center gap-2 pb-3 text-[13px] text-ink/45">
+              <p className="flex items-center gap-2 pb-3 text-[13px] text-ink-muted">
                 <Lock className="h-3.5 w-3.5" />
                 Showing only your milestones
               </p>
@@ -360,13 +360,13 @@ function Column({
       ref={setNodeRef}
       className={cn(
         "flex min-h-[220px] flex-col rounded-card border p-3 transition-colors",
-        isOver && canDropHere ? "border-brand bg-brand-tint/40" : "border-line bg-surface-2/50",
+        isOver && canDropHere ? "border-brand bg-brand/[0.04]" : "border-line bg-surface-2/50",
         // A column that would reject the drop says so before it is attempted.
         isDragging && !canDropHere && "opacity-45",
       )}
     >
       <div className="mb-3 flex items-center justify-between gap-2 px-1">
-        <h2 className="eyebrow text-ink/50">{MILESTONE_STATUS_LABEL[status]}</h2>
+        <h2 className="eyebrow text-ink-muted">{MILESTONE_STATUS_LABEL[status]}</h2>
         <span className="font-display text-[13px] font-bold tabular-nums text-ink/35">
           {milestones.length}
         </span>

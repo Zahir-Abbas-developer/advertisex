@@ -200,7 +200,7 @@ export function DepartmentFieldsModal({
           }}
         />
 
-        <p className="text-[13px] leading-relaxed text-ink/55">
+        <p className="text-[13px] leading-relaxed text-ink-muted">
           These are the questions {department.shortLabel} asks about a{" "}
           {FIELD_ENTITY_LABEL[entity].toLowerCase()}, on top of the name, contact,
           stage, assignee and follow-up every record carries. Removing a field
@@ -296,7 +296,7 @@ export function DepartmentFieldsModal({
 
                 <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-3">
                   <div className="flex items-center gap-4">
-                    <label className="flex items-center gap-2 text-[13px] text-ink/70">
+                    <label className="flex items-center gap-2 text-[13px] text-ink-2">
                       <input
                         type="checkbox"
                         checked={row.required}
@@ -305,7 +305,7 @@ export function DepartmentFieldsModal({
                       />
                       Required
                     </label>
-                    <label className="flex items-center gap-2 text-[13px] text-ink/70">
+                    <label className="flex items-center gap-2 text-[13px] text-ink-2">
                       <input
                         type="checkbox"
                         checked={row.isActive}
@@ -322,7 +322,7 @@ export function DepartmentFieldsModal({
                       aria-label={`Move ${row.label || "field"} up`}
                       disabled={index === 0}
                       onClick={() => move(index, -1)}
-                      className="rounded-[8px] border border-line p-1.5 text-ink/60 transition-colors hover:bg-surface-2 disabled:opacity-30"
+                      className="rounded-[8px] border border-line p-1.5 text-ink-muted transition-colors hover:bg-surface-2 disabled:opacity-30"
                     >
                       <ArrowUp className="h-3.5 w-3.5" />
                     </button>
@@ -331,7 +331,7 @@ export function DepartmentFieldsModal({
                       aria-label={`Move ${row.label || "field"} down`}
                       disabled={index === rows.length - 1}
                       onClick={() => move(index, 1)}
-                      className="rounded-[8px] border border-line p-1.5 text-ink/60 transition-colors hover:bg-surface-2 disabled:opacity-30"
+                      className="rounded-[8px] border border-line p-1.5 text-ink-muted transition-colors hover:bg-surface-2 disabled:opacity-30"
                     >
                       <ArrowDown className="h-3.5 w-3.5" />
                     </button>

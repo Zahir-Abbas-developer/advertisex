@@ -102,7 +102,7 @@ export function TeamAttendance() {
                       <Avatar name={p.name} color={p.avatarColor} size="sm" />
                       <span className="min-w-0">
                         <span className="block truncate text-[13px] font-medium text-ink">{p.name}</span>
-                        <span className="block truncate text-[12px] text-ink/45">{p.jobTitle}</span>
+                        <span className="block truncate text-[12px] text-ink-muted">{p.jobTitle}</span>
                       </span>
                     </a>
                   </TD>
@@ -130,7 +130,7 @@ export function TeamAttendance() {
           </Table>
         </TableShell>
       )}
-      <div className="flex flex-wrap gap-3 text-[12px] text-ink/50">
+      <div className="flex flex-wrap gap-3 text-[12px] text-ink-muted">
         {(["PRESENT", "LATE", "ABSENT", "ON_LEAVE", "OFF"] as const).map((s) => (
           <span key={s} className="inline-flex items-center gap-1.5">
             <span className={cn("h-2.5 w-2.5 rounded-[3px]", DOT[s])} /> {DAY_LABEL[s]}

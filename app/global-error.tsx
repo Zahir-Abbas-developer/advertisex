@@ -37,8 +37,8 @@ export default function GlobalError({
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: "#0B0B0D",
-          color: "#F5F3EE",
+          backgroundColor: "#E7F4EB",
+          color: "#022313",
           fontFamily: "ui-sans-serif, system-ui, -apple-system, sans-serif",
           padding: "24px",
         }}
@@ -50,7 +50,7 @@ export default function GlobalError({
               fontSize: "11px",
               letterSpacing: "0.14em",
               textTransform: "uppercase",
-              color: "rgba(245,243,238,0.45)",
+              color: "#656565",
             }}
           >
             Advertise X
@@ -58,11 +58,11 @@ export default function GlobalError({
           <h1 style={{ margin: "12px 0 0", fontSize: "22px", fontWeight: 700, letterSpacing: "-0.02em" }}>
             The app didn&rsquo;t start
           </h1>
-          <p style={{ margin: "10px 0 0", fontSize: "14px", lineHeight: 1.6, color: "rgba(12,12,10,0.6)" }}>
+          <p style={{ margin: "10px 0 0", fontSize: "14px", lineHeight: 1.6, color: "#3D5E4C" }}>
             Something failed before any page could render. It has been logged.
           </p>
           {error.digest && (
-            <p style={{ margin: "10px 0 0", fontSize: "12px", color: "rgba(12,12,10,0.4)" }}>
+            <p style={{ margin: "10px 0 0", fontSize: "12px", color: "#656565" }}>
               Reference {error.digest}
             </p>
           )}
@@ -73,9 +73,9 @@ export default function GlobalError({
               marginTop: "20px",
               padding: "9px 18px",
               borderRadius: "999px",
-              border: "1px solid #D4AF37",
-              background: "#D4AF37",
-              color: "#0B0B0D",
+              border: "1px solid #0E5B37",
+              background: "#0E5B37",
+              color: "#FFFFFF",
               fontSize: "13px",
               cursor: "pointer",
             }}

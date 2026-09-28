@@ -172,7 +172,7 @@ export function ProjectDetail({ projectId, viewerId }: { projectId: string; view
               <CardHeader title="Progress" description={BASIS[s.progress.basis]} />
               <CardBody className="space-y-4">
                 <ProgressBar value={s.progress.percent} showValue tone={progressTone(s.schedule)} />
-                <div className="flex flex-wrap gap-2 text-[13px] text-ink/60">
+                <div className="flex flex-wrap gap-2 text-[13px] text-ink-muted">
                   <span>Current stage{project.currentStages.length > 1 ? "s" : ""}:</span>
                   {project.currentStages.length ? (
                     project.currentStages.map((c) => (
@@ -182,10 +182,10 @@ export function ProjectDetail({ projectId, viewerId }: { projectId: string; view
                       </Badge>
                     ))
                   ) : (
-                    <span className="text-ink/45">every stage is done</span>
+                    <span className="text-ink-muted">every stage is done</span>
                   )}
                 </div>
-                <p className="flex items-start gap-1.5 text-[12px] text-ink/40">
+                <p className="flex items-start gap-1.5 text-[12px] text-ink-muted">
                   <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                   Behind schedule means progress trails the share of time used by more than 25 points.
                 </p>
@@ -205,7 +205,7 @@ export function ProjectDetail({ projectId, viewerId }: { projectId: string; view
                             <Badge size="sm">{w.kind === "MILESTONE" ? "Milestone" : "Task"}</Badge>
                             <span className="truncate text-ink">{w.title}</span>
                           </span>
-                          <span className={late ? "shrink-0 tabular-nums text-danger" : "shrink-0 tabular-nums text-ink/55"}>
+                          <span className={late ? "shrink-0 tabular-nums text-danger" : "shrink-0 tabular-nums text-ink-muted"}>
                             <CalendarClock className="mr-1 inline h-3.5 w-3.5" />
                             {w.dueAt ? formatDate(w.dueAt) : "—"}
                           </span>
@@ -214,7 +214,7 @@ export function ProjectDetail({ projectId, viewerId }: { projectId: string; view
                     })}
                   </ul>
                 ) : (
-                  <p className="text-[13px] text-ink/45">Nothing due in the next two weeks.</p>
+                  <p className="text-[13px] text-ink-muted">Nothing due in the next two weeks.</p>
                 )}
               </CardBody>
             </Card>
@@ -238,7 +238,7 @@ export function ProjectDetail({ projectId, viewerId }: { projectId: string; view
                     <Row k="Deadline" v={formatDate(project.deadline)} />
                   </dl>
                 )}
-                {project.completedAt && <p className="text-[12px] text-ink/45">Completed {formatDate(project.completedAt)}</p>}
+                {project.completedAt && <p className="text-[12px] text-ink-muted">Completed {formatDate(project.completedAt)}</p>}
               </CardBody>
             </Card>
             <Card padded={false}>
@@ -255,7 +255,7 @@ export function ProjectDetail({ projectId, viewerId }: { projectId: string; view
                     ))}
                   </ul>
                 ) : (
-                  <p className="text-[13px] text-ink/45">No one is on this project yet.</p>
+                  <p className="text-[13px] text-ink-muted">No one is on this project yet.</p>
                 )}
               </CardBody>
             </Card>
@@ -290,7 +290,7 @@ export function ProjectDetail({ projectId, viewerId }: { projectId: string; view
 function Row({ k, v }: { k: string; v: string }) {
   return (
     <div className="flex justify-between gap-3">
-      <dt className="text-ink/50">{k}</dt>
+      <dt className="text-ink-muted">{k}</dt>
       <dd className="tabular-nums text-ink">{v}</dd>
     </div>
   );

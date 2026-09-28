@@ -183,8 +183,8 @@ export function ActivityTimeline({
                   className={cn(
                     "flex items-center gap-1.5 rounded-pill border px-3 py-1.5 text-[13px] transition-colors",
                     active
-                      ? "border-brand bg-brand text-canvas"
-                      : "border-line bg-surface text-ink/60 hover:border-ink/25 hover:text-ink",
+                      ? "border-brand bg-brand text-on-brand"
+                      : "border-line bg-surface text-ink-muted hover:border-ink/25 hover:text-ink",
                   )}
                 >
                   <Icon className="h-3.5 w-3.5" />
@@ -238,7 +238,7 @@ export function ActivityTimeline({
                 "rounded-pill border px-2.5 py-1 text-[12px] transition-colors",
                 filter === type
                   ? "border-brand/50 bg-brand-tint text-brand"
-                  : "border-line bg-surface text-ink/55 hover:border-ink/25 hover:text-ink",
+                  : "border-line bg-surface text-ink-muted hover:border-ink/25 hover:text-ink",
               )}
             >
               {type === "ALL"
@@ -310,12 +310,12 @@ export function ActivityTimeline({
                         Automatic
                       </Badge>
                     )}
-                    <span className="text-[12px] text-ink/40">
+                    <span className="text-[12px] text-ink-muted">
                       {formatDateTime(activity.occurredAt)}
                     </span>
                   </div>
 
-                  <p className="mt-1 whitespace-pre-wrap break-words text-[13px] leading-relaxed text-ink/70">
+                  <p className="mt-1 whitespace-pre-wrap break-words text-[13px] leading-relaxed text-ink-2">
                     {activity.note}
                   </p>
 
@@ -326,7 +326,7 @@ export function ActivityTimeline({
                         color={activity.user.avatarColor}
                         size="sm"
                       />
-                      <span className="text-[12px] text-ink/45">{activity.user.name}</span>
+                      <span className="text-[12px] text-ink-muted">{activity.user.name}</span>
                     </div>
                   )}
                 </li>

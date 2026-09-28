@@ -74,7 +74,7 @@ export function AssignmentSettingsForm() {
               className={cn("rounded-[12px] border p-4 text-left transition-colors", form.mode === mode ? "border-brand bg-brand-tint" : "border-line hover:border-ink/20")}
             >
               <span className="block text-[14px] font-medium text-ink">{mode === "RECOMMEND" ? "Recommend" : "Assign automatically"}</span>
-              <span className="mt-1 block text-[13px] text-ink/55">
+              <span className="mt-1 block text-[13px] text-ink-muted">
                 {mode === "RECOMMEND" ? "Suggest a person for each role; you confirm or change them." : "Put the best match on each role straight away; you can still change anyone."}
               </span>
             </button>
@@ -89,7 +89,7 @@ export function AssignmentSettingsForm() {
             <div key={k} className="grid items-center gap-3 sm:grid-cols-[1fr_7rem_4rem]">
               <div>
                 <p className="text-[13px] font-medium text-ink">{WEIGHT_LABEL[k]}</p>
-                <p className="text-[12px] text-ink/45">{HINT[k]}</p>
+                <p className="text-[12px] text-ink-muted">{HINT[k]}</p>
               </div>
               <Input
                 aria-label={`${WEIGHT_LABEL[k]} weight`}
@@ -99,7 +99,7 @@ export function AssignmentSettingsForm() {
                 value={String(form.weights[k])}
                 onChange={(e) => setForm({ ...form, weights: { ...form.weights, [k]: Math.max(0, Math.min(100, Math.round(Number(e.target.value) || 0))) } })}
               />
-              <span className="text-right text-[13px] tabular-nums text-ink/60">{total ? Math.round((form.weights[k] / total) * 100) : 0}%</span>
+              <span className="text-right text-[13px] tabular-nums text-ink-muted">{total ? Math.round((form.weights[k] / total) * 100) : 0}%</span>
             </div>
           ))}
           {total === 0 && <p className="text-[13px] text-danger">At least one weight must be above zero.</p>}
@@ -112,14 +112,14 @@ export function AssignmentSettingsForm() {
           <div className="w-40">
             <Input label="Hours a role takes each week" type="number" min={1} max={40} value={String(form.roleHours)} onChange={(e) => setForm({ ...form, roleHours: Math.max(1, Math.min(40, Math.round(Number(e.target.value) || 1))) })} />
           </div>
-          <p className="text-[12px] text-ink/45">Each project role counts this much against a person&apos;s weekly capacity; open tasks and milestones count 2 hours each. No one is given a role that would take them over capacity.</p>
+          <p className="text-[12px] text-ink-muted">Each project role counts this much against a person&apos;s weekly capacity; open tasks and milestones count 2 hours each. No one is given a role that would take them over capacity.</p>
         </CardBody>
       </Card>
 
       <Card padded={false}>
         <CardHeader title="AI" />
         <CardBody>
-          <p className="text-[13px] text-ink/65">
+          <p className="text-[13px] text-ink-2">
             {ai
               ? "On: a project's brief is read for skills the services don't cover (only skills from your taxonomy). Scoring itself never uses AI."
               : "Off: set ANTHROPIC_API_KEY to also read project briefs for required skills. Everything else works the same without it."}

@@ -165,7 +165,7 @@ export function SettingsPanel() {
         <h2 className="font-display text-base font-bold tracking-tight text-ink">
           The working day
         </h2>
-        <p className="mt-0.5 text-[13px] text-ink/50">
+        <p className="mt-0.5 text-[13px] text-ink-muted">
           All times are Asia/Karachi. Changes apply from the next clock-in — days
           already under way keep the rules they started with.
         </p>
@@ -225,8 +225,8 @@ export function SettingsPanel() {
                   className={cn(
                     "rounded-pill border px-3 py-1.5 text-[13px] transition-colors",
                     active
-                      ? "border-brand bg-brand text-canvas"
-                      : "border-line bg-surface text-ink/55 hover:border-ink/25",
+                      ? "border-brand bg-brand text-on-brand"
+                      : "border-line bg-surface text-ink-muted hover:border-ink/25",
                   )}
                 >
                   {day.label}
@@ -244,7 +244,7 @@ export function SettingsPanel() {
         <h2 className="font-display text-base font-bold tracking-tight text-ink">
           Availability checks
         </h2>
-        <p className="mt-0.5 text-[13px] text-ink/50">
+        <p className="mt-0.5 text-[13px] text-ink-muted">
           The random checks that prove someone is reachable. Times are generated
           server-side at clock-in and are never sent to the member in advance.
         </p>
@@ -301,7 +301,7 @@ export function SettingsPanel() {
         <h2 className="font-display text-base font-bold tracking-tight text-ink">
           Penalties
         </h2>
-        <p className="mt-0.5 text-[13px] text-ink/50">
+        <p className="mt-0.5 text-[13px] text-ink-muted">
           Points deducted from the monthly score, which starts at 100. Entered as
           positive numbers and applied as deductions.
         </p>
@@ -341,7 +341,7 @@ export function SettingsPanel() {
         <h2 className="font-display text-base font-bold tracking-tight text-ink">
           Fairness
         </h2>
-        <p className="mt-0.5 text-[13px] text-ink/50">
+        <p className="mt-0.5 text-[13px] text-ink-muted">
           The allowances that keep the scoring honest. None of these deduct
           points — they set what counts as protected time, and how long work may
           sit in your review queue before you&rsquo;re chased about it.
@@ -389,7 +389,7 @@ export function SettingsPanel() {
         <h2 className="font-display text-base font-bold tracking-tight text-ink">
           Business development
         </h2>
-        <p className="mt-0.5 text-[13px] text-ink/50">
+        <p className="mt-0.5 text-[13px] text-ink-muted">
           Sales work is scored on activity and outcomes rather than milestones —
           into the same ledger, so a score means the same thing however it was
           earned.
@@ -443,7 +443,7 @@ export function SettingsPanel() {
         <h2 className="font-display text-base font-bold tracking-tight text-ink">
           Automatic routing
         </h2>
-        <p className="mt-0.5 text-[13px] text-ink/50">
+        <p className="mt-0.5 text-[13px] text-ink-muted">
           A lead or task filed without an assignee goes to the person in that
           department whose skills or job title name the work &mdash; a Shopify job
           to the Shopify developer. With nothing matching, it goes to whoever is
@@ -461,7 +461,7 @@ export function SettingsPanel() {
             <span className="block text-[13px] font-medium text-ink">
               Route unassigned work automatically
             </span>
-            <span className="mt-0.5 block text-[13px] leading-relaxed text-ink/55">
+            <span className="mt-0.5 block text-[13px] leading-relaxed text-ink-muted">
               Off means an unassigned record stays with whoever created it, which
               is how work ends up parked on the person who answered the phone.
             </span>
@@ -472,7 +472,7 @@ export function SettingsPanel() {
         <h2 className="font-display text-base font-bold tracking-tight text-ink">
           Auto-renewal
         </h2>
-        <p className="mt-0.5 text-[13px] text-ink/50">
+        <p className="mt-0.5 text-[13px] text-ink-muted">
           Overnight, every active client whose cycle has ended gets next
           month&rsquo;s plan — same structure, same assignees, shifted dates.
           Individual clients can still opt out.
@@ -489,7 +489,7 @@ export function SettingsPanel() {
             <span className="block text-[13px] font-medium text-ink">
               Renew retainer cycles automatically
             </span>
-            <span className="mt-0.5 block text-[13px] leading-relaxed text-ink/55">
+            <span className="mt-0.5 block text-[13px] leading-relaxed text-ink-muted">
               Off means every cycle is opened by hand, for every client.
             </span>
           </span>
@@ -513,7 +513,7 @@ export function SettingsPanel() {
         <h2 className="font-display text-base font-bold tracking-tight text-ink">
           Quality and money
         </h2>
-        <p className="mt-0.5 text-[13px] text-ink/50">
+        <p className="mt-0.5 text-[13px] text-ink-muted">
           Quality amounts are deliberately smaller than a missed deadline —
           lateness is objective, a star rating is one person&rsquo;s judgement on
           one afternoon. Three and four stars move nothing.
@@ -573,7 +573,7 @@ export function SettingsPanel() {
         <h2 className="font-display text-base font-bold tracking-tight text-ink">
           Client health weighting
         </h2>
-        <p className="mt-0.5 text-[13px] text-ink/50">
+        <p className="mt-0.5 text-[13px] text-ink-muted">
           What the health score is made of. These are relative — they don&rsquo;t
           have to add to 100, and a dimension with no data is dropped and its
           weight shared across the rest.
@@ -618,7 +618,7 @@ export function SettingsPanel() {
           />
         </div>
 
-        <p className="mt-3 text-[12px] text-ink/45">
+        <p className="mt-3 text-[12px] text-ink-muted">
           Currently{" "}
           {draft.healthWeightDelivery +
             draft.healthWeightRoas +
@@ -632,7 +632,7 @@ export function SettingsPanel() {
         <h2 className="font-display text-base font-bold tracking-tight text-ink">
           Incentives
         </h2>
-        <p className="mt-0.5 text-[13px] text-ink/50">
+        <p className="mt-0.5 text-[13px] text-ink-muted">
           Evaluated when a month closes. Members see their streak progress; the
           review rule is stated on the scoring page but never counted down at
           anyone.
@@ -749,15 +749,15 @@ export function SettingsPanel() {
                 className={cn(
                   "rounded-pill border px-3 py-1.5 text-[13px] transition-colors",
                   draft.leaderboardVisibility === option.value
-                    ? "border-brand bg-brand text-canvas"
-                    : "border-line bg-surface text-ink/55 hover:border-ink/25",
+                    ? "border-brand bg-brand text-on-brand"
+                    : "border-line bg-surface text-ink-muted hover:border-ink/25",
                 )}
               >
                 {option.label}
               </button>
             ))}
           </div>
-          <p className="mt-2 text-[12px] leading-relaxed text-ink/45">
+          <p className="mt-2 text-[12px] leading-relaxed text-ink-muted">
             Owner only is the default. Ranking five people against each other
             makes fourth place feel like failure when fourth of five at 88 is a
             good month — members see their own numbers and their own trend

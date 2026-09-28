@@ -8,14 +8,14 @@ export type ButtonSize = "sm" | "md" | "lg";
 
 const VARIANTS: Record<ButtonVariant, string> = {
   primary:
-    "bg-brand text-canvas border border-brand hover:bg-brand-hover hover:border-brand-hover active:bg-brand disabled:opacity-50 disabled:hover:bg-brand",
+    "bg-brand text-on-brand border border-brand hover:bg-brand-hover hover:border-brand-hover active:bg-brand disabled:opacity-50 disabled:hover:bg-brand",
   secondary:
-    "bg-canvas text-ink border border-line hover:bg-surface-2 active:bg-surface-2 disabled:text-ink/40",
+    "bg-surface text-ink border border-line-strong hover:bg-surface-2 hover:border-brand/30 active:bg-surface-2 disabled:text-ink/40",
   ghost:
-    "bg-transparent text-ink/70 border border-transparent hover:bg-surface-2 hover:text-ink disabled:text-ink/30",
+    "bg-transparent text-ink-2 border border-transparent hover:bg-surface-2 hover:text-ink disabled:text-ink/30",
   danger:
-    "bg-danger-tint text-danger border border-danger/25 hover:bg-danger hover:text-ink hover:border-danger disabled:opacity-50",
-  dark: "bg-surface-2 text-ink border border-line-strong hover:bg-surface-2/80 disabled:opacity-50",
+    "bg-danger-tint text-danger border border-danger/25 hover:bg-danger hover:text-on-brand hover:border-danger disabled:opacity-50",
+  dark: "bg-brand-strong text-on-brand border border-brand-strong hover:bg-brand hover:border-brand disabled:opacity-50",
 };
 
 const SIZES: Record<ButtonSize, string> = {

@@ -37,7 +37,7 @@ export function PageHeader({
       <div className={cn(dark && "relative px-6 py-8 sm:px-9 sm:py-10")}>
         <div className="flex flex-wrap items-end justify-between gap-5">
           <div className="min-w-0 max-w-2xl">
-            <p className={cn("eyebrow mb-3", dark ? "text-brand-tint/70" : "text-brand")}>
+            <p className={cn("eyebrow mb-3", dark ? "text-ink-muted" : "text-brand")}>
               {eyebrow}
             </p>
 
@@ -56,7 +56,7 @@ export function PageHeader({
               <p
                 className={cn(
                   "mt-3 text-[15px] leading-relaxed",
-                  dark ? "text-ink/60" : "text-ink/60",
+                  dark ? "text-ink-muted" : "text-ink-muted",
                 )}
               >
                 {description}

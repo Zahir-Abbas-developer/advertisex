@@ -110,11 +110,11 @@ export function LeaveInbox() {
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-ink">
                     {row.member.name}
-                    <span className="ml-2 text-[12px] font-normal text-ink/45">
+                    <span className="ml-2 text-[12px] font-normal text-ink-muted">
                       {row.date}
                     </span>
                   </p>
-                  <p className="mt-0.5 text-[13px] leading-relaxed text-ink/60">
+                  <p className="mt-0.5 text-[13px] leading-relaxed text-ink-muted">
                     {row.reason}
                   </p>
                 </div>
@@ -159,7 +159,7 @@ export function LeaveInbox() {
                   <p className="truncate text-[13px] font-medium text-ink">
                     {row.member.name} · {row.date}
                   </p>
-                  <p className="truncate text-[12px] text-ink/45">
+                  <p className="truncate text-[12px] text-ink-muted">
                     {row.reason}
                     {row.reviewedBy && ` · decided by ${row.reviewedBy}`}
                   </p>

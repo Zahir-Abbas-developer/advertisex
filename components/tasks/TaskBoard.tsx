@@ -191,7 +191,7 @@ export function TaskBoard() {
                 "rounded-pill border px-3 py-1.5 text-[13px] transition-colors",
                 mineOnly === option.key
                   ? "border-brand/50 bg-brand-tint text-brand"
-                  : "border-line bg-surface text-ink/60 hover:border-ink/25 hover:text-ink",
+                  : "border-line bg-surface text-ink-muted hover:border-ink/25 hover:text-ink",
               )}
             >
               {option.label}
@@ -312,7 +312,7 @@ export function TaskBoard() {
                           onClick={() => setOpenTask({ id: task.id, title: task.title, note: task.note, status: task.status, dueAt: task.dueAt })}
                           className={cn(
                             "flex items-center gap-2 text-left text-sm text-ink hover:text-brand",
-                            task.status === "COMPLETED" && "text-ink/45 line-through",
+                            task.status === "COMPLETED" && "text-ink-muted line-through",
                           )}
                         >
                           {task.title}
@@ -327,7 +327,7 @@ export function TaskBoard() {
                       )}
 
                       {task.note && (
-                        <p className="mt-0.5 text-[13px] leading-relaxed text-ink/55">
+                        <p className="mt-0.5 text-[13px] leading-relaxed text-ink-muted">
                           {task.note}
                         </p>
                       )}
@@ -337,7 +337,7 @@ export function TaskBoard() {
                           <span
                             className={cn(
                               "text-[12px]",
-                              task.bucket === "OVERDUE" ? "text-danger" : "text-ink/45",
+                              task.bucket === "OVERDUE" ? "text-danger" : "text-ink-muted",
                             )}
                           >
                             {task.bucket === "OVERDUE" ? "Overdue · " : ""}
@@ -367,7 +367,7 @@ export function TaskBoard() {
                                   : `/clients/${task.record!.id}`,
                               )
                             }
-                            className="text-[12px] text-ink/55 underline-offset-2 hover:text-ink hover:underline"
+                            className="text-[12px] text-ink-muted underline-offset-2 hover:text-ink hover:underline"
                           >
                             {task.record.name}
                           </button>
