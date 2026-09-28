@@ -107,4 +107,27 @@ describe("tenant scoping of query arguments", () => {
       assert.deepEqual(out.where.AND, [{ service: { organizationId: ORG } }], model);
     }
   });
+  it("scopes every Phase 6 root by organization and stamps its creates", () => {
+    for (const model of ["ClientInvite", "ClientReport", "MessageThread"]) {
+      const read = scopeArgs(model, "findMany", undefined, ORG) as { where: Record<string, unknown> };
+      assert.deepEqual(read.where.AND, [{ organizationId: ORG }], model);
+      const made = scopeArgs(model, "create", { data: { organizationId: "org-elsewhere" } }, ORG) as { data: Record<string, unknown> };
+      assert.equal(made.data.organizationId, ORG, model);
+    }
+  });
+
+  it("filters project updates through their project, messages through their thread, report reads through their report", () => {
+    const cases: [string, Record<string, unknown>][] = [
+      ["ProjectUpdate", { project: { organizationId: ORG } }],
+      ["Message", { thread: { organizationId: ORG } }],
+      ["ThreadRead", { thread: { organizationId: ORG } }],
+      ["ClientReportRead", { report: { organizationId: ORG } }],
+    ];
+    for (const [model, filter] of cases) {
+      for (const operation of ["findMany", "findFirst", "findUnique", "update", "deleteMany", "count"]) {
+        const out = scopeArgs(model, operation, { where: {} }, ORG) as { where: Record<string, unknown> };
+        assert.deepEqual(out.where.AND, [filter], `${model}.${operation}`);
+      }
+    }
+  });
 });

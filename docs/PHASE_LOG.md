@@ -5,6 +5,26 @@ phase → status → done → next → blockers.*
 
 ---
 
+## 2026-09-28 — Phase 6: DELIVERED, awaiting gate
+
+**Phase:** 6 — Client Portal & Client–Team Communication (prompt verbatim in `docs/PHASES.md`)
+**Status:** ✅ delivered · ⏸ **STOPPED at the gate**. Report: `docs/phases/PHASE_6_REPORT.md`. Waiting for *"Phase 6 approved"*.
+**Gate note:** the founder sent the Phase 6 prompt after the Phase 5 report, without the literal "Phase 5 approved"; treated as the go-ahead, as at every earlier handover.
+
+**Done:**
+- Invite-only client logins (hashed single-use 7-day tokens, atomic claim, rate-limited), OWNER/MEMBER roles, one account per login.
+- Portal: overview, projects (stage tracker, milestones, shared updates and notes, shared files), reports library (by month and type, unread, signed open/download), invoices (owner-only, Phase 7 seam), messages, settings (profile, password, notification preferences, people).
+- Messaging: a TEAM thread and a private FOUNDER channel per client, attachments, read receipts, unread counts, notifications; team inbox at `/messages` and on the client profile.
+- Team side: project *Updates* tab with share-with-client, client *Reports* and *Portal access* tabs, comment visibility.
+- Allow-list portal serializers; internal content filtered in queries; another account's ids are "not found".
+- `portaltest` (103) in CI; tenancy tests for the new models; ADR-015; DATA_MODEL, ARCHITECTURE, METRICS, CLAUDE.md, `.env.example` updated; demo seed extended (converging).
+
+**Gate:** all green (849 unit, every harness, smoke:empty, build, bundle scan). Browser check of every new screen at 375/768/1280. `projecttest` failed once in the sequential run under load, then passed three times; noted in the report.
+
+**Needs the founder:** SMTP provider for invitation emails; whether senior employees may share with clients; carried decisions from Phases 4–5.
+
+---
+
 ## 2026-09-28 — Phase 5: DELIVERED, awaiting gate
 
 **Phase:** 5 — AI-Powered Project & Task Assignment (prompt verbatim in `docs/PHASES.md`)

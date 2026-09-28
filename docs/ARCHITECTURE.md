@@ -58,7 +58,37 @@ modules/
               AUTO mode, rebalance sweep)                                                     (Phase 5)
   ai/         provider (the interface) · anthropic (Messages API over fetch) · index
               (server-only: provider from env, null when off) · skills (brief → taxonomy)   (Phase 5)
+  portal/     views (pure: the allow-list serializers — stage tracker, milestones, shared
+              updates, report grouping, notification preferences) · server (server-only:
+              account scoping, projects, reports, invites) · invite-email                     (Phase 6)
+  messages/   server (server-only: who may see a thread, TEAM/FOUNDER threads, unread,
+              receipts, notifications)                                                        (Phase 6)
+  billing/    portal (the Phase 7 seam: invoicesForAccount, empty until billing lands)        (Phase 6)
 ```
+
+**Client portal (Phase 6).** A client login is created only by accepting an
+invitation (`ClientInvite`: a 24-byte token, stored as its sha256, 7 days,
+single use, claimed atomically), and belongs to exactly one `ClientAccount`.
+Everything the portal shows passes through `modules/portal/views.ts`, which
+copies named fields into new objects — an allow-list, so a field added to a
+table later can't reach a client by accident. Internal content is excluded
+at the query (updates and comments are loaded `visibility: CLIENT` only;
+files only when shared; reports only when published), and the portal never
+calls staff APIs: those refuse CLIENT outright. Another account's project,
+report, file or thread is "not found", never "forbidden". Owners see
+billing and invite colleagues as MEMBERs; members see projects, reports and
+messages. `npm run portaltest` proves isolation and the absence of internal
+content on every portal page and API.
+
+**Messaging (Phase 6).** Each client has a TEAM thread (the founder, and
+staff whose `message` permission covers the client: the department's
+manager, assigned employees) and a private FOUNDER thread (founders only —
+checked in `canSeeThread`, not in the matrix, so no scope rule can widen
+it). Attachments are `File` rows owned by the message, served by the same
+signed URLs. Unread counts and "Seen" receipts come from `ThreadRead`;
+notifications respect each client user's preferences. The inbox polls every
+15 seconds; real-time delivery can replace polling without changing the
+model.
 
 **AI (Phase 5).** `modules/ai` is the only place a model is called. The
 provider is configuration (`ANTHROPIC_API_KEY`, `AI_MODEL`, `AI_ENABLED`);

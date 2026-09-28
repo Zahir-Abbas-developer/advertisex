@@ -396,6 +396,10 @@ async function main() {
     where: { organizationId: null },
     data: { organizationId: org.id },
   });
+  // Phase 6: client logins from before client roles were the first people on
+  // their accounts, so they are its owners. Only null roles are filled.
+  await prisma.user.updateMany({ where: { role: "CLIENT", clientRole: null }, data: { clientRole: "OWNER" } });
+
   // Phase 4: catalog services and projects predating tenancy. A project
   // belongs to its client's organization.
   await prisma.serviceCatalog.updateMany({

@@ -4,6 +4,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
+  FileBarChart2,
+  MessageSquare,
+  Megaphone,
   AlarmClock,
   CalendarClock,
   FolderKanban,
@@ -52,6 +55,9 @@ const ICONS: Record<NotificationType, typeof Bell> = {
   PROJECT_UPDATED: FolderPen,
   PROJECT_DEADLINE: CalendarClock,
   PROJECT_DELAYED: AlarmClock,
+  MESSAGE_RECEIVED: MessageSquare,
+  REPORT_SHARED: FileBarChart2,
+  UPDATE_SHARED: Megaphone,
 };
 
 const TONE_CLASSES: Record<string, string> = {

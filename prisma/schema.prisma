@@ -58,6 +58,9 @@ model Organization {
   credentials    ClientCredential[]
   clientNotes    ClientNote[]
   projects       Project[]
+  clientInvites  ClientInvite[]
+  clientReports  ClientReport[]
+  threads        MessageThread[]
 }
 
 /// A restaurant client as a *portal tenant* — the thing a CLIENT login is
@@ -76,9 +79,10 @@ model ClientAccount {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   users        User[]
   clients      Client[]
+  invites      ClientInvite[]
 
   @@index([organizationId])
 }
@@ -210,6 +214,8 @@ model File {
   clientId       String?
   projectId      String?
   contractId     String?
+  /// Phase 6: a file shared in a message (visible to that thread's readers).
+  messageId      String?
   /// Original name, shown to people. Never used for filesystem access.
   filename       String
   /// Generated name in storage, e.g. "<cuid>.png".
@@ -220,12 +226,14 @@ model File {
   visibility     String   @default("INTERNAL")
   createdAt      DateTime @default(now())
 
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  uploader     User?        @relation("FileUploader", fields: [uploaderId], references: [id], onDelete: SetNull)
-  task         Task?        @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  client       Client?      @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  project      Project?     @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  contract     Contract?    @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  organization Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  uploader     User?         @relation("FileUploader", fields: [uploaderId], references: [id], onDelete: SetNull)
+  task         Task?         @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  client       Client?       @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  project      Project?      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  contract     Contract?     @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  message      Message?      @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  report       ClientReport?
 
   @@index([organizationId])
   @@index([taskId])
@@ -233,6 +241,7 @@ model File {
   @@index([clientId])
   @@index([projectId])
   @@index([contractId])
+  @@index([messageId])
 }
 
 // ---------------------------------------------------------------------------
@@ -295,6 +304,10 @@ model User {
   organizationId      String?
   /// CLIENT logins only: the single restaurant account this user is scoped to.
   clientAccountId     String?
+  /// CLIENT logins only: "OWNER" (invites people, sees invoices) | "MEMBER".
+  clientRole          String?
+  /// JSON notification preferences, e.g. {"messages":true,"reports":true,"updates":true}.
+  notificationPrefs   String   @default("{}")
   /// What this person owns day to day, in their own words or the founder's.
   responsibilities    String?
   /// "ACTIVE" | "ON_LEAVE" | "INACTIVE" — shown on the profile; sign-in is
@@ -379,6 +392,12 @@ model User {
   reassignFrom       ReassignmentSuggestion[]   @relation("ReassignFrom")
   reassignTo         ReassignmentSuggestion[]   @relation("ReassignTo")
   reassignDecided    ReassignmentSuggestion[]   @relation("ReassignDecider")
+  invitesSent        ClientInvite[]             @relation("InviteSender")
+  projectUpdates     ProjectUpdate[]            @relation("ProjectUpdateAuthor")
+  reportsUploaded    ClientReport[]             @relation("ReportUploader")
+  reportReads        ClientReportRead[]
+  messages           Message[]                  @relation("MessageAuthor")
+  threadReads        ThreadRead[]
 
   @@index([role])
   @@index([isActive])
@@ -449,6 +468,8 @@ model Client {
   credentials   ClientCredential[]
   clientNotes   ClientNote[]
   files         File[]
+  reportLibrary ClientReport[]
+  threads       MessageThread[]
 
   @@index([departmentId, status])
   @@index([assigneeId])
@@ -858,9 +879,11 @@ model Project {
   recommendations AssignmentRecommendation[]
   reassignments   ReassignmentSuggestion[]
 
-  renewedFrom Project? @relation("ProjectRenewal", fields: [renewedFromId], references: [id], onDelete: SetNull)
-  renewedInto Project? @relation("ProjectRenewal")
+  renewedFrom Project?        @relation("ProjectRenewal", fields: [renewedFromId], references: [id], onDelete: SetNull)
+  renewedInto Project?        @relation("ProjectRenewal")
   tasks       Task[]
+  updates     ProjectUpdate[]
+  threads     MessageThread[]
 
   @@index([clientId])
   @@index([status])
@@ -1021,13 +1044,164 @@ model ReassignmentSuggestion {
   @@index([decidedById])
 }
 
-/// The project's internal discussion thread.
-model ProjectComment {
+// ---------------------------------------------------------------------------
+// Phase 6 (Advertise X) — Client portal and client–team communication
+// ---------------------------------------------------------------------------
+
+/// An invitation to the client portal. Invite-only: the token is shown once
+/// (and emailed when email is configured); only its SHA-256 is stored.
+model ClientInvite {
+  id              String    @id @default(cuid())
+  organizationId  String
+  clientAccountId String
+  email           String
+  name            String
+  /// "OWNER" | "MEMBER"
+  clientRole      String    @default("MEMBER")
+  tokenHash       String    @unique
+  invitedById     String?
+  expiresAt       DateTime
+  acceptedAt      DateTime?
+  revokedAt       DateTime?
+  createdAt       DateTime  @default(now())
+
+  organization  Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  clientAccount ClientAccount @relation(fields: [clientAccountId], references: [id], onDelete: Cascade)
+  invitedBy     User?         @relation("InviteSender", fields: [invitedById], references: [id], onDelete: SetNull)
+
+  @@index([organizationId])
+  @@index([clientAccountId])
+  @@index([invitedById])
+  @@index([email])
+}
+
+/// A project update. "CLIENT" updates appear in the portal; "INTERNAL" ones
+/// never do. The team chooses, explicitly, every time.
+model ProjectUpdate {
+  id         String   @id @default(cuid())
+  projectId  String
+  authorId   String?
+  title      String
+  body       String
+  /// "INTERNAL" | "CLIENT"
+  visibility String   @default("INTERNAL")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  author  User?   @relation("ProjectUpdateAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+
+  @@index([projectId, visibility, createdAt])
+  @@index([authorId])
+}
+
+/// A report in the client's library ("Monthly Report — January"). The file
+/// is the report; a DRAFT is the team's until it is published.
+model ClientReport {
+  id             String    @id @default(cuid())
+  organizationId String
+  clientId       String
+  title          String
+  /// "MONTHLY" | "WEEKLY" | "CAMPAIGN" | "AUDIT" | "OTHER"
+  kind           String    @default("MONTHLY")
+  /// "YYYY-MM" — the month the report covers.
+  periodMonth    String
+  fileId         String    @unique
+  /// "DRAFT" | "PUBLISHED"
+  status         String    @default("DRAFT")
+  publishedAt    DateTime?
+  createdById    String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  organization Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  client       Client             @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  file         File               @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  createdBy    User?              @relation("ReportUploader", fields: [createdById], references: [id], onDelete: SetNull)
+  reads        ClientReportRead[]
+
+  @@index([organizationId])
+  @@index([clientId, status, periodMonth])
+  @@index([createdById])
+}
+
+/// Who has opened which report — the portal's unread indicator.
+model ClientReportRead {
+  reportId String
+  userId   String
+  readAt   DateTime @default(now())
+
+  report ClientReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  user   User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([reportId, userId])
+  @@index([userId])
+}
+
+/// A conversation with a client. "TEAM": the client and the team working for
+/// them (permission-based). "FOUNDER": the private channel between the
+/// client and the founders only.
+model MessageThread {
+  id             String   @id @default(cuid())
+  organizationId String
+  clientId       String
+  /// "TEAM" | "FOUNDER"
+  kind           String   @default("TEAM")
+  /// A TEAM thread may be about one project; null is the client's general thread.
+  projectId      String?
+  subject        String
+  lastMessageAt  DateTime @default(now())
+  createdAt      DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  client       Client       @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  project      Project?     @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  messages     Message[]
+  reads        ThreadRead[]
+
+  @@index([organizationId])
+  @@index([clientId, kind])
+  @@index([projectId])
+  @@index([lastMessageAt])
+}
+
+model Message {
   id        String   @id @default(cuid())
-  projectId String
+  threadId  String
   authorId  String?
   body      String
   createdAt DateTime @default(now())
+
+  thread MessageThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  author User?         @relation("MessageAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+  files  File[]
+
+  @@index([threadId, createdAt])
+  @@index([authorId])
+}
+
+/// How far each person has read a thread — unread counts and read receipts.
+model ThreadRead {
+  threadId   String
+  userId     String
+  lastReadAt DateTime @default(now())
+
+  thread MessageThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  user   User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([threadId, userId])
+  @@index([userId])
+}
+
+/// The project's internal discussion thread.
+model ProjectComment {
+  id         String   @id @default(cuid())
+  projectId  String
+  authorId   String?
+  body       String
+  /// "INTERNAL" (the team's discussion) | "CLIENT" (shown in the portal).
+  visibility String   @default("INTERNAL")
+  createdAt  DateTime @default(now())
 
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   author  User?   @relation("ProjectCommentAuthor", fields: [authorId], references: [id], onDelete: SetNull)

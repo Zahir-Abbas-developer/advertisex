@@ -123,6 +123,12 @@ export const RESOURCES = [
   "project",
   /** The client credentials vault (Phase 4). */
   "credential",
+  /** Client–team conversations (Phase 6). The founder channel is narrowed further in modules/messages. */
+  "message",
+  /** A client's reports library (Phase 6). */
+  "clientReport",
+  /** Client portal logins and invitations (Phase 6). A client OWNER manages their own account's. */
+  "portalUser",
 ] as const;
 export type Resource = (typeof RESOURCES)[number];
 
@@ -260,7 +266,8 @@ export const PERMISSIONS: Matrix = {
   // member of (or own a milestone in) — updating the plan's progress, not
   // its shape (the handlers narrow what "update" means for them).
   project: {
-    read: { FOUNDER: "all", MANAGER: "department", EMPLOYEE: "assigned" },
+    // CLIENT: their own account's projects, through the portal's own views.
+    read: { FOUNDER: "all", MANAGER: "department", EMPLOYEE: "assigned", CLIENT: "client-own" },
     create: { FOUNDER: "all", MANAGER: "department" },
     update: { FOUNDER: "all", MANAGER: "department", EMPLOYEE: "assigned" },
     delete: FOUNDER_ONLY,
@@ -275,6 +282,30 @@ export const PERMISSIONS: Matrix = {
     create: { FOUNDER: "all", MANAGER: "department" },
     update: { FOUNDER: "all", MANAGER: "department" },
     delete: { FOUNDER: "all", MANAGER: "department" },
+  },
+
+  // Phase 6. Team threads: the founder sees all; a manager their
+  // departments' clients; an employee the clients they work for; a client
+  // their own. The private founder channel is founder-and-client only — that
+  // rule lives in modules/messages, on top of this.
+  message: {
+    read: { FOUNDER: "all", MANAGER: "department", EMPLOYEE: "assigned", CLIENT: "client-own" },
+    create: { FOUNDER: "all", MANAGER: "department", EMPLOYEE: "assigned", CLIENT: "client-own" },
+  },
+
+  clientReport: {
+    read: { FOUNDER: "all", MANAGER: "department", EMPLOYEE: "assigned", CLIENT: "client-own" },
+    create: { FOUNDER: "all", MANAGER: "department" },
+    update: { FOUNDER: "all", MANAGER: "department" },
+    delete: { FOUNDER: "all", MANAGER: "department" },
+  },
+
+  // Inviting and removing portal logins. A CLIENT may do it for their own
+  // account only if they are its OWNER (checked in modules/portal).
+  portalUser: {
+    read: { FOUNDER: "all", MANAGER: "department", CLIENT: "client-own" },
+    create: { FOUNDER: "all", MANAGER: "department", CLIENT: "client-own" },
+    delete: { FOUNDER: "all", MANAGER: "department", CLIENT: "client-own" },
   },
 };
 

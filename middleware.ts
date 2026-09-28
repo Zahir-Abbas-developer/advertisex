@@ -85,6 +85,7 @@ export const config = {
     "/reports/:path*",
     "/tasks/:path*",
     "/outreach/:path*",
+    "/messages/:path*",
     "/portal/:path*",
     "/api/reports/:path*",
     "/api/notifications/:path*",
@@ -112,6 +113,8 @@ export const config = {
     "/api/my-tasks/:path*",
     "/api/files/:path*",
     "/api/credentials/:path*",
+    "/api/portal/:path*",
+    "/api/messages/:path*",
     // /api/cron/* is deliberately absent: the scheduler authenticates with a
     // bearer secret rather than a session, and the handler checks it itself.
   ],

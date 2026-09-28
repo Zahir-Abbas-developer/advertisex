@@ -110,6 +110,30 @@ list — `Notification` already exists (in-app, per user) and is reached only
 through its owner; a `File` model lands with the storage work (P3), where its
 shape (keys, signed URLs, visibility) is decided with its first real use.
 
+### Built in Phase 6
+
+| Entity / change | Fields | Notes |
+| --- | --- | --- |
+| `User` | + clientRole (OWNER/MEMBER, CLIENT logins only), notificationPrefs (JSON: messages, reports, updates) | Existing client logins are backfilled to OWNER by the seed. |
+| `ProjectComment` | + visibility (INTERNAL default / CLIENT) | Internal stays the default; only the founder or a manager marks a comment for the client. |
+| `File` | + messageId | A message attachment; access follows the thread. |
+| **ClientInvite** | organizationId, clientAccountId, email, name, clientRole, tokenHash (unique, sha256), expiresAt (7 days), acceptedAt?, revokedAt?, invitedById | The only way a client login is created. The token itself is never stored and is redacted from the audit log. Audited. |
+| **ProjectUpdate** | projectId, authorId, title, body, visibility (INTERNAL/CLIENT) | Project-owned for tenancy. Audited. |
+| **ClientReport** | organizationId, clientId, title, kind (MONTHLY/CAMPAIGN/SEO/SOCIAL/OTHER), periodMonth (YYYY-MM), fileId (unique), status (DRAFT/PUBLISHED), publishedAt?, createdById | The client's reports library. Deleting the file deletes the report. Audited. Separate from the team's internal `Report`. |
+| **ClientReportRead** | reportId + userId (PK), readAt | Unread flags and "opened by". Report-owned for tenancy. |
+| **MessageThread** | organizationId, clientId, kind (TEAM/FOUNDER), projectId?, subject, lastMessageAt | Each client gets one general TEAM thread and one private FOUNDER thread, created on first use. Audited. |
+| **Message** | threadId, authorId, body, files | Thread-owned for tenancy. Audited. |
+| **ThreadRead** | threadId + userId (unique), lastReadAt | Unread counts and read receipts. Thread-owned. |
+
+Migration `20260929090000_portal`: additive only (7 tables, new nullable or defaulted columns, no drops).
+
+Tenancy: ClientInvite, ClientReport and MessageThread are organization roots;
+ProjectUpdate is filtered through its project, Message and ThreadRead through
+`thread.organizationId`, ClientReportRead through `report.organizationId`
+(`modules/tenancy/scope.ts`, tested). Client isolation (one account's rows
+never reaching another) is enforced on top of this in `modules/portal` and
+`modules/messages`, and proven over HTTP by `npm run portaltest`.
+
 ### New in Advertise X
 
 | Entity | Key fields | Tenancy |

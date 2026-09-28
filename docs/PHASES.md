@@ -160,3 +160,32 @@ When a project is created, the system analyzes its requirements and recommends �
 - Global Definition of Done passes.
 
 ### GATE — docs/phases/PHASE_5_REPORT.md, then STOP for "Phase 5 approved."
+
+---
+
+## PHASE 6 — CLIENT PORTAL & CLIENT–TEAM COMMUNICATION
+
+*Issued 2026-09-28 after Phase 5 was delivered; taken as the founder's
+go-ahead (recorded in PHASE_LOG). Verbatim below.*
+
+Prerequisite: "Phase 5 approved."
+
+### OBJECTIVE
+A secure, elegant, jargon-free client experience in which a restaurant sees only its own world — and communicates with the team, and privately with the founders.
+
+### SCOPE
+1. Client auth: invite-only accounts; a client user belongs to exactly one ClientAccount; the session is scoped accordingly.
+2. Client Overview: current projects, project progress, active services, upcoming deliverables, recent activity — simplified language, reassuring tone.
+3. Project progress: stage tracker (e.g., Planning → Design → Development → Testing → Launch), current stage, completed milestones, upcoming work, relevant updates. Internal notes never leak — explicit internal/external visibility flags on updates, files, and comments.
+4. Reports library: reports organized by month and type (e.g., "Monthly Report — January"); open and download; unread indicators. (Automated generation is Phase 8 — build the library and a manual upload path now.)
+5. Invoices and payments: read-only, own only — wired to Phase 7 data and placeholder-safe now.
+6. Messaging: secure threads per client (client ↔ assigned team, permission-based); file sharing; read receipts; notifications. A separate PRIVATE FOUNDER CHANNEL visible only to the client and the founders. The founder has full visibility and control over all client communication; employees see only threads they are permitted to.
+7. Client settings: profile, additional client users (role-limited invites), notification preferences.
+
+### ACCEPTANCE
+- Isolation proven by tests: a client can never read or write another client's projects, files, reports, invoices, or messages — including via direct IDs and URLs.
+- Internal-only content never renders in the portal (tests).
+- The portal is fully responsive and reads as premium and simple.
+- Global Definition of Done passes.
+
+### GATE — docs/phases/PHASE_6_REPORT.md, then STOP for "Phase 6 approved."

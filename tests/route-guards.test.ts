@@ -23,6 +23,7 @@ const GUARDS = [
 const PUBLIC: Record<string, string> = {
   "auth/[...nextauth]/route.ts": "NextAuth's own sign-in endpoints",
   "health/route.ts": "uptime probe; returns no data",
+  "invites/accept/route.ts": "portal invitation acceptance: the one-time token is the credential (rate-limited)",
 };
 
 function handlers(dir: string): string[] {

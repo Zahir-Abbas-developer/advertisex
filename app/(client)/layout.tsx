@@ -19,7 +19,7 @@ export default async function ClientLayout({ children }: { children: ReactNode }
 
   const account = await prisma.user.findUnique({
     where: { id: principal.id },
-    select: { mustChangePassword: true, avatarColor: true, name: true },
+    select: { mustChangePassword: true, avatarColor: true, name: true, clientRole: true },
   });
   if (account?.mustChangePassword) redirect("/change-password");
 
@@ -44,6 +44,7 @@ export default async function ClientLayout({ children }: { children: ReactNode }
   return (
     <ClientShell
       accountName={clientAccount.name}
+      isOwner={account?.clientRole === "OWNER"}
       user={{ name: account?.name ?? user.name ?? "You", avatarColor: account?.avatarColor ?? "#D4AF37" }}
     >
       {children}

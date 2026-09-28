@@ -81,6 +81,7 @@ jobs:
           npm run outreachtest
           npm run projecttest
           npm run assigntest
+          npm run portaltest
       - name: Server log on failure
         if: failure()
         run: tail -200 dev.log

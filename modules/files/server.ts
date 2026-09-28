@@ -47,6 +47,7 @@ const FILE_INCLUDE = {
 } as const;
 
 export type FileOwner =
+  | { kind: "message"; id: string }
   | { kind: "task"; id: string }
   | { kind: "client"; id: string }
   | { kind: "project"; id: string }
@@ -81,6 +82,17 @@ function clientAllows(principal: Principal, mode: "read" | "write", c: ClientRef
  * owner? Unknown owners and owners outside scope are both "not found".
  */
 export async function ownerAccess(principal: Principal, owner: FileOwner, mode: "read" | "write"): Promise<{ ok: boolean; status: number; clientId: string | null }> {
+  if (owner.kind === "message") {
+    // A file shared in a message: whoever can see the thread. Immutable once sent.
+    if (mode === "write") return { ok: false, status: 404, clientId: null };
+    const m = await prisma.message.findUnique({
+      where: { id: owner.id },
+      select: { thread: { select: { id: true, kind: true, organizationId: true, client: CLIENT_REF } } },
+    });
+    const { canSeeThread } = await import("@/modules/messages/server");
+    const ok = Boolean(m && canSeeThread(principal, m.thread));
+    return { ok, status: ok ? 200 : 404, clientId: m?.thread.client.id ?? null };
+  }
   if (owner.kind === "task") {
     if (principal.role === "CLIENT") return { ok: false, status: 404, clientId: null };
     const a = await taskAccess(principal, owner.id, mode);
@@ -104,7 +116,8 @@ export async function ownerAccess(principal: Principal, owner: FileOwner, mode: 
   return { ok, status: ok ? 200 : 404, clientId: c.id };
 }
 
-export function ownerOf(file: { taskId: string | null; clientId: string | null; projectId: string | null; contractId: string | null }): FileOwner | null {
+export function ownerOf(file: { taskId: string | null; clientId: string | null; projectId: string | null; contractId: string | null; messageId?: string | null }): FileOwner | null {
+  if (file.messageId) return { kind: "message", id: file.messageId };
   if (file.taskId) return { kind: "task", id: file.taskId };
   if (file.projectId) return { kind: "project", id: file.projectId };
   if (file.contractId) return { kind: "contract", id: file.contractId };
@@ -158,7 +171,9 @@ export function toView(file: {
 }
 
 export const ownerWhere = (owner: FileOwner) =>
-  owner.kind === "task"
+  owner.kind === "message"
+    ? { messageId: owner.id }
+    : owner.kind === "task"
     ? { taskId: owner.id }
     : owner.kind === "client"
       ? { clientId: owner.id }

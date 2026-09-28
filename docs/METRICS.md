@@ -249,6 +249,19 @@ capacity); or the project is delayed and another eligible candidate scores
 at least 15 points (0.15) higher. Deduped per project, role, holder,
 suggestion and week.
 
+## Added in Phase 6 — portal counts (`modules/messages`, `modules/portal`)
+
+- **Unread messages (per thread, per person):** messages in the thread
+  created after the person's `ThreadRead.lastReadAt` and not written by
+  them. Opening the thread sets `lastReadAt` to now; posting does too.
+- **Seen (read receipt) on a message:** the people on the *other side* (the
+  team, for a client's message; the client's logins, for the team's) whose
+  `lastReadAt` is at or after the message's time.
+- **Unread report:** a published report the person has never opened
+  (no `ClientReportRead` row). Opening or downloading it records the read.
+- **Client project progress:** the Phase 4 formula, unchanged; the portal
+  shows the same percentage the team sees.
+
 ## To be defined at their phase gates
 
 - **P2** — per-organization aggregates (same formulas, org-scoped denominators).

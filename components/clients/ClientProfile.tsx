@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowUpRight, FileBarChart, Globe, Mail, MapPin, Pencil, Phone, Pin, Plus } from "lucide-react";
+import { ArrowUpRight, Globe, Mail, MapPin, Pencil, Phone, Pin, Plus } from "lucide-react";
 
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
@@ -21,6 +21,9 @@ import { ClientProjectsPanel } from "@/components/clients/ClientProjectsPanel";
 import { ClientServicesPanel } from "@/components/clients/ClientServicesPanel";
 import { ContractsPanel } from "@/components/clients/ContractsPanel";
 import { NotesPanel } from "@/components/clients/NotesPanel";
+import { ClientReportsPanel } from "@/components/clients/ClientReportsPanel";
+import { PortalUsersPanel } from "@/components/clients/PortalUsersPanel";
+import { MessagesView } from "@/components/messages/MessagesView";
 import { NewProjectModal } from "@/components/projects/shared/NewProjectModal";
 import { ClientEditModal, type ClientRecord } from "@/components/clients/ClientEditModal";
 import { progressTone, ScheduleBadge } from "@/components/projects/shared/badges";
@@ -57,7 +60,7 @@ export type ClientProfileData = {
   viewer: { id: string; isFounder: boolean; canEdit: boolean; canManageContracts: boolean; canCreateProject: boolean; canSeeCredentials: boolean };
 };
 
-type Tab = "overview" | "projects" | "services" | "contracts" | "files" | "logins" | "notes" | "communication" | "reports";
+type Tab = "overview" | "projects" | "services" | "contracts" | "files" | "logins" | "notes" | "communication" | "reports" | "portal";
 
 const money = (n: number) => `$${n.toLocaleString("en-US")}`;
 
@@ -81,8 +84,9 @@ export function ClientProfile({ data }: { data: ClientProfileData }) {
     { key: "files", label: "Files" },
     ...(viewer.canSeeCredentials ? [{ key: "logins" as const, label: "Logins" }] : []),
     { key: "notes", label: "Notes" },
-    { key: "communication", label: "Communication" },
-    { key: "reports", label: "Reports", count: data.reports.length || undefined },
+    { key: "communication", label: "Messages" },
+    { key: "reports", label: "Reports" },
+    ...(viewer.canManageContracts ? [{ key: "portal" as const, label: "Portal access" }] : []),
   ];
 
   return (
@@ -146,14 +150,18 @@ export function ClientProfile({ data }: { data: ClientProfileData }) {
       )}
       {tab === "notes" && <NotesPanel clientId={client.id} canEdit={viewer.canEdit} viewerId={viewer.id} isManager={viewer.canManageContracts} />}
       {tab === "communication" && (
-        <Card padded={false}>
-          <CardHeader title="Communication" description="Calls, emails, meetings and notes with this client, including everything from before they signed. Messaging arrives with the client portal." />
-          <CardBody>
-            <ActivityTimeline clientId={client.id} viewerId={viewer.id} isAdmin={viewer.isFounder} />
-          </CardBody>
-        </Card>
+        <div className="space-y-6">
+          <MessagesView audience="team" clientId={client.id} />
+          <Card padded={false}>
+            <CardHeader title="Contact history" description="Calls, emails, meetings and notes with this client, including everything from before they signed." />
+            <CardBody>
+              <ActivityTimeline clientId={client.id} viewerId={viewer.id} isAdmin={viewer.isFounder} />
+            </CardBody>
+          </Card>
+        </div>
       )}
-      {tab === "reports" && <ReportsList reports={data.reports} />}
+      {tab === "reports" && <ClientReportsPanel clientId={client.id} />}
+      {tab === "portal" && viewer.canManageContracts && <PortalUsersPanel clientId={client.id} />}
 
       {viewer.canCreateProject && <NewProjectModal open={newProject} onClose={() => setNewProject(false)} clientId={client.id} />}
       {data.editRecord && (
@@ -333,34 +341,5 @@ function Overview({ data, onOpen }: { data: ClientProfileData; onOpen: (t: Tab) 
         </Card>
       </div>
     </div>
-  );
-}
-
-function ReportsList({ reports }: { reports: ClientProfileData["reports"] }) {
-  return (
-    <Card padded={false}>
-      <CardHeader title="Reports" description="Weekly client reports. Performance reporting with live ad data arrives with integrations." />
-      <CardBody>
-        {reports.length ? (
-          <ul className="divide-y divide-line">
-            {reports.map((r) => (
-              <li key={r.id}>
-                <Link href={`/reports/${r.id}`} className="flex items-center justify-between gap-3 py-3 text-[13px] hover:text-brand">
-                  <span className="flex items-center gap-2 text-ink">
-                    <FileBarChart className="h-4 w-4 text-ink/40" />
-                    {r.type === "CLIENT_WEEKLY" ? "Weekly report" : r.type}
-                  </span>
-                  <span className="tabular-nums text-ink/50">
-                    {formatDate(r.periodStart)} – {formatDate(r.periodEnd)}
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <EmptyState icon={FileBarChart} title="No reports yet" description="Reports appear here as they're generated." className="py-8" />
-        )}
-      </CardBody>
-    </Card>
   );
 }

@@ -651,3 +651,52 @@ who stays on the team.
 - Letting AI score candidates: it isn't reproducible, and it would put
   personal data in prompts for no gain.
 - Assigning silently on imbalance: the brief forbids it.
+
+## ADR-015 — Phase 6: the client portal and client–team messaging
+
+**Date:** 2026-09-28 · **Status:** accepted
+
+**Allow-list, not deny-list.** Portal data is built by serializers that
+copy named fields (`modules/portal/views.ts`). Stripping internal fields
+from full rows would leak the first new column someone forgets to strip.
+Internal rows are also excluded in the query, so the serializer is a second
+wall, not the only one.
+
+**Visibility is a flag on the thing, defaulting to internal.** Updates,
+comments and files carry INTERNAL/CLIENT; reports carry DRAFT/PUBLISHED.
+Nothing becomes visible to a client without a deliberate choice by the
+founder or a manager (employees can't share). Internal notes stay in the
+same tables as shared ones, so the team works in one place.
+
+**Not found, never forbidden.** Another account's id returns 404 (API) or
+the "not available" view (page), so a client can't learn which ids exist.
+The portal page answers 200 with that view rather than a 404 status because
+the portal's loading boundary streams the response; the harness checks the
+content, not only the status.
+
+**Invite-only, one account per login.** No sign-up route exists. The
+invitation token is shown once (and emailed if SMTP is set), stored only as
+a hash, expires in 7 days, and is claimed with a conditional update inside
+the transaction that creates the login, so a replayed or raced link fails.
+The public accept route is rate-limited. Owners can invite only MEMBERs;
+new owners are added by the founder or a manager.
+
+**The founder channel is structural.** The FOUNDER thread's visibility is
+decided in code (`canSeeThread`: founders only), not by a permissions-matrix
+scope, so widening a manager's `message` scope can never open it.
+
+**Polling, not sockets.** A 15-second poll is enough for client messaging,
+works on serverless hosting, and needs no new infrastructure. The model
+(threads, messages, read markers) doesn't change if we add real-time
+delivery later.
+
+**Invoices through one seam.** The portal's invoices page reads
+`invoicesForAccount()`, which returns nothing until Phase 7 fills it. The
+page, API, owner-only rule and empty state are final.
+
+**Alternatives rejected:**
+- A separate client app or database: two systems stapled together.
+- Client self-registration with approval: the brief says invite-only.
+- Letting employees share with clients directly: sharing is a
+  management decision in the brief, and the flag makes it auditable.
+

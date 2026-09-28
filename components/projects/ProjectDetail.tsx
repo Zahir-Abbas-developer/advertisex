@@ -22,6 +22,7 @@ import { FilesPanel } from "@/components/files/FilesPanel";
 import { CredentialsPanel } from "@/components/clients/CredentialsPanel";
 import { ProjectPlan } from "@/components/projects/ProjectPlan";
 import { ProjectTasks } from "@/components/projects/ProjectTasks";
+import { ProjectUpdates } from "@/components/projects/ProjectUpdates";
 import { ProjectTeam } from "@/components/projects/ProjectTeam";
 import { ProjectDiscussion } from "@/components/projects/ProjectDiscussion";
 import { PriorityBadge, progressTone, ProjectStatusBadge, ScheduleBadge } from "@/components/projects/shared/badges";
@@ -30,7 +31,7 @@ import { formatDate } from "@/lib/date";
 import { PROJECT_PRIORITIES, PROJECT_PRIORITY_LABEL, PROJECT_STATUS_LABEL, PROJECT_STATUSES, SCHEDULE_LABEL } from "@/modules/projects/domain";
 import { safeFetch } from "@/lib/safe-fetch";
 
-type Tab = "overview" | "plan" | "tasks" | "files" | "team" | "discussion" | "logins";
+type Tab = "overview" | "plan" | "tasks" | "updates" | "files" | "team" | "discussion" | "logins";
 
 const BASIS: Record<string, string> = {
   work: "Each milestone counts by its size (1–5), each task counts 1; the share done, rounded down.",
@@ -52,7 +53,7 @@ export function ProjectDetail({ projectId, viewerId }: { projectId: string; view
   const [status, setStatus] = useState<"loading" | "ready" | "missing" | "error">("loading");
   // Notifications link to ?tab=team when a team plan or suggestion is waiting.
   const initialTab = useSearchParams().get("tab");
-  const [tab, setTab] = useState<Tab>(initialTab === "team" || initialTab === "plan" || initialTab === "tasks" ? (initialTab as Tab) : "overview");
+  const [tab, setTab] = useState<Tab>(initialTab === "team" || initialTab === "plan" || initialTab === "tasks" || initialTab === "updates" ? (initialTab as Tab) : "overview");
 
   const load = useCallback(async () => {
     const res = await safeFetch(`/api/projects/${projectId}`, { cache: "no-store" });
@@ -104,6 +105,7 @@ export function ProjectDetail({ projectId, viewerId }: { projectId: string; view
     { key: "overview", label: "Overview" },
     { key: "plan", label: "Plan", count: s.openMilestones || undefined },
     { key: "tasks", label: "Tasks", count: s.openTasks || undefined },
+    { key: "updates", label: "Updates" },
     { key: "files", label: "Files" },
     { key: "team", label: "Team" },
     { key: "discussion", label: "Discussion & activity" },
@@ -263,6 +265,7 @@ export function ProjectDetail({ projectId, viewerId }: { projectId: string; view
 
       {tab === "plan" && <ProjectPlan project={project} viewer={viewer} onChanged={load} />}
       {tab === "tasks" && <ProjectTasks project={project} viewer={viewer} onChanged={load} />}
+      {tab === "updates" && <ProjectUpdates projectId={project.id} viewerId={viewerId} />}
       {tab === "files" && (
         <Card padded={false}>
           <CardBody>

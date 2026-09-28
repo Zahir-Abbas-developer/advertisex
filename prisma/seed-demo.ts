@@ -230,6 +230,7 @@ async function main() {
         email: r.login.email,
         passwordHash: placeholderHash,
         role: "CLIENT",
+        clientRole: "OWNER",
         jobTitle: "Owner",
         mustChangePassword: true,
         avatarColor: avatarColorFor(r.login.name),
@@ -246,6 +247,11 @@ async function main() {
 
   // --- Phase 4: what clients bought, their projects, contracts, vault -------
   await seedClientProjects(org.id);
+
+  // --- Phase 6: what a client sees in the portal ----------------------------
+  // Demo logins made before Phase 6 are their accounts' owners.
+  await prisma.user.updateMany({ where: { organizationId: org.id, role: "CLIENT", clientRole: null }, data: { clientRole: "OWNER" } });
+  await seedPortal(org.id);
 
   const roles = await prisma.user.groupBy({ by: ["role"], _count: true });
   console.log("Advertise X demo tenant");
@@ -788,6 +794,99 @@ async function seedClientProjects(organizationId: string) {
     }
     await prisma.clientNote.create({ data: { organizationId, clientId: client.id, authorId: owner, body: demo.note, pinned: true } });
   }
+}
+
+/** A one-page PDF, so the demo report opens in a browser. */
+function demoPdf(title: string): Buffer {
+  const text = title.replace(/[()\\]/g, "");
+  const stream = `BT /F1 24 Tf 72 720 Td (${text}) Tj ET`;
+  const objects = [
+    "<< /Type /Catalog /Pages 2 0 R >>",
+    "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+    "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>",
+    `<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`,
+    "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
+  ];
+  let body = "%PDF-1.4\n";
+  const offsets: number[] = [];
+  objects.forEach((o, i) => {
+    offsets.push(body.length);
+    body += `${i + 1} 0 obj\n${o}\nendobj\n`;
+  });
+  const xref = body.length;
+  body += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n${offsets.map((o) => `${String(o).padStart(10, "0")} 00000 n \n`).join("")}`;
+  body += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF\n`;
+  return Buffer.from(body, "latin1");
+}
+
+/**
+ * Phase 6 demo: for Osteria Nonna — a conversation with the team, a private
+ * note to the founders, a shared update and an internal one on the website
+ * project, and a published monthly report. Converges: skipped once the
+ * client has any message.
+ */
+async function seedPortal(organizationId: string) {
+  const client = await prisma.client.findFirst({ where: { organizationId, businessName: "Osteria Nonna" }, select: { id: true, clientAccountId: true } });
+  if (!client?.clientAccountId) return;
+  if (await prisma.message.count({ where: { thread: { clientId: client.id } } })) return;
+
+  const [owner, tayyaba, founder] = await Promise.all([
+    prisma.user.findFirst({ where: { clientAccountId: client.clientAccountId, role: "CLIENT" }, select: { id: true } }),
+    prisma.user.findUnique({ where: { email: "tayyaba@bwm.local" }, select: { id: true } }),
+    prisma.user.findFirst({ where: { organizationId, role: { in: ["FOUNDER", "ADMIN"] } }, select: { id: true } }),
+  ]);
+  if (!owner || !tayyaba || !founder) return;
+
+  const team = await prisma.messageThread.create({ data: { organizationId, clientId: client.id, kind: "TEAM", subject: "Your team" } });
+  const privateThread = await prisma.messageThread.create({ data: { organizationId, clientId: client.id, kind: "FOUNDER", subject: "Private — founders" } });
+  const at = (hoursAgo: number) => new Date(Date.now() - hoursAgo * 3_600_000);
+  const talk: [string, string, string, number][] = [
+    [team.id, owner.id, "Hi team — can we make sure the new site has our Sunday brunch menu? It's our busiest service.", 50],
+    [team.id, tayyaba.id, "Absolutely, Marco. We'll add a brunch page and put it in the main menu. I'll share the design this week.", 48],
+    [team.id, owner.id, "Perfect, thank you!", 47],
+    [privateThread.id, owner.id, "Quick one for the founders: we're thinking about a second location next spring. Worth a chat about the plan?", 30],
+    [privateThread.id, founder.id, "Congratulations — yes, let's talk. I'll send some times for next week.", 26],
+  ];
+  for (const [threadId, authorId, body, hours] of talk) {
+    await prisma.message.create({ data: { threadId, authorId, body, createdAt: at(hours) } });
+    await prisma.messageThread.update({ where: { id: threadId }, data: { lastMessageAt: at(hours) } });
+  }
+  await prisma.threadRead.createMany({
+    data: [
+      { threadId: team.id, userId: owner.id, lastReadAt: at(46) },
+      { threadId: team.id, userId: tayyaba.id, lastReadAt: at(46) },
+      { threadId: privateThread.id, userId: founder.id, lastReadAt: at(26) },
+      { threadId: privateThread.id, userId: owner.id, lastReadAt: at(25) },
+    ],
+  });
+
+  const project = await prisma.project.findFirst({ where: { clientId: client.id, title: "Website relaunch" }, select: { id: true } });
+  if (project) {
+    await prisma.projectUpdate.create({
+      data: { projectId: project.id, authorId: tayyaba.id, visibility: "CLIENT", title: "Your homepage design is approved", body: "Thanks for the quick feedback. We're now building the menu and booking pages — you'll see them next week.", createdAt: at(72) },
+    });
+    await prisma.projectUpdate.create({
+      data: { projectId: project.id, authorId: tayyaba.id, visibility: "INTERNAL", title: "Internal: booking widget risk", body: "OpenTable API keys still pending from the client's old agency — chase before Friday.", createdAt: at(20) },
+    });
+  }
+
+  // A published report, stored the way uploads are (a generated name under uploads/).
+  const { mkdir, writeFile } = await import("node:fs/promises");
+  const path = await import("node:path");
+  const dir = path.join(process.cwd(), "uploads");
+  await mkdir(dir, { recursive: true });
+  const month = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth() - 1, 15));
+  const periodMonth = month.toISOString().slice(0, 7);
+  const label = month.toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: "UTC" });
+  const pdf = demoPdf(`Osteria Nonna - Monthly Report - ${label}`);
+  const storedName = `${randomBytes(16).toString("hex")}.pdf`;
+  await writeFile(path.join(dir, storedName), pdf);
+  const file = await prisma.file.create({
+    data: { organizationId, uploaderId: tayyaba.id, clientId: client.id, filename: `Monthly report ${label}.pdf`, storedName, mimeType: "application/pdf", size: pdf.length, visibility: "CLIENT" },
+  });
+  await prisma.clientReport.create({
+    data: { organizationId, clientId: client.id, title: `Monthly Report — ${label}`, kind: "MONTHLY", periodMonth, fileId: file.id, status: "PUBLISHED", publishedAt: at(10), createdById: tayyaba.id },
+  });
 }
 
 main()

@@ -211,6 +211,7 @@ export async function convertLead(principal: Principal, leadId: string, input: C
           email: invite.email,
           passwordHash,
           role: "CLIENT",
+          clientRole: "OWNER",
           jobTitle: "Owner",
           mustChangePassword: true,
           avatarColor: avatarColorFor(invite.name),

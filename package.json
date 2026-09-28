@@ -40,7 +40,8 @@
     "outreachtest": "node scripts/sync-db-provider.mjs && node --import tsx scripts/outreachtest.mjs",
     "projecttest": "node scripts/sync-db-provider.mjs && node --import tsx scripts/projecttest.mjs",
     "bundlescan": "node scripts/bundle-scan.mjs",
-    "assigntest": "node scripts/sync-db-provider.mjs && node --import tsx scripts/assigntest.mjs"
+    "assigntest": "node scripts/sync-db-provider.mjs && node --import tsx scripts/assigntest.mjs",
+    "portaltest": "node scripts/sync-db-provider.mjs && node --import tsx scripts/portaltest.mjs"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

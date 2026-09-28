@@ -41,6 +41,10 @@ export const ORG_ROOT_MODELS = new Set([
   "ClientCredential",
   "ClientNote",
   "Project",
+  // Phase 6 — the portal.
+  "ClientInvite",
+  "ClientReport",
+  "MessageThread",
 ]);
 
 /**
@@ -93,7 +97,14 @@ export const PROJECT_OWNED_MODELS = new Set([
   // Phase 5 — assignment.
   "AssignmentRecommendation",
   "ReassignmentSuggestion",
+  "ProjectUpdate",
 ]);
+
+/** Rows that belong to an organization through their message thread (Phase 6). */
+export const THREAD_OWNED_MODELS = new Set(["Message", "ThreadRead"]);
+
+/** Rows that belong to an organization through their report (Phase 6). */
+export const REPORT_OWNED_MODELS = new Set(["ClientReportRead"]);
 
 /** Rows that belong to an organization through a catalog service (Phase 4). */
 export const SERVICE_OWNED_MODELS = new Set(["ServiceStageTemplate", "ServiceSkill"]);
@@ -104,7 +115,9 @@ export function isTenantModel(model: string): boolean {
     DEPARTMENT_OWNED_MODELS.has(model) ||
     LEAD_OWNED_MODELS.has(model) ||
     PROJECT_OWNED_MODELS.has(model) ||
-    SERVICE_OWNED_MODELS.has(model)
+    SERVICE_OWNED_MODELS.has(model) ||
+    THREAD_OWNED_MODELS.has(model) ||
+    REPORT_OWNED_MODELS.has(model)
   );
 }
 
@@ -113,6 +126,8 @@ function filterFor(model: string, organizationId: string): Record<string, unknow
   if (LEAD_OWNED_MODELS.has(model)) return { lead: { department: { organizationId } } };
   if (PROJECT_OWNED_MODELS.has(model)) return { project: { organizationId } };
   if (SERVICE_OWNED_MODELS.has(model)) return { service: { organizationId } };
+  if (THREAD_OWNED_MODELS.has(model)) return { thread: { organizationId } };
+  if (REPORT_OWNED_MODELS.has(model)) return { report: { organizationId } };
   return ORG_ROOT_MODELS.has(model)
     ? { organizationId }
     : { department: { organizationId } };

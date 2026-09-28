@@ -28,6 +28,10 @@ export const NOTIFICATION_TYPES = [
   "PROJECT_UPDATED",
   "PROJECT_DEADLINE",
   "PROJECT_DELAYED",
+  // Phase 6 — the client portal.
+  "MESSAGE_RECEIVED",
+  "REPORT_SHARED",
+  "UPDATE_SHARED",
 ] as const;
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
@@ -47,4 +51,7 @@ export const NOTIFICATION_TONE: Record<NotificationType, BadgeTone> = {
   PROJECT_UPDATED: "neutral",
   PROJECT_DEADLINE: "warning",
   PROJECT_DELAYED: "danger",
+  MESSAGE_RECEIVED: "info",
+  REPORT_SHARED: "success",
+  UPDATE_SHARED: "info",
 };

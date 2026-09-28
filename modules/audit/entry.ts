@@ -58,6 +58,13 @@ export const AUDITED_MODELS = new Set([
   // every reassignment suggestion is on the record.
   "AssignmentRecommendation",
   "ReassignmentSuggestion",
+  // Phase 6 — the founder's full visibility over client communication and
+  // what is shared with clients.
+  "ClientInvite",
+  "ProjectUpdate",
+  "ClientReport",
+  "MessageThread",
+  "Message",
 ]);
 
 export const RECORD_ACTIONS = {
@@ -78,7 +85,7 @@ const OPERATION_KIND: Record<string, keyof typeof RECORD_ACTIONS> = {
 
 /** Never copied into the audit log, whatever the model. */
 /** `secret` is a vault credential's sealed value: even ciphertext stays out of the log. */
-const REDACTED = new Set(["passwordHash", "secret"]);
+const REDACTED = new Set(["passwordHash", "secret", "tokenHash"]);
 
 export type ActorType = "HUMAN" | "AI" | "CLIENT" | "SYSTEM";
 
