@@ -34,7 +34,10 @@ export type NavKey =
   | "team"
   | "team-performance"
   | "settings"
-  | "reports";
+  | "reports"
+  | "agents"
+  | "approvals"
+  | "automations";
 
 export type NavItem = {
   key: NavKey;
@@ -94,6 +97,11 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { key: "analytics", label: "Analytics", href: "/analytics", roles: ADMINS },
   { key: "notifications", label: "Notifications", href: "/notifications", roles: EVERYONE, hidden: true },
   { key: "tasks", label: "Tasks", href: "/tasks", roles: EVERYONE },
+  // Phase 9: AI employees are visible to everyone on staff (work, logs,
+  // performance); the review queue is for those who decide; rules are the founder's.
+  { key: "agents", label: "AI employees", href: "/agents", roles: EVERYONE },
+  { key: "approvals", label: "Approvals", href: "/approvals", roles: OPS },
+  { key: "automations", label: "Automations", href: "/automations", roles: ADMINS },
   // The milestone list. It belongs to the parked retainer-projects module —
   // with that module off it has no data at all, so leaving it in the rail
   // meant a "Tasks" entry that opened a permanently empty page. It is gated

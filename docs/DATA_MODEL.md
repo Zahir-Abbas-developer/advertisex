@@ -110,6 +110,23 @@ list — `Notification` already exists (in-app, per user) and is reached only
 through its owner; a `File` model lands with the storage work (P3), where its
 shape (keys, signed URLs, visibility) is decided with its first real use.
 
+### Built in Phase 9
+
+| Entity / change | Fields | Notes |
+| --- | --- | --- |
+| **AgentProfile** | userId (unique, an AI_AGENT user), capability (a registry key), enabled, maxRunsPerHour, monthlyBudgetMicros | What the agent does and its limits. Audited. |
+| **AgentRun** | organizationId, agentId, capability, subjectType (lead / client / project / organization), subjectId?, departmentId? (the subject's, denormalised), input, output, status (QUEUED / RUNNING / AWAITING_APPROVAL / DONE / FAILED / CANCELLED), error, requestedById?, ruleId?, availableAt, lockedAt, attempts, inputTokens, outputTokens, costMicros, mode (AI / RULES), startedAt, finishedAt | One piece of work; the queue itself (claimed by a conditional update). Its steps and AGENT_ACTION audit rows are its log. |
+| **AgentStep** | runId, index, tool, input, output, error, durationMs | Every tool call, model call and note, secrets stripped. |
+| **ApprovalRequest** | organizationId, runId?, agentId, kind (SEND_CLIENT_MESSAGE / LEAD_OUTCOME / CREATE_INVOICE / PUBLISH_REPORT), subjectType, subjectId, departmentId?, summary, payload (the exact action), status (PENDING / APPROVED / REJECTED / FAILED), decidedById, decidedAt, note, result | A consequential proposal; executed as the approver. Audited. |
+| **AutomationRule** | organizationId, name, enabled, trigger (LEAD_CREATED / LEAD_STAGE_CHANGED / DEADLINE_NEAR / REPORT_DUE), conditions (JSON), action (RUN_AGENT / NOTIFY / CREATE_TASK), actionConfig (JSON), createdById, fireCount, lastFiredAt | Founder-configured. Audited. |
+| **AutomationFiring** | ruleId, subjectKey (unique together), outcome | Makes each rule fire once per occasion. |
+
+Migration `20261002090000_agents`: additive only (6 tables, no drops).
+
+Money is integer micro-dollars (1,000,000 = $1): a single model call costs fractions of a cent.
+
+Tenancy: AgentRun, ApprovalRequest and AutomationRule are organization roots; AgentStep is filtered through its run, AutomationFiring through its rule, AgentProfile through its user (`modules/tenancy/scope.ts`, tested).
+
 ### Built in Phase 8
 
 | Entity / change | Fields | Notes |

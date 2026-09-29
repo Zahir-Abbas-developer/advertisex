@@ -1,22 +1,31 @@
-import { AiError, type AiProvider, type CompletionRequest } from "@/modules/ai/provider";
+import { AiError, type AiProvider, type CompletionRequest, type CompletionResult } from "@/modules/ai/provider";
 
 /**
  * Anthropic Messages API over fetch — no SDK dependency for one call.
  * Configured by ANTHROPIC_API_KEY and (optionally) AI_MODEL.
  */
 export function anthropicProvider(apiKey: string, model: string): AiProvider {
+  const completeWithUsage = async ({ system, prompt, maxTokens = 400, timeoutMs = 8000 }: CompletionRequest): Promise<CompletionResult> => {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "x-api-key": apiKey, "anthropic-version": "2023-06-01", "content-type": "application/json" },
+      body: JSON.stringify({ model, max_tokens: maxTokens, system, messages: [{ role: "user", content: prompt }] }),
+      signal: AbortSignal.timeout(timeoutMs),
+    });
+    if (!res.ok) throw new AiError(`AI provider returned ${res.status}`);
+    const body = (await res.json()) as { model?: string; content?: { type: string; text?: string }[]; usage?: { input_tokens?: number; output_tokens?: number } };
+    return {
+      text: (body.content ?? []).filter((c) => c.type === "text").map((c) => c.text ?? "").join(""),
+      model: body.model ?? model,
+      inputTokens: body.usage?.input_tokens ?? 0,
+      outputTokens: body.usage?.output_tokens ?? 0,
+    };
+  };
   return {
     name: `anthropic:${model}`,
-    async complete({ system, prompt, maxTokens = 400, timeoutMs = 8000 }: CompletionRequest): Promise<string> {
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: { "x-api-key": apiKey, "anthropic-version": "2023-06-01", "content-type": "application/json" },
-        body: JSON.stringify({ model, max_tokens: maxTokens, system, messages: [{ role: "user", content: prompt }] }),
-        signal: AbortSignal.timeout(timeoutMs),
-      });
-      if (!res.ok) throw new AiError(`AI provider returned ${res.status}`);
-      const body = (await res.json()) as { content?: { type: string; text?: string }[] };
-      return (body.content ?? []).filter((c) => c.type === "text").map((c) => c.text ?? "").join("");
+    completeWithUsage,
+    async complete(request) {
+      return (await completeWithUsage(request)).text;
     },
   };
 }

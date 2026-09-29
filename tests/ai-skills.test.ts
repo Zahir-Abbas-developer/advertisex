@@ -11,6 +11,10 @@ const TAXONOMY = [
 ];
 const fake = (answer: string | Error): AiProvider => ({
   name: "fake",
+  completeWithUsage: async () => {
+    if (answer instanceof Error) throw answer;
+    return { text: answer, model: "fake", inputTokens: 0, outputTokens: 0 };
+  },
   complete: async () => {
     if (answer instanceof Error) throw answer;
     return answer;

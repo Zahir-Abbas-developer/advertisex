@@ -142,6 +142,9 @@ async function main() {
     check(conv.status === 201 && out.clientId && out.projectId && out.clientAccountId, "converts in one call", String(conv.status));
 
     const client = await prisma.client.findUnique({ where: { id: out.clientId } });
+    // The lead's tags as converted: an AI employee may have tagged it since
+    // creation (Phase 9's "Qualify every new lead" adds fit:<band>).
+    const convertedLead = await prisma.lead.findUnique({ where: { id: leadId }, select: { tags: true } });
     check(
       client &&
         client.businessName === payload.businessName &&
@@ -149,7 +152,8 @@ async function main() {
         client.website === payload.website &&
         client.location === payload.location &&
         client.industry === payload.industry &&
-        client.tags === "brunch,vip" &&
+        client.tags === convertedLead.tags &&
+        convertedLead.tags.split(",").slice(0, 2).join(",") === "brunch,vip" &&
         client.notes === payload.notes &&
         client.clientAccountId === out.clientAccountId,
       "the client carries every lead field — nothing re-typed",

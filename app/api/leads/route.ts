@@ -21,6 +21,7 @@ import { fieldsFor, writeFieldValues } from "@/lib/fields-data";
 import { requireApi } from "@/modules/rbac/server";
 import { duplicateKey } from "@/modules/leads/csv";
 import { serializeTags } from "@/modules/leads/domain";
+import { emitEvent } from "@/modules/ai/agents/automations";
 const leadSchema = z.object({
   // The business line this deal belongs to. Also decides which pipeline
   // stages are valid for it.
@@ -165,7 +166,7 @@ export async function POST(request: Request) {
   // key error and a 500. Checked here so the caller gets a field-level 422.
   const department = await prisma.department.findFirst({
     where: { id: data.departmentId, isActive: true },
-    select: { id: true },
+    select: { id: true, organizationId: true },
   });
   if (!department) {
     return apiError("Pick a department", 422, { departmentId: "That department no longer exists" });
@@ -311,6 +312,11 @@ export async function POST(request: Request) {
         : `${data.businessName} was assigned to you.`,
       href: `/pipeline?lead=${lead.id}`,
     });
+  }
+
+  // Phase 9: founder-configured automations (e.g. an AI employee qualifies it). Never fails the creation.
+  if (department.organizationId) {
+    await emitEvent(department.organizationId, "LEAD_CREATED", { departmentId: department.id, leadId: lead.id, ownerId, source: lead.source, title: lead.businessName });
   }
 
   /* A lean shape rather than the raw row: the caller needs to know *where* the

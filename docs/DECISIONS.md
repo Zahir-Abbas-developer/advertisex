@@ -886,3 +886,78 @@ the exact UTF-8 name.
   provider.
 - Publishing generated reports automatically: the brief requires human review.
 - A job queue for email: new infrastructure with no need at this volume.
+
+## ADR-019 — Phase 9: AI employees, the agent framework and automations
+
+**Date:** 2026-09-29 · **Status:** accepted
+
+**An agent is a user plus one capability.** Agents were already `AI_AGENT`
+users with explicit grants (Phase 1). Phase 9 adds an `AgentProfile` naming
+one capability: a code module declaring what it works on, the tools it may
+call, its default limits and a `run` function. Adding an agent means adding
+a capability file and a registry line. Hiring creates the user and grants
+exactly the permissions its tools need, recorded as the founder's decision.
+A unit test proves every capability's grants are ones the matrix offers
+agents. Demonstrated by *Client Check-in*, added in its own commit.
+
+**Code decides; the model writes.** Capabilities call typed tools directly;
+the model is never handed tools or allowed to choose actions. It is asked for
+text (a rationale, a summary, a draft) that is parsed and validated against a
+schema before use; anything else is discarded for the deterministic path. So
+prompt injection can change a sentence of prose at most, never an action.
+Every capability works with AI off, over budget, or failing.
+
+**Tools enforce permissions like people's code does.** Each tool names its
+permission and checks the agent's grant against the target's organization
+and department on every call. Runs execute inside `actingAs(agent)`, so the
+tenancy extension scopes every query to the agent's organization and the
+audit extension records the agent as the actor. The actor stores are
+process-wide (`globalThis`), like the Prisma client and the audit buffer.
+Next loads a module once per bundle, and a per-bundle store attributed an
+agent's writes to the person whose request queued the run. The harness
+caught this.
+
+**Consequential means proposed.** Sending to a client, marking a lead won or
+lost, creating an invoice and publishing a report are tools that only create
+an `ApprovalRequest`. Approving executes it *as the approver*, through the
+same functions people use: `moveLeadStage`, `post`, `saveDraft`,
+`approveAndPublish`. So the approver's permissions apply and the audit log
+names them. Founders decide anything. Managers decide for their departments.
+Invoices are founder-only. Decisions are claimed conditionally, so each is
+made once.
+
+**The table is the queue.** `AgentRun` rows are claimed by a conditional
+update (QUEUED → RUNNING with a lease). They start in-process the moment
+they're queued, and `/api/cron/agents` plus the morning job drain what's
+left: runs deferred by a rate limit, runs a serverless host froze, stale
+leases (retried up to three times). A queue product (Inngest, BullMQ) would
+be new infrastructure for a volume this doesn't have. The seam is
+`runner.ts`.
+
+**Limits.** A rolling-hour rate limit defers runs rather than dropping them.
+A monthly budget in micro-dollars stops model calls, and work continues on
+rules. Cost is recorded per call from token usage and a price table
+(overridable).
+
+**Safety.** Before any model call: contact details are replaced, known secret
+shapes (API keys, tokens, sealed vault values) are stripped, and prompts are
+capped. External content is wrapped as untrusted data with a standing
+instruction and scanned for instruction-like text, which is reported on the
+run. The fetcher reaches only public http(s) addresses on standard ports: it
+re-checks every redirect hop, resolves DNS to refuse private ranges, and caps
+time and size.
+
+**Automations are rules, emitted where the moment happens.** Four triggers
+(lead created, stage changed, deadline near, report due) and three actions
+(give an agent the work, notify, create a task). Conditions are a strict
+allow-list of keys. Each rule fires once per occasion (`AutomationFiring`,
+unique per rule and subject key). Emitting never fails the caller.
+
+**Alternatives rejected:**
+- Letting the model call tools (function calling): hands actions to text we
+  can't trust, and makes runs non-repeatable.
+- A job-queue service: infrastructure without the load to justify it.
+- Separate "agent API" endpoints: agents would bypass the permission and
+  audit paths people use.
+- Auto-executing consequential actions above a confidence threshold: the
+  brief requires human approval.

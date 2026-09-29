@@ -11,6 +11,9 @@
 import { loadEnv, Session, waitForServer } from "./smoke.mjs";
 
 loadEnv();
+// The jobs this script runs may queue AI-employee work (Phase 9 automations);
+// the server's worker runs it, never this process.
+process.env.AGENT_WORKER = "off";
 
 const SEED_PASSWORD = process.env.SEED_PASSWORD ?? "advertisex-change-me";
 const FOUNDER = "coachd@bwm.local";

@@ -14,6 +14,7 @@ import { Table, TableShell, TBody, TD, TH, THead, TR } from "@/components/ui/Tab
 import { HowCalculated } from "@/components/team/HowCalculated";
 import { percent } from "@/components/attendance/TimeClock";
 import { formatMinutes, type MonthSummary } from "@/modules/attendance/domain";
+import { AgentWorkPanel } from "@/components/agents/AgentWorkPanel";
 
 type Row = {
   member: { id: string; name: string; avatarColor: string; jobTitle: string; isAgent: boolean };
@@ -163,6 +164,14 @@ export function TeamPerformance() {
             </TBody>
           </Table>
         </TableShell>
+      </section>
+
+      <section className="space-y-4">
+        <div>
+          <h2 className="font-display text-lg font-semibold text-ink">AI employees</h2>
+          <p className="text-[13px] text-ink-muted">Work completed and how often people approve what they propose. Definitions: docs/METRICS.md → AI employees.</p>
+        </div>
+        <AgentWorkPanel />
       </section>
 
       <section className="space-y-4">

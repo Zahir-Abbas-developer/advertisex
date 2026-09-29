@@ -58,6 +58,12 @@ modules/
               AUTO mode, rebalance sweep)                                                     (Phase 5)
   ai/         provider (the interface) · anthropic (Messages API over fetch) · index
               (server-only: provider from env, null when off) · skills (brief → taxonomy)   (Phase 5)
+              · pricing (µ$ per call) · fake (dev/test stand-in model)                        (Phase 9)
+  ai/agents/  capability (the contract) · registry (every capability) · capabilities/*
+              · grants (pure: tool → permission) · safety (pure: PII, secrets, untrusted
+              content, SSRF) · scoring (pure: lead qualification) · triggers (pure:
+              automation vocabulary) · queue (enqueue; loads the worker on demand) · tools · runner · approvals · automations · rules
+              · server (server-only)                                                          (Phase 9)
   portal/     views (pure: the allow-list serializers — stage tracker, milestones, shared
               updates, report grouping, notification preferences) · server (server-only:
               account scoping, projects, reports, invites) · invite-email                     (Phase 6)
@@ -171,6 +177,33 @@ deterministic path. Today one feature uses it: reading a project brief for
 required skills, constrained to the organization's taxonomy (anything else
 the model says is dropped), with an 8-second limit and fail-safe to none.
 Assignment scoring is deterministic and never calls a model.
+
+**AI employees (Phase 9, ADR-019).** An agent is an `AI_AGENT` user with an
+`AgentProfile` naming one *capability* (`modules/ai/agents/capabilities/*`).
+A capability declares what it works on, the typed tools it may call and its
+default limits, and a `run` that is plain code. The model only writes text
+(validated before use); code decides every action. Each tool names the
+permission it needs, and the agent must hold that `AgentGrant`, checked with
+the target's organization and department on every call.
+
+Runs are rows (`AgentRun`) and the table is the queue. The worker starts
+in-process as soon as a run is queued, and `/api/cron/agents` plus the
+morning job drain anything deferred or stranded. A run executes inside
+`actingAs(agent)`, so tenancy scoping and the data-layer audit treat the
+agent as the actor. Every tool call is also an `AgentStep` and an
+`AGENT_ACTION` audit row with its inputs and outputs. Each model call adds
+tokens and micro-dollars to the run, and a monthly budget turns the model off
+(the rules path continues).
+
+The four consequential tools only *propose*: an `ApprovalRequest`, decided in
+`/approvals` and executed as the approver through the same code people use.
+Automations (`AutomationRule`) are emitted by the code that owns each moment:
+lead creation, `moveLeadStage`, the morning deadline sweep and the monthly
+report job. A rule fires once per occasion (`AutomationFiring`).
+
+Adding an agent means adding a capability file and one registry line: the
+runner, tools, approvals, automations, hiring (which grants exactly what the
+tools need) and the UI all read the definition.
 
 **Credentials vault (Phase 4).** Secrets are sealed with AES-256-GCM under
 `VAULT_KEY` (rotation via `VAULT_KEY_PREVIOUS`), bound to the credential's

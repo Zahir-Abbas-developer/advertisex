@@ -69,6 +69,12 @@ export const AUDITED_MODELS = new Set([
   "Invoice",
   "InvoiceLine",
   "Payment",
+  // Phase 9 — agent setup, approval decisions, automation rules. (Runs and
+  // steps are themselves the agent's log; each tool call also writes an
+  // AGENT_ACTION entry with its inputs and outputs.)
+  "AgentProfile",
+  "ApprovalRequest",
+  "AutomationRule",
   // Phase 8 — announcements, client metrics (manual entry and syncs), connections.
   "Announcement",
   "MetricValue",

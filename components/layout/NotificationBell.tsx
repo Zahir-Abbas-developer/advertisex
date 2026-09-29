@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   AlertCircle,
+  Bot,
+  ShieldCheck,
   CircleDollarSign,
   Receipt,
   FileBarChart2,
@@ -65,6 +67,8 @@ const ICONS: Record<NotificationType, typeof Bell> = {
   INVOICE_OVERDUE: AlertCircle,
   PAYMENT_RECEIVED: CircleDollarSign,
   ANNOUNCEMENT: Megaphone,
+  AGENT_NOTICE: Bot,
+  APPROVAL_NEEDED: ShieldCheck,
 };
 
 const TONE_CLASSES: Record<string, string> = {

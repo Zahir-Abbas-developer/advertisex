@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { emitEvent } from "@/modules/ai/agents/automations";
 import { notify } from "@/lib/notifications";
 import { fieldsFor, valuesFor } from "@/lib/fields-data";
 import { getSettings } from "@/lib/settings";
@@ -104,7 +105,7 @@ export async function moveLeadStage(options: {
       ownerId: true,
       dealValue: true,
       convertedAt: true,
-      department: { select: { shortLabel: true } },
+      department: { select: { shortLabel: true, organizationId: true } },
     },
   });
   if (!lead) return { ok: false, error: "That lead no longer exists", status: 404 };
@@ -142,7 +143,7 @@ export async function moveLeadStage(options: {
   // One transaction: the move, its history row, its timeline entry and — on
   // a first win — the "deal closed" outreach entry either all land or none do,
   // so stage velocity and outreach counts can never disagree with the board.
-  await prisma.$transaction([
+  const [, stageEvent] = await prisma.$transaction([
     prisma.lead.update({
       where: { id: lead.id },
       data: {
@@ -204,6 +205,11 @@ export async function moveLeadStage(options: {
     await notifyOutcome(lead, target, options.actorId);
   } else if (target.kind === "LOST") {
     await notifyOutcome(lead, target, options.actorId, options.lostReason ?? null);
+  }
+
+  // Phase 9: founder-configured automations on stage changes. Never fails the move.
+  if (lead.department.organizationId) {
+    await emitEvent(lead.department.organizationId, "LEAD_STAGE_CHANGED", { departmentId: lead.departmentId, leadId: lead.id, ownerId: lead.ownerId, fromStage: lead.stage, toStage: target.key, toStageKind: target.kind, stageEventId: stageEvent.id, title: lead.businessName });
   }
 
   return { ok: true, stage: target, converted: winning && !lead.convertedAt };

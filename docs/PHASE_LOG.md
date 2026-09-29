@@ -5,6 +5,36 @@ phase → status → done → next → blockers.*
 
 ---
 
+## 2026-09-29 — Phase 9: DELIVERED, awaiting gate
+
+**Phase:** 9 — AI Employees · Agent Framework · Automated Workflows (prompt verbatim in `docs/PHASES.md`)
+**Status:** ✅ delivered · ⏸ **STOPPED at the gate**. Report: `docs/phases/PHASE_9_REPORT.md`. Waiting for *"Phase 9 approved"*.
+**Gate note:** the founder sent the Phase 9 prompt after the Phase 8 report, without the literal "Phase 8 approved"; treated as the go-ahead, as at every earlier handover.
+
+**Done:**
+- Agent framework (`modules/ai/agents`):
+  - AgentProfile, a capability contract and registry, 13 typed tools each naming its permission.
+  - Runs as background jobs (the `AgentRun` table is the queue; in-process worker, `/api/cron/agents`, morning drain).
+  - Every step logged and every tool call audited (AGENT_ACTION) in the agent's name; tokens and micro-dollar cost per run.
+- Approvals: four consequential kinds, a review queue (`/approvals`), executed as the approver; invoices are founder-only.
+- Six agents: Atlas (research), Sage (qualification, new), Quill (follow-up), Ledger (reports), Pulse (notifier), Lens (tasks).
+- Automations: four triggers, three actions, conditions, once per occasion; `/automations`; three seeded rules.
+- Visibility: `/agents` (roster, performance, work log), run pages, "AI work" on an agent's team profile, "AI employees" on Team performance.
+- Safety: rate limits, monthly budgets, PII/secret redaction, untrusted-content wrapping and injection detection, SSRF-safe fetcher.
+- New-capability demonstration: *Client Check-in*, one file + one registry line, in its own commit.
+- `agenttest` (80 checks) in CI; 35 new unit tests (registry, safety, scoring, pricing, automation matching, tenancy).
+- ADR-019. ARCHITECTURE, DATA_MODEL, METRICS, CLAUDE.md, `.env.example` updated.
+
+**Fixed along the way:**
+- The actor stores (who is acting, for tenancy and audit) are now process-wide. An agent's writes had been attributed to whoever's request queued the run.
+- Approval reviewers are chosen by manager role, not team-lead membership.
+
+**Gate:** all green on a fresh database: 962 unit tests, every harness (agenttest 80, smoke 161, smoke:empty 152), build, bundle scan, and the browser at 375/768/1280. The first run found an import cycle (queue split from runner) and three harness interactions with the default rule; all fixed. The founder's database and uploads were restored, with passwords unchanged.
+
+**Needs the founder:** the Anthropic key (for model-written text; everything works without); whether "Qualify every new lead" stays on; agent budgets.
+
+---
+
 ## 2026-09-29 — Phase 8: DELIVERED, awaiting gate
 
 **Phase:** 8 — Command Center · Client Analytics · Reports · Notifications (prompt verbatim in `docs/PHASES.md`)

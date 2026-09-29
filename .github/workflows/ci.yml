@@ -59,7 +59,8 @@ jobs:
       - name: Start the app
         run: |
           npm run db:reset
-          (npm run dev > dev.log 2>&1 &)
+          # The deterministic stand-in model and the local research site (Phase 9 — dev/test only).
+          (AI_PROVIDER=fake AGENT_FETCH_ALLOW_PRIVATE=true npm run dev > dev.log 2>&1 &)
           for i in $(seq 1 90); do
             curl -sf -o /dev/null http://localhost:3000/login && exit 0
             sleep 2
@@ -86,6 +87,7 @@ jobs:
           npm run analyticstest
           npm run reporttest
           npm run notifytest
+          npm run agenttest
       - name: Server log on failure
         if: failure()
         run: tail -200 dev.log

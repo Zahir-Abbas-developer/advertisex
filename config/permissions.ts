@@ -143,6 +143,12 @@ export const RESOURCES = [
   "clientMetric",
   /** A client's data-provider connections (Phase 8). */
   "integration",
+  /** AI employees: their setup, runs and logs (Phase 9). */
+  "agent",
+  /** The review queue of agents' consequential proposals (Phase 9). */
+  "approval",
+  /** Automation rules (Phase 9). */
+  "automation",
 ] as const;
 export type Resource = (typeof RESOURCES)[number];
 
@@ -246,7 +252,8 @@ export const PERMISSIONS: Matrix = {
   notification: {
     read: { FOUNDER: "own", MANAGER: "own", EMPLOYEE: "own", CLIENT: "own" },
     update: { FOUNDER: "own", MANAGER: "own", EMPLOYEE: "own", CLIENT: "own" },
-    create: { FOUNDER: "own", MANAGER: "own", EMPLOYEE: "own", CLIENT: "own" },
+    // AI_AGENT: posting internal notices (the Internal Notifier), audience-checked by notify().
+    create: { FOUNDER: "own", MANAGER: "own", EMPLOYEE: "own", CLIENT: "own", AI_AGENT: "grant" },
     delete: { FOUNDER: "own", MANAGER: "own", EMPLOYEE: "own", CLIENT: "own" },
   },
 
@@ -281,7 +288,7 @@ export const PERMISSIONS: Matrix = {
   // its shape (the handlers narrow what "update" means for them).
   project: {
     // CLIENT: their own account's projects, through the portal's own views.
-    read: { FOUNDER: "all", MANAGER: "department", EMPLOYEE: "assigned", CLIENT: "client-own" },
+    read: { FOUNDER: "all", MANAGER: "department", EMPLOYEE: "assigned", CLIENT: "client-own", AI_AGENT: "grant" },
     create: { FOUNDER: "all", MANAGER: "department" },
     update: { FOUNDER: "all", MANAGER: "department", EMPLOYEE: "assigned" },
     delete: FOUNDER_ONLY,
@@ -304,13 +311,14 @@ export const PERMISSIONS: Matrix = {
   // rule lives in modules/messages, on top of this.
   message: {
     read: { FOUNDER: "all", MANAGER: "department", EMPLOYEE: "assigned", CLIENT: "client-own" },
-    create: { FOUNDER: "all", MANAGER: "department", EMPLOYEE: "assigned", CLIENT: "client-own" },
+    // An agent only ever *proposes* a client message (Phase 9: approval required).
+    create: { FOUNDER: "all", MANAGER: "department", EMPLOYEE: "assigned", CLIENT: "client-own", AI_AGENT: "grant" },
   },
 
   clientReport: {
-    read: { FOUNDER: "all", MANAGER: "department", EMPLOYEE: "assigned", CLIENT: "client-own" },
-    create: { FOUNDER: "all", MANAGER: "department" },
-    update: { FOUNDER: "all", MANAGER: "department" },
+    read: { FOUNDER: "all", MANAGER: "department", EMPLOYEE: "assigned", CLIENT: "client-own", AI_AGENT: "grant" },
+    create: { FOUNDER: "all", MANAGER: "department", AI_AGENT: "grant" },
+    update: { FOUNDER: "all", MANAGER: "department", AI_AGENT: "grant" },
     delete: { FOUNDER: "all", MANAGER: "department" },
   },
 
@@ -327,7 +335,8 @@ export const PERMISSIONS: Matrix = {
   // see billing at all.
   invoice: {
     read: { FOUNDER: "all", CLIENT: "client-own" },
-    create: FOUNDER_ONLY,
+    // An agent may only *propose* an invoice; the founder's approval creates it.
+    create: { FOUNDER: "all", AI_AGENT: "grant" },
     update: FOUNDER_ONLY,
     delete: FOUNDER_ONLY,
   },
@@ -360,6 +369,26 @@ export const PERMISSIONS: Matrix = {
   integration: {
     read: { FOUNDER: "all", MANAGER: "department" },
     update: { FOUNDER: "all", MANAGER: "department" },
+  },
+
+  // Phase 9. Managers see the agents and start runs about their departments'
+  // work; the founder configures agents (capabilities, grants, budgets).
+  agent: {
+    read: { FOUNDER: "all", MANAGER: "all", EMPLOYEE: "all" },
+    create: { FOUNDER: "all", MANAGER: "department" },
+    update: FOUNDER_ONLY,
+  },
+  // The review queue: the founder decides anything; a manager decides for
+  // their departments' leads and clients.
+  approval: {
+    read: { FOUNDER: "all", MANAGER: "department" },
+    update: { FOUNDER: "all", MANAGER: "department" },
+  },
+  automation: {
+    read: FOUNDER_ONLY,
+    create: FOUNDER_ONLY,
+    update: FOUNDER_ONLY,
+    delete: FOUNDER_ONLY,
   },
 };
 

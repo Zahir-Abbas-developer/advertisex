@@ -13,6 +13,7 @@ import { sweepInvoices } from "@/modules/billing/lifecycle";
 import { retryNotificationEmails, sendDailyDigests } from "@/lib/notifications";
 import { warmCommandCenter } from "@/modules/analytics/server";
 import { runMonthlyReports } from "@/modules/monthly-reports/server";
+import { runDueNow } from "@/modules/ai/agents/runner";
 
 /**
  * The 9am follow-up call.
@@ -93,6 +94,8 @@ export async function POST(request: Request) {
     const analytics = await warmCommandCenter(now);
     // Phase 8: last month's client reports, drafted for review in the first days of a month.
     const reports = await runMonthlyReports(now);
+    // Phase 9: whatever the automations above queued, plus anything deferred, runs now.
+    const agents = await runDueNow();
 
     return NextResponse.json({
       status: "ok",
@@ -105,6 +108,7 @@ export async function POST(request: Request) {
       digest,
       analytics,
       reports,
+      agents,
       due: due.length,
       sent,
       // due minus sent is the dedupe working, not a failure.

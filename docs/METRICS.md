@@ -369,10 +369,41 @@ previous month ("up 12% on last month"), then milestones completed per
 project. The summary may quote only numbers that appear in those facts. An
 AI draft that uses any other number is discarded for the template summary.
 
+## Added in Phase 9 — AI employees (`modules/ai/agents`)
+
+**Lead qualification score** (`scoring.ts`, 0–100, the sum of five factors;
+deterministic — a model only writes the rationale around it):
+
+| Factor | Max | Points |
+| --- | --- | --- |
+| Budget | 30 | on value = max(estimated monthly value, deal value ÷ 12): ≥ 3,000 → 30 · ≥ 1,500 → 24 · ≥ 800 → 16 · > 0 → 8 · else 0 |
+| Source | 20 | Referral 20 · Inbound 18 · Website 16 · Event 12 · Social 10 · Paid ads 10 · Outreach 6 · Other 6 · unknown 8 |
+| Engagement | 25 | last 30 days: 10 per meeting + 6 per reply + 1 per logged touch of any kind (up to 5), capped at 25 |
+| Fit | 15 | restaurant/food industry 8 (else 3) + 2 per service of interest (up to 3) + 1 with a website, capped at 15 |
+| Momentum | 10 | last activity ≤ 7 days → 10 · ≤ 21 → 6 · older → 2; no activity yet: created ≤ 7 days ago → 6, else 2 |
+
+Bands: **Hot** ≥ 70 · **Warm** ≥ 45 · **Cold** below. A cold lead with no
+activity for 45 days is *proposed* as lost (no response); a person decides.
+
+**Agent performance** (per agent; team views and `/agents`):
+- *Work completed* = runs with status DONE (all time).
+- *Approval rate* = approved ÷ (approved + rejected) proposals. A proposal
+  approved but failing on execution counts as approved (the judgement was
+  accepted); pending ones don't count. Shown as "—" before any decision.
+- *Waiting on a person* = runs AWAITING_APPROVAL; *Failed* = runs FAILED.
+- *AI spend this month* = Σ run cost since the 1st (UTC), where a call costs
+  input tokens × input price + output tokens × output price, prices in $ per
+  million tokens, so the product is micro-dollars exactly (defaults 3 / 15;
+  `AI_PRICE_INPUT`, `AI_PRICE_OUTPUT`). Hidden from employees.
+- *Rate limit*: runs started in the rolling last hour; a run over the limit
+  waits for the next free slot. *Budget*: once this month's spend reaches it,
+  model calls are skipped and the run takes its rules path.
+- Agents have no attendance.
+
 ## To be defined at their phase gates
 
 - **P2** — per-organization aggregates (same formulas, org-scoped denominators).
 - **P3** — client-visible progress % (definition must be explainable to a client in one sentence).
 - **P4** — invoice totals, MRR (real, replacing the parked snapshot version), collection rate, overdue aging buckets.
-- **P5** — integration metrics normalization (spend, impressions, ROAS from provider data), AI task cost.
+- **P5** — integration metrics normalization (spend, impressions, ROAS from provider data). (AI task cost: Phase 9, above.)
 - **P6** — attendance/performance formulas, if D4 unparks them (the legacy formulas are documented in `docs/legacy/BWM_CLAUDE.md` §Parked modules and the module code).

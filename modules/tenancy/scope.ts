@@ -53,6 +53,10 @@ export const ORG_ROOT_MODELS = new Set([
   "MetricValue",
   "IntegrationConnection",
   "AnalyticsSnapshot",
+  // Phase 9 — agents, approvals, automations.
+  "AgentRun",
+  "ApprovalRequest",
+  "AutomationRule",
 ]);
 
 /**
@@ -117,6 +121,11 @@ export const REPORT_OWNED_MODELS = new Set(["ClientReportRead"]);
 /** Rows that belong to an organization through their invoice (Phase 7). */
 export const INVOICE_OWNED_MODELS = new Set(["InvoiceLine"]);
 
+/** Phase 9: a run's steps, a rule's firings, an agent user's profile. */
+export const RUN_OWNED_MODELS = new Set(["AgentStep"]);
+export const RULE_OWNED_MODELS = new Set(["AutomationFiring"]);
+export const USER_OWNED_MODELS = new Set(["AgentProfile"]);
+
 /** Rows that belong to an organization through a catalog service (Phase 4). */
 export const SERVICE_OWNED_MODELS = new Set(["ServiceStageTemplate", "ServiceSkill"]);
 
@@ -129,7 +138,10 @@ export function isTenantModel(model: string): boolean {
     SERVICE_OWNED_MODELS.has(model) ||
     THREAD_OWNED_MODELS.has(model) ||
     REPORT_OWNED_MODELS.has(model) ||
-    INVOICE_OWNED_MODELS.has(model)
+    INVOICE_OWNED_MODELS.has(model) ||
+    RUN_OWNED_MODELS.has(model) ||
+    RULE_OWNED_MODELS.has(model) ||
+    USER_OWNED_MODELS.has(model)
   );
 }
 
@@ -141,6 +153,9 @@ function filterFor(model: string, organizationId: string): Record<string, unknow
   if (THREAD_OWNED_MODELS.has(model)) return { thread: { organizationId } };
   if (REPORT_OWNED_MODELS.has(model)) return { report: { organizationId } };
   if (INVOICE_OWNED_MODELS.has(model)) return { invoice: { organizationId } };
+  if (RUN_OWNED_MODELS.has(model)) return { run: { organizationId } };
+  if (RULE_OWNED_MODELS.has(model)) return { rule: { organizationId } };
+  if (USER_OWNED_MODELS.has(model)) return { user: { organizationId } };
   return ORG_ROOT_MODELS.has(model)
     ? { organizationId }
     : { department: { organizationId } };

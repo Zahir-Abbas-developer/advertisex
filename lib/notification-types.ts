@@ -38,6 +38,9 @@ export const NOTIFICATION_TYPES = [
   "PAYMENT_RECEIVED",
   // Phase 8 — founder announcements.
   "ANNOUNCEMENT",
+  // Phase 9 — AI employees: an agent finished work, or wants a decision.
+  "AGENT_NOTICE",
+  "APPROVAL_NEEDED",
 ] as const;
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
@@ -64,4 +67,6 @@ export const NOTIFICATION_TONE: Record<NotificationType, BadgeTone> = {
   INVOICE_OVERDUE: "danger",
   PAYMENT_RECEIVED: "success",
   ANNOUNCEMENT: "info",
+  AGENT_NOTICE: "neutral",
+  APPROVAL_NEEDED: "warning",
 };

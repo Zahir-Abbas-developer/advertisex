@@ -45,7 +45,8 @@
     "billingtest": "node scripts/sync-db-provider.mjs && node --import tsx scripts/billingtest.mjs",
     "notifytest": "node scripts/sync-db-provider.mjs && node --conditions=react-server --import tsx scripts/notifytest.mjs",
     "analyticstest": "node scripts/sync-db-provider.mjs && node --conditions=react-server --import tsx scripts/analyticstest.mjs",
-    "reporttest": "node scripts/sync-db-provider.mjs && node --conditions=react-server --import tsx scripts/reporttest.mjs"
+    "reporttest": "node scripts/sync-db-provider.mjs && node --conditions=react-server --import tsx scripts/reporttest.mjs",
+    "agenttest": "node scripts/sync-db-provider.mjs && node --import ./scripts/lib/allow-server-only.mjs --import tsx scripts/agenttest.mjs"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

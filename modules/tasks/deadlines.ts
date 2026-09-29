@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { dueDeadline, formatDate } from "@/lib/date";
 import { notify } from "@/lib/notifications";
+import { emitEvent } from "@/modules/ai/agents/automations";
 import { OPEN_STATUSES, deadlineState, normalizeTaskStatus, storedTaskStatuses } from "@/modules/tasks/domain";
 
 /**
@@ -18,7 +19,7 @@ export async function sweepTaskDeadlines(now: Date, timeZone: string, todayKey: 
       dueAt: { not: null },
       status: { in: storedTaskStatuses(...OPEN_STATUSES) },
     },
-    select: { id: true, title: true, assigneeId: true, dueAt: true, status: true },
+    select: { id: true, title: true, assigneeId: true, dueAt: true, status: true, departmentId: true, leadId: true, clientId: true, projectId: true, department: { select: { organizationId: true } } },
   });
 
   let approaching = 0;
@@ -42,6 +43,10 @@ export async function sweepTaskDeadlines(now: Date, timeZone: string, todayKey: 
         dedupeKey: `task-approaching:${task.id}`,
       });
       if (sent) approaching += 1;
+      // Phase 9: "deadline near" automations — once per task (the firing is deduped).
+      if (task.department.organizationId) {
+        await emitEvent(task.department.organizationId, "DEADLINE_NEAR", { departmentId: task.departmentId, taskId: task.id, leadId: task.leadId ?? undefined, clientId: task.clientId ?? undefined, projectId: task.projectId ?? undefined, ownerId: task.assigneeId, title: task.title });
+      }
     }
 
     if (state === "OVERDUE") {

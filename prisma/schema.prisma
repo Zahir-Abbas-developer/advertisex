@@ -67,6 +67,9 @@ model Organization {
   metrics        MetricValue[]
   connections    IntegrationConnection[]
   snapshots      AnalyticsSnapshot[]
+  agentRuns      AgentRun[]
+  approvals      ApprovalRequest[]
+  automations    AutomationRule[]
 
   // Phase 7 — billing. The organization is the seller on every invoice.
   /// Printed before the number: "INV" gives INV-0001.
@@ -424,6 +427,12 @@ model User {
   reportsReviewed    ClientReport[]             @relation("ReportReviewer")
   announcements      Announcement[]
   metricsEntered     MetricValue[]
+  agentProfile       AgentProfile?
+  agentRuns          AgentRun[]                 @relation("AgentRunAgent")
+  agentRunsStarted   AgentRun[]                 @relation("AgentRunRequester")
+  approvalsDecided   ApprovalRequest[]          @relation("ApprovalDecider")
+  approvalsRequested ApprovalRequest[]          @relation("ApprovalAgent")
+  automationRules    AutomationRule[]
 
   @@index([role])
   @@index([isActive])
@@ -2569,4 +2578,179 @@ model AnalyticsSnapshot {
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@unique([organizationId, key])
+}
+
+// ---------------------------------------------------------------------------
+// Phase 9 (Advertise X) — AI employees, agent runs, approvals, automations
+//
+// A new agent is a new capability definition in code (modules/ai/agents);
+// nothing here changes when one is added — AgentProfile.capability is a key.
+// ---------------------------------------------------------------------------
+
+/// What an AI_AGENT user does, and its limits. One per agent user.
+model AgentProfile {
+  id                  String   @id @default(cuid())
+  userId              String   @unique
+  /// A capability key from modules/ai/agents/registry.ts.
+  capability          String
+  enabled             Boolean  @default(true)
+  /// Runs allowed per rolling hour; more are deferred, not dropped.
+  maxRunsPerHour      Int      @default(30)
+  /// AI spend allowed per calendar month, in micro-dollars (1,000,000 = $1).
+  monthlyBudgetMicros Int      @default(5000000)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([capability])
+}
+
+/// One unit of an agent's work: queued, run in the background, logged step by step.
+model AgentRun {
+  id             String    @id @default(cuid())
+  organizationId String
+  agentId        String
+  capability     String
+  /// What the run is about: "lead" | "client" | "project" | "organization"
+  subjectType    String
+  subjectId      String?
+  /// The subject's department (denormalised at enqueue) — who may see the run.
+  departmentId   String?
+  /// JSON input, and the run's JSON result.
+  input          String    @default("{}")
+  output         String?
+  /// "QUEUED" | "RUNNING" | "AWAITING_APPROVAL" | "DONE" | "FAILED" | "CANCELLED"
+  status         String    @default("QUEUED")
+  error          String?
+  /// Who or what asked: a person, or an automation rule.
+  requestedById  String?
+  ruleId         String?
+  /// Deferred by a rate limit until this time.
+  availableAt    DateTime  @default(now())
+  lockedAt       DateTime?
+  attempts       Int       @default(0)
+  /// Usage and cost of every model call in the run.
+  inputTokens    Int       @default(0)
+  outputTokens   Int       @default(0)
+  costMicros     Int       @default(0)
+  /// "AI" when a model wrote any of it, "RULES" when the deterministic path did.
+  mode           String?
+  startedAt      DateTime?
+  finishedAt     DateTime?
+  createdAt      DateTime  @default(now())
+
+  organization Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  agent        User              @relation("AgentRunAgent", fields: [agentId], references: [id], onDelete: Cascade)
+  requestedBy  User?             @relation("AgentRunRequester", fields: [requestedById], references: [id], onDelete: SetNull)
+  rule         AutomationRule?   @relation(fields: [ruleId], references: [id], onDelete: SetNull)
+  steps        AgentStep[]
+  approvals    ApprovalRequest[]
+
+  @@index([organizationId, status, availableAt])
+  @@index([agentId, createdAt])
+  @@index([subjectType, subjectId])
+  @@index([organizationId, departmentId, createdAt])
+  @@index([requestedById])
+  @@index([ruleId])
+}
+
+/// One tool call in a run: what went in, what came out.
+model AgentStep {
+  id         String   @id @default(cuid())
+  runId      String
+  index      Int
+  tool       String
+  input      String
+  output     String?
+  error      String?
+  durationMs Int      @default(0)
+  createdAt  DateTime @default(now())
+
+  run AgentRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+
+  @@index([runId, index])
+}
+
+/// A consequential action an agent proposed (a client message, a lead's
+/// outcome, an invoice, publishing a report). Nothing happens until a founder
+/// or manager approves; the approver's decision executes it.
+model ApprovalRequest {
+  id             String    @id @default(cuid())
+  organizationId String
+  runId          String?
+  agentId        String
+  /// "SEND_CLIENT_MESSAGE" | "LEAD_OUTCOME" | "CREATE_INVOICE" | "PUBLISH_REPORT"
+  kind           String
+  /// What it is about (for scoping who may decide): "lead" | "client" | "report"
+  subjectType    String
+  subjectId      String
+  /// The subject's department (denormalised) — which managers review it.
+  departmentId   String?
+  /// A one-line description, and the exact action as JSON.
+  summary        String
+  payload        String
+  /// "PENDING" | "APPROVED" | "REJECTED" | "FAILED"
+  status         String    @default("PENDING")
+  decidedById    String?
+  decidedAt      DateTime?
+  note           String?
+  /// What executing it produced (ids), or why it failed.
+  result         String?
+  createdAt      DateTime  @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  run          AgentRun?    @relation(fields: [runId], references: [id], onDelete: SetNull)
+  agent        User         @relation("ApprovalAgent", fields: [agentId], references: [id], onDelete: Cascade)
+  decidedBy    User?        @relation("ApprovalDecider", fields: [decidedById], references: [id], onDelete: SetNull)
+
+  @@index([organizationId, status])
+  @@index([organizationId, departmentId, status])
+  @@index([runId])
+  @@index([agentId])
+  @@index([decidedById])
+  @@index([subjectType, subjectId])
+}
+
+/// "When X happens, do Y" — founder-configured.
+model AutomationRule {
+  id             String    @id @default(cuid())
+  organizationId String
+  name           String
+  enabled        Boolean   @default(true)
+  /// "LEAD_CREATED" | "LEAD_STAGE_CHANGED" | "DEADLINE_NEAR" | "REPORT_DUE"
+  trigger        String
+  /// JSON conditions, e.g. { "departmentId": "...", "toStageKind": "WON" }
+  conditions     String    @default("{}")
+  /// "RUN_AGENT" | "NOTIFY" | "CREATE_TASK"
+  action         String
+  /// JSON action settings, e.g. { "capability": "lead-qualification" }
+  actionConfig   String    @default("{}")
+  createdById    String?
+  fireCount      Int       @default(0)
+  lastFiredAt    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  organization Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdBy    User?              @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  runs         AgentRun[]
+  firings      AutomationFiring[]
+
+  @@index([organizationId, trigger, enabled])
+  @@index([createdById])
+}
+
+/// One firing of a rule for one subject — the unique key stops a rule firing twice for the same event.
+model AutomationFiring {
+  id         String   @id @default(cuid())
+  ruleId     String
+  subjectKey String
+  outcome    String
+  createdAt  DateTime @default(now())
+
+  rule AutomationRule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+
+  @@unique([ruleId, subjectKey])
+  @@index([ruleId, createdAt])
 }

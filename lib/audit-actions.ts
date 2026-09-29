@@ -28,6 +28,10 @@ export const AUDIT_ACTIONS = [
   "PASSWORD_RESET",
   "LEAD_CONVERTED",
   "CREDENTIAL_REVEALED",
+  // Phase 9 — AI employees.
+  "AGENT_ACTION",
+  "APPROVAL_DECIDED",
+  "AUTOMATION_FIRED",
 ] as const;
 
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];
@@ -56,4 +60,7 @@ export const AUDIT_ACTION_LABEL: Record<AuditAction, string> = {
   PASSWORD_RESET: "Reset a password",
   LEAD_CONVERTED: "Converted a lead",
   CREDENTIAL_REVEALED: "Revealed a client credential",
+  AGENT_ACTION: "Agent action",
+  APPROVAL_DECIDED: "Decided an agent's proposal",
+  AUTOMATION_FIRED: "Automation fired",
 };

@@ -6,6 +6,8 @@ import { signOut } from "next-auth/react";
 import {
   MessagesSquare,
   Bell,
+  Bot,
+  Workflow,
   Landmark,
   Receipt,
   ListChecks,
@@ -67,6 +69,9 @@ const ICONS: Record<NavKey, LucideIcon> = {
   "team-performance": TrendingUp,
   settings: SettingsIcon,
   reports: BarChart3,
+  agents: Bot,
+  approvals: ShieldCheck,
+  automations: Workflow,
 };
 
 export interface SidebarUser {

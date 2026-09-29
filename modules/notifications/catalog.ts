@@ -9,7 +9,7 @@
 import type { Role } from "@/config/permissions";
 import type { NotificationType } from "@/lib/notification-types";
 
-export const CATEGORIES = ["tasks", "deadlines", "projects", "updates", "messages", "reports", "billing", "sales", "announcements", "system"] as const;
+export const CATEGORIES = ["tasks", "deadlines", "projects", "updates", "messages", "reports", "billing", "sales", "agents", "announcements", "system"] as const;
 export type Category = (typeof CATEGORIES)[number];
 
 /** Off, in the notification center only, or in the center and by email. */
@@ -38,6 +38,7 @@ export const CATEGORY: Record<Category, CategoryInfo> = {
   reports: { label: "Reports", description: "New reports, and reports waiting for review", audience: EVERYONE, defaultLevel: "email", minimum: "off" },
   billing: { label: "Billing", description: "New invoices, payments received, payments overdue", audience: ["FOUNDER", "CLIENT"], defaultLevel: "email", minimum: "app" },
   sales: { label: "Sales", description: "Deals won and follow-ups due", audience: STAFF, defaultLevel: "app", minimum: "off" },
+  agents: { label: "AI agents", description: "Work your AI employees finished, and proposals waiting for your decision", audience: ["FOUNDER", "MANAGER", "EMPLOYEE"], defaultLevel: "app", minimum: "app" },
   announcements: { label: "Announcements", description: "News from the founders", audience: EVERYONE, defaultLevel: "email", minimum: "app" },
   system: { label: "Other", description: "Availability checks and review reminders", audience: STAFF, defaultLevel: "app", minimum: "app" },
 };
@@ -62,6 +63,8 @@ export const TYPE_CATEGORY: Record<NotificationType, Category> = {
   LEAD_WON: "sales",
   FOLLOW_UP_DUE: "sales",
   ANNOUNCEMENT: "announcements",
+  AGENT_NOTICE: "agents",
+  APPROVAL_NEEDED: "agents",
   AVAILABILITY_CHECK: "system",
   REVIEW_OVERDUE: "system",
 };

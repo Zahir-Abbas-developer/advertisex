@@ -17,6 +17,7 @@ import { CLIENT_STATUS_TEXT } from "@/modules/portal/views";
 import { notifyAccount } from "@/modules/portal/server";
 import { acceptSummary, highlightsOf, monthLabelOf, reportTitle, SUMMARY_SYSTEM, summaryPrompt, templateSummary, type ReportData } from "@/modules/monthly-reports/domain";
 import { renderReportPdf } from "@/modules/monthly-reports/pdf";
+import { emitEvent } from "@/modules/ai/agents/automations";
 
 /**
  * Monthly reports (Phase 8 scope 4): generated as a DRAFT that NEEDS_REVIEW,
@@ -196,13 +197,15 @@ export async function runMonthlyReports(now = new Date()) {
   const month = previousMonth(today.slice(0, 7));
   const clients = await prisma.client.findMany({
     where: { status: "ACTIVE", organizationId: { not: null } },
-    select: { id: true, _count: { select: { metrics: true, projects: true } } },
+    select: { id: true, businessName: true, organizationId: true, departmentId: true, _count: { select: { metrics: true, projects: true } } },
   });
   let created = 0;
   for (const c of clients) {
     if (c._count.metrics === 0 && c._count.projects === 0) continue;
     const out = await generateMonthlyReport(c.id, month, { now });
     if (out.created) created += 1;
+    // Phase 9: "report due" automations — once per client per month.
+    await emitEvent(c.organizationId!, "REPORT_DUE", { departmentId: c.departmentId, clientId: c.id, month, title: `${c.businessName} · ${month}` });
   }
   return { status: "ok" as const, month, created };
 }

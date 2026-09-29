@@ -18,6 +18,7 @@ import { percent } from "@/components/attendance/TimeClock";
 import { ROLE_LABEL, type Role } from "@/config/permissions";
 import { formatMinutes, type MonthSummary } from "@/modules/attendance/domain";
 import { TASK_STATUS_LABEL, normalizeTaskStatus } from "@/modules/tasks/domain";
+import { AgentWorkPanel } from "@/components/agents/AgentWorkPanel";
 
 type Profile = {
   member: {
@@ -196,8 +197,14 @@ export function EmployeeProfile({ id }: { id: string }) {
         )}
       </Section>
 
+      {member.isAgent && (
+        <Section title="AI work">
+          <AgentWorkPanel agentId={member.id} />
+        </Section>
+      )}
+
       {member.isAgent ? (
-        <Section title="Capabilities">
+        <Section title="Permissions">
           <p className="text-[13px] text-ink-muted">An agent may do exactly these things and nothing else. Attendance does not apply to agents.</p>
           {data.capabilities.length === 0 ? (
             <p className="text-sm text-ink-muted">No capabilities granted — this agent can&rsquo;t act yet.</p>

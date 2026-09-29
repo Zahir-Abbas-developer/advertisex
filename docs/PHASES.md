@@ -247,3 +247,31 @@ Make the platform data-driven: a founder command center with meaningful visual a
 
 ### GATE — docs/phases/PHASE_8_REPORT.md, then STOP for "Phase 8 approved."
 
+---
+
+## Phase 9 — AI Employees, Agent Framework & Automated Workflows
+
+*Issued by the founder on 2026-09-29 (verbatim).*
+
+PHASE 9 — AI EMPLOYEES, AGENT FRAMEWORK & AUTOMATED WORKFLOWS
+
+Prerequisite: "Phase 8 approved."
+
+### OBJECTIVE
+AI employees become real operators: scoped, auditable agents that complete defined tasks through the same system humans use — added progressively without rearchitecting anything.
+
+### SCOPE
+1. Agent framework (modules/ai/agents): an agent = an AI_AGENT user + a capability set + explicit permissions + typed tools over our own server APIs (read leads, draft follow-up, create task, draft report, post internal notification) + a run log. Runs execute as background jobs; every action is audit-logged with inputs and outputs; usage and cost are tracked.
+2. Human-in-the-loop: consequential actions (sending anything to a client, moving a lead to Won/Lost, creating invoices) require approval via a founder/manager review queue.
+3. First agents: Lead Research (enrich a lead from its website and public data into structured notes) · Lead Qualification (score + rationale) · Follow-up Preparation (draft the next touch) · Client Report Drafting (the Phase 8 hook) · Internal Notifier (summaries and alerts) · Task Creator (from project briefs).
+4. Automation rules — a simple engine: triggers (lead created, stage changed, deadline near, report due) → actions (assign an agent task, notify, create a task). Founder-configurable.
+5. Agent visibility: agents appear in team views with their work, logs, and performance (tasks completed, approval rate) — no attendance.
+6. Safety: rate limits and budgets; prompt-injection-aware handling of external content; no secrets in prompts; PII minimization.
+
+### ACCEPTANCE
+- An AI employee visibly completes a real task end-to-end (e.g., qualifies a new lead with a rationale) with full audit and, where required, approval.
+- Adding a new agent requires only a new capability definition — no schema or architecture change. Demonstrate it.
+- Global Definition of Done passes.
+
+### GATE — docs/phases/PHASE_9_REPORT.md, then STOP for "Phase 9 approved."
+

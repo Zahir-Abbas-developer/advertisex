@@ -144,4 +144,24 @@ describe("tenant scoping of query arguments", () => {
       assert.deepEqual(out.where.AND, [{ invoice: { organizationId: ORG } }], `InvoiceLine.${operation}`);
     }
   });
+  it("scopes AI agents (Phase 9): runs, approvals and rules by organization; steps, firings and profiles through their parent", () => {
+    for (const model of ["AgentRun", "ApprovalRequest", "AutomationRule"]) {
+      const read = scopeArgs(model, "findMany", undefined, ORG) as { where: Record<string, unknown> };
+      assert.deepEqual(read.where.AND, [{ organizationId: ORG }], model);
+      const made = scopeArgs(model, "create", { data: { organizationId: "org-elsewhere" } }, ORG) as { data: Record<string, unknown> };
+      assert.equal(made.data.organizationId, ORG, model);
+      const counted = scopeArgs(model, "count", { where: { status: "PENDING" } }, ORG) as { where: Record<string, unknown> };
+      assert.deepEqual(counted.where.AND, [{ organizationId: ORG }], `${model}.count`);
+    }
+    for (const [model, filter] of [
+      ["AgentStep", { run: { organizationId: ORG } }],
+      ["AutomationFiring", { rule: { organizationId: ORG } }],
+      ["AgentProfile", { user: { organizationId: ORG } }],
+    ] as const) {
+      for (const operation of ["findMany", "count", "updateMany", "deleteMany"]) {
+        const out = scopeArgs(model, operation, { where: {} }, ORG) as { where: Record<string, unknown> };
+        assert.deepEqual(out.where.AND, [filter], `${model}.${operation}`);
+      }
+    }
+  });
 });

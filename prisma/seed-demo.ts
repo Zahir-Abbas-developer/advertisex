@@ -10,10 +10,12 @@ import { dayKey, deriveStatus, numberLabel } from "../modules/billing/domain";
 import { channelsForServices, CHANNEL, previousMonth } from "../modules/client-analytics/metrics";
 import { mockMonth } from "../modules/integrations/analytics/mock";
 import { COMPANY_TIMEZONE } from "../lib/date";
+import { capability } from "../modules/ai/agents/registry";
+import { grantsFor } from "../modules/ai/agents/grants";
 
 /**
  * The Phase 1 demo tenant (docs/PHASES.md, scope 11): one organization with a
- * founder, a manager, five employees, five AI agents and three restaurant
+ * founder, a manager, five employees, six AI agents and three restaurant
  * clients with one login each — enough to walk every shell and every
  * isolation rule end to end.
  *
@@ -54,36 +56,12 @@ const EMPLOYEE = {
  * nothing. They never sign in: their password is random and discarded.
  */
 const AGENTS = [
-  {
-    name: "Atlas",
-    email: "atlas.agent@advertisex.example",
-    jobTitle: "Lead Research Agent",
-    grants: [["lead", "read"], ["lead", "create"]],
-  },
-  {
-    name: "Quill",
-    email: "quill.agent@advertisex.example",
-    jobTitle: "Copywriting Agent",
-    grants: [["task", "read"]],
-  },
-  {
-    name: "Lens",
-    email: "lens.agent@advertisex.example",
-    jobTitle: "Creative QA Agent",
-    grants: [["task", "read"], ["activity", "read"]],
-  },
-  {
-    name: "Pulse",
-    email: "pulse.agent@advertisex.example",
-    jobTitle: "Campaign Monitor Agent",
-    grants: [["client", "read"]],
-  },
-  {
-    name: "Ledger",
-    email: "ledger.agent@advertisex.example",
-    jobTitle: "Reporting Agent",
-    grants: [["client", "read"], ["lead", "read"]],
-  },
+  { name: "Atlas", email: "atlas.agent@advertisex.example", jobTitle: "Lead Research Agent", capability: "lead-research" },
+  { name: "Sage", email: "sage.agent@advertisex.example", jobTitle: "Lead Qualification Agent", capability: "lead-qualification" },
+  { name: "Quill", email: "quill.agent@advertisex.example", jobTitle: "Follow-up Agent", capability: "follow-up-prep" },
+  { name: "Lens", email: "lens.agent@advertisex.example", jobTitle: "Project Kick-off Agent", capability: "task-creator" },
+  { name: "Pulse", email: "pulse.agent@advertisex.example", jobTitle: "Internal Notifier Agent", capability: "internal-notifier" },
+  { name: "Ledger", email: "ledger.agent@advertisex.example", jobTitle: "Reporting Agent", capability: "report-drafting" },
 ] as const;
 
 const RESTAURANTS = [
@@ -184,25 +162,45 @@ async function main() {
 
   // --- AI agents and their grants -------------------------------------------
   for (const agent of AGENTS) {
-    if (await prisma.user.findUnique({ where: { email: agent.email } })) continue;
-    const user = await prisma.user.create({
-      data: {
-        organizationId: org.id,
-        name: agent.name,
-        email: agent.email,
-        // Unusable by design: agents authenticate as services, never by password.
-        passwordHash: await bcrypt.hash(randomBytes(32).toString("hex"), 10),
-        role: "AI_AGENT",
-        jobTitle: agent.jobTitle,
-        avatarColor: avatarColorFor(agent.name),
-      },
-    });
-    for (const [resource, action] of agent.grants) {
-      await prisma.agentGrant.create({
-        data: { organizationId: org.id, agentId: user.id, resource, action, grantedById: founder?.id ?? null },
+    let user = await prisma.user.findUnique({ where: { email: agent.email }, select: { id: true } });
+    if (!user) {
+      user = await prisma.user.create({
+        data: {
+          organizationId: org.id,
+          name: agent.name,
+          email: agent.email,
+          // Unusable by design: agents authenticate as services, never by password.
+          passwordHash: await bcrypt.hash(randomBytes(32).toString("hex"), 10),
+          role: "AI_AGENT",
+          jobTitle: agent.jobTitle,
+          avatarColor: avatarColorFor(agent.name),
+        },
+        select: { id: true },
       });
+      created++;
     }
-    created++;
+    // Phase 9: each agent's capability, its default limits, and exactly the
+    // grants its tools need. Added to existing agents too; never overwritten.
+    const cap = capability(agent.capability)!;
+    if (!(await prisma.agentProfile.findUnique({ where: { userId: user.id } }))) {
+      await prisma.agentProfile.create({ data: { userId: user.id, capability: cap.key, maxRunsPerHour: cap.defaults.maxRunsPerHour, monthlyBudgetMicros: cap.defaults.monthlyBudgetMicros } });
+    }
+    for (const [resource, action] of grantsFor(cap)) {
+      if (await prisma.agentGrant.findFirst({ where: { agentId: user.id, resource, action } })) continue;
+      await prisma.agentGrant.create({ data: { organizationId: org.id, agentId: user.id, resource, action, grantedById: founder?.id ?? null } });
+    }
+  }
+
+  // --- Phase 9: default automations (created once, by name) ------------------
+  const agentId = async (email: string) => (await prisma.user.findUniqueOrThrow({ where: { email }, select: { id: true } })).id;
+  const RULES = [
+    { name: "Qualify every new lead", trigger: "LEAD_CREATED", conditions: {}, action: "RUN_AGENT", actionConfig: { agentId: await agentId("sage.agent@advertisex.example") } },
+    { name: "Draft each client's monthly report", trigger: "REPORT_DUE", conditions: {}, action: "RUN_AGENT", actionConfig: { agentId: await agentId("ledger.agent@advertisex.example") } },
+    { name: "Tell the owner when a deal is won", trigger: "LEAD_STAGE_CHANGED", conditions: { toStageKind: ["WON"] }, action: "NOTIFY", actionConfig: { to: "owner", message: "A deal you own was won — time to plan the kick-off" } },
+  ];
+  for (const rule of RULES) {
+    if (await prisma.automationRule.findFirst({ where: { organizationId: org.id, name: rule.name } })) continue;
+    await prisma.automationRule.create({ data: { organizationId: org.id, name: rule.name, trigger: rule.trigger, conditions: JSON.stringify(rule.conditions), action: rule.action, actionConfig: JSON.stringify(rule.actionConfig), createdById: founder?.id ?? null } });
   }
 
   // --- restaurant clients: portal account, CRM record, one login ------------
