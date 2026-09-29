@@ -10,7 +10,7 @@ import { isOpenProject, normalizeProjectStatus } from "@/modules/projects/domain
 import { summarize } from "@/modules/projects/server";
 import { monthlyEquivalent } from "@/modules/services/catalog";
 import { signedUrl } from "@/modules/files/server";
-import { CLIENT_STATUS_TEXT, parsePrefs, projectView, type NotificationKind } from "@/modules/portal/views";
+import { CLIENT_STATUS_TEXT, projectView, type NotificationKind } from "@/modules/portal/views";
 
 /**
  * The client portal's data (Phase 6). Every function takes the CLIENT
@@ -156,7 +156,7 @@ export async function portalReports(principal: Principal) {
   const rows = await prisma.clientReport.findMany({
     where: { status: "PUBLISHED", client: mine(principal) },
     orderBy: [{ periodMonth: "desc" }, { publishedAt: "desc" }],
-    select: { id: true, title: true, kind: true, periodMonth: true, publishedAt: true, file: { select: { mimeType: true, size: true } }, reads: { where: { userId: principal.id }, select: { readAt: true } } },
+    select: { id: true, title: true, kind: true, periodMonth: true, publishedAt: true, generated: true, file: { select: { mimeType: true, size: true } }, reads: { where: { userId: principal.id }, select: { readAt: true } } },
   });
   return rows.map((r) => ({
     id: r.id,
@@ -167,7 +167,21 @@ export async function portalReports(principal: Principal) {
     mimeType: r.file.mimeType,
     size: r.file.size,
     unread: r.reads.length === 0,
+    /** A generated report also has an in-app view (Phase 8). */
+    inApp: r.generated,
   }));
+}
+
+/**
+ * A published generated report, in-app (Phase 8): its summary and figures —
+ * a snapshot built only from client-facing facts — for the account that owns
+ * it. Opening it marks it read. Anyone else, or a draft: null.
+ */
+export async function portalReportView(principal: Principal, reportId: string) {
+  const r = await prisma.clientReport.findFirst({ where: { id: reportId, status: "PUBLISHED", generated: true, client: mine(principal) }, select: { id: true, title: true, periodMonth: true, summary: true, data: true, publishedAt: true } });
+  if (!r || !r.data || !r.summary) return null;
+  await prisma.clientReportRead.upsert({ where: { reportId_userId: { reportId: r.id, userId: principal.id } }, create: { reportId: r.id, userId: principal.id }, update: {} });
+  return { id: r.id, title: r.title, periodMonth: r.periodMonth, summary: r.summary, data: JSON.parse(r.data) as import("@/modules/monthly-reports/domain").ReportData, publishedAt: r.publishedAt?.toISOString() ?? null };
 }
 
 /** Opens a report: marks it read for this person and returns a short-lived link. */
@@ -247,10 +261,12 @@ export async function notifyUpdateShared(projectId: string, title: string) {
   });
 }
 
-/** Tells an account's logins something, honouring each person's preference for that kind. */
+/**
+ * Tells an account's logins something. Each person's preference for the
+ * kind is applied by notify() (the notification catalog), like everywhere.
+ */
 export async function notifyAccount(clientAccountId: string, kind: NotificationKind, message: { type: "REPORT_SHARED" | "UPDATE_SHARED" | "MESSAGE_RECEIVED"; title: string; body: string; href: string }) {
-  const users = await prisma.user.findMany({ where: { clientAccountId, role: "CLIENT", isActive: true }, select: { id: true, notificationPrefs: true } });
-  for (const u of users.filter((x) => parsePrefs(x.notificationPrefs)[kind])) {
-    await notify({ userId: u.id, ...message });
-  }
+  void kind; // documents the category at call sites; the catalog derives it from `type`
+  const users = await prisma.user.findMany({ where: { clientAccountId, role: "CLIENT", isActive: true }, select: { id: true } });
+  for (const u of users) await notify({ userId: u.id, ...message });
 }

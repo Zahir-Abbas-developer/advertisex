@@ -69,6 +69,10 @@ export const AUDITED_MODELS = new Set([
   "Invoice",
   "InvoiceLine",
   "Payment",
+  // Phase 8 — announcements, client metrics (manual entry and syncs), connections.
+  "Announcement",
+  "MetricValue",
+  "IntegrationConnection",
 ]);
 
 export const RECORD_ACTIONS = {

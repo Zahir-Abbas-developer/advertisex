@@ -16,7 +16,7 @@ async function load(principal: Parameters<typeof clientFor>[0], clientId: string
   if (!authorize(principal, action, "clientReport", { organizationId: c.organizationId, departmentId: c.departmentId, clientId: c.id }).allowed) {
     return { error: apiError("You can't change this client's reports", 403) };
   }
-  const report = await prisma.clientReport.findFirst({ where: { id: reportId, clientId }, select: { id: true, status: true, title: true, fileId: true, file: { select: { storedName: true } } } });
+  const report = await prisma.clientReport.findFirst({ where: { id: reportId, clientId }, select: { id: true, status: true, title: true, fileId: true, generated: true, reviewState: true, summary: true, summarySource: true, data: true, periodMonth: true, file: { select: { storedName: true } } } });
   if (!report) return { error: apiError("Not found", 404) };
   return { client: c, report };
 }
@@ -34,6 +34,8 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   if (!parsed.success) return apiError("Please fix the highlighted fields", 422);
   const { report, client } = loaded;
   const publishing = parsed.data.status === "PUBLISHED" && report.status !== "PUBLISHED";
+  // A generated report reaches the client only through review (…/review, "approve").
+  if (publishing && report.generated && report.reviewState !== "APPROVED") return apiError("Review and approve this report first", 409);
 
   const updated = await prisma.clientReport.update({
     where: { id: report.id },
@@ -46,6 +48,23 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     await notifyAccount(client.clientAccountId, "reports", { type: "REPORT_SHARED", title: `New report: ${updated.title}`, body: "Open it in your reports.", href: "/portal/reports" });
   }
   return NextResponse.json({ report: updated });
+}
+
+/** A report for the team, with a generated report's summary and figures (for review). */
+export async function GET(_request: Request, { params }: { params: { id: string; rid: string } }) {
+  const gate = await requireApi("read", "clientReport");
+  if (gate.response) return gate.response;
+  if (gate.principal.role === "CLIENT") return apiError("Not found", 404);
+  const found = await clientFor(gate.principal, params.id, "read");
+  if (!found.client) return apiError("Not found", 404);
+  const r = await prisma.clientReport.findFirst({ where: { id: params.rid, clientId: params.id }, include: { reviewedBy: { select: { name: true } } } });
+  if (!r) return apiError("Not found", 404);
+  const c = found.client;
+  const canReview = authorize(gate.principal, "update", "clientReport", { organizationId: c.organizationId, departmentId: c.departmentId, clientId: c.id }).allowed;
+  return NextResponse.json({
+    report: { id: r.id, title: r.title, status: r.status, generated: r.generated, reviewState: r.reviewState, summary: r.summary, summarySource: r.summarySource, data: r.data ? JSON.parse(r.data) : null, reviewedBy: r.reviewedBy?.name ?? null, reviewedAt: r.reviewedAt?.toISOString() ?? null, periodMonth: r.periodMonth },
+    canReview,
+  });
 }
 
 export async function DELETE(_request: Request, { params }: { params: { id: string; rid: string } }) {

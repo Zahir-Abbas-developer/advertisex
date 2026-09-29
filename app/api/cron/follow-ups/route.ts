@@ -10,6 +10,9 @@ import { sweepTaskDeadlines } from "@/modules/tasks/deadlines";
 import { sweepProjects } from "@/modules/projects/jobs";
 import { sweepRebalance } from "@/modules/assignment/server";
 import { sweepInvoices } from "@/modules/billing/lifecycle";
+import { retryNotificationEmails, sendDailyDigests } from "@/lib/notifications";
+import { warmCommandCenter } from "@/modules/analytics/server";
+import { runMonthlyReports } from "@/modules/monthly-reports/server";
 
 /**
  * The 9am follow-up call.
@@ -83,6 +86,13 @@ export async function POST(request: Request) {
     const rebalance = await sweepRebalance(now);
     // Phase 7: invoices past their due date become OVERDUE; founders and the client are told once.
     const invoices = await sweepInvoices(now);
+    // Phase 8: the email channel's retries, and the optional daily digest.
+    const emails = await retryNotificationEmails(now);
+    const digest = await sendDailyDigests(now);
+    // Phase 8: the Command Center's standard periods, computed before anyone looks.
+    const analytics = await warmCommandCenter(now);
+    // Phase 8: last month's client reports, drafted for review in the first days of a month.
+    const reports = await runMonthlyReports(now);
 
     return NextResponse.json({
       status: "ok",
@@ -91,6 +101,10 @@ export async function POST(request: Request) {
       projects,
       rebalance,
       invoices,
+      emails,
+      digest,
+      analytics,
+      reports,
       due: due.length,
       sent,
       // due minus sent is the dedupe working, not a failure.

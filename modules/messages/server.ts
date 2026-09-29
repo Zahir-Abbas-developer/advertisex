@@ -4,7 +4,6 @@ import { prisma } from "@/lib/prisma";
 import { notify } from "@/lib/notifications";
 import { storedRoleValues } from "@/config/permissions";
 import { authorize, type Principal } from "@/modules/rbac/authorize";
-import { parsePrefs } from "@/modules/portal/views";
 import { toView, type FileView } from "@/modules/files/server";
 
 /**
@@ -188,9 +187,10 @@ export async function post(principal: Principal, t: NonNullable<Awaited<ReturnTy
     href = `/portal/messages?thread=${t.id}`;
     const clientUsers = await prisma.user.findMany({
       where: { isActive: true, role: "CLIENT", clientAccountId: t.client.clientAccountId ?? "__none__" },
-      select: { id: true, notificationPrefs: true },
+      select: { id: true },
     });
-    clientUsers.filter((u) => parsePrefs(u.notificationPrefs).messages).forEach((u) => recipients.add(u.id));
+    // Preferences (muting messages) are applied by notify().
+    clientUsers.forEach((u) => recipients.add(u.id));
   }
   recipients.delete(principal.id);
   for (const userId of recipients) {

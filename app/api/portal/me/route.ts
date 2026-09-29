@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { apiError } from "@/lib/api";
 import { requireApi } from "@/modules/rbac/server";
 import { parsePrefs } from "@/modules/portal/views";
+import { CATEGORY, resolvePreferences, serializePreferences } from "@/modules/notifications/catalog";
 
 /** The client's own profile and notification preferences. */
 export async function GET() {
@@ -30,9 +31,20 @@ export async function PATCH(request: Request) {
   const parsed = schema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return apiError("Please fix the highlighted fields", 422, Object.fromEntries(parsed.error.issues.map((i) => [String(i.path[0]), i.message])));
   const d = parsed.data;
+  let notificationPrefs: string | undefined;
+  if (d.prefs) {
+    // The Phase 6 on/off form, written through the full catalog (Phase 8).
+    const current = await prisma.user.findUniqueOrThrow({ where: { id: gate.principal.id }, select: { notificationPrefs: true } });
+    const next = resolvePreferences(current.notificationPrefs);
+    for (const kind of ["messages", "reports", "updates"] as const) {
+      if (!d.prefs[kind]) next.levels[kind] = "off";
+      else if (next.levels[kind] === "off") next.levels[kind] = CATEGORY[kind].defaultLevel;
+    }
+    notificationPrefs = serializePreferences(next);
+  }
   await prisma.user.update({
     where: { id: gate.principal.id },
-    data: { ...(d.name ? { name: d.name } : {}), ...(d.phone !== undefined ? { phone: d.phone || null } : {}), ...(d.prefs ? { notificationPrefs: JSON.stringify(d.prefs) } : {}) },
+    data: { ...(d.name ? { name: d.name } : {}), ...(d.phone !== undefined ? { phone: d.phone || null } : {}), ...(notificationPrefs ? { notificationPrefs } : {}) },
   });
   return NextResponse.json({ ok: true });
 }

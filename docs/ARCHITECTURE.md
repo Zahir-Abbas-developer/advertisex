@@ -69,7 +69,53 @@ modules/
               payments, reversals, void, overdue sweep) · overview · pdf · email · portal (Phase 7)
   integrations/payments/  provider (the interface) · stripe (REST over fetch, webhook
               signature) · index (server-only: provider from env, off by default)          (Phase 7)
+  notifications/  catalog (pure: every type's category, audience, default level,
+              minimum; preferences; the founder's event list) · announcements (server)     (Phase 8)
+  analytics/  domain (pure: periods, comparison windows, buckets, deltas, retention,
+              aging) · server (the Command Center, cached; retention; receivables)          (Phase 8)
+  client-analytics/  metrics (pure: channels, units, derived rates, precedence) · server
+              (results, manual entry, sync)                                                 (Phase 8)
+  integrations/analytics/  provider (the interface) · mock (deterministic demo data) ·
+              live (five adapters: OAuth URLs; sync behind INTEGRATIONS_LIVE) · index      (Phase 8)
+  monthly-reports/  domain (pure: snapshot, highlights, template summary, AI guard) · pdf
+              · server (generate, revise, approve and publish, the monthly job)            (Phase 8)
 ```
+
+**Notifications (Phase 8).** Every emitter calls `notify()` (lib/notifications),
+which enforces three things. **Audience:** a type reaches only the roles its
+category allows (billing never reaches staff below the founder; team work
+never reaches a client). **Preference:** off, in the app, or in the app and by
+email, per category, with minimums for billing and announcements.
+**Channel:** email is sent at once (bounded), recorded on the row, and retried
+by the morning job. The sender (Resend's API when `RESEND_API_KEY` is set,
+else SMTP) is loaded lazily, only when an email is sent. An optional daily
+digest runs in the morning job. The notification center (`/notifications`,
+`/portal/notifications`) and the bell read the same rows.
+
+**Command Center and analytics (Phase 8).** One aggregated call per period
+(`/api/command`) returns leads, outreach, revenue, projects and team figures
+with the comparison period. It is computed in about 200 ms on the seeded data
+and cached for five minutes in `AnalyticsSnapshot`, which is warmed each
+morning. The team section reuses the team module's performance and attendance
+functions, so the numbers agree with those pages. Founder-only. The analytics
+hub (`/analytics`) links the existing department-scoped pages and adds
+retention and receivables.
+
+**Client results and integrations (Phase 8).** Results are `MetricValue` rows,
+per client, metric, source and month. Every screen and report reads resolved
+values (manual beats sync beats demo) and derives rates, so nothing
+downstream knows a provider. Five adapters implement one interface. The
+mock writes demo data (labelled everywhere). The live adapters build OAuth
+links, and their sync stays off behind `INTEGRATIONS_LIVE` until the API calls
+are built. Manual entry is the path today.
+
+**Monthly reports (Phase 8).** A report is a frozen snapshot (results, project
+progress, highlights), a summary (AI when configured and the draft passes the
+number guard, else a template), and a branded PDF rendered from the snapshot.
+It is created as a draft that needs review. Reviewers are notified, can edit
+the summary (the PDF is re-rendered), and approve it. Approval is the only
+way a generated report is published to the portal. The monthly job drafts last
+month's reports in the first five days of a month, idempotently.
 
 **Billing (Phase 7).** Money is integer cents end to end (docs/METRICS.md →
 "Money"). An invoice is a draft until sent; sending takes the organization's

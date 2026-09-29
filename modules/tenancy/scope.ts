@@ -48,6 +48,11 @@ export const ORG_ROOT_MODELS = new Set([
   // Phase 7 — billing.
   "Invoice",
   "Payment",
+  // Phase 8 — analytics, client metrics, announcements.
+  "Announcement",
+  "MetricValue",
+  "IntegrationConnection",
+  "AnalyticsSnapshot",
 ]);
 
 /**

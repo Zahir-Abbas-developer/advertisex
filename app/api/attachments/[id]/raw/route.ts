@@ -5,6 +5,7 @@ import { read } from "@/lib/uploads";
 import { hasAdminPower } from "@/lib/constants";
 
 import { requireApi } from "@/modules/rbac/server";
+import { contentDisposition } from "@/modules/files/signing";
 /**
  * Serves an uploaded file.
  *
@@ -44,7 +45,7 @@ export async function GET(
       "Content-Type": attachment.mimeType,
       "Content-Length": String(bytes.length),
       // Images render inline as thumbnails; everything else downloads.
-      "Content-Disposition": `${isImage ? "inline" : "attachment"}; filename="${sanitise(attachment.filename)}"`,
+      "Content-Disposition": contentDisposition(isImage ? "inline" : "attachment", attachment.filename),
       "X-Content-Type-Options": "nosniff",
       "Content-Security-Policy": "default-src 'none'; img-src 'self'; sandbox",
       "Cache-Control": "private, max-age=3600",
@@ -53,6 +54,3 @@ export async function GET(
 }
 
 /** Strips anything that would break out of the header's quoted string. */
-function sanitise(filename: string): string {
-  return filename.replace(/["\\\r\n]/g, "_");
-}

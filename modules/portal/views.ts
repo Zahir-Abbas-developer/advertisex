@@ -7,6 +7,8 @@
  * remembering to hide things. Pure; pinned by tests/portal-views.test.ts.
  */
 
+import { resolvePreferences } from "@/modules/notifications/catalog";
+
 export const CLIENT_VISIBLE = "CLIENT";
 
 /** Plain-language project states for a restaurant owner — no internal jargon. */
@@ -120,15 +122,14 @@ export function groupReports<T extends { periodMonth: string }>(reports: readonl
   return [...map.entries()].sort((a, b) => b[0].localeCompare(a[0])).map(([month, rs]) => ({ month, label: monthLabel(month), reports: rs }));
 }
 
-/** Notification preferences: defaults on, unknown keys ignored. */
+/**
+ * The Phase 6 portal view of notification preferences (on/off per kind). Since
+ * Phase 8 the stored form is the full catalog (modules/notifications/catalog.ts);
+ * this reads it, so the portal's older settings API keeps working.
+ */
 export const NOTIFICATION_KINDS = ["messages", "reports", "updates"] as const;
 export type NotificationKind = (typeof NOTIFICATION_KINDS)[number];
 export function parsePrefs(json: string | null | undefined): Record<NotificationKind, boolean> {
-  let raw: Record<string, unknown> = {};
-  try {
-    raw = json ? (JSON.parse(json) as Record<string, unknown>) : {};
-  } catch {
-    raw = {};
-  }
-  return { messages: raw.messages !== false, reports: raw.reports !== false, updates: raw.updates !== false };
+  const { levels } = resolvePreferences(json);
+  return { messages: levels.messages !== "off", reports: levels.reports !== "off", updates: levels.updates !== "off" };
 }

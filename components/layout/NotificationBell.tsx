@@ -64,6 +64,7 @@ const ICONS: Record<NotificationType, typeof Bell> = {
   INVOICE_SENT: Receipt,
   INVOICE_OVERDUE: AlertCircle,
   PAYMENT_RECEIVED: CircleDollarSign,
+  ANNOUNCEMENT: Megaphone,
 };
 
 const TONE_CLASSES: Record<string, string> = {
@@ -84,9 +85,12 @@ const TONE_CLASSES: Record<string, string> = {
  */
 export function NotificationBell({
   reportsHref = "/my-reports",
+  allHref = "/notifications",
 }: {
-  /** Footer link to the viewer's reports; null hides it (the client portal has none yet). */
+  /** Footer link to the viewer's reports; null hides it. */
   reportsHref?: string | null;
+  /** The full notification center (Phase 8). */
+  allHref?: string;
 } = {}) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -257,17 +261,16 @@ export function NotificationBell({
             )}
           </div>
 
-          {reportsHref && (
-          <div className="border-t border-line bg-surface-2/60 px-4 py-2.5 text-center">
-            <Link
-              href={reportsHref}
-              onClick={() => setOpen(false)}
-              className="text-[12px] text-ink-muted transition-colors hover:text-ink"
-            >
-              View your reports
+          <div className="flex items-center justify-center gap-4 border-t border-line bg-surface-2/60 px-4 py-2.5">
+            <Link href={allHref} onClick={() => setOpen(false)} className="text-[12px] font-medium text-ink-2 transition-colors hover:text-ink">
+              All notifications
             </Link>
+            {reportsHref && (
+              <Link href={reportsHref} onClick={() => setOpen(false)} className="text-[12px] text-ink-muted transition-colors hover:text-ink">
+                Your reports
+              </Link>
+            )}
           </div>
-          )}
         </div>
       )}
     </div>

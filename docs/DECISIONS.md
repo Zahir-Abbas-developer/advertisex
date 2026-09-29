@@ -822,3 +822,67 @@ Also tested:
 - A separate dark-panel class set: hundreds of duplicated classes.
 - Adjusting the palette for contrast: the founder fixed the values, so
   contrast is solved by *which* token is used for text.
+
+## ADR-018 — Phase 8: the Command Center, client results, monthly reports, notifications
+
+**Date:** 2026-09-29 · **Status:** accepted
+
+**Like-for-like comparisons.** Every Command Center figure is compared with
+the same number of days immediately before, not "last month". A month to
+date against a full month always reads as a fall; the same span doesn't.
+A rate's change is in points, and a percent from zero isn't shown.
+
+**Aggregate in one call, cache, warm.** The Command Center is one query batch
+per period (about 200 ms on the seeded data), cached five minutes in
+`AnalyticsSnapshot` and warmed each morning. A true materialized view per
+figure would be premature at this scale. The cache is the "materialized where
+needed" seam, and a snapshot table can move to a warehouse later without
+changing the API. Team figures reuse the team module's functions, so the
+Command Center and the Team pages can never disagree.
+
+**Client results: one table, integer values, derived rates.** A
+`MetricValue` per client, metric, source and month. Money is in cents,
+decimals in thousandths, and rates are always derived (a stored CTR could
+disagree with its clicks). Sources don't overwrite each other; reads resolve
+them by precedence: a person's entry, then a live sync, then demo data. So a
+correction is never lost to the next sync, and clearing it restores the
+synced figure.
+
+**Adapters now, live sync later, demo data labelled.** All five providers
+implement one interface. They build OAuth consent URLs, but live sync is off
+behind `INTEGRATIONS_LIVE` until each provider's API calls are built and
+tested against a real account (the brief: "feature-flagged for later"). The
+mock adapter is deterministic and exists for demos and development. Its rows
+carry source MOCK and every screen and report says "demo data". Mock sync
+cannot run in production.
+
+**Reports are reviewed, and AI is fenced.** A generated report is a frozen
+snapshot, not a live query, so what was reviewed is what the client reads. It
+is a draft until a founder or the department's manager approves it; approval
+is the only path to the portal. The AI summary sees only the facts, and a
+draft that quotes any number not in them is discarded for the deterministic
+summary. A report never states a figure we didn't compute. With no AI
+configured, reports still generate.
+
+**One notify(), three rules.** Rather than trusting every emitter, `notify()`
+enforces audience (by role, per category), preference (off / in the app /
+in the app and email, with minimums for billing and announcements) and
+channel. Email is sent inline with a bound and retried by the morning job.
+Hobby-plan crons are daily, and a queue would be new infrastructure for no gain
+at this volume. The email sender is loaded lazily, so notifying never pulls
+server-only mail code into modules that merely import `notify`.
+
+**Resend, keeping SMTP.** Resend's HTTP API when `RESEND_API_KEY` is set,
+SMTP otherwise, nothing when neither. The base URL is overridable so the
+notification suite can assert real deliveries against a local stand-in.
+
+**Also fixed:** signed downloads built `Content-Disposition` from the raw file
+name, and any non-Latin-1 character (an em dash, "Menú") made the download a
+500. All download routes now send an RFC 6266 header: an ASCII fallback plus
+the exact UTF-8 name.
+
+**Alternatives rejected:**
+- A table per provider's metrics: every consumer would need to know every
+  provider.
+- Publishing generated reports automatically: the brief requires human review.
+- A job queue for email: new infrastructure with no need at this volume.

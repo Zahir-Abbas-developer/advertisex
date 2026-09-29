@@ -135,6 +135,14 @@ export const RESOURCES = [
   "payment",
   /** The founder's financial overview and exports (Phase 7). */
   "finance",
+  /** The founder Command Center and the internal analytics hub (Phase 8). */
+  "command",
+  /** Founder announcements (Phase 8). */
+  "announcement",
+  /** A client's service metrics — manual entry and synced values (Phase 8). */
+  "clientMetric",
+  /** A client's data-provider connections (Phase 8). */
+  "integration",
 ] as const;
 export type Resource = (typeof RESOURCES)[number];
 
@@ -330,6 +338,28 @@ export const PERMISSIONS: Matrix = {
   },
   finance: {
     read: FOUNDER_ONLY,
+  },
+
+  // Phase 8. The Command Center spans money, so it is the founder's; managers
+  // keep their department-scoped analytics pages.
+  command: {
+    read: FOUNDER_ONLY,
+  },
+  announcement: {
+    read: FOUNDER_ONLY,
+    create: FOUNDER_ONLY,
+  },
+  // Client results follow the client: the account team reads them; the
+  // founder and the department manager enter and correct them.
+  clientMetric: {
+    read: { FOUNDER: "all", MANAGER: "department", EMPLOYEE: "assigned" },
+    create: { FOUNDER: "all", MANAGER: "department" },
+    update: { FOUNDER: "all", MANAGER: "department" },
+    delete: { FOUNDER: "all", MANAGER: "department" },
+  },
+  integration: {
+    read: { FOUNDER: "all", MANAGER: "department" },
+    update: { FOUNDER: "all", MANAGER: "department" },
   },
 };
 

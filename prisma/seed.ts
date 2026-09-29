@@ -399,6 +399,11 @@ async function main() {
   // Phase 6: client logins from before client roles were the first people on
   // their accounts, so they are its owners. Only null roles are filled.
   await prisma.user.updateMany({ where: { role: "CLIENT", clientRole: null }, data: { clientRole: "OWNER" } });
+  // Phase 8: clients already CHURNED before churnedAt existed get their last
+  // change as the churn date (null keys only — never overwritten).
+  for (const c of await prisma.client.findMany({ where: { status: "CHURNED", churnedAt: null }, select: { id: true, updatedAt: true } })) {
+    await prisma.client.update({ where: { id: c.id }, data: { churnedAt: c.updatedAt } });
+  }
 
   // Phase 4: catalog services and projects predating tenancy. A project
   // belongs to its client's organization.

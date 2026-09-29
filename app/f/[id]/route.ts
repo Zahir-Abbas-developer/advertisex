@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { read } from "@/lib/uploads";
 import { fileUrlSecret } from "@/modules/files/server";
-import { canPreview, verifyFileSignature } from "@/modules/files/signing";
+import { canPreview, contentDisposition, verifyFileSignature } from "@/modules/files/signing";
 
 /**
  * The bytes behind a signed file URL (Phase 4 scope 5). Access was decided
@@ -27,12 +27,11 @@ export async function GET(request: Request, { params }: { params: { id: string }
   if (!bytes) return new Response("Not found", { status: 404 });
 
   const inline = disposition === "inline" && canPreview(file.mimeType);
-  const safeName = file.filename.replace(/["\\\r\n]/g, "_");
   return new Response(new Uint8Array(bytes), {
     headers: {
       "Content-Type": file.mimeType,
       "Content-Length": String(bytes.length),
-      "Content-Disposition": `${inline ? "inline" : "attachment"}; filename="${safeName}"`,
+      "Content-Disposition": contentDisposition(inline ? "inline" : "attachment", file.filename),
       "X-Content-Type-Options": "nosniff",
       // Rendered, never executed: no scripts, no plugins, no navigation.
       "Content-Security-Policy": "default-src 'none'; img-src 'self'; object-src 'self'; style-src 'unsafe-inline'; sandbox",

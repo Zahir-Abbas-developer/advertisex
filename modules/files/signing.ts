@@ -40,3 +40,15 @@ export function verifyFileSignature(input: {
 export const PREVIEWABLE = new Set(["image/png", "image/jpeg", "image/gif", "image/webp", "application/pdf", "text/plain"]);
 
 export const canPreview = (mimeType: string) => PREVIEWABLE.has(mimeType);
+
+/**
+ * A Content-Disposition header that is always valid (RFC 6266 / 5987): an
+ * ASCII fallback name for old clients, and the exact name as UTF-8. A raw
+ * non-Latin-1 character (an em dash, "é" in some runtimes, an emoji) in a
+ * header value otherwise throws and turns the download into a 500.
+ */
+export function contentDisposition(kind: Disposition, filename: string): string {
+  const ascii = filename.normalize("NFKD").replace(/[^\x20-\x7e]/g, "").replace(/["\\]/g, "_").replace(/\s+/g, " ").trim() || "file";
+  const utf8 = encodeURIComponent(filename.replace(/[\r\n]/g, " ")).replace(/['()*]/g, (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`);
+  return `${kind}; filename="${ascii}"; filename*=UTF-8''${utf8}`;
+}

@@ -57,7 +57,7 @@ export function ClientShell({
           </div>
 
           <div className="flex items-center gap-2">
-            <NotificationBell reportsHref="/portal/reports" />
+            <NotificationBell reportsHref="/portal/reports" allHref="/portal/notifications" />
             <Dropdown
               trigger={
                 <span className="flex items-center gap-2 rounded-[10px] border border-line px-2 py-1.5 transition-colors hover:bg-surface-2">

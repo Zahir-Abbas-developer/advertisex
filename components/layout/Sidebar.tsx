@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import {
   MessagesSquare,
+  Bell,
   Landmark,
   Receipt,
   ListChecks,
@@ -46,6 +47,8 @@ const ICONS: Record<NavKey, LucideIcon> = {
   "projects-analytics": BarChart3,
   messages: MessagesSquare,
   finance: Landmark,
+  analytics: BarChart3,
+  notifications: Bell,
   invoices: Receipt,
   clients: Briefcase,
   projects: Layers,

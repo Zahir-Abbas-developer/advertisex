@@ -15,6 +15,7 @@ import { safeFetch } from "@/lib/safe-fetch";
 import { formatBytes } from "@/lib/utils";
 import { formatDate } from "@/lib/date";
 import { REPORT_KINDS, REPORT_KIND_LABEL } from "@/modules/portal/views";
+import { ReportReviewModal } from "@/components/clients/ReportReviewModal";
 
 type Report = {
   id: string;
@@ -27,6 +28,9 @@ type Report = {
   file: { filename: string; size: number };
   createdBy: { name: string } | null;
   readBy: string[];
+  generated: boolean;
+  reviewState: "NONE" | "NEEDS_REVIEW" | "APPROVED";
+  summarySource: string | null;
 };
 
 const lastMonth = () => {
@@ -51,6 +55,20 @@ export function ClientReportsPanel({ clientId }: { clientId: string }) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const input = useRef<HTMLInputElement>(null);
+  const [reviewing, setReviewing] = useState<string | null>(null);
+  const [genMonth, setGenMonth] = useState(lastMonth());
+  const [generating, setGenerating] = useState(false);
+
+  const generate = async () => {
+    setGenerating(true);
+    const res = await safeFetch(`/api/clients/${clientId}/reports/generate`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ month: genMonth }) });
+    setGenerating(false);
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) return toast.error(body.error ?? "It wasn't generated");
+    toast.success(body.created ? "Report drafted — review it before it goes to the client" : "That month's report already exists");
+    await load();
+    setReviewing(body.report.id);
+  };
 
   const load = useCallback(async () => {
     const res = await safeFetch(`/api/clients/${clientId}/reports`, { cache: "no-store" });
@@ -109,6 +127,20 @@ export function ClientReportsPanel({ clientId }: { clientId: string }) {
     <div className="space-y-6">
       {canManage && (
         <Card padded={false}>
+          <CardHeader title="Monthly report" description="Drafted from the month's results and project progress, with an AI-written summary when AI is on. Nothing reaches the client until someone reviews and approves it." />
+          <CardBody className="flex flex-wrap items-end gap-3">
+            <div className="w-48">
+              <Input label="Month" type="month" value={genMonth} max={lastMonth()} onChange={(e) => setGenMonth(e.target.value)} />
+            </div>
+            <Button loading={generating} onClick={() => void generate()}>
+              Generate report
+            </Button>
+          </CardBody>
+        </Card>
+      )}
+
+      {canManage && (
+        <Card padded={false}>
           <CardHeader title="Add a report" description="PDF is best. Automated monthly reports arrive later; this is the manual path." />
           <CardBody className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-3">
@@ -155,11 +187,22 @@ export function ClientReportsPanel({ clientId }: { clientId: string }) {
                   <Badge size="sm" tone={r.status === "PUBLISHED" ? "success" : "neutral"}>
                     {r.status === "PUBLISHED" ? "In the portal" : "Draft"}
                   </Badge>
+                  {r.generated && r.status !== "PUBLISHED" && (
+                    <Badge size="sm" tone={r.reviewState === "NEEDS_REVIEW" ? "warning" : "success"} dot={r.reviewState === "NEEDS_REVIEW"}>
+                      {r.reviewState === "NEEDS_REVIEW" ? "Needs review" : "Approved"}
+                    </Badge>
+                  )}
                   {canManage && (
                     <>
-                      <Button size="sm" variant="ghost" onClick={() => void patch(r, r.status === "PUBLISHED" ? "DRAFT" : "PUBLISHED")}>
-                        {r.status === "PUBLISHED" ? "Withdraw" : "Publish"}
-                      </Button>
+                      {r.generated && r.status !== "PUBLISHED" ? (
+                        <Button size="sm" variant="secondary" onClick={() => setReviewing(r.id)}>
+                          Review
+                        </Button>
+                      ) : (
+                        <Button size="sm" variant="ghost" onClick={() => void patch(r, r.status === "PUBLISHED" ? "DRAFT" : "PUBLISHED")}>
+                          {r.status === "PUBLISHED" ? "Withdraw" : "Publish"}
+                        </Button>
+                      )}
                       <button type="button" onClick={() => void remove(r)} className="rounded p-1.5 text-ink-muted hover:text-danger" aria-label={`Delete ${r.title}`}>
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -171,6 +214,7 @@ export function ClientReportsPanel({ clientId }: { clientId: string }) {
           </CardBody>
         </Card>
       )}
+      {reviewing && <ReportReviewModal clientId={clientId} reportId={reviewing} onClose={() => setReviewing(null)} onChanged={() => void load()} />}
     </div>
   );
 }

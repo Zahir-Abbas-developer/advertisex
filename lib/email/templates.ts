@@ -380,3 +380,38 @@ export function renewalDigestEmail(input: {
     ].join("\n"),
   };
 }
+
+// ---------------------------------------------------------------------------
+// Phase 8 — the notification channel
+// ---------------------------------------------------------------------------
+
+/** One notification, as an email. The link opens the right place in the app. */
+export function notificationEmail(input: { category: string; title: string; body: string; url: string | null; settingsUrl: string }): Email {
+  const body = `<p style="margin:0 0 6px;font-size:15px;line-height:1.65;">${escape(input.body)}</p>`;
+  return {
+    subject: input.title,
+    html: shell({
+      eyebrow: input.category,
+      title: input.title,
+      body,
+      cta: input.url ? { label: "Open in Advertise X", href: input.url } : undefined,
+      footnote: `You can choose which emails you get in your notification settings: ${input.settingsUrl}`,
+    }),
+    text: [input.title, "", input.body, "", ...(input.url ? [`Open: ${input.url}`, ""] : []), `Notification settings: ${input.settingsUrl}`].join("\n"),
+  };
+}
+
+/** The optional daily digest: yesterday's unread notifications, grouped. */
+export function dailyDigestEmail(input: { name: string; items: { category: string; title: string; body: string }[]; url: string; settingsUrl: string }): Email {
+  const body = `
+    <p style="margin:0 0 14px;font-size:15px;line-height:1.65;">${input.items.length} update${input.items.length === 1 ? "" : "s"} you haven't opened yet:</p>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+      ${input.items.slice(0, 20).map((i) => listItem(i.title, `${i.category} · ${i.body}`)).join("")}
+    </table>
+    ${input.items.length > 20 ? `<p style="margin:12px 0 0;font-size:13px;color:#656565;">And ${input.items.length - 20} more.</p>` : ""}`;
+  return {
+    subject: `Your Advertise X digest — ${input.items.length} update${input.items.length === 1 ? "" : "s"}`,
+    html: shell({ eyebrow: "Daily digest", title: `Good morning, ${input.name.split(" ")[0]}`, body, cta: { label: "Open notifications", href: input.url }, footnote: `Turn the digest off in your notification settings: ${input.settingsUrl}` }),
+    text: [`Good morning, ${input.name.split(" ")[0]}`, "", ...input.items.map((i) => `• ${i.title} — ${i.body}`), "", input.url, "", `Settings: ${input.settingsUrl}`].join("\n"),
+  };
+}

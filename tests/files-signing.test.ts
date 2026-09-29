@@ -35,3 +35,15 @@ describe("signed file URLs", () => {
     assert.ok(!canPreview("text/html") && !canPreview("image/svg+xml") && !canPreview("application/zip"));
   });
 });
+
+describe("content disposition", () => {
+  it("is always a valid header, with the exact name in UTF-8", async () => {
+    const { contentDisposition } = await import("../modules/files/signing");
+    const h = contentDisposition("attachment", "Osteria Nonna — Monthly report — August 2026.pdf");
+    assert.ok([...h].every((c) => c.charCodeAt(0) < 128), "ASCII only — never throws in a header");
+    assert.match(h, /^attachment; filename="Osteria Nonna Monthly report August 2026\.pdf"; filename\*=UTF-8''Osteria%20Nonna%20%E2%80%94%20Monthly/);
+    assert.equal(contentDisposition("inline", "Menú.pdf"), `inline; filename="Menu.pdf"; filename*=UTF-8''Men%C3%BA.pdf`);
+    assert.match(contentDisposition("attachment", 'a"b\\c.pdf'), /filename="a_b_c\.pdf"/);
+    assert.match(contentDisposition("attachment", "🍝"), /filename="file"/);
+  });
+});

@@ -304,6 +304,71 @@ count; others are counted and reported, never converted.
 `npm run billingtest` recomputes every one of these from the database and
 checks the API and the CSV export agree to the cent.
 
+## Added in Phase 8 — the Command Center (`modules/analytics`)
+
+**Periods.** Last 7 / 30 / 90 days, this month, this quarter, this year, on
+the company calendar, ending today. **Comparison period:** the same number of
+days immediately before (this month on the 10th compares with the 10 days
+before the 1st: like for like, never a partial month against a full one).
+Charts bucket by day (≤31 days), ISO week (≤120 days) or month, with empty
+buckets shown. A change is `current − previous`, and as a percent of
+`|previous|` (none when previous is 0). A rate's change is in percentage
+points. Up is green, down is gray, never red.
+
+| Figure | Formula |
+| --- | --- |
+| New leads | leads created in the period |
+| Deals won / won value | leads with a `DEAL_CLOSED` activity in the period, once per lead; Σ their deal value |
+| Conversion | won ÷ (won + lost), where lost = distinct leads moved into a LOST-kind stage in the period; none when nothing closed |
+| Open pipeline | Σ deal value of leads now in an OPEN-kind stage (today) |
+| Outreach | outreach activities in the period (every kind except deals closed); by kind; by person |
+| Payments received · invoiced · MRR · outstanding · overdue | as in "the financial overview" above (organization currency) |
+| Active / delayed projects | PLANNING, ACTIVE or ON_HOLD / those stamped delayed (today) |
+| Milestones on time | of milestones due in the period (up to today), the share completed on or before their due day |
+| Tasks completed · tasks on time · overdue now | the team performance formulas ("tasks and performance"), summed over the team |
+| Attendance | this month on the company calendar: days present ÷ scheduled days that have happened (excluding leave), pooled across the team; compared with last month |
+
+Every breakdown sums to its headline, and every trend sums to its period
+figure (`analyticstest` checks each against the database). Cached five
+minutes per period (`AnalyticsSnapshot`); the morning job warms 30 days and
+this month.
+
+## Added in Phase 8 — the analytics hub
+
+| Figure | Formula |
+| --- | --- |
+| Retention | of clients active when the period began (started before it, not churned before it; LEAD status excluded), the share still active at its end |
+| Churn rate | 100 − retention, on the same cohort |
+| New / churned clients | clients whose start (onboarded) / `churnedAt` falls in the period |
+| Outstanding payments by age | open balances bucketed by days past due on the company calendar: not yet due, 1–30, 31–60, 61–90, over 90; the buckets and the per-client list each sum to the total owed |
+
+## Added in Phase 8 — client results (`modules/client-analytics/metrics.ts`)
+
+Stored monthly per client and metric, as integers: counts as-is, money in
+cents, decimals in thousandths (average position, rating), durations in
+seconds. **Source precedence:** a person's manual entry, then a live sync,
+then demo data. Rates are derived, never stored:
+
+| Channel | Derived |
+| --- | --- |
+| Google Ads | CTR = clicks ÷ impressions · CPC = spend ÷ clicks · CPA = spend ÷ conversions · ROAS = conversion value ÷ spend |
+| Meta Ads | CTR · cost per result = spend ÷ results · ROAS |
+| Leads & bookings | booking rate = bookings ÷ leads |
+| Website (GA4) | engagement rate = engaged sessions ÷ sessions · conversion rate = key events ÷ sessions |
+| SEO (Search Console) | CTR = clicks ÷ impressions |
+| Local SEO (Business Profile) | action rate = (calls + directions + website clicks) ÷ profile views |
+
+Percentages to one decimal; money per unit rounded to the cent; ROAS to two
+decimals. Each change is stated as it happened ("up / down on last month")
+and coloured by whether it is an improvement for that metric: green when
+better, gray otherwise (lower spend, CPC, CPA and average position count as
+better).
+
+**Monthly report highlights:** each channel's headline metric against the
+previous month ("up 12% on last month"), then milestones completed per
+project. The summary may quote only numbers that appear in those facts. An
+AI draft that uses any other number is discarded for the template summary.
+
 ## To be defined at their phase gates
 
 - **P2** — per-organization aggregates (same formulas, org-scoped denominators).

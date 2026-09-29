@@ -11,6 +11,7 @@ import { ErrorState } from "@/components/ui/EmptyState";
 import { Input } from "@/components/ui/Input";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useToast } from "@/components/ui/Toast";
+import { NotificationPreferences } from "@/components/notifications/NotificationCenter";
 import { safeFetch } from "@/lib/safe-fetch";
 import { formatDate } from "@/lib/date";
 
@@ -19,12 +20,6 @@ type People = {
   users: { id: string; name: string; email: string; clientRole: string; isActive: boolean; avatarColor: string }[];
   invites: { id: string; name: string; email: string; expiresAt: string }[];
   viewer: { id: string; isOwner: boolean };
-};
-
-const PREF_LABEL: Record<keyof Me["prefs"], string> = {
-  messages: "New messages from your team",
-  reports: "New reports",
-  updates: "Project updates",
 };
 
 /** The client's settings (Phase 6 scope 7): profile, password, notifications, and who else can sign in. */
@@ -130,26 +125,7 @@ export function PortalSettings() {
       </div>
 
       <div className="min-w-0 space-y-6">
-        <Card padded={false}>
-          <CardHeader title="Notifications" description="What we let you know about." />
-          <CardBody className="space-y-3">
-            {(Object.keys(PREF_LABEL) as (keyof Me["prefs"])[]).map((k) => (
-              <label key={k} className="flex items-center justify-between gap-3 text-[13px] text-ink">
-                {PREF_LABEL[k]}
-                <input
-                  type="checkbox"
-                  className="h-4 w-4 accent-brand"
-                  checked={me.prefs[k]}
-                  onChange={(e) => {
-                    const prefs = { ...me.prefs, [k]: e.target.checked };
-                    setMe({ ...me, prefs });
-                    void patchMe({ prefs }, "Notifications updated");
-                  }}
-                />
-              </label>
-            ))}
-          </CardBody>
-        </Card>
+        <NotificationPreferences />
 
         <Card padded={false}>
           <CardHeader title="People on your account" description={people.viewer.isOwner ? "Invite colleagues to see your projects, reports and messages. Billing stays with you." : "Your account's owner can invite colleagues."} />

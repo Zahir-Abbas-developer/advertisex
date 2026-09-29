@@ -50,6 +50,7 @@ import { performanceContext } from "@/lib/score-service";
 import { mrrSeries, pipelineMetrics } from "@/lib/pipeline";
 import { MrrCard } from "@/components/dashboard/MrrCard";
 import { CollectionsCard } from "@/components/dashboard/CollectionsCard";
+import { CommandCenter } from "@/components/command/CommandCenter";
 import { AtRiskClients } from "@/components/dashboard/AtRiskClients";
 import { collections } from "@/lib/payments";
 import { healthReport } from "@/lib/ops";
@@ -308,6 +309,10 @@ export default async function DashboardPage({
 
       {/* Asked once, then never again. */}
       <PushSetup />
+
+      {/* Phase 8: the founder's Command Center — leads, outreach, money,
+          projects and the team, each against the period before. */}
+      {isAdmin && <CommandCenter />}
 
       {streak && (
         <StreakCard

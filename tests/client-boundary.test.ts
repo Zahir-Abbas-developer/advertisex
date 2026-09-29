@@ -114,6 +114,12 @@ describe("client/server boundary", () => {
       "modules/billing/email.ts",
       "modules/billing/portal.ts",
       "modules/integrations/payments/index.ts",
+      // Phase 8: analytics, client results, reports, announcements.
+      "modules/analytics/server.ts",
+      "modules/client-analytics/server.ts",
+      "modules/monthly-reports/server.ts",
+      "modules/monthly-reports/pdf.ts",
+      "modules/notifications/announcements.ts",
     ]) {
       assert.match(readFileSync(f, "utf8"), /^import "server-only";/m, f);
     }

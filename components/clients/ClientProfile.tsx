@@ -20,6 +20,7 @@ import { CredentialsPanel } from "@/components/clients/CredentialsPanel";
 import { ClientProjectsPanel } from "@/components/clients/ClientProjectsPanel";
 import { ClientServicesPanel } from "@/components/clients/ClientServicesPanel";
 import { ClientInvoicesPanel } from "@/components/billing/ClientInvoicesPanel";
+import { ClientResultsPanel } from "@/components/clients/ClientResultsPanel";
 import { ContractsPanel } from "@/components/clients/ContractsPanel";
 import { NotesPanel } from "@/components/clients/NotesPanel";
 import { ClientReportsPanel } from "@/components/clients/ClientReportsPanel";
@@ -61,7 +62,7 @@ export type ClientProfileData = {
   viewer: { id: string; isFounder: boolean; canEdit: boolean; canManageContracts: boolean; canCreateProject: boolean; canSeeCredentials: boolean };
 };
 
-type Tab = "overview" | "projects" | "services" | "contracts" | "files" | "logins" | "notes" | "communication" | "reports" | "portal";
+type Tab = "overview" | "projects" | "services" | "results" | "contracts" | "files" | "logins" | "notes" | "communication" | "reports" | "portal";
 
 const money = (n: number) => `$${n.toLocaleString("en-US")}`;
 
@@ -70,9 +71,14 @@ const money = (n: number) => `$${n.toLocaleString("en-US")}`;
  * scope 1). Billing, reports and messaging wire into later phases; each
  * section says what it shows today rather than pretending.
  */
-export function ClientProfile({ data }: { data: ClientProfileData }) {
+const TABS: readonly Tab[] = ["overview", "projects", "services", "results", "contracts", "files", "logins", "notes", "communication", "reports", "portal"];
+
+export function ClientProfile({ data, initialTab }: { data: ClientProfileData; initialTab?: string }) {
   const { client, overview, viewer } = data;
-  const [tab, setTab] = useState<Tab>("overview");
+  // A notification can open a tab directly ("…?tab=reports" for a report
+  // awaiting review). Read on the server and passed in, so the server and the
+  // browser render the same tab.
+  const [tab, setTab] = useState<Tab>(TABS.find((t) => t === initialTab) ?? "overview");
   const [newProject, setNewProject] = useState(false);
   const [editing, setEditing] = useState(false);
   const router = useRouter();
@@ -81,6 +87,7 @@ export function ClientProfile({ data }: { data: ClientProfileData }) {
     { key: "overview", label: "Overview" },
     { key: "projects", label: "Projects", count: overview.openProjects },
     { key: "services", label: viewer.isFounder ? "Services & billing" : "Services" },
+    { key: "results", label: "Results" },
     { key: "contracts", label: "Contracts" },
     { key: "files", label: "Files" },
     ...(viewer.canSeeCredentials ? [{ key: "logins" as const, label: "Logins" }] : []),
@@ -139,6 +146,7 @@ export function ClientProfile({ data }: { data: ClientProfileData }) {
           {viewer.isFounder && <ClientInvoicesPanel clientId={client.id} />}
         </div>
       )}
+      {tab === "results" && <ClientResultsPanel clientId={client.id} />}
       {tab === "contracts" && <ContractsPanel clientId={client.id} />}
       {tab === "files" && (
         <Card padded={false}>

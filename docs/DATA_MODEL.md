@@ -110,6 +110,23 @@ list — `Notification` already exists (in-app, per user) and is reached only
 through its owner; a `File` model lands with the storage work (P3), where its
 shape (keys, signed URLs, visibility) is decided with its first real use.
 
+### Built in Phase 8
+
+| Entity / change | Fields | Notes |
+| --- | --- | --- |
+| `Notification` | + emailState (null / PENDING / SENT / SKIPPED / FAILED), emailedAt | The email channel, per row; the morning job retries FAILED and stale PENDING. |
+| `User.notificationPrefs` | now `{ v: 2, levels: {category: off/app/email}, digest }` | Reads the Phase 6 `{messages, reports, updates}` form. |
+| `ClientReport` | + generated, reviewState (NONE / NEEDS_REVIEW / APPROVED), summary, summarySource (AI / TEMPLATE / EDITED), data (JSON snapshot), reviewedById, reviewedAt | A generated report is published only through review. |
+| `Client` | + churnedAt | Set when status becomes CHURNED (cleared if they return); backfilled once from `updatedAt`. |
+| **Announcement** | organizationId, authorId, title, body, audience (EVERYONE / TEAM / CLIENTS), recipients | Delivered as ANNOUNCEMENT notifications. Audited. |
+| **MetricValue** | organizationId, clientId, source, metricKey ("googleAds.clicks"), granularity (MONTH), periodStart, value (Int, unit-scaled), enteredById?, syncedAt? | Unique per client · metric · source · granularity · period. Audited. |
+| **IntegrationConnection** | organizationId, clientId, provider, status (NOT_CONNECTED / MOCK / CONNECTED / ERROR), accountLabel?, lastSyncedAt?, lastError? | One per client per provider. Audited. |
+| **AnalyticsSnapshot** | organizationId, key, payload (JSON), computedAt | The Command Center cache (5-minute TTL). Not audited. |
+
+Migration `20261001090000_analytics`: additive only (4 tables, new nullable or defaulted columns, no drops).
+
+Tenancy: Announcement, MetricValue, IntegrationConnection and AnalyticsSnapshot are organization roots (`modules/tenancy/scope.ts`).
+
 ### Built in Phase 7
 
 | Entity / change | Fields | Notes |

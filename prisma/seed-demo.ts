@@ -7,6 +7,8 @@ import { serializeSkills } from "../lib/skills";
 import { seal } from "../modules/vault/cipher";
 import { vaultKeys } from "../modules/vault/keys";
 import { dayKey, deriveStatus, numberLabel } from "../modules/billing/domain";
+import { channelsForServices, CHANNEL, previousMonth } from "../modules/client-analytics/metrics";
+import { mockMonth } from "../modules/integrations/analytics/mock";
 import { COMPANY_TIMEZONE } from "../lib/date";
 
 /**
@@ -257,6 +259,9 @@ async function main() {
 
   // --- Phase 7: invoices and payments ----------------------------------------
   await seedBilling(org.id);
+
+  // --- Phase 8: client results (demo data, labelled as such) ------------------
+  await seedResults(org.id);
 
   const roles = await prisma.user.groupBy({ by: ["role"], _count: true });
   console.log("Advertise X demo tenant");
@@ -996,6 +1001,37 @@ async function seedBilling(organizationId: string) {
     }
   }
   await prisma.organization.update({ where: { id: organizationId }, data: { nextInvoiceNumber: number } });
+}
+
+/**
+ * Phase 8 demo: six months of results for each restaurant's channels, from
+ * the deterministic mock adapter. Stored with source MOCK, so every screen and
+ * report says "demo data". Converges: skipped once any result exists.
+ */
+async function seedResults(organizationId: string) {
+  if (await prisma.metricValue.count({ where: { organizationId } })) return;
+  const today = dayKey(new Date(), COMPANY_TIMEZONE);
+  const months: string[] = [previousMonth(today.slice(0, 7))];
+  while (months.length < 6) months.unshift(previousMonth(months[0]));
+  const clients = await prisma.client.findMany({
+    where: { organizationId, status: "ACTIVE" },
+    select: { id: true, services: { where: { status: { not: "ENDED" } }, select: { service: { select: { slug: true } } } } },
+  });
+  for (const c of clients) {
+    const channels = channelsForServices(c.services.map((s) => s.service.slug));
+    if (channels.length === 0) continue;
+    for (const month of months) {
+      for (const channel of channels) {
+        for (const v of mockMonth(c.id, channel, month)) {
+          await prisma.metricValue.create({ data: { organizationId, clientId: c.id, source: "MOCK", metricKey: v.metricKey, granularity: "MONTH", periodStart: new Date(`${month}-01T00:00:00.000Z`), value: v.value, syncedAt: new Date() } });
+        }
+      }
+    }
+    const providers = [...new Set(channels.map((ch) => CHANNEL[ch].provider).filter((p): p is NonNullable<typeof p> => Boolean(p)))];
+    for (const provider of providers) {
+      await prisma.integrationConnection.create({ data: { organizationId, clientId: c.id, provider, status: "MOCK", lastSyncedAt: new Date() } });
+    }
+  }
 }
 
 main()

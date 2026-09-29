@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Download, Eye, FileBarChart } from "lucide-react";
 
 import { Card, CardBody, CardHeader } from "@/components/ui/Card";
@@ -10,7 +11,7 @@ import { safeFetch } from "@/lib/safe-fetch";
 import { formatBytes, cn } from "@/lib/utils";
 import { groupReports, REPORT_KIND_LABEL } from "@/modules/portal/views";
 
-type Report = { id: string; title: string; kind: string; periodMonth: string; publishedAt: string | null; mimeType: string; size: number; unread: boolean };
+type Report = { id: string; title: string; kind: string; periodMonth: string; publishedAt: string | null; mimeType: string; size: number; unread: boolean; inApp?: boolean };
 
 /**
  * The client's reports, by month, newest first (Phase 6 scope 4). Opening or
@@ -59,7 +60,11 @@ export function ReportsLibrary({ reports: initial }: { reports: Report[] }) {
                     </p>
                   </div>
                   <div className="flex gap-2">
-                    {(r.mimeType === "application/pdf" || r.mimeType.startsWith("image/")) && (
+                    {r.inApp ? (
+                      <Link href={`/portal/reports/${r.id}`} className="flex items-center gap-1.5 rounded-pill bg-brand px-3 py-1.5 text-[13px] font-medium text-on-brand hover:bg-brand-hover">
+                        <Eye className="h-3.5 w-3.5" /> Read
+                      </Link>
+                    ) : (r.mimeType === "application/pdf" || r.mimeType.startsWith("image/")) && (
                       <button type="button" onClick={() => void open(r, "inline")} className="flex items-center gap-1.5 rounded-pill border border-line px-3 py-1.5 text-[13px] text-ink/80 hover:border-ink/25 hover:text-ink">
                         <Eye className="h-3.5 w-3.5" /> Open
                       </button>

@@ -83,6 +83,9 @@ jobs:
           npm run assigntest
           npm run portaltest
           npm run billingtest
+          npm run analyticstest
+          npm run reporttest
+          npm run notifytest
       - name: Server log on failure
         if: failure()
         run: tail -200 dev.log

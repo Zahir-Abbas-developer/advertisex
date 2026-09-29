@@ -5,6 +5,30 @@ phase → status → done → next → blockers.*
 
 ---
 
+## 2026-09-29 — Phase 8: DELIVERED, awaiting gate
+
+**Phase:** 8 — Command Center · Client Analytics · Reports · Notifications (prompt verbatim in `docs/PHASES.md`)
+**Status:** ✅ delivered · ⏸ **STOPPED at the gate**. Report: `docs/phases/PHASE_8_REPORT.md`. Waiting for *"Phase 8 approved"*.
+**Gate note:** the founder sent the Phase 8 prompt after the Phase 7 report and the retheme, without the literal "Phase 7 approved"; treated as the go-ahead, as at every earlier handover.
+
+**Done:**
+- Founder Command Center on the dashboard: five sections, six periods, like-for-like comparisons. Aggregated in one call, cached in `AnalyticsSnapshot`, warmed each morning.
+- `/analytics` hub, with client retention and receivables aging.
+- Client results: a metric model per channel, stored integers, derived rates, source precedence, manual entry, a Results tab.
+- `modules/integrations/analytics`: an interface, a deterministic mock, five live adapters (OAuth URLs; sync behind `INTEGRATIONS_LIVE`).
+- Monthly reports: a frozen snapshot, an AI summary guarded against invented numbers (template fallback), a branded PDF, an in-app report. Human review before publishing; an idempotent monthly job.
+- Notifications: a catalog of audience, category and minimum levels enforced in `notify()`; preferences; center pages; email via Resend or SMTP with per-row state and retries; daily digest; founder announcements.
+- `churnedAt` on clients.
+- Fixed a Phase 4 bug: non-Latin file names broke signed downloads (RFC 6266 header).
+- Three suites in CI: `analyticstest` (73), `reporttest` (31), `notifytest` (35).
+- ADR-018. METRICS, DATA_MODEL, ARCHITECTURE, CLAUDE.md, `.env.example` updated. Demo seed: six months of labelled demo results.
+
+**Gate:** all green (927 unit, every harness, smoke:empty, build, bundle scan). The leak scan needed a re-run after a dev-server memory restart; the harness session now retries a refused connection once. The browser check at 375/768/1280 found and fixed three issues (tab hydration, a mobile overflow, a direction label).
+
+**Needs the founder:** Google Cloud and Meta app credentials for live data; `RESEND_API_KEY`; the optional AI key; who reviews reports; carried decisions.
+
+---
+
 ## 2026-09-28 — Retheme to "Forest & Mint" (founder directive, between gates)
 
 **Status:** ✅ done. Phase 7 is still at its gate, waiting for *"Phase 7 approved"*. This was a founder-directed presentation change, not Phase 8.

@@ -28,9 +28,13 @@ export async function PATCH(
   if (!existing) return apiError("That client no longer exists", 404);
 
   try {
+    // Phase 8: retention needs to know when a client left (and forgets it if they return).
+    const status = (parsed.data as { status?: string }).status;
+    const churnedAt =
+      status === undefined || status === existing.status ? {} : status === "CHURNED" ? { churnedAt: new Date() } : { churnedAt: null };
     const client = await prisma.client.update({
       where: { id: params.id },
-      data: parsed.data,
+      data: { ...parsed.data, ...churnedAt },
     });
     return NextResponse.json({ client });
   } catch {

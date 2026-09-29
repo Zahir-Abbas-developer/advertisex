@@ -218,3 +218,32 @@ A correct, auditable billing system with a complete founder financial overview a
 - Global Definition of Done passes.
 
 ### GATE — docs/phases/PHASE_7_REPORT.md, then STOP for "Phase 7 approved."
+
+---
+
+## Phase 8 — Founder Command Center · Client Analytics Framework · Reports · Notifications
+
+*Issued by the founder on 2026-09-28 (verbatim).*
+
+PHASE 8 — FOUNDER COMMAND CENTER · CLIENT ANALYTICS FRAMEWORK · REPORTS · NOTIFICATIONS
+
+Prerequisite: "Phase 7 approved."
+
+### OBJECTIVE
+Make the platform data-driven: a founder command center with meaningful visual analytics, a client analytics framework ready for real integrations, automated monthly reports, and a complete notification system.
+
+### SCOPE
+1. Founder Command Center (Admin dashboard): unified analytics across Leads, Outreach, Sales & Revenue, Projects, Team Performance — KPI tiles with deltas, trend charts, breakdowns, date ranges, period comparisons. Every chart answers one question. Powered by aggregated queries (materialized where needed) — fast.
+2. Internal analytics pages: revenue, leads, conversion rates, outreach, sales, team productivity, attendance, project delivery, client retention, outstanding payments.
+3. Client analytics framework: a metric model per service (Google Ads, Meta Ads, leads, conversions, website traffic, SEO, Local SEO, campaign performance, monthly results); integration adapters behind modules/integrations for Google Ads, Meta, GA4, Search Console, and Google Business Profile — implement the interface, mock adapters, and a manual-entry path now; real OAuth/API sync feature-flagged for later.
+4. Reports: a monthly report generation job producing a branded PDF and an in-app report per client per service set, drawing on analytics + project progress + an AI-written summary (via modules/ai) with a human-review flag before publishing to the client's reports library; notifications on publish.
+5. Notification system (complete): in-app center + email (Resend) + user preferences. Events: task assigned, new project, deadline approaching, task overdue, new client message, new report, new invoice, payment received, payment overdue, project update, founder announcements. Role- and permission-aware; optional daily digest.
+
+### ACCEPTANCE
+- Dashboards render from real seeded data with no placeholder numbers; charts follow §7.
+- A monthly report generates end-to-end for a seeded client and appears in the portal.
+- Every listed notification fires in tests and respects permissions.
+- Global Definition of Done passes.
+
+### GATE — docs/phases/PHASE_8_REPORT.md, then STOP for "Phase 8 approved."
+

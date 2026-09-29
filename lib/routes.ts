@@ -20,6 +20,8 @@ export type NavKey =
   | "messages"
   | "finance"
   | "invoices"
+  | "notifications"
+  | "analytics"
   | "my-attendance"
   | "attendance"
   | "my-performance"
@@ -88,6 +90,9 @@ export const NAV_ITEMS: readonly NavItem[] = [
   // Phase 7: money is the founder's.
   { key: "finance", label: "Finance", href: "/finance", roles: ADMINS },
   { key: "invoices", label: "Invoices", href: "/invoices", roles: ADMINS },
+  // Phase 8: the founder's analytics hub; everyone's notification center (reached from the bell).
+  { key: "analytics", label: "Analytics", href: "/analytics", roles: ADMINS },
+  { key: "notifications", label: "Notifications", href: "/notifications", roles: EVERYONE, hidden: true },
   { key: "tasks", label: "Tasks", href: "/tasks", roles: EVERYONE },
   // The milestone list. It belongs to the parked retainer-projects module —
   // with that module off it has no data at all, so leaving it in the rail

@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
  * client lives. The founder sees money; a manager sees their departments'
  * clients without it.
  */
-export default async function ClientProfilePage({ params }: { params: { id: string } }) {
+export default async function ClientProfilePage({ params, searchParams }: { params: { id: string }; searchParams: { tab?: string } }) {
   const principal = await requirePage("read", "client");
 
   const client = await prisma.client.findUnique({
@@ -131,5 +131,5 @@ export default async function ClientProfilePage({ params }: { params: { id: stri
     },
   };
 
-  return <ClientProfile data={data} />;
+  return <ClientProfile data={data} initialTab={searchParams.tab} />;
 }

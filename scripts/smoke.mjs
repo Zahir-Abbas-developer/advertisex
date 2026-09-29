@@ -106,16 +106,29 @@ export class Session {
     // Bounded: a harness must fail with a named request, never wait forever.
     // A stalled request once hung the browser pass for an hour at 0% CPU.
     const timeoutMs = Number(process.env.HTTP_TIMEOUT_MS ?? 60_000);
-    let res;
-    try {
-      res = await fetch(this.base + pathname, {
+    const attempt = () =>
+      fetch(this.base + pathname, {
         ...init,
         redirect: "manual",
         headers: { ...(init.headers ?? {}), cookie: this.cookie },
         signal: init.signal ?? AbortSignal.timeout(timeoutMs),
       });
+    let res;
+    try {
+      res = await attempt();
     } catch (error) {
-      throw new Error(`${this.label}: ${init.method ?? "GET"} ${pathname} failed after ≤${timeoutMs}ms — ${error.message}`);
+      // The dev server restarts itself when it nears its memory limit (after
+      // compiling most routes), refusing connections for a few seconds. A
+      // refused connection — never an HTTP error — is retried once, after the
+      // server is back. A real failure still fails, with the request named.
+      const refused = /fetch failed|ECONNREFUSED|ECONNRESET|socket/i.test(String(error?.cause?.code ?? error?.message ?? ""));
+      if (!refused) throw new Error(`${this.label}: ${init.method ?? "GET"} ${pathname} failed after ≤${timeoutMs}ms — ${error.message}`);
+      try {
+        await waitForServer(90_000, this.base);
+        res = await attempt();
+      } catch (again) {
+        throw new Error(`${this.label}: ${init.method ?? "GET"} ${pathname} failed twice (server unreachable) — ${again.message}`);
+      }
     }
     for (const raw of res.headers.getSetCookie()) {
       const [pair] = raw.split(";");

@@ -4,6 +4,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { apiError } from "@/lib/api";
 import { read, remove } from "@/lib/uploads";
+import { contentDisposition } from "@/modules/files/signing";
 import { authorize } from "@/modules/rbac/authorize";
 import { requireApi } from "@/modules/rbac/server";
 import { FILE_VISIBILITIES, fileFor, toView } from "@/modules/files/server";
@@ -25,12 +26,11 @@ export async function GET(_request: Request, { params }: { params: { id: string 
 
   const bytes = await read(file.storedName);
   if (!bytes) return apiError("That file is missing from storage", 404);
-  const safeName = file.filename.replace(/[^\w.\- ]+/g, "_");
   return new NextResponse(new Uint8Array(bytes), {
     headers: {
       "Content-Type": file.mimeType,
       "Content-Length": String(bytes.length),
-      "Content-Disposition": `attachment; filename="${safeName}"`,
+      "Content-Disposition": contentDisposition("attachment", file.filename),
       "X-Content-Type-Options": "nosniff",
       "Cache-Control": "private, no-store",
     },
