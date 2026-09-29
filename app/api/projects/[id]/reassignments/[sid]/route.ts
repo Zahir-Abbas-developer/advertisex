@@ -9,7 +9,8 @@ import { AssignmentError, decideReassignment } from "@/modules/assignment/server
 const schema = z.object({ accept: z.boolean() }).strict();
 
 /** Accept (the role moves) or dismiss a "reassignment suggested" signal. */
-export async function PATCH(request: Request, { params }: { params: { id: string; sid: string } }) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string; sid: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("update", "project");
   if (gate.response) return gate.response;
   const found = await projectFor(gate.principal, params.id, "update");

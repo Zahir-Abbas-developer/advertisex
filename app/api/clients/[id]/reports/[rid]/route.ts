@@ -24,7 +24,8 @@ async function load(principal: Parameters<typeof clientFor>[0], clientId: string
 const schema = z.object({ status: z.enum(["DRAFT", "PUBLISHED"]).optional(), title: z.string().trim().min(2).max(160).optional() }).strict();
 
 /** Publishes (or withdraws) a report, or renames it. Publishing tells the client. */
-export async function PATCH(request: Request, { params }: { params: { id: string; rid: string } }) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string; rid: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("update", "clientReport");
   if (gate.response) return gate.response;
   if (gate.principal.role === "CLIENT") return apiError("Not found", 404);
@@ -51,7 +52,8 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 }
 
 /** A report for the team, with a generated report's summary and figures (for review). */
-export async function GET(_request: Request, { params }: { params: { id: string; rid: string } }) {
+export async function GET(_request: Request, props: { params: Promise<{ id: string; rid: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("read", "clientReport");
   if (gate.response) return gate.response;
   if (gate.principal.role === "CLIENT") return apiError("Not found", 404);
@@ -67,7 +69,8 @@ export async function GET(_request: Request, { params }: { params: { id: string;
   });
 }
 
-export async function DELETE(_request: Request, { params }: { params: { id: string; rid: string } }) {
+export async function DELETE(_request: Request, props: { params: Promise<{ id: string; rid: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("delete", "clientReport");
   if (gate.response) return gate.response;
   if (gate.principal.role === "CLIENT") return apiError("Not found", 404);

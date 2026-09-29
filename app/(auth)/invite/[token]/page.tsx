@@ -12,7 +12,8 @@ export const metadata: Metadata = { title: "Your invitation" };
  * Nothing about the account is shown until the token checks out, and then
  * only the restaurant's name and the invited email.
  */
-export default async function InvitePage({ params }: { params: { token: string } }) {
+export default async function InvitePage(props: { params: Promise<{ token: string }> }) {
+  const params = await props.params;
   const invite = await prisma.clientInvite.findUnique({
     where: { tokenHash: hashToken(params.token) },
     select: { email: true, name: true, acceptedAt: true, revokedAt: true, expiresAt: true, clientAccount: { select: { name: true } } },

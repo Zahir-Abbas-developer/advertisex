@@ -17,7 +17,8 @@ const reviewSchema = z.object({
 });
 
 /** The owner's decision on an outage report. */
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const access = await requireApi("update", "attendance");
   if (access.response) return access.response;
 

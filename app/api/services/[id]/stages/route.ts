@@ -10,7 +10,8 @@ const schema = z.object({ stages: z.array(z.string().trim().min(1, "Name every s
  * Replaces a service's stage template. Projects already planned keep the
  * stages they were given — a template edit never rewrites work under way.
  */
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const { response } = await requireAdminApi();
   if (response) return response;
   const parsed = schema.safeParse(await request.json().catch(() => null));

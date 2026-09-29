@@ -13,7 +13,8 @@ import { taskAccess } from "@/modules/tasks/server";
  * name, and only ever served back through /api/files/[id], which re-checks
  * access. Anyone who can see the task can attach; its owners can remove.
  */
-export async function GET(_request: Request, { params }: { params: { id: string } }) {
+export async function GET(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("read", "file");
   if (gate.response) return gate.response;
   const access = await taskAccess(gate.principal, params.id, "read");
@@ -27,7 +28,8 @@ export async function GET(_request: Request, { params }: { params: { id: string 
   return NextResponse.json({ files });
 }
 
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("create", "file");
   if (gate.response) return gate.response;
   const access = await taskAccess(gate.principal, params.id, "read");

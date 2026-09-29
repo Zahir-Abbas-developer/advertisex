@@ -11,7 +11,8 @@ import { emailInvoice } from "@/modules/billing/email";
  * the client's owners are told in the portal; a sent one is simply emailed
  * again. The email carries the PDF; without SMTP the invoice is still sent.
  */
-export async function POST(_request: Request, { params }: { params: { id: string } }) {
+export async function POST(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("update", "invoice");
   if (gate.response) return gate.response;
   const current = await invoiceForStaff(gate.principal, params.id, "update");

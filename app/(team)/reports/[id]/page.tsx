@@ -11,11 +11,12 @@ import { ClientReportDocument } from "@/components/reports/ClientReportDocument"
 import { PrintButton } from "@/components/reports/PrintButton";
 import { hasAdminPower } from "@/lib/constants";
 
-export async function generateMetadata({
-  params,
-}: {
-  params: { id: string };
-}): Promise<Metadata> {
+export async function generateMetadata(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+): Promise<Metadata> {
+  const params = await props.params;
   const report = await prisma.report.findUnique({
     where: { id: params.id },
     select: { payload: true, type: true },
@@ -27,7 +28,8 @@ export async function generateMetadata({
   return { title: `${subject} · ${payload.period.label}` };
 }
 
-export default async function ReportPage({ params }: { params: { id: string } }) {
+export default async function ReportPage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const user = await requireUser();
 
   const report = await prisma.report.findUnique({ where: { id: params.id } });

@@ -6,7 +6,8 @@ import { requireApi } from "@/modules/rbac/server";
 import { clientFor } from "@/modules/clients/server";
 
 /** Withdraws an invitation or switches off a portal login for this client. */
-export async function DELETE(_request: Request, { params }: { params: { id: string; pid: string } }) {
+export async function DELETE(_request: Request, props: { params: Promise<{ id: string; pid: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("delete", "portalUser");
   if (gate.response) return gate.response;
   if (gate.principal.role === "CLIENT") return apiError("Not found", 404);

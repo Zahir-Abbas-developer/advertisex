@@ -10,7 +10,8 @@ import { contractFields } from "@/modules/clients/contracts";
 import { toView } from "@/modules/files/server";
 
 /** A client's contracts, with their files. Values are the founder's only. */
-export async function GET(_request: Request, { params }: { params: { id: string } }) {
+export async function GET(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("read", "client");
   if (gate.response) return gate.response;
   const found = await clientFor(gate.principal, params.id, "read");
@@ -39,7 +40,8 @@ export async function GET(_request: Request, { params }: { params: { id: string 
   });
 }
 
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("update", "client");
   if (gate.response) return gate.response;
   if (gate.principal.role === "EMPLOYEE") return apiError("Only the founder and managers manage contracts", 403);

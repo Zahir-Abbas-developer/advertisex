@@ -39,14 +39,16 @@ const bodySchema = z.object({
   moveTo: z.record(z.string(), z.string()).default({}),
 });
 
-export async function GET(_request: Request, { params }: { params: { id: string } }) {
+export async function GET(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const { response } = await requireAdminApi();
   if (response) return response;
 
   return NextResponse.json({ stages: await stagesFor(params.id, true) });
 }
 
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const { user, response } = await requireAdminApi();
   if (response) return response;
 

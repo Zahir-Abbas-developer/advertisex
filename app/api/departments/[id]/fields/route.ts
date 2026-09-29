@@ -36,7 +36,8 @@ const bodySchema = z.object({
   fields: z.array(fieldSchema).max(60),
 });
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const { response } = await requireAdminApi();
   if (response) return response;
 
@@ -51,7 +52,8 @@ export async function GET(request: Request, { params }: { params: { id: string }
   });
 }
 
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const { user, response } = await requireAdminApi();
   if (response) return response;
 

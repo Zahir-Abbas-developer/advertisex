@@ -9,7 +9,8 @@ import { canShapeProject, projectFor } from "@/modules/projects/server";
 const schema = z.object({ name: z.string().trim().min(1, "Name the stage").max(80), serviceId: z.string().min(1).nullish() }).strict();
 
 /** Adds a stage at the end of a service line (or the general line). */
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("update", "project");
   if (gate.response) return gate.response;
   const found = await projectFor(gate.principal, params.id, "update");

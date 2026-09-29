@@ -51,10 +51,8 @@ import { requireApi } from "@/modules/rbac/server";
  *
  * BLOCKED is not reachable from here; see lib/blocking.ts and the /block route.
  */
-export async function POST(
-  request: Request,
-  { params }: { params: { id: string } },
-) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const access = await requireApi("update", "delivery");
   if (access.response) return access.response;
 

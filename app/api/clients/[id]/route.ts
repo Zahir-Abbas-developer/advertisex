@@ -5,10 +5,8 @@ import { apiError, requireAdminApi } from "@/lib/api";
 import { fieldErrors, updateClientSchema } from "@/lib/validation";
 import { deleteFieldValues } from "@/lib/fields-data";
 
-export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string } },
-) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const { response } = await requireAdminApi();
   if (response) return response;
 
@@ -42,10 +40,8 @@ export async function PATCH(
   }
 }
 
-export async function DELETE(
-  _request: Request,
-  { params }: { params: { id: string } },
-) {
+export async function DELETE(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const { response } = await requireAdminApi();
   if (response) return response;
 

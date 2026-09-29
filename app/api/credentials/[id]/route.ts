@@ -25,7 +25,8 @@ const patchSchema = z
   })
   .strict();
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("update", "credential");
   if (gate.response) return gate.response;
   const found = await load(params.id);
@@ -38,7 +39,8 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   return NextResponse.json({ credential }, { headers: { "Cache-Control": "private, no-store" } });
 }
 
-export async function DELETE(_request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("delete", "credential");
   if (gate.response) return gate.response;
   const found = await load(params.id);

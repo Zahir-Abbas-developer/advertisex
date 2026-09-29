@@ -32,7 +32,8 @@ const unblockSchema = z.object({
   vetoNote: z.string().trim().max(500).nullish(),
 });
 
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const access = await requireApi("update", "delivery");
   if (access.response) return access.response;
 
@@ -76,7 +77,8 @@ export async function POST(request: Request, { params }: { params: { id: string 
   return NextResponse.json({ ok: true, blockPeriodId: result.blockPeriodId }, { status: 201 });
 }
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const access = await requireApi("update", "delivery");
   if (access.response) return access.response;
 

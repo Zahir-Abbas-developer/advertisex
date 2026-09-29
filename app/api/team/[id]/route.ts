@@ -18,10 +18,8 @@ const SELECT = {
   createdAt: true,
 } as const;
 
-export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string } },
-) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const { user: admin, response } = await requireAdminApi();
   if (response) return response;
 

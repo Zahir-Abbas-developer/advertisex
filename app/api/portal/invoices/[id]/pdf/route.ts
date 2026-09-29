@@ -4,7 +4,8 @@ import { invoiceDocument, invoiceForClient } from "@/modules/billing/server";
 import { pdfFileName, renderInvoicePdf } from "@/modules/billing/pdf";
 
 /** The account's invoice as a PDF — the same document the client was emailed. */
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("read", "invoice");
   if (gate.response) return gate.response;
   const inv = await invoiceForClient(gate.principal, params.id);

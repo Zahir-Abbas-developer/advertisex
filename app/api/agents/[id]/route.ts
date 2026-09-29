@@ -17,7 +17,8 @@ const schema = z
   .strict();
 
 /** Assign a capability (adding the grants it needs), pause, or set limits. Founder only. */
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("update", "agent", "Only a founder can change an AI employee");
   if (gate.response) return gate.response;
   const parsed = schema.safeParse(await request.json().catch(() => null));

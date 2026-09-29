@@ -21,7 +21,8 @@ const bodySchema = z.object({
   values: z.record(z.string(), z.string()),
 });
 
-export async function GET(_request: Request, { params }: { params: { id: string } }) {
+export async function GET(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const { response } = await requireAdminApi();
   if (response) return response;
 
@@ -37,7 +38,8 @@ export async function GET(_request: Request, { params }: { params: { id: string 
   return NextResponse.json({ fields: definitions, values });
 }
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const { user, response } = await requireAdminApi();
   if (response) return response;
 

@@ -6,10 +6,8 @@ import { getCurrentUser } from "@/lib/session";
 
 import { requireApi } from "@/modules/rbac/server";
 /** Mark one notification read. Scoped to the owner — never by id alone. */
-export async function PATCH(
-  _request: Request,
-  { params }: { params: { id: string } },
-) {
+export async function PATCH(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const access = await requireApi("update", "notification");
   if (access.response) return access.response;
 

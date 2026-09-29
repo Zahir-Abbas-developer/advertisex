@@ -10,7 +10,8 @@ import { InvoiceEditor } from "@/components/billing/InvoiceEditor";
 export const metadata: Metadata = { title: "Edit invoice" };
 
 /** Only a draft is edited; a sent invoice opens its detail instead. */
-export default async function EditInvoicePage({ params }: { params: { id: string } }) {
+export default async function EditInvoicePage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const principal = await requirePage("update", "invoice");
   const inv = await invoiceForStaff(principal, params.id, "update");
   if (!inv) notFound();

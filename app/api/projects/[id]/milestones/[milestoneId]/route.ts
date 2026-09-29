@@ -25,7 +25,11 @@ const schema = z
  * Ticks a milestone done or reopens it (anyone working on the project), or
  * edits it (founder and managers).
  */
-export async function PATCH(request: Request, { params }: { params: { id: string; milestoneId: string } }) {
+export async function PATCH(
+  request: Request,
+  props: { params: Promise<{ id: string; milestoneId: string }> }
+) {
+  const params = await props.params;
   const gate = await requireApi("update", "project");
   if (gate.response) return gate.response;
   const found = await projectFor(gate.principal, params.id, "update");
@@ -89,7 +93,11 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   return NextResponse.json({ milestone });
 }
 
-export async function DELETE(_request: Request, { params }: { params: { id: string; milestoneId: string } }) {
+export async function DELETE(
+  _request: Request,
+  props: { params: Promise<{ id: string; milestoneId: string }> }
+) {
+  const params = await props.params;
   const gate = await requireApi("update", "project");
   if (gate.response) return gate.response;
   const found = await projectFor(gate.principal, params.id, "update");

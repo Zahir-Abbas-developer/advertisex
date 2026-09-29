@@ -24,7 +24,8 @@ import { sweepRebalance } from "@/modules/assignment/server";
  * One project: its overview, plan (stages, milestones), tasks, team and
  * skills. Files, comments and activity load from their own endpoints.
  */
-export async function GET(_request: Request, { params }: { params: { id: string } }) {
+export async function GET(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("read", "project");
   if (gate.response) return gate.response;
   const principal = gate.principal;
@@ -151,7 +152,8 @@ const patchSchema = z
   })
   .strict();
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("update", "project");
   if (gate.response) return gate.response;
   const found = await projectFor(gate.principal, params.id, "update");
@@ -208,7 +210,8 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   return NextResponse.json({ project: { ...updated, status: normalizeProjectStatus(updated.status) } });
 }
 
-export async function DELETE(_request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("delete", "project");
   if (gate.response) return gate.response;
   const found = await projectFor(gate.principal, params.id, "delete");

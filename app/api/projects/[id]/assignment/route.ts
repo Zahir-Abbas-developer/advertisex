@@ -14,7 +14,8 @@ import { WEIGHT_LABEL } from "@/modules/assignment/domain";
  * options for overriding it (with why anyone ineligible is), and any open
  * reassignment suggestions. Scores are recomputed live; decisions are stored.
  */
-export async function GET(_request: Request, { params }: { params: { id: string } }) {
+export async function GET(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("read", "project");
   if (gate.response) return gate.response;
   const found = await projectFor(gate.principal, params.id, "read");
@@ -99,7 +100,8 @@ const schema = z.discriminatedUnion("action", [
 ]);
 
 /** Re-run the analysis, accept every open recommendation, or check the balance now. */
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("update", "project");
   if (gate.response) return gate.response;
   const found = await projectFor(gate.principal, params.id, "update");

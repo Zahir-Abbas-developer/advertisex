@@ -15,10 +15,8 @@ import { contentDisposition } from "@/modules/files/signing";
  * disposition stop the browser from ever executing what it receives in this
  * origin.
  */
-export async function GET(
-  _request: Request,
-  { params }: { params: { id: string } },
-) {
+export async function GET(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const access = await requireApi("read", "file");
   if (access.response) return access.response;
 

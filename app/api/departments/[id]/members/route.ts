@@ -28,7 +28,8 @@ const membersSchema = z.object({
  * admins editing at once converge on a list rather than on a half-applied set
  * of operations.
  */
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const { user, response } = await requireAdminApi();
   if (response) return response;
 

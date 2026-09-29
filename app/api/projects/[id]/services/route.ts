@@ -14,7 +14,8 @@ const schema = z.object({ serviceIds: z.array(z.string().min(1)).max(20) }).stri
  * it (milestones in those stages stay, unstaged) and any skill no remaining
  * service needs, unless it was added by hand.
  */
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("update", "project");
   if (gate.response) return gate.response;
   const found = await projectFor(gate.principal, params.id, "update");

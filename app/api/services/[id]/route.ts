@@ -23,10 +23,8 @@ const updateServiceSchema = z
  * template, so renaming "Google Ads Management" must not orphan the plan it
  * generates.
  */
-export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string } },
-) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const { response } = await requireAdminApi();
   if (response) return response;
 

@@ -25,7 +25,8 @@ const rulingSchema = z.object({
  * A written response is mandatory on **either** outcome. Upholding a charge in
  * silence is exactly the behaviour formal disputes exist to replace.
  */
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const access = await requireApi("update", "attendance");
   if (access.response) return access.response;
 

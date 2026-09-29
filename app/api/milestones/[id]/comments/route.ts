@@ -21,10 +21,8 @@ const commentSchema = z.object({
   parentId: z.string().min(1).nullish(),
 });
 
-export async function POST(
-  request: Request,
-  { params }: { params: { id: string } },
-) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const access = await requireApi("update", "delivery");
   if (access.response) return access.response;
 

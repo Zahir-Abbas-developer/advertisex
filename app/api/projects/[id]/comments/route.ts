@@ -7,7 +7,8 @@ import { requireApi } from "@/modules/rbac/server";
 import { canShapeProject, notifyTeam, projectFor } from "@/modules/projects/server";
 
 /** The project's discussion thread, for the team (clients see shared comments in the portal only). */
-export async function GET(_request: Request, { params }: { params: { id: string } }) {
+export async function GET(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("read", "project");
   if (gate.response) return gate.response;
   if (gate.principal.role === "CLIENT") return apiError("Not found", 404);
@@ -31,7 +32,8 @@ const schema = z
   })
   .strict();
 
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("update", "project");
   if (gate.response) return gate.response;
   if (gate.principal.role === "CLIENT") return apiError("Not found", 404);

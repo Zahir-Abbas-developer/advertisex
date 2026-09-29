@@ -10,10 +10,8 @@ import { hasAdminPower } from "@/lib/constants";
 
 import { requireApi } from "@/modules/rbac/server";
 /** Upload a file against a milestone. */
-export async function POST(
-  request: Request,
-  { params }: { params: { id: string } },
-) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const access = await requireApi("update", "delivery");
   if (access.response) return access.response;
 

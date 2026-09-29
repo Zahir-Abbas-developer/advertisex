@@ -12,9 +12,9 @@ import { LOGIN_ROUTE } from "@/lib/routes";
  * signed-in token and forwards it on, and the page it reaches can't find the
  * account and sends it back.
  */
-export function GET(request: Request) {
+export async function GET(request: Request) {
   const response = NextResponse.redirect(new URL(`${LOGIN_ROUTE}?ended=1`, request.url));
-  for (const { name } of cookies().getAll()) {
+  for (const { name } of (await cookies()).getAll()) {
     // NextAuth splits a large token into `.0`, `.1`… chunks; clear them all.
     if (/^(__Secure-)?next-auth\.session-token/.test(name)) {
       response.cookies.set(name, "", { path: "/", maxAge: 0 });

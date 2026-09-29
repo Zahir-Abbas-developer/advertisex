@@ -9,7 +9,8 @@ import { voidInvoice } from "@/modules/billing/lifecycle";
 const schema = z.object({ reason: z.string().trim().min(3, "Say why").max(300) }).strict();
 
 /** Voids a sent invoice with no payments. It keeps its number; the sequence has no gaps. */
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("update", "invoice");
   if (gate.response) return gate.response;
   if (!(await invoiceForStaff(gate.principal, params.id, "update"))) return apiError("Not found", 404);

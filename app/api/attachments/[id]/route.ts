@@ -7,10 +7,8 @@ import { hasAdminPower } from "@/lib/constants";
 
 import { requireApi } from "@/modules/rbac/server";
 /** Remove an attachment. The uploader or the owner may do it. */
-export async function DELETE(
-  _request: Request,
-  { params }: { params: { id: string } },
-) {
+export async function DELETE(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const access = await requireApi("delete", "file");
   if (access.response) return access.response;
 

@@ -12,10 +12,8 @@ const reviewSchema = z.object({
 });
 
 /** Approve or reject, recording who decided and when. */
-export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string } },
-) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const { user: admin, response } = await requireAdminApi();
   if (response) return response;
 

@@ -10,11 +10,12 @@ export const metadata: Metadata = {
   title: "Sign in",
 };
 
-export default async function LoginPage({
-  searchParams,
-}: {
-  searchParams: { callbackUrl?: string; ended?: string };
-}) {
+export default async function LoginPage(
+  props: {
+    searchParams: Promise<{ callbackUrl?: string; ended?: string }>;
+  }
+) {
+  const searchParams = await props.searchParams;
   // A token is only a claim: forward it on only if its account still exists
   // and may sign in. Otherwise clear it — once; if the cookie survived the
   // clearing, show the form rather than bounce again.

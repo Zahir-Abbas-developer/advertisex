@@ -18,7 +18,11 @@ const schema = z
  * Moves a stage (anyone working on the project) or renames it (founder and
  * managers). Completing a stage starts the next one of its line.
  */
-export async function PATCH(request: Request, { params }: { params: { id: string; stageId: string } }) {
+export async function PATCH(
+  request: Request,
+  props: { params: Promise<{ id: string; stageId: string }> }
+) {
+  const params = await props.params;
   const gate = await requireApi("update", "project");
   if (gate.response) return gate.response;
   const found = await projectFor(gate.principal, params.id, "update");
@@ -63,7 +67,11 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   return NextResponse.json({ ok: true, changed: changes.length });
 }
 
-export async function DELETE(_request: Request, { params }: { params: { id: string; stageId: string } }) {
+export async function DELETE(
+  _request: Request,
+  props: { params: Promise<{ id: string; stageId: string }> }
+) {
+  const params = await props.params;
   const gate = await requireApi("update", "project");
   if (gate.response) return gate.response;
   const found = await projectFor(gate.principal, params.id, "update");

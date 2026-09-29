@@ -16,7 +16,11 @@ const schema = z.discriminatedUnion("action", [
  * A decision on one role. An override is audit-logged (the data layer
  * records the row's before and after) and becomes a signal in later scoring.
  */
-export async function PATCH(request: Request, { params }: { params: { id: string; recId: string } }) {
+export async function PATCH(
+  request: Request,
+  props: { params: Promise<{ id: string; recId: string }> }
+) {
+  const params = await props.params;
   const gate = await requireApi("update", "project");
   if (gate.response) return gate.response;
   const found = await projectFor(gate.principal, params.id, "update");

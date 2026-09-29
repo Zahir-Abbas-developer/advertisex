@@ -28,7 +28,8 @@ const activitySchema = z.object({
  * towards *their* targets, not the lead owner's. That is why the userId comes
  * from the session rather than from the lead.
  */
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const access = await requireApi("create", "activity");
   if (access.response) return access.response;
 
@@ -88,7 +89,8 @@ export async function POST(request: Request, { params }: { params: { id: string 
   );
 }
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const access = await requireApi("delete", "activity");
   if (access.response) return access.response;
 

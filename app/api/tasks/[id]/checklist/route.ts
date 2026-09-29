@@ -14,7 +14,8 @@ async function writable(principal: Parameters<typeof taskAccess>[0], id: string)
   return access.ok ? null : apiError(access.error, access.status);
 }
 
-export async function GET(_request: Request, { params }: { params: { id: string } }) {
+export async function GET(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("read", "task");
   if (gate.response) return gate.response;
   const access = await taskAccess(gate.principal, params.id, "read");
@@ -28,7 +29,8 @@ export async function GET(_request: Request, { params }: { params: { id: string 
   return NextResponse.json({ items });
 }
 
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("update", "task");
   if (gate.response) return gate.response;
   const refused = await writable(gate.principal, params.id);
@@ -44,7 +46,8 @@ export async function POST(request: Request, { params }: { params: { id: string 
   return NextResponse.json({ item }, { status: 201 });
 }
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("update", "task");
   if (gate.response) return gate.response;
   const refused = await writable(gate.principal, params.id);
@@ -68,7 +71,8 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   return NextResponse.json({ item: updated });
 }
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("update", "task");
   if (gate.response) return gate.response;
   const refused = await writable(gate.principal, params.id);

@@ -15,7 +15,8 @@ async function load(principalId: Parameters<typeof clientFor>[0], id: string) {
 }
 
 /** A client's portal logins and pending invitations. */
-export async function GET(_request: Request, { params }: { params: { id: string } }) {
+export async function GET(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("read", "portalUser");
   if (gate.response) return gate.response;
   if (gate.principal.role === "CLIENT") return apiError("Not found", 404);
@@ -37,7 +38,8 @@ const schema = z
  * Invites someone to this client's portal. Invite-only: no one signs up. A
  * client without a portal account gets one on its first invitation.
  */
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("create", "portalUser");
   if (gate.response) return gate.response;
   if (gate.principal.role === "CLIENT") return apiError("Not found", 404);

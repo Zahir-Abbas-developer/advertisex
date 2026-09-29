@@ -11,7 +11,8 @@ import { isOpenProject } from "@/modules/projects/domain";
 import { ClientProfile, type ClientProfileData } from "@/components/clients/ClientProfile";
 import type { ClientStatus } from "@/lib/constants";
 
-export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+export async function generateMetadata(props: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const params = await props.params;
   const client = await prisma.client.findUnique({ where: { id: params.id }, select: { businessName: true } });
   return { title: client?.businessName ?? "Client" };
 }
@@ -21,7 +22,11 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
  * client lives. The founder sees money; a manager sees their departments'
  * clients without it.
  */
-export default async function ClientProfilePage({ params, searchParams }: { params: { id: string }; searchParams: { tab?: string } }) {
+export default async function ClientProfilePage(
+  props: { params: Promise<{ id: string }>; searchParams: Promise<{ tab?: string }> }
+) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const principal = await requirePage("read", "client");
 
   const client = await prisma.client.findUnique({

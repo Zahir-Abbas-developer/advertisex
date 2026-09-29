@@ -5,7 +5,8 @@ import { requireApi } from "@/modules/rbac/server";
 import { portalProject } from "@/modules/portal/server";
 
 /** One of the client's own projects, as the portal shows it. Anyone else's: 404. */
-export async function GET(_request: Request, { params }: { params: { id: string } }) {
+export async function GET(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("read", "project");
   if (gate.response) return gate.response;
   if (gate.principal.role !== "CLIENT") return apiError("Not found", 404);

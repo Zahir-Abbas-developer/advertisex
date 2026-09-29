@@ -11,7 +11,8 @@ import { generateMonthlyReport, ReportError } from "@/modules/monthly-reports/se
 const schema = z.object({ month: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/, "Pick a month"), regenerate: z.boolean().optional() }).strict();
 
 /** Generates (or rebuilds a draft of) a client's monthly report now, instead of waiting for the monthly run. */
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("create", "clientReport");
   if (gate.response) return gate.response;
   if (gate.principal.role === "CLIENT") return apiError("Not found", 404);

@@ -18,7 +18,8 @@ export const metadata = { title: "Project · Advertise X" };
  * shared updates and shared files — never tasks, internal notes, internal
  * updates or internal files. Another account's project is simply not found.
  */
-export default async function PortalProject({ params }: { params: { id: string } }) {
+export default async function PortalProject(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const principal = await requireClientPage();
   const p = await portalProject(principal, params.id);
   if (!p) notFound();

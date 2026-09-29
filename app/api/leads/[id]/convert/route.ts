@@ -26,7 +26,8 @@ const convertSchema = z.object({
  * project, history linked, lead won, optional client login — one transaction
  * (modules/leads/convert.ts). Founder or a manager of the lead's department.
  */
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("create", "client", "Converting a deal is for the founder and managers");
   if (gate.response) return gate.response;
 

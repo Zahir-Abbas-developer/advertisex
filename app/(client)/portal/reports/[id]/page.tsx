@@ -10,7 +10,8 @@ import { portalReportView } from "@/modules/portal/server";
 export const metadata = { title: "Report · Advertise X" };
 
 /** A monthly report, read in the portal (the PDF has the same content). */
-export default async function PortalReport({ params }: { params: { id: string } }) {
+export default async function PortalReport(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const principal = await requireClientPage();
   const report = await portalReportView(principal, params.id);
   if (!report) notFound();

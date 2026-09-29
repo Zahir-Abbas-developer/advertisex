@@ -11,7 +11,8 @@ const schema = z.union([
 ]);
 
 /** Replaces the skills a service needs, with their weights — what new projects derive theirs from. */
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const { response } = await requireAdminApi();
   if (response) return response;
   const parsed = schema.safeParse(await request.json().catch(() => null));

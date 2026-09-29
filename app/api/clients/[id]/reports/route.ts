@@ -17,7 +17,8 @@ import { monthLabel, REPORT_KINDS, REPORT_KIND_LABEL } from "@/modules/portal/vi
  * title, a type and the month it covers; it reaches the portal only once
  * published.
  */
-export async function GET(_request: Request, { params }: { params: { id: string } }) {
+export async function GET(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("read", "clientReport");
   if (gate.response) return gate.response;
   if (gate.principal.role === "CLIENT") return apiError("Not found", 404);
@@ -52,7 +53,8 @@ export async function GET(_request: Request, { params }: { params: { id: string 
   });
 }
 
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("create", "clientReport");
   if (gate.response) return gate.response;
   if (gate.principal.role === "CLIENT") return apiError("Not found", 404);

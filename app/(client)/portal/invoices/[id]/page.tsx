@@ -21,7 +21,11 @@ export const metadata = { title: "Invoice · Advertise X" };
  * and the PDF. Built from the allow-listed portal view. Another account's
  * invoice, a draft, or a member (not the owner) asking: not found.
  */
-export default async function PortalInvoice({ params, searchParams }: { params: { id: string }; searchParams: { paid?: string } }) {
+export default async function PortalInvoice(
+  props: { params: Promise<{ id: string }>; searchParams: Promise<{ paid?: string }> }
+) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const principal = await requireClientPage();
   const found = await invoiceForClient(principal, params.id);
   if (!found) notFound();

@@ -12,7 +12,8 @@ import { canPreview, contentDisposition, verifyFileSignature } from "@/modules/f
  * Outside the middleware's matcher on purpose: a signed URL works in an
  * <img> tag or a new tab without a session cookie.
  */
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const url = new URL(request.url);
   const expires = Number(url.searchParams.get("e"));
   const disposition = url.searchParams.get("d") ?? "";

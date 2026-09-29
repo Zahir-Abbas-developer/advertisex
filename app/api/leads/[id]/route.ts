@@ -63,7 +63,8 @@ const EDITED_LABEL: Record<string, string> = {
 };
 
 /** One lead with its whole activity history — the drawer's payload. */
-export async function GET(_request: Request, { params }: { params: { id: string } }) {
+export async function GET(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const access = await requireApi("read", "lead");
   if (access.response) return access.response;
 
@@ -141,7 +142,8 @@ export async function GET(_request: Request, { params }: { params: { id: string 
   });
 }
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const access = await requireApi("update", "lead");
   if (access.response) return access.response;
 
@@ -349,7 +351,8 @@ export async function PATCH(request: Request, { params }: { params: { id: string
  * prospect is genuinely worth removing — but not once it has been won, since
  * a won lead is the provenance of a client.
  */
-export async function DELETE(_request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const access = await requireApi("delete", "lead");
   if (access.response) return access.response;
 

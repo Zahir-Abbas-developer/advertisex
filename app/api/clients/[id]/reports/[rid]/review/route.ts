@@ -18,7 +18,8 @@ const schema = z.discriminatedUnion("action", [
  * re-rendered), or approve it — which publishes it to the client's library
  * and tells them. Founders and the department's managers only.
  */
-export async function POST(request: Request, { params }: { params: { id: string; rid: string } }) {
+export async function POST(request: Request, props: { params: Promise<{ id: string; rid: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("update", "clientReport");
   if (gate.response) return gate.response;
   if (gate.principal.role === "CLIENT") return apiError("Not found", 404);

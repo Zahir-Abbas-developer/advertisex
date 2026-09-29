@@ -73,11 +73,12 @@ export const metadata: Metadata = {
 
 const OPEN_STATUSES = ["PENDING", "IN_PROGRESS", "SUBMITTED"];
 
-export default async function DashboardPage({
-  searchParams,
-}: {
-  searchParams: { denied?: string };
-}) {
+export default async function DashboardPage(
+  props: {
+    searchParams: Promise<{ denied?: string }>;
+  }
+) {
+  const searchParams = await props.searchParams;
   const user = await requireUser();
   const isAdmin = hasAdminPower(user.role);
 

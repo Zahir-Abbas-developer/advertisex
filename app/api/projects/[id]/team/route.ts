@@ -12,7 +12,8 @@ const schema = z.object({ memberIds: z.array(z.string().min(1)).max(50) }).stric
 const WORKERS: Role[] = ["FOUNDER", "MANAGER", "EMPLOYEE", "AI_AGENT"];
 
 /** Replaces the project's team. The owner always stays on it. */
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("update", "project");
   if (gate.response) return gate.response;
   const found = await projectFor(gate.principal, params.id, "update");

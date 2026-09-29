@@ -12,7 +12,8 @@ const schema = z.object({ skillIds: z.array(z.string().min(1)).max(60) }).strict
  * Replaces the project's required skills. A skill its services need is kept
  * as DERIVED; one added by hand is MANUAL. Either can be removed.
  */
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("update", "project");
   if (gate.response) return gate.response;
   const found = await projectFor(gate.principal, params.id, "update");

@@ -7,7 +7,8 @@ import { portalInvoiceView } from "@/modules/billing/views";
 import { onlinePaymentsEnabled } from "@/modules/integrations/payments";
 
 /** One of the account's invoices, with its payment history. Another account's, a draft, or a member asking: 404. */
-export async function GET(_request: Request, { params }: { params: { id: string } }) {
+export async function GET(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("read", "invoice");
   if (gate.response) return gate.response;
   const inv = await invoiceForClient(gate.principal, params.id);

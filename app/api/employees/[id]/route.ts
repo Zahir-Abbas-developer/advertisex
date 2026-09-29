@@ -17,7 +17,8 @@ import { activityFor, attendanceFor, directoryFor, monthBounds, performanceFor }
  * GET follows the directory scope (founder: anyone; manager: their
  * departments; employee: themselves). PATCH is the founder's.
  */
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const access = await requireApi("read", "employee");
   if (access.response) return access.response;
 
@@ -111,7 +112,8 @@ const patchSchema = z.object({
     .optional(),
 });
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const access = await requireApi("update", "employee", "Only the founder can edit profiles");
   if (access.response) return access.response;
 

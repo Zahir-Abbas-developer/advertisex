@@ -7,7 +7,8 @@ import { requireApi } from "@/modules/rbac/server";
 import { clientFor } from "@/modules/clients/server";
 
 /** Notes about a client; pinned ones are its "important notes". */
-export async function GET(_request: Request, { params }: { params: { id: string } }) {
+export async function GET(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("read", "client");
   if (gate.response) return gate.response;
   const found = await clientFor(gate.principal, params.id, "read");
@@ -23,7 +24,8 @@ export async function GET(_request: Request, { params }: { params: { id: string 
 
 const schema = z.object({ body: z.string().trim().min(1, "Write the note").max(4000), pinned: z.boolean().default(false) }).strict();
 
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("update", "client");
   if (gate.response) return gate.response;
   const found = await clientFor(gate.principal, params.id, "update");

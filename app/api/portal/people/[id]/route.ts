@@ -9,7 +9,8 @@ import { accountOf, isOwner } from "@/modules/portal/server";
  * An owner removes a colleague (their login is switched off) or withdraws an
  * invitation. Never themselves, never another owner, never outside the account.
  */
-export async function DELETE(_request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("delete", "portalUser");
   if (gate.response) return gate.response;
   if (gate.principal.role !== "CLIENT") return apiError("Not found", 404);

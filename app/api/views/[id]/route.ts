@@ -4,7 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { apiError } from "@/lib/api";
 import { requireApi } from "@/modules/rbac/server";
 
-export async function DELETE(_request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const access = await requireApi("read", "lead");
   if (access.response) return access.response;
 

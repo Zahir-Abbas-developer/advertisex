@@ -82,7 +82,7 @@ export async function requestActor(base: PrismaClient): Promise<RequestActor | n
   let store: object;
   try {
     const { cookies } = await import("next/headers");
-    store = cookies();
+    store = await cookies();
   } catch {
     return null; // not inside a request
   }

@@ -9,7 +9,11 @@ import { clientFor } from "@/modules/clients/server";
 const schema = z.object({ body: z.string().trim().min(1).max(4000).optional(), pinned: z.boolean().optional() }).strict();
 
 /** Anyone who may edit the client pins or edits notes; authors and managers remove them. */
-export async function PATCH(request: Request, { params }: { params: { id: string; noteId: string } }) {
+export async function PATCH(
+  request: Request,
+  props: { params: Promise<{ id: string; noteId: string }> }
+) {
+  const params = await props.params;
   const gate = await requireApi("update", "client");
   if (gate.response) return gate.response;
   const found = await clientFor(gate.principal, params.id, "update");
@@ -21,7 +25,11 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   return NextResponse.json({ ok: true });
 }
 
-export async function DELETE(_request: Request, { params }: { params: { id: string; noteId: string } }) {
+export async function DELETE(
+  _request: Request,
+  props: { params: Promise<{ id: string; noteId: string }> }
+) {
+  const params = await props.params;
   const gate = await requireApi("update", "client");
   if (gate.response) return gate.response;
   const found = await clientFor(gate.principal, params.id, "update");

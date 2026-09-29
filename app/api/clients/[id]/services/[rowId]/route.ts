@@ -18,7 +18,11 @@ const schema = z
   })
   .strict();
 
-export async function PATCH(request: Request, { params }: { params: { id: string; rowId: string } }) {
+export async function PATCH(
+  request: Request,
+  props: { params: Promise<{ id: string; rowId: string }> }
+) {
+  const params = await props.params;
   const gate = await requireApi("update", "client");
   if (gate.response) return gate.response;
   if (!seesMoney(gate.principal)) return apiError("Only the founder changes what a client buys", 403);
@@ -45,7 +49,11 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   return NextResponse.json({ ok: true });
 }
 
-export async function DELETE(_request: Request, { params }: { params: { id: string; rowId: string } }) {
+export async function DELETE(
+  _request: Request,
+  props: { params: Promise<{ id: string; rowId: string }> }
+) {
+  const params = await props.params;
   const gate = await requireApi("update", "client");
   if (gate.response) return gate.response;
   if (!seesMoney(gate.principal)) return apiError("Only the founder changes what a client buys", 403);

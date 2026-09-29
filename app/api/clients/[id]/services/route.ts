@@ -12,7 +12,8 @@ import { clientFor, seesMoney } from "@/modules/clients/server";
  * Services a client has bought. Everyone who may read the client sees which;
  * only the founder sees and sets what they pay.
  */
-export async function GET(_request: Request, { params }: { params: { id: string } }) {
+export async function GET(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("read", "client");
   if (gate.response) return gate.response;
   const found = await clientFor(gate.principal, params.id, "read");
@@ -40,7 +41,8 @@ const schema = z
   })
   .strict();
 
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("update", "client");
   if (gate.response) return gate.response;
   if (!seesMoney(gate.principal)) return apiError("Only the founder records what a client buys", 403);

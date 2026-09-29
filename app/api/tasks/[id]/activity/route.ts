@@ -9,7 +9,8 @@ import { taskAccess } from "@/modules/tasks/server";
  * A task's full history, read from the audit log the data layer writes:
  * every change to the task, its checklist, its comments and its files.
  */
-export async function GET(_request: Request, { params }: { params: { id: string } }) {
+export async function GET(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("read", "task");
   if (gate.response) return gate.response;
   const access = await taskAccess(gate.principal, params.id, "read");

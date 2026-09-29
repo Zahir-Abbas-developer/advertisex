@@ -9,7 +9,8 @@ import { agentErrorResponse, issues } from "@/modules/ai/agents/http";
 const schema = z.object({ decision: z.enum(["APPROVED", "REJECTED"]), note: z.string().trim().max(500).nullish() }).strict();
 
 /** Approve (which carries the action out, as the approver) or reject. Decided once. */
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("update", "approval", "You can't decide agent proposals");
   if (gate.response) return gate.response;
   const parsed = schema.safeParse(await request.json().catch(() => null));

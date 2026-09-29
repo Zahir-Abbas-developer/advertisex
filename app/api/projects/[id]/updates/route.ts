@@ -11,7 +11,8 @@ import { notifyUpdateShared } from "@/modules/portal/server";
  * Project updates (Phase 6 scope 3). Every update carries an explicit
  * visibility: CLIENT updates appear in the portal, INTERNAL ones never do.
  */
-export async function GET(_request: Request, { params }: { params: { id: string } }) {
+export async function GET(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("read", "project");
   if (gate.response) return gate.response;
   if (gate.principal.role === "CLIENT") return apiError("Not found", 404);
@@ -38,7 +39,8 @@ const schema = z
  * Anyone on the project posts an internal update; sharing with the client is
  * the founder's and managers' call, like sharing a file.
  */
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("update", "project");
   if (gate.response) return gate.response;
   if (gate.principal.role === "CLIENT") return apiError("Not found", 404);

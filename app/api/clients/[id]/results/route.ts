@@ -7,7 +7,8 @@ import { CHANNELS } from "@/modules/client-analytics/metrics";
 import { clientForResults, currentMonth, resultsFor, ResultsError, saveManual } from "@/modules/client-analytics/server";
 
 /** A client's results for `?month=YYYY-MM` (default: last month), every channel its services bring. */
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("read", "clientMetric");
   if (gate.response) return gate.response;
   const client = await clientForResults(gate.principal, params.id, "read");
@@ -30,7 +31,8 @@ const schema = z
   .strict();
 
 /** Manual entry: one channel, one month. */
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("create", "clientMetric");
   if (gate.response) return gate.response;
   const client = await clientForResults(gate.principal, params.id, "create");

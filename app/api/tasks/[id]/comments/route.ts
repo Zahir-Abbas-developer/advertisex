@@ -9,7 +9,8 @@ import { requireApi } from "@/modules/rbac/server";
 import { taskAccess } from "@/modules/tasks/server";
 
 /** Comments on a task: anyone who can see the task can read and add them. */
-export async function GET(_request: Request, { params }: { params: { id: string } }) {
+export async function GET(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("read", "task");
   if (gate.response) return gate.response;
   const access = await taskAccess(gate.principal, params.id, "read");
@@ -23,7 +24,8 @@ export async function GET(_request: Request, { params }: { params: { id: string 
   return NextResponse.json({ comments });
 }
 
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("read", "task");
   if (gate.response) return gate.response;
   const access = await taskAccess(gate.principal, params.id, "read");

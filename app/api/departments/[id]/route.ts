@@ -21,10 +21,8 @@ const patchSchema = z.object({
   reassignToId: z.string().min(1).nullish(),
 });
 
-export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string } },
-) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const { user, response } = await requireAdminApi();
   if (response) return response;
 

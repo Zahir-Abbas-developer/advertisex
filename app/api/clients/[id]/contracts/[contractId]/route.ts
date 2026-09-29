@@ -21,7 +21,11 @@ const schema = z
   })
   .strict();
 
-export async function PATCH(request: Request, { params }: { params: { id: string; contractId: string } }) {
+export async function PATCH(
+  request: Request,
+  props: { params: Promise<{ id: string; contractId: string }> }
+) {
+  const params = await props.params;
   const gate = await requireApi("update", "client");
   if (gate.response) return gate.response;
   if (gate.principal.role === "EMPLOYEE") return apiError("Only the founder and managers manage contracts", 403);
@@ -50,7 +54,11 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   return NextResponse.json({ ok: true });
 }
 
-export async function DELETE(_request: Request, { params }: { params: { id: string; contractId: string } }) {
+export async function DELETE(
+  _request: Request,
+  props: { params: Promise<{ id: string; contractId: string }> }
+) {
+  const params = await props.params;
   const gate = await requireApi("update", "client");
   if (gate.response) return gate.response;
   if (gate.principal.role === "EMPLOYEE") return apiError("Only the founder and managers manage contracts", 403);

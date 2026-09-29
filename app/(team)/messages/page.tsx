@@ -11,7 +11,8 @@ export const metadata: Metadata = { title: "Messages" };
  * every thread, including each client's private founder channel; everyone
  * else sees the team threads of clients they're permitted to.
  */
-export default async function MessagesPage({ searchParams }: { searchParams: { client?: string } }) {
+export default async function MessagesPage(props: { searchParams: Promise<{ client?: string }> }) {
+  const searchParams = await props.searchParams;
   const principal = await requirePage("read", "message");
   return (
     <div className="space-y-8">

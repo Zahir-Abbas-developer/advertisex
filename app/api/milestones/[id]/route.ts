@@ -8,10 +8,8 @@ import { clientNameForModule, notifyAssigned } from "@/lib/notifications";
 import { recordDueDateChange, recordReassignment } from "@/lib/activity";
 
 /** Field edits are the owner's alone. Status changes live in ./status. */
-export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string } },
-) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const { user: admin, response } = await requireAdminApi();
   if (response) return response;
 
@@ -103,10 +101,8 @@ export async function PATCH(
   }
 }
 
-export async function DELETE(
-  _request: Request,
-  { params }: { params: { id: string } },
-) {
+export async function DELETE(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const { response } = await requireAdminApi();
   if (response) return response;
 

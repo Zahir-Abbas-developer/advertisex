@@ -9,7 +9,8 @@ import { clientForResults, currentMonth, ResultsError, syncProvider } from "@/mo
 const schema = z.object({ provider: z.enum(PROVIDERS), months: z.number().int().min(1).max(12).default(6) }).strict();
 
 /** Pulls the last N months from a provider (live when switched on; demo data in development; otherwise refused). */
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("update", "integration");
   if (gate.response) return gate.response;
   const client = await clientForResults(gate.principal, params.id, "create");

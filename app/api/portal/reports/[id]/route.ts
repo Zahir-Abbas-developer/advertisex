@@ -5,7 +5,8 @@ import { requireApi } from "@/modules/rbac/server";
 import { portalReportView } from "@/modules/portal/server";
 
 /** A published monthly report, in-app, for its own account (marks it read). Anyone else's, or a draft: 404. */
-export async function GET(_request: Request, { params }: { params: { id: string } }) {
+export async function GET(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("read", "clientReport");
   if (gate.response) return gate.response;
   if (gate.principal.role !== "CLIENT") return apiError("Not found", 404);

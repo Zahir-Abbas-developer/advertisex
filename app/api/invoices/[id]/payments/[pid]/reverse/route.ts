@@ -9,7 +9,8 @@ import { reversePayment } from "@/modules/billing/lifecycle";
 const schema = z.object({ reason: z.string().trim().min(3, "Say why").max(300) }).strict();
 
 /** Reverses a payment recorded in error. It stays in the history, marked reversed, with who and why. */
-export async function POST(request: Request, { params }: { params: { id: string; pid: string } }) {
+export async function POST(request: Request, props: { params: Promise<{ id: string; pid: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("update", "payment");
   if (gate.response) return gate.response;
   if (!(await invoiceForStaff(gate.principal, params.id, "update"))) return apiError("Not found", 404);

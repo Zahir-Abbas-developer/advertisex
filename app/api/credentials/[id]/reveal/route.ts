@@ -10,7 +10,8 @@ import { canOnCredentials, clientRef, reveal } from "@/modules/vault/credentials
  * Opens one sealed secret. POST, not GET: a reveal is an action with a
  * consequence (an audit entry), and must never be prefetched or cached.
  */
-export async function POST(_request: Request, { params }: { params: { id: string } }) {
+export async function POST(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("reveal", "credential");
   if (gate.response) return gate.response;
   const row = await prisma.clientCredential.findUnique({ where: { id: params.id }, select: { id: true, clientId: true, label: true } });

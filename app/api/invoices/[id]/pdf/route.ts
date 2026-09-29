@@ -4,7 +4,8 @@ import { invoiceDocument, invoiceForStaff } from "@/modules/billing/server";
 import { pdfFileName, renderInvoicePdf } from "@/modules/billing/pdf";
 
 /** The invoice as a PDF, for the founder (a draft renders as "Draft invoice"). `?download=1` saves it. */
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("read", "invoice");
   if (gate.response) return gate.response;
   const inv = await invoiceForStaff(gate.principal, params.id);

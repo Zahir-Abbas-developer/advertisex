@@ -27,7 +27,8 @@ const schema = z.object({
  * memberships. Both write the same rows, and both send a complete list rather
  * than deltas so concurrent edits converge on a state instead of a sequence.
  */
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const { user, response } = await requireAdminApi();
   if (response) return response;
 

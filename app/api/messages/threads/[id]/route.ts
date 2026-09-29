@@ -9,7 +9,8 @@ import { requireApi } from "@/modules/rbac/server";
 import { messagesFor, post, threadFor } from "@/modules/messages/server";
 
 /** A thread's messages (marks it read). Unknown, or not yours: 404. */
-export async function GET(_request: Request, { params }: { params: { id: string } }) {
+export async function GET(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("read", "message");
   if (gate.response) return gate.response;
   const t = await threadFor(gate.principal, params.id);
@@ -24,7 +25,8 @@ export async function GET(_request: Request, { params }: { params: { id: string 
 const MAX_FILES = 5;
 
 /** Posts a message, with up to five files (multipart: body, file…). */
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("create", "message");
   if (gate.response) return gate.response;
   const t = await threadFor(gate.principal, params.id);

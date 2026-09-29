@@ -9,7 +9,8 @@ import { canOnCredentials, clientRef, createCredential, CREDENTIAL_KINDS, listCr
  * A client's credentials vault. The list is always masked — the secret
  * leaves the server only through /api/credentials/[id]/reveal.
  */
-export async function GET(_request: Request, { params }: { params: { id: string } }) {
+export async function GET(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("read", "credential");
   if (gate.response) return gate.response;
   const client = await clientRef(params.id);
@@ -36,7 +37,8 @@ const credentialSchema = z
   })
   .strict();
 
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("create", "credential");
   if (gate.response) return gate.response;
   const client = await clientRef(params.id);

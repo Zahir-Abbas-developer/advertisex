@@ -18,7 +18,8 @@ import { FILE_VISIBILITIES, fileFor, toView } from "@/modules/files/server";
  *   PATCH   { visibility } — who may see it
  *   DELETE  the row and its bytes
  */
-export async function GET(_request: Request, { params }: { params: { id: string } }) {
+export async function GET(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("read", "file");
   if (gate.response) return gate.response;
   const file = await fileFor(gate.principal, params.id, "read");
@@ -39,7 +40,8 @@ export async function GET(_request: Request, { params }: { params: { id: string 
 
 const patchSchema = z.object({ visibility: z.enum(FILE_VISIBILITIES) }).strict();
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("create", "file");
   if (gate.response) return gate.response;
   if (gate.principal.role === "EMPLOYEE") return apiError("Only the founder and managers change who can see a file", 403);
@@ -56,7 +58,8 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   return NextResponse.json({ file: toView(updated) });
 }
 
-export async function DELETE(_request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("delete", "file");
   if (gate.response) return gate.response;
   const file = await fileFor(gate.principal, params.id, "write");

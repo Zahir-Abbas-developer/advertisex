@@ -12,7 +12,8 @@ import { paymentProvider } from "@/modules/integrations/payments";
  * balance. The payment is recorded when the provider's signed webhook
  * arrives, never on the redirect back.
  */
-export async function POST(_request: Request, { params }: { params: { id: string } }) {
+export async function POST(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("read", "invoice");
   if (gate.response) return gate.response;
   const provider = paymentProvider();

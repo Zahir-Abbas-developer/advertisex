@@ -6,10 +6,8 @@ import { respondToCheck } from "@/lib/attendance";
 
 import { requireApi } from "@/modules/rbac/server";
 /** "I'm available" — the one action that passes a check. */
-export async function POST(
-  _request: Request,
-  { params }: { params: { id: string } },
-) {
+export async function POST(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const access = await requireApi("update", "attendance");
   if (access.response) return access.response;
 

@@ -9,7 +9,8 @@ import { agentErrorResponse, issues } from "@/modules/ai/agents/http";
 const toggleSchema = z.object({ enabled: z.boolean() }).strict();
 
 /** Edit a rule (the whole rule), or just switch it on/off (`{ enabled }`). */
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("update", "automation", "Only a founder can change automations");
   if (gate.response) return gate.response;
   const body = await request.json().catch(() => null);
@@ -28,7 +29,8 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   }
 }
 
-export async function DELETE(_request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("delete", "automation", "Only a founder can delete automations");
   if (gate.response) return gate.response;
   try {

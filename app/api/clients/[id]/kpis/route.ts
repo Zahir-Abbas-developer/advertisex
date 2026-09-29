@@ -26,7 +26,8 @@ const entrySchema = z.object({
  * see whether their work is making money, and hiding it behind the owner turns
  * every performance question into a request.
  */
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const access = await requireApi("read", "client");
   if (access.response) return access.response;
 
@@ -76,7 +77,8 @@ export async function GET(request: Request, { params }: { params: { id: string }
  * numbers, and routing it through the owner guarantees the data is a week
  * stale or missing entirely.
  */
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const access = await requireApi("update", "client");
   if (access.response) return access.response;
 
@@ -124,7 +126,8 @@ export async function POST(request: Request, { params }: { params: { id: string 
 }
 
 /** Removing a week is the owner's call — the charts and alerts read from it. */
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const access = await requireApi("update", "client");
   if (access.response) return access.response;
 

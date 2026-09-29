@@ -8,7 +8,8 @@ import { staffInvoiceView } from "@/modules/billing/views";
 import { onlinePaymentsEnabled } from "@/modules/integrations/payments";
 
 /** One invoice, with its lines and full payment history (reversals included). */
-export async function GET(_request: Request, { params }: { params: { id: string } }) {
+export async function GET(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("read", "invoice");
   if (gate.response) return gate.response;
   const inv = await invoiceForStaff(gate.principal, params.id);
@@ -28,7 +29,8 @@ const schema = z
   .strict();
 
 /** Replaces a draft's contents. A sent invoice can't be edited (void and reissue). */
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("update", "invoice");
   if (gate.response) return gate.response;
   if (!(await invoiceForStaff(gate.principal, params.id, "update"))) return apiError("Not found", 404);
@@ -42,7 +44,8 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   }
 }
 
-export async function DELETE(_request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("delete", "invoice");
   if (gate.response) return gate.response;
   if (!(await invoiceForStaff(gate.principal, params.id, "update"))) return apiError("Not found", 404);

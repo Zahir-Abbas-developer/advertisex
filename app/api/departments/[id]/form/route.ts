@@ -25,7 +25,8 @@ import { requireApi } from "@/modules/rbac/server";
  * "there is nothing" are different answers and the caller should not conflate
  * them.
  */
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const access = await requireApi("read", "department");
   if (access.response) return access.response;
 

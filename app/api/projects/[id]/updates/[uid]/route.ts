@@ -16,7 +16,8 @@ const schema = z
   .strict();
 
 /** Edits an update, or changes who can see it (founder and managers; its author may edit the text). */
-export async function PATCH(request: Request, { params }: { params: { id: string; uid: string } }) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string; uid: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("update", "project");
   if (gate.response) return gate.response;
   if (gate.principal.role === "CLIENT") return apiError("Not found", 404);
@@ -35,7 +36,8 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   return NextResponse.json({ update: updated });
 }
 
-export async function DELETE(_request: Request, { params }: { params: { id: string; uid: string } }) {
+export async function DELETE(_request: Request, props: { params: Promise<{ id: string; uid: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("update", "project");
   if (gate.response) return gate.response;
   if (gate.principal.role === "CLIENT") return apiError("Not found", 404);

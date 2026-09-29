@@ -13,7 +13,8 @@ const TYPES = ["Project", "ProjectStage", "ProjectMilestone", "ProjectMember", "
  * itself, or any row whose recorded values name this project (which also
  * catches things since deleted).
  */
-export async function GET(_request: Request, { params }: { params: { id: string } }) {
+export async function GET(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("read", "project");
   if (gate.response) return gate.response;
   const found = await projectFor(gate.principal, params.id, "read");

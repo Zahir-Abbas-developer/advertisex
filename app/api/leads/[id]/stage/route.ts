@@ -25,7 +25,8 @@ const bodySchema = z.object({
   lostNote: z.string().trim().max(2000).nullish(),
 });
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const access = await requireApi("update", "lead");
   if (access.response) return access.response;
 

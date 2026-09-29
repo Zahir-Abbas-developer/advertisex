@@ -11,7 +11,8 @@ import { milestoneFields } from "@/modules/projects/schemas";
 
 
 /** Adds a milestone. Its assignee joins the project team if not already on it. */
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("update", "project");
   if (gate.response) return gate.response;
   const found = await projectFor(gate.principal, params.id, "update");

@@ -23,7 +23,8 @@ const schema = z
  * `idempotencyKey`) again and the payment is recorded once — the repeat
  * answers 200 with the original instead of 201.
  */
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await requireApi("create", "payment");
   if (gate.response) return gate.response;
   const inv = await invoiceForStaff(gate.principal, params.id, "update");
