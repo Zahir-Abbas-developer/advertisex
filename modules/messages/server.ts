@@ -68,7 +68,10 @@ export async function threadsFor(principal: Principal, filter: { clientId?: stri
     clientIds = clients.map((c) => c.id);
     for (const id of clientIds) await ensureThreads(id);
   } else if (filter.clientId) {
-    await ensureThreads(filter.clientId);
+    // Create a client's threads only for someone who may see that client —
+    // not as a side effect of asking about one that's out of reach (Phase 10).
+    const client = await prisma.client.findUnique({ where: { id: filter.clientId }, select: { organizationId: true, departmentId: true } });
+    if (client && authorize(principal, "read", "message", { organizationId: client.organizationId, departmentId: client.departmentId, clientId: filter.clientId }).allowed) await ensureThreads(filter.clientId);
   }
   const rows = await prisma.messageThread.findMany({
     where: {

@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { apiError } from "@/lib/api";
 import { formatBytes } from "@/lib/utils";
-import { MAX_UPLOAD_BYTES, isAllowedType, save } from "@/lib/uploads";
+import { MAX_UPLOAD_BYTES, isAllowedFile, save } from "@/lib/uploads";
 import { requireApi } from "@/modules/rbac/server";
 import { taskAccess } from "@/modules/tasks/server";
 
@@ -49,7 +49,7 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
   if (upload.size > MAX_UPLOAD_BYTES) {
     return apiError(`That file is ${formatBytes(upload.size)}. The limit is ${formatBytes(MAX_UPLOAD_BYTES)}.`, 413, { file: "Too large" });
   }
-  if (!isAllowedType(upload.type)) {
+  if (!(await isAllowedFile(upload))) {
     return apiError(`${upload.type || "That file type"} isn't accepted. Images, PDFs, documents and archives are.`, 415, { file: "Unsupported type" });
   }
 

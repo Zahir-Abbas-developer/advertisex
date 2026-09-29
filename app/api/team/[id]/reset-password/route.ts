@@ -45,6 +45,8 @@ export async function POST(_request: Request, props: { params: Promise<{ id: str
     data: {
       passwordHash: await hashPassword(password),
       mustChangePassword: true,
+      // A reset ends every session the account had.
+      passwordChangedAt: new Date(),
     },
   });
 

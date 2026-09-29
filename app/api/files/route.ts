@@ -4,9 +4,10 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { apiError } from "@/lib/api";
 import { formatBytes } from "@/lib/utils";
-import { MAX_UPLOAD_BYTES, isAllowedType, save } from "@/lib/uploads";
+import { MAX_UPLOAD_BYTES, isAllowedFile, save } from "@/lib/uploads";
 import { requireApi } from "@/modules/rbac/server";
 import { FILE_VISIBILITIES, ownerAccess, ownerFromQuery, ownerWhere, toView, type FileVisibility } from "@/modules/files/server";
+import { limited } from "@/lib/rate-limit";
 
 /**
  * Files on a client, project or contract (Phase 4 scope 5).
@@ -36,6 +37,8 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const gate = await requireApi("create", "file");
   if (gate.response) return gate.response;
+  const throttled = limited("uploads", gate.principal.id);
+  if (throttled) return throttled;
   if (!gate.principal.organizationId) return apiError("Your account has no organization", 403);
 
   let form: FormData;
@@ -61,7 +64,7 @@ export async function POST(request: Request) {
   if (upload.size > MAX_UPLOAD_BYTES) {
     return apiError(`That file is ${formatBytes(upload.size)}. The limit is ${formatBytes(MAX_UPLOAD_BYTES)}.`, 413, { file: "Too large" });
   }
-  if (!isAllowedType(upload.type)) {
+  if (!(await isAllowedFile(upload))) {
     return apiError(`${upload.type || "That file type"} isn't accepted. Images, PDFs, documents and archives are.`, 415, { file: "Unsupported type" });
   }
 

@@ -4,9 +4,10 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { apiError } from "@/lib/api";
 import { formatBytes } from "@/lib/utils";
-import { MAX_UPLOAD_BYTES, isAllowedType, save } from "@/lib/uploads";
+import { MAX_UPLOAD_BYTES, isAllowedFile, save } from "@/lib/uploads";
 import { requireApi } from "@/modules/rbac/server";
 import { messagesFor, post, threadFor } from "@/modules/messages/server";
+import { limited } from "@/lib/rate-limit";
 
 /** A thread's messages (marks it read). Unknown, or not yours: 404. */
 export async function GET(_request: Request, props: { params: Promise<{ id: string }> }) {
@@ -29,6 +30,8 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
   const params = await props.params;
   const gate = await requireApi("create", "message");
   if (gate.response) return gate.response;
+  const throttled = limited("messages", gate.principal.id);
+  if (throttled) return throttled;
   const t = await threadFor(gate.principal, params.id);
   if (!t) return apiError("Not found", 404);
 
@@ -45,7 +48,7 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
   if (uploads.length > MAX_FILES) return apiError(`At most ${MAX_FILES} files per message`, 422);
   for (const f of uploads) {
     if (f.size > MAX_UPLOAD_BYTES) return apiError(`${f.name} is ${formatBytes(f.size)}; the limit is ${formatBytes(MAX_UPLOAD_BYTES)}`, 413);
-    if (!isAllowedType(f.type)) return apiError(`${f.name} isn't a type we accept`, 415);
+    if (!(await isAllowedFile(f))) return apiError(`${f.name} isn't a type we accept`, 415);
   }
 
   const message = await post(gate.principal, t, body || "Shared a file");

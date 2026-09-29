@@ -142,7 +142,8 @@ export const NAV_ITEMS: readonly NavItem[] = [
     roles: EVERYONE,
   },
   { key: "settings", label: "Settings", href: "/settings", roles: ADMINS },
-  { key: "audit", label: "Audit log", href: "/admin/audit", roles: OPS, hidden: true },
+  // The audit trail spans every department — the founder's (Phase 10).
+  { key: "audit", label: "Audit log", href: "/admin/audit", roles: ADMINS, hidden: true },
   { key: "errors", label: "Error log", href: "/admin/errors", roles: OPS, hidden: true },
   {
     key: "reports",
@@ -264,3 +265,22 @@ export const LOGIN_ROUTE = "/login";
 
 /** Clears a session whose account no longer exists, then goes to sign-in. */
 export const SESSION_ENDED_ROUTE = "/session-ended";
+
+/**
+ * A post-sign-in destination that can only be a path on this site (Phase 10).
+ * "Starts with / but not //" wasn't enough: browsers read `/\evil.com` and
+ * `/<tab>/evil.com` as `//evil.com`. Anything with a backslash, whitespace
+ * or a control character is refused, and what remains must resolve to this
+ * origin.
+ */
+export function safeCallbackPath(requested: string | null | undefined, fallback = DEFAULT_LANDING): string {
+  if (!requested || !requested.startsWith("/") || /[\\\s\u0000-\u001f\u007f]/.test(requested)) return fallback;
+  try {
+    const base = "http://same-origin.invalid";
+    const url = new URL(requested, base);
+    if (url.origin !== base) return fallback;
+    return `${url.pathname}${url.search}${url.hash}`;
+  } catch {
+    return fallback;
+  }
+}

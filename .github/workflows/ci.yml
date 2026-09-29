@@ -88,6 +88,7 @@ jobs:
           npm run reporttest
           npm run notifytest
           npm run agenttest
+          npm run securitytest
       - name: Server log on failure
         if: failure()
         run: tail -200 dev.log

@@ -5,6 +5,7 @@ import { formatMinutes } from "@/modules/attendance/domain";
 import { isMonthKey, monthOf } from "@/modules/attendance/server";
 import { requireApi } from "@/modules/rbac/server";
 import { attendanceFor, directoryFor } from "@/modules/team/server";
+import { csvCell } from "@/modules/leads/csv";
 
 /**
  * The team's attendance for a month — every person attendance applies to
@@ -27,7 +28,8 @@ export async function GET(request: Request) {
   const people = members.filter((m) => !m.isAgent);
 
   if (params.get("format") === "csv") {
-    const quote = (value: string | number) => `"${String(value).replace(/"/g, '""')}"`;
+    // Quoted, and neutralised against spreadsheet formulas (= + - @ at the start).
+    const quote = (value: string | number) => csvCell(value);
     const lines = [
       ["Name", "Email", "Date", "Status", "Worked", "Worked minutes", "Break minutes", "Late minutes", "Early departure minutes"]
         .map(quote)

@@ -357,6 +357,10 @@ model User {
   /// app forces a change before anything else is reachable, so a placeholder
   /// credential cannot survive first contact with a real user.
   mustChangePassword  Boolean  @default(false)
+  /// Set whenever the password changes. A session carries the value it was
+  /// issued with; a mismatch signs that session out (Phase 10: a changed or
+  /// reset password ends every other session).
+  passwordChangedAt   DateTime?
   isActive            Boolean  @default(true)
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt

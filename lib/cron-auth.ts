@@ -27,6 +27,11 @@ export async function authorizeCron(
     return { ok: false, response: apiError("Invalid cron credentials", 401) };
   }
 
+  // A founder's session may run a job — but only by POST. A GET would let a
+  // link or an <img> on another site run it with the founder's cookie (CSRF);
+  // the scheduler's GETs always carry the bearer secret (Phase 10).
+  if (request.method === "GET") return { ok: false, response: apiError("Scheduled jobs need the scheduler's credentials", 401) };
+
   const { response } = await requireAdminApi();
   if (response) return { ok: false, response };
 

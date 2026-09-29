@@ -73,7 +73,8 @@ export async function PATCH(request: Request, props: { params: Promise<{ id: str
               // A password one person chose for another is a handover, not a
               // password: the member replaces it at their next sign-in. Your
               // own, set from here, is simply yours.
-              ...(isSelf ? {} : { mustChangePassword: true }),
+              // A handover also ends every session the member had.
+              ...(isSelf ? {} : { mustChangePassword: true, passwordChangedAt: new Date() }),
             }
           : {}),
       },

@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 
@@ -7,11 +8,39 @@ import { prisma } from "@/lib/prisma";
 import { normalizeRole } from "@/config/permissions";
 import { hasAdminPower } from "@/lib/constants";
 
-/** The signed-in user, or null. Safe to call anywhere on the server. */
-export async function getCurrentUser() {
+/**
+ * The session's claim alone — no database read. For the data layer's own
+ * actor lookup (modules/tenancy/context), which must not go back through the
+ * data layer: getCurrentUser's account read would ask it who is acting, and
+ * wait on itself.
+ */
+export async function sessionClaim() {
   const session = await getServerSession(authOptions);
-  return session?.user ?? null;
+  return session?.user?.id ? session.user : null;
 }
+
+/**
+ * The signed-in user, or null. Safe to call anywhere on the server.
+ *
+ * The session token is only a claim of identity: the account is re-read on
+ * every request (once — `cache`), so a role change, a deactivation or a
+ * password change takes effect at once rather than when the token expires.
+ * The role returned is the account's current one, never the token's.
+ */
+export const getCurrentUser = cache(async () => {
+  const claim = await sessionClaim();
+  if (!claim) return null;
+  const session = { user: claim };
+  const account = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { name: true, email: true, role: true, isActive: true, jobTitle: true, avatarColor: true, passwordChangedAt: true },
+  });
+  const role = normalizeRole(account?.role);
+  if (!account || !account.isActive || !role) return null;
+  // Issued before the password last changed: another device's session, ended.
+  if ((account.passwordChangedAt?.getTime() ?? 0) !== (session.user.pwv ?? 0)) return null;
+  return { ...session.user, name: account.name, email: account.email, role, jobTitle: account.jobTitle, avatarColor: account.avatarColor };
+});
 
 /**
  * Server-component guard. Middleware already blocks unauthenticated traffic;

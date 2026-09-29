@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { signIn } from "next-auth/react";
 import { Copy, UserPlus, X } from "lucide-react";
 
 import { Avatar } from "@/components/ui/Avatar";
@@ -64,9 +65,12 @@ export function PortalSettings() {
       setPwErrors(body.fields ?? {});
       return toast.error(body.error ?? "Your password wasn't changed");
     }
+    // The change signs out every other device — and this one, which signs
+    // straight back in with the new password.
+    await signIn("credentials", { email: body.email, password: pw.newPassword, redirect: false });
     setPw({ currentPassword: "", newPassword: "", confirmPassword: "" });
     setPwErrors({});
-    toast.success("Password changed");
+    toast.success("Password changed — you're signed out on other devices");
   };
 
   const sendInvite = async () => {

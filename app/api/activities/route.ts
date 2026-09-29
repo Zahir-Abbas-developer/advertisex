@@ -14,6 +14,7 @@ import {
 } from "@/lib/constants";
 
 import { requireApi } from "@/modules/rbac/server";
+import type { Principal } from "@/modules/rbac/authorize";
 /**
  * The timeline on a lead or a client.
  *
@@ -51,6 +52,15 @@ async function resolveRecord(searchParams: URLSearchParams | Record<string, stri
     : null;
 }
 
+/**
+ * Clients follow the permissions matrix on top of the department (Phase 10):
+ * an employee reads and writes the timelines of the clients they work on,
+ * not every client in their departments.
+ */
+function beyondClientReach(principal: Principal, record: { kind: "LEAD" | "CLIENT"; id: string }) {
+  return record.kind === "CLIENT" && principal.role === "EMPLOYEE" && !principal.assignedClientIds.includes(record.id);
+}
+
 export async function GET(request: Request) {
   const access = await requireApi("read", "activity");
   if (access.response) return access.response;
@@ -65,6 +75,7 @@ export async function GET(request: Request) {
   if (!(await canUseDepartment(user.id, hasAdminPower(user.role), record.departmentId))) {
     return apiError("That department isn't one of yours", 403);
   }
+  if (beyondClientReach(access.principal, record)) return apiError("That client isn't one of yours", 404);
 
   const type = searchParams.get("type");
   const filtered = type && (ACTIVITY_TYPES as readonly string[]).includes(type) ? type : null;
@@ -154,6 +165,7 @@ export async function POST(request: Request) {
   if (!(await canUseDepartment(user.id, hasAdminPower(user.role), record.departmentId))) {
     return apiError("That department isn't one of yours", 403);
   }
+  if (beyondClientReach(access.principal, record)) return apiError("That client isn't one of yours", 404);
 
   const activity = await prisma.salesActivity.create({
     data: {

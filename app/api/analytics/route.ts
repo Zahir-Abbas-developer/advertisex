@@ -4,6 +4,7 @@ import { apiError } from "@/lib/api";
 import { getCurrentUser } from "@/lib/session";
 import { viewerFor } from "@/lib/viewer";
 import { metricsFor, RANGE_PRESETS, type RangePreset } from "@/lib/analytics";
+import { canSeeMemberNumbers, canSeePipelineTotals } from "@/lib/visibility";
 
 import { requireApi } from "@/modules/rbac/server";
 /**
@@ -17,6 +18,11 @@ import { requireApi } from "@/modules/rbac/server";
  * The `departmentId` parameter can only narrow what the viewer may already see.
  * `metricsFor` ignores one they do not belong to rather than trusting it —
  * a query string is not a permission.
+ *
+ * Money and colleagues' numbers follow the visibility rules on top (Phase 10):
+ * pipeline value, won value and revenue only for those who may see pipeline
+ * totals; `memberId` only for someone whose numbers the viewer may see; the
+ * per-person table only rows the viewer may see.
  */
 export async function GET(request: Request) {
   const access = await requireApi("read", "analytics");
@@ -34,13 +40,26 @@ export async function GET(request: Request) {
 
   const viewer = await viewerFor(user);
 
+  const memberId = searchParams.get("memberId");
+  if (memberId && !canSeeMemberNumbers(viewer, memberId)) return apiError("Not found", 404);
+
   const analytics = await metricsFor(viewer, {
     departmentId: searchParams.get("departmentId"),
-    memberId: searchParams.get("memberId"),
+    memberId,
     preset,
     from: searchParams.get("from"),
     to: searchParams.get("to"),
   });
 
-  return NextResponse.json(analytics);
+  const byMember = analytics.byMember.filter((row) => canSeeMemberNumbers(viewer, row.userId));
+  if (canSeePipelineTotals(viewer)) return NextResponse.json({ ...analytics, byMember });
+
+  const { totals, byDepartment, charts } = analytics;
+  return NextResponse.json({
+    ...analytics,
+    totals: { ...totals, openDeals: { count: totals.openDeals.count, value: null }, wonDeals: { count: totals.wonDeals.count, value: null }, revenue: null },
+    byDepartment: byDepartment.map((row) => ({ ...row, revenue: null })),
+    byMember,
+    charts: { ...charts, revenueByDepartment: [], pipelineByStage: charts.pipelineByStage.map((row) => ({ ...row, value: null })) },
+  });
 }

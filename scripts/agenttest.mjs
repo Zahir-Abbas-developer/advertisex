@@ -305,6 +305,8 @@ async function main() {
     check((await emp.fetch(`/api/agents/runs/${pr.id}`)).status === 404, "an employee can't open agency-wide runs");
     check((await emp.fetch(`/api/agents/runs/${auto.id}`)).status === 200, "but can open work on their department's leads");
     check((await other.fetch(`/api/agents/runs/${auto.id}`)).status === 404, "a manager elsewhere can't");
+    const camOnProject = project.ownerId === camId || (await prisma.projectMember.count({ where: { projectId: project.id, userId: camId } })) > 0;
+    check((await emp.fetch(`/api/agents/runs/${tc.id}`)).status === (camOnProject ? 200 : 404), `a project run is visible to an employee only if they work on it (${camOnProject ? "on it" : "not on it"})`);
     check((await send(manager, "/api/agents", "POST", { name: "Nope", capability: "lead-research" })).status === 403, "only a founder hires");
 
     console.log("\nAUTOMATIONS ARE THE FOUNDER'S");

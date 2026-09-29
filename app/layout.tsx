@@ -52,6 +52,13 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
+/**
+ * Every page renders per request: the Content-Security-Policy's nonce
+ * (middleware.ts) is fresh each time, and Next stamps it on its scripts only
+ * when rendering. Nearly every screen is per-user anyway.
+ */
+export const dynamic = "force-dynamic";
+
 export default function RootLayout({
   children,
 }: {

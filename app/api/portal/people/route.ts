@@ -6,6 +6,7 @@ import { apiError } from "@/lib/api";
 import { requireApi } from "@/modules/rbac/server";
 import { accountOf, accountPeople, createInvite, isOwner, PortalError } from "@/modules/portal/server";
 import { sendInviteEmail } from "@/modules/portal/invite-email";
+import { limited } from "@/lib/rate-limit";
 
 /** Who can sign in to this account, and pending invitations. */
 export async function GET() {
@@ -25,6 +26,8 @@ const schema = z.object({ name: z.string().trim().min(2, "Their name, please").m
 export async function POST(request: Request) {
   const gate = await requireApi("create", "portalUser");
   if (gate.response) return gate.response;
+  const throttled = limited("invites", gate.principal.id);
+  if (throttled) return throttled;
   if (gate.principal.role !== "CLIENT") return apiError("Not found", 404);
   if (!(await isOwner(gate.principal))) return apiError("Only your account's owner can invite people", 403);
   const parsed = schema.safeParse(await request.json().catch(() => null));

@@ -4,7 +4,7 @@ import { prisma, transaction } from "@/lib/prisma";
 import { apiError } from "@/lib/api";
 import { getCurrentUser } from "@/lib/session";
 import { recordAttachment } from "@/lib/activity";
-import { MAX_UPLOAD_BYTES, isAllowedType, save } from "@/lib/uploads";
+import { MAX_UPLOAD_BYTES, isAllowedFile, save } from "@/lib/uploads";
 import { formatBytes } from "@/lib/utils";
 import { hasAdminPower } from "@/lib/constants";
 
@@ -50,7 +50,7 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
 
   // The browser's declared type is all we have; the allowlist is what keeps
   // anything script-capable off the disk in the first place.
-  if (!isAllowedType(file.type)) {
+  if (!(await isAllowedFile(file))) {
     return apiError(
       `${file.type || "That file type"} isn't accepted. Images, PDFs, documents and archives are.`,
       415,

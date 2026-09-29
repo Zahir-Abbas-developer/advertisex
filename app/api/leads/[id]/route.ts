@@ -340,8 +340,11 @@ export async function PATCH(request: Request, props: { params: Promise<{ id: str
     });
   }
 
-  const updated = await prisma.lead.findUnique({ where: { id: lead.id } });
-  return NextResponse.json({ lead: updated, changed });
+  const updated = await prisma.lead.findUniqueOrThrow({ where: { id: lead.id } });
+  // The same money rule as GET: a no-op PATCH must not read a withheld value.
+  const { estimatedMonthlyValue, dealValue, ...visible } = updated;
+  const seesMoney = canSeeDealValue(await viewerFor(user), updated);
+  return NextResponse.json({ lead: seesMoney ? updated : visible, changed });
 }
 
 /**

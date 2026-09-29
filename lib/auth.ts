@@ -100,6 +100,7 @@ export const authOptions: NextAuthOptions = {
           role,
           jobTitle: user.jobTitle,
           avatarColor: user.avatarColor,
+          pwv: user.passwordChangedAt?.getTime() ?? 0,
         };
       },
     }),
@@ -111,6 +112,7 @@ export const authOptions: NextAuthOptions = {
         token.role = user.role;
         token.jobTitle = user.jobTitle;
         token.avatarColor = user.avatarColor;
+        token.pwv = user.pwv ?? 0;
         return token;
       }
 
@@ -138,6 +140,7 @@ export const authOptions: NextAuthOptions = {
         session.user.role = normalizeRole(token.role) ?? token.role;
         session.user.jobTitle = token.jobTitle;
         session.user.avatarColor = token.avatarColor;
+        session.user.pwv = token.pwv ?? 0;
       }
       return session;
     },

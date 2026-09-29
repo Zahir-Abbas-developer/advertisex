@@ -30,15 +30,17 @@ const cache = new WeakMap<object, Promise<RequestActor | null>>();
 async function resolve(base: PrismaClient): Promise<RequestActor | null> {
   // Imported lazily: lib/session → lib/auth → lib/prisma would otherwise form
   // a cycle with the client this module helps build.
-  const { getCurrentUser } = await import("@/lib/session");
-  const user = await getCurrentUser();
+  const { sessionClaim } = await import("@/lib/session");
+  const user = await sessionClaim();
   if (!user?.id) return null;
 
   const account = await base.user.findUnique({
     where: { id: user.id },
-    select: { id: true, role: true, organizationId: true },
+    select: { id: true, role: true, organizationId: true, isActive: true, passwordChangedAt: true },
   });
-  if (!account) return null;
+  // The same rules as getCurrentUser: an inactive account, or a session from
+  // before the password changed, acts as no one.
+  if (!account || !account.isActive || (account.passwordChangedAt?.getTime() ?? 0) !== (user.pwv ?? 0)) return null;
 
   return {
     userId: account.id,

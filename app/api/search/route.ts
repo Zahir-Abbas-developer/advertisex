@@ -10,6 +10,7 @@ import { getModuleFlags } from "@/lib/modules";
 import { hasAdminPower } from "@/lib/constants";
 
 import { requireApi } from "@/modules/rbac/server";
+import { limited } from "@/lib/rate-limit";
 /**
  * Command palette search.
  *
@@ -31,6 +32,8 @@ import { requireApi } from "@/modules/rbac/server";
 export async function GET(request: Request) {
   const access = await requireApi("read", "lead");
   if (access.response) return access.response;
+  const throttled = limited("search", access.principal.id);
+  if (throttled) return throttled;
 
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
@@ -78,7 +81,9 @@ export async function GET(request: Request) {
         },
       }),
       prisma.client.findMany({
-        where: { ...scope, OR: contactMatch },
+        // Employees find the clients they work on, not every client in their
+        // departments (the matrix's "assigned" scope; Phase 10).
+        where: { ...scope, OR: contactMatch, ...(access.principal.role === "EMPLOYEE" ? { id: { in: [...access.principal.assignedClientIds] } } : {}) },
         take: 6,
         select: {
           id: true,

@@ -7,7 +7,7 @@ export const metadata: Metadata = { title: "Audit log" };
 
 export default async function AuditPage() {
   // Middleware blocks members from /admin; this is the server-side backstop.
-  await requirePage("read", "ops");
+  await requirePage("manage", "admin");
 
   return <AuditLogView />;
 }

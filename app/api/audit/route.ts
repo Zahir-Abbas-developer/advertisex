@@ -10,10 +10,12 @@ import { RECORD_ACTIONS } from "@/modules/audit/entry";
  *
  * Owner-only, deliberately. A log of who exercised authority over whom is a
  * different thing from a team activity feed, and making it visible to everyone
- * would turn every judgement call into a performance.
+ * would turn every judgement call into a performance. Founder-only (Phase 10):
+ * its entries — and the record diffs behind ?action=RECORDS — span every
+ * department, and a manager's scope is their own.
  */
 export async function GET(request: Request) {
-  const { response } = await requireApi("read", "ops");
+  const { response } = await requireApi("manage", "admin");
   if (response) return response;
 
   const { searchParams } = new URL(request.url);

@@ -7,6 +7,7 @@ import { getCurrentUser } from "@/lib/session";
 import { fieldErrors } from "@/lib/validation";
 import { logActivity } from "@/lib/pipeline";
 import { hasAdminPower, LOGGABLE_ACTIVITY_TYPES, type ActivityType } from "@/lib/constants";
+import { canUseDepartment } from "@/lib/departments";
 
 import { requireApi } from "@/modules/rbac/server";
 const activitySchema = z.object({
@@ -23,10 +24,11 @@ const activitySchema = z.object({
 /**
  * Logging sales work.
  *
- * Anyone signed in can log against any lead: a delivery member who takes a
- * call on a prospect should be able to record it, and the activity counts
- * towards *their* targets, not the lead owner's. That is why the userId comes
- * from the session rather than from the lead.
+ * Anyone in the lead's department can log against it: a delivery member who
+ * takes a call on a prospect should be able to record it, and the activity
+ * counts towards *their* targets, not the lead owner's. That is why the
+ * userId comes from the session rather than from the lead. Outside the
+ * department the lead doesn't exist (Phase 10).
  */
 export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
@@ -50,9 +52,11 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
 
   const lead = await prisma.lead.findUnique({
     where: { id: params.id },
-    select: { id: true, stage: true },
+    select: { id: true, stage: true, departmentId: true },
   });
-  if (!lead) return apiError("That lead no longer exists", 404);
+  if (!lead || !(await canUseDepartment(user.id, hasAdminPower(user.role), lead.departmentId))) {
+    return apiError("That lead no longer exists", 404);
+  }
 
   if (lead.stage === "WON" || lead.stage === "LOST") {
     return apiError("That deal is closed — reopen it first if there's more to log", 409);
@@ -107,11 +111,13 @@ export async function DELETE(request: Request, props: { params: Promise<{ id: st
 
   const activity = await prisma.salesActivity.findUnique({
     where: { id: activityId },
-    select: { userId: true, leadId: true },
+    select: { userId: true, leadId: true, isSystem: true, departmentId: true },
   });
-  if (!activity || activity.leadId !== params.id) {
+  if (!activity || activity.leadId !== params.id || !(await canUseDepartment(user.id, hasAdminPower(user.role), activity.departmentId))) {
     return apiError("That activity no longer exists", 404);
   }
+  // Stage moves, routing and closed deals are the record, not someone's log.
+  if (activity.isSystem) return apiError("That entry is recorded by the system and can't be removed", 403);
 
   // Own work only, unless you're the owner. Activity counts feed scoring, so
   // deleting someone else's log would be editing their score.

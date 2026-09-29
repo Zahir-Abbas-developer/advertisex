@@ -2,6 +2,7 @@ import "server-only";
 
 import { mkdir, readFile, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { signatureMatches } from "@/lib/upload-signatures";
 
 /**
  * Local file storage for development.
@@ -50,6 +51,12 @@ export const ALLOWED_TYPES: Record<string, string> = {
 
 export function isAllowedType(mimeType: string): boolean {
   return Object.hasOwn(ALLOWED_TYPES, mimeType);
+}
+
+/** An allowed type whose content agrees with it. */
+export async function isAllowedFile(file: Blob & { type: string }): Promise<boolean> {
+  if (!isAllowedType(file.type)) return false;
+  return signatureMatches(file.type, new Uint8Array(await file.slice(0, 16).arrayBuffer()));
 }
 
 export function extensionFor(mimeType: string): string {

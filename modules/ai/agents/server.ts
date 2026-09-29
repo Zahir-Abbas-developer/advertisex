@@ -17,8 +17,9 @@ import type { SubjectType } from "@/modules/ai/agents/capability";
 /**
  * Reads and writes behind /agents, /approvals and the team views (Phase 9
  * scope 5). Who sees a run: founders, anything in their organization;
- * everyone else, runs about their departments' records and runs they asked
- * for. Performance is work, not attendance: runs completed, approval rate,
+ * managers, runs about their departments' records; employees, their
+ * departments' leads and the clients and projects they work on; everyone,
+ * runs they asked for. Performance is work, not attendance: runs completed, approval rate,
  * spend.
  */
 
@@ -31,7 +32,20 @@ const monthStart = () => {
 export function runScope(principal: Principal): Prisma.AgentRunWhereInput {
   const org = { organizationId: principal.organizationId ?? "__none__" };
   if (principal.role === "FOUNDER") return org;
-  return { ...org, OR: [{ departmentId: { in: [...principal.departmentIds] } }, { requestedById: principal.id }] };
+  const departments = { in: [...principal.departmentIds] };
+  if (principal.role === "MANAGER") return { ...org, OR: [{ departmentId: departments }, { requestedById: principal.id }] };
+  // Employees (Phase 10): a run's steps show what the agent read, so they
+  // follow the employee's own reach — their departments' leads, and only the
+  // clients and projects they work on.
+  return {
+    ...org,
+    OR: [
+      { requestedById: principal.id },
+      { subjectType: "lead", departmentId: departments },
+      { subjectType: "client", subjectId: { in: [...principal.assignedClientIds] } },
+      { subjectType: "project", subjectId: { in: [...principal.assignedProjectIds] } },
+    ],
+  };
 }
 
 export function approvalScope(principal: Principal): Prisma.ApprovalRequestWhereInput {

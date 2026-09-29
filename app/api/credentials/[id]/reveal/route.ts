@@ -5,6 +5,7 @@ import { apiError } from "@/lib/api";
 import { logger, errorFields } from "@/lib/logger";
 import { requireApi } from "@/modules/rbac/server";
 import { canOnCredentials, clientRef, reveal } from "@/modules/vault/credentials";
+import { limited } from "@/lib/rate-limit";
 
 /**
  * Opens one sealed secret. POST, not GET: a reveal is an action with a
@@ -14,6 +15,8 @@ export async function POST(_request: Request, props: { params: Promise<{ id: str
   const params = await props.params;
   const gate = await requireApi("reveal", "credential");
   if (gate.response) return gate.response;
+  const throttled = limited("credentialReveal", gate.principal.id);
+  if (throttled) return throttled;
   const row = await prisma.clientCredential.findUnique({ where: { id: params.id }, select: { id: true, clientId: true, label: true } });
   const client = row ? await clientRef(row.clientId) : null;
   if (!row || !client || !canOnCredentials(gate.principal, "read", client)) return apiError("Not found", 404);

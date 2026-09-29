@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 import { AlertCircle, ArrowRight } from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
@@ -41,8 +42,11 @@ export function ChangePasswordForm() {
         return;
       }
 
-      // The flag is cleared server-side; refresh so the layout stops
-      // redirecting here and lets the app through.
+      // Changing the password ended every session, this one included: sign
+      // straight back in with the new one. The flag is cleared server-side,
+      // so the layout stops redirecting here and lets the app through.
+      const { email } = (await res.json()) as { email: string };
+      await signIn("credentials", { email, password: newPassword, redirect: false });
       router.replace("/dashboard");
       router.refresh();
     } catch {

@@ -7,6 +7,7 @@ import { requireApi } from "@/modules/rbac/server";
 import { clientFor } from "@/modules/clients/server";
 import { accountPeople, createInvite, PortalError } from "@/modules/portal/server";
 import { sendInviteEmail } from "@/modules/portal/invite-email";
+import { limited } from "@/lib/rate-limit";
 
 async function load(principalId: Parameters<typeof clientFor>[0], id: string) {
   const found = await clientFor(principalId, id, "read");
@@ -42,6 +43,8 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
   const params = await props.params;
   const gate = await requireApi("create", "portalUser");
   if (gate.response) return gate.response;
+  const throttled = limited("invites", gate.principal.id);
+  if (throttled) return throttled;
   if (gate.principal.role === "CLIENT") return apiError("Not found", 404);
   const client = await load(gate.principal, params.id);
   if (!client) return apiError("Not found", 404);

@@ -8,6 +8,8 @@ import { fieldErrors } from "@/lib/validation";
 import { kpisForClient, saveKpiWeek } from "@/lib/kpi-service";
 
 import { requireApi } from "@/modules/rbac/server";
+import { clientFor } from "@/modules/clients/server";
+
 const entrySchema = z.object({
   /** Any date in the week; the service normalises it to the Monday. */
   weekStart: z.string().min(8),
@@ -22,9 +24,10 @@ const entrySchema = z.object({
 /**
  * A client's weekly numbers.
  *
- * Readable by anyone signed in: the marketer running the campaigns needs to
- * see whether their work is making money, and hiding it behind the owner turns
- * every performance question into a request.
+ * Readable by the staff who can see this client — the marketer running the
+ * campaigns needs to see whether their work is making money. Scoped to the
+ * row (Phase 10): a client outside the caller's departments or assignments,
+ * and every CLIENT login, gets a 404.
  */
 export async function GET(request: Request, props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
@@ -37,11 +40,12 @@ export async function GET(request: Request, props: { params: Promise<{ id: strin
   const { searchParams } = new URL(request.url);
   const weeks = Math.min(52, Math.max(4, Number(searchParams.get("weeks") ?? "12")));
 
-  const client = await prisma.client.findUnique({
-    where: { id: params.id },
+  const found = await clientFor(access.principal, params.id, "read");
+  if (!found.client) return apiError("That client no longer exists", found.status);
+  const client = await prisma.client.findUniqueOrThrow({
+    where: { id: found.client.id },
     select: { id: true, businessName: true, targetRoas: true },
   });
-  if (!client) return apiError("That client no longer exists", 404);
 
   const kpis = await kpisForClient(client.id, weeks);
 
@@ -73,9 +77,9 @@ export async function GET(request: Request, props: { params: Promise<{ id: strin
 /**
  * Records a week.
  *
- * Any signed-in member can log — whoever runs the ads is the person with the
- * numbers, and routing it through the owner guarantees the data is a week
- * stale or missing entirely.
+ * Any member who can work on this client can log — whoever runs the ads is
+ * the person with the numbers, and routing it through the owner guarantees
+ * the data is a week stale or missing entirely.
  */
 export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
@@ -84,6 +88,9 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
 
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
+
+  const found = await clientFor(access.principal, params.id, "update");
+  if (!found.client) return apiError("That client no longer exists", found.status);
 
   let body: unknown;
   try {

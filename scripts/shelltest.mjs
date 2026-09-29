@@ -105,7 +105,7 @@ async function main() {
     check((await landing(manager, "/")) === "/dashboard", "lands on /dashboard");
     check((await html(manager, "/dashboard")).body.includes("Command center"), "renders the command center");
     check((await landing(manager, "/admin/errors")) === "200", "opens the error log (ops)");
-    check((await manager.fetch("/api/audit")).status === 200, "reads the audit API (ops)");
+    check((await manager.fetch("/api/audit")).status === 403, "is refused the audit API (it spans every department — the founder's)");
     check((await landing(manager, "/settings/departments")).startsWith("/dashboard?denied"), "is refused founder configuration");
     check((await manager.fetch("/api/team")).status === 403, "is refused the team API", String((await manager.fetch("/api/team")).status));
     check((await manager.fetch("/api/settings")).status === 403, "is refused the settings API");

@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 import { prisma, transaction } from "@/lib/prisma";
 import { apiError } from "@/lib/api";
 import { formatBytes } from "@/lib/utils";
-import { MAX_UPLOAD_BYTES, isAllowedType, save } from "@/lib/uploads";
+import { MAX_UPLOAD_BYTES, isAllowedFile, save } from "@/lib/uploads";
 import { authorize } from "@/modules/rbac/authorize";
 import { requireApi } from "@/modules/rbac/server";
 import { clientFor } from "@/modules/clients/server";
@@ -83,7 +83,7 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
   if (Object.keys(fields).length) return apiError("Please fix the highlighted fields", 422, fields);
   const file = upload as File;
   if (file.size > MAX_UPLOAD_BYTES) return apiError(`That file is ${formatBytes(file.size)}; the limit is ${formatBytes(MAX_UPLOAD_BYTES)}`, 413, { file: "Too large" });
-  if (!isAllowedType(file.type)) return apiError("Reports are PDFs, images, documents or spreadsheets", 415, { file: "Unsupported type" });
+  if (!(await isAllowedFile(file))) return apiError("Reports are PDFs, images, documents or spreadsheets", 415, { file: "Unsupported type" });
   if (!client.organizationId) return apiError("This client has no organization", 422);
   const organizationId = client.organizationId;
 

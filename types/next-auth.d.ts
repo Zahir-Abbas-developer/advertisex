@@ -12,6 +12,8 @@ declare module "next-auth" {
       role: Role;
       jobTitle: string;
       avatarColor: string;
+      /** The password version the session was issued with (ms; 0 = never changed). */
+      pwv?: number;
     } & DefaultSession["user"];
   }
 
@@ -20,6 +22,7 @@ declare module "next-auth" {
     role: Role;
     jobTitle: string;
     avatarColor: string;
+    pwv?: number;
   }
 }
 
@@ -29,5 +32,6 @@ declare module "next-auth/jwt" {
     role: Role;
     jobTitle: string;
     avatarColor: string;
+    pwv?: number;
   }
 }

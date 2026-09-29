@@ -118,3 +118,33 @@ export function clientIp(headers: Headers): string | null {
   const real = headers.get("x-real-ip")?.trim();
   return real || null;
 }
+
+/**
+ * Per-person limits on the other sensitive endpoints (Phase 10). Generous
+ * enough never to meet a real person working fast; tight enough that a
+ * script, or a stolen session, can't hammer them.
+ */
+export const LIMITS = {
+  /** Current-password guesses while signed in. */
+  passwordChange: { limit: 5, windowMs: 15 * 60_000 },
+  /** Vault reveals — each one is audited; bursts are not a workflow. */
+  credentialReveal: { limit: 30, windowMs: 10 * 60_000 },
+  uploads: { limit: 60, windowMs: 10 * 60_000 },
+  messages: { limit: 60, windowMs: 60_000 },
+  invites: { limit: 20, windowMs: 60 * 60_000 },
+  search: { limit: 120, windowMs: 60_000 },
+} as const;
+
+/**
+ * A 429 response when `who` has used up `kind`, or null to carry on. The
+ * error envelope is the app's usual one, with Retry-After.
+ */
+export function limited(kind: keyof typeof LIMITS, who: string): Response | null {
+  const { limit, windowMs } = LIMITS[kind];
+  const result = consume(`${kind}:${who}`, limit, windowMs);
+  if (result.allowed) return null;
+  return Response.json(
+    { error: `Too many attempts — try again in ${result.retryAfter < 60 ? `${result.retryAfter} seconds` : `${Math.ceil(result.retryAfter / 60)} minutes`}.` },
+    { status: 429, headers: { "Retry-After": String(result.retryAfter) } },
+  );
+}

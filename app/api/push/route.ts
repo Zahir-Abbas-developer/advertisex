@@ -6,6 +6,7 @@ import { apiError } from "@/lib/api";
 import { getCurrentUser } from "@/lib/session";
 import { fieldErrors } from "@/lib/validation";
 import { pushConfigured, sendPush } from "@/lib/reach";
+import { isPushEndpoint } from "@/lib/push-endpoint";
 
 import { requireApi } from "@/modules/rbac/server";
 /**
@@ -17,7 +18,7 @@ import { requireApi } from "@/modules/rbac/server";
  */
 
 const subscribeSchema = z.object({
-  endpoint: z.string().url(),
+  endpoint: z.string().url().refine(isPushEndpoint, "That isn't a browser push address"),
   keys: z.object({ p256dh: z.string().min(1), auth: z.string().min(1) }),
 });
 
@@ -45,10 +46,6 @@ export async function POST(request: Request) {
   const user = await getCurrentUser();
   if (!user) return apiError("You must be signed in", 401);
 
-  if (!pushConfigured()) {
-    return apiError("Push isn't configured on this deployment", 503);
-  }
-
   let body: unknown;
   try {
     body = await request.json();
@@ -56,9 +53,14 @@ export async function POST(request: Request) {
     return apiError("Invalid request body", 400);
   }
 
+  // Validated first: a bad endpoint is refused whatever the configuration.
   const parsed = subscribeSchema.safeParse(body);
   if (!parsed.success) {
     return apiError("That subscription didn't look right", 422, fieldErrors(parsed.error));
+  }
+
+  if (!pushConfigured()) {
+    return apiError("Push isn't configured on this deployment", 503);
   }
 
   const userAgent = request.headers.get("user-agent")?.slice(0, 255) ?? null;

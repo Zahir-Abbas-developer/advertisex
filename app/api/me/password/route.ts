@@ -9,6 +9,7 @@ import { recordAudit } from "@/lib/audit";
 import { hashPassword, passwordMatches } from "@/lib/passwords";
 
 import { requireApi } from "@/modules/rbac/server";
+import { limited } from "@/lib/rate-limit";
 const schema = z
   .object({
     currentPassword: z.string().min(1, "Enter your current password"),
@@ -38,6 +39,8 @@ const schema = z
 export async function POST(request: Request) {
   const access = await requireApi("update", "profile");
   if (access.response) return access.response;
+  const throttled = limited("passwordChange", access.principal.id);
+  if (throttled) return throttled;
 
   const session = await getCurrentUser();
   if (!session) return apiError("You must be signed in", 401);
@@ -56,7 +59,7 @@ export async function POST(request: Request) {
 
   const user = await prisma.user.findUnique({
     where: { id: session.id },
-    select: { id: true, passwordHash: true, isActive: true },
+    select: { id: true, email: true, passwordHash: true, isActive: true },
   });
   if (!user || !user.isActive) return apiError("You must be signed in", 401);
 
@@ -75,6 +78,8 @@ export async function POST(request: Request) {
       passwordHash: await hashPassword(parsed.data.newPassword),
       // Clearing the flag is what lifts the forced-change redirect.
       mustChangePassword: false,
+      // Every other session ends; the form signs this one straight back in.
+      passwordChangedAt: new Date(),
     },
   });
 
@@ -86,5 +91,7 @@ export async function POST(request: Request) {
     summary: "Changed their own password",
   });
 
-  return NextResponse.json({ ok: true });
+  // The caller signs back in with the new password (the change ended every
+  // session, this one included) — it needs the address to do that.
+  return NextResponse.json({ ok: true, email: user.email });
 }

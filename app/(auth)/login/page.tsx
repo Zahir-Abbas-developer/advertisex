@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { getCurrentUser } from "@/lib/session";
-import { DEFAULT_LANDING, SESSION_ENDED_ROUTE } from "@/lib/routes";
+import { DEFAULT_LANDING, SESSION_ENDED_ROUTE, safeCallbackPath } from "@/lib/routes";
 import { principalFor } from "@/modules/rbac/server";
 import { LoginForm } from "@/components/auth/LoginForm";
 
@@ -25,13 +25,9 @@ export default async function LoginPage(
     if (!searchParams.ended) redirect(SESSION_ENDED_ROUTE);
   }
 
-  // Only ever follow a relative callback, so the login form can't be turned
+  // Only ever follow a path on this site, so the login form can't be turned
   // into an open redirect via a crafted link.
-  const requested = searchParams.callbackUrl ?? "";
-  const callbackUrl =
-    requested.startsWith("/") && !requested.startsWith("//")
-      ? requested
-      : DEFAULT_LANDING;
+  const callbackUrl = safeCallbackPath(searchParams.callbackUrl);
 
   return (
     <main className="flex min-h-screen flex-col lg:flex-row">

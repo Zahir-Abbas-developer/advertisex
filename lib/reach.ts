@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { formatKarachiTime } from "@/lib/attendance-time";
+import { isPushEndpoint } from "@/lib/push-endpoint";
 
 /**
  * Getting hold of someone who isn't looking at the app.
@@ -65,7 +66,8 @@ export type PushResult = {
 export async function sendPush(userId: string, payload: PushPayload): Promise<PushResult> {
   if (!pushConfigured()) return { status: "skipped", delivered: 0, removed: 0 };
 
-  const subscriptions = await prisma.pushSubscription.findMany({ where: { userId } });
+  // Rows stored before endpoints were checked are never posted to (SSRF).
+  const subscriptions = (await prisma.pushSubscription.findMany({ where: { userId } })).filter((s) => isPushEndpoint(s.endpoint));
   if (subscriptions.length === 0) {
     return { status: "no-subscriptions", delivered: 0, removed: 0 };
   }

@@ -294,6 +294,7 @@ npm run billingtest    # invoices → payments → overdue → overview reconcil
 npm run analyticstest  # command center & analytics hub equal the database; cache; client results; access
 npm run reporttest     # monthly report: generate → review → approve → portal; PDF; isolation; the job
 npm run agenttest      # AI employees end to end: automation → run → audit → approval; limits; grants; new capability
+npm run securitytest   # every Phase 10 audit finding proven fixed: headers/CSP, IDOR, redirects, SSRF, sessions
 npm run notifytest     # every listed notification fires to the right people; prefs; email via Resend stand-in
 npm run bundlescan     # after build: no vault, AI/payment provider or PDF engine in the browser bundle
 npm run smoke:browser  # real-browser hydration pass (run when renders change)
