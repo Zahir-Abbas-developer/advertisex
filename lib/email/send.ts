@@ -1,9 +1,12 @@
 import "server-only";
 
+import { randomUUID } from "node:crypto";
+
 import nodemailer, { type Transporter } from "nodemailer";
 
 import type { Email } from "@/lib/email/templates";
 import { resendPayload, type Attachment } from "@/lib/email/resend";
+import { fetchWithRetry } from "@/lib/retry";
 
 export type { Attachment } from "@/lib/email/resend";
 
@@ -31,12 +34,17 @@ export function isEmailConfigured(): boolean {
 async function sendViaResend(to: string, email: Email, attachments: Attachment[]): Promise<SendResult> {
   try {
     // RESEND_BASE_URL exists for tests (a local stand-in); production uses Resend's API.
-    const res = await fetch(`${(process.env.RESEND_BASE_URL ?? "https://api.resend.com").replace(/\/$/, "")}/emails`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json" },
-      body: JSON.stringify(resendPayload(process.env.EMAIL_FROM!, to, email, attachments)),
-      signal: AbortSignal.timeout(8_000),
-    });
+    // Retried on 429/5xx/network; the idempotency key (the same on every
+    // attempt) means a retry after a lost response never sends twice.
+    const res = await fetchWithRetry(
+      `${(process.env.RESEND_BASE_URL ?? "https://api.resend.com").replace(/\/$/, "")}/emails`,
+      {
+        method: "POST",
+        headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json", "Idempotency-Key": randomUUID() },
+        body: JSON.stringify(resendPayload(process.env.EMAIL_FROM!, to, email, attachments)),
+      },
+      { timeoutMs: 8_000 },
+    );
     const body = (await res.json().catch(() => ({}))) as { id?: string; message?: string };
     if (!res.ok || !body.id) return { status: "failed", reason: `Resend ${res.status}: ${body.message ?? "no id"}` };
     return { status: "sent", messageId: body.id };

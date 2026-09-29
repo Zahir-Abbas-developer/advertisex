@@ -60,7 +60,7 @@ function MemberCard({ member }: { member: Member }) {
             <p className="truncate font-display text-[15px] font-semibold text-ink">{member.name}</p>
             {member.isAgent ? (
               <span className="rounded-pill border border-info/30 bg-info-tint px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-ink-2">
-                AI agent
+                AI employee
               </span>
             ) : (
               member.employmentStatus !== "ACTIVE" && (
@@ -87,7 +87,7 @@ function MemberCard({ member }: { member: Member }) {
             {s.name} <Proficiency value={s.proficiency} />
           </span>
         ))}
-        {member.skills.length === 0 && <span className="text-[12px] text-ink/35">No skills recorded yet</span>}
+        {member.skills.length === 0 && <span className="text-[12px] text-ink-muted">No skills recorded yet</span>}
       </div>
     </Link>
   );
@@ -131,7 +131,7 @@ export function TeamDirectory() {
     <div className="space-y-10">
       <section className="space-y-4">
         <h2 className="font-display text-lg font-semibold text-ink">
-          People <span className="text-ink/35 tabular-nums">{people.length}</span>
+          People <span className="text-ink-muted tabular-nums">{people.length}</span>
         </h2>
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {people.map((m) => (
@@ -144,7 +144,7 @@ export function TeamDirectory() {
         <section className="space-y-4">
           <div>
             <h2 className="font-display text-lg font-semibold text-ink">
-              AI agents <span className="text-ink/35 tabular-nums">{agents.length}</span>
+              AI employees <span className="text-ink-muted tabular-nums">{agents.length}</span>
             </h2>
             <p className="mt-1 text-[13px] text-ink-muted">
               Agents take assigned work and are measured on delivery. They have no attendance, and act only within the capabilities granted to them.

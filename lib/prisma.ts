@@ -16,7 +16,9 @@ import { withTenancy } from "@/modules/tenancy/extension";
  * Genuine failures are still surfaced: every catch here logs what it swallowed.
  */
 function createClient() {
-  const base = new PrismaClient({ log: ["warn"] });
+  // PRISMA_QUERY_LOG=1 prints every query — for measuring queries per request
+  // (the N+1 sweep, docs/RUNBOOK.md). Never on by default.
+  const base = new PrismaClient({ log: process.env.PRISMA_QUERY_LOG === "1" ? ["warn", "query"] : ["warn"] });
   // Every query the app makes passes through both walls: tenancy scopes it to
   // the caller's organization, audit records it if it changed a business
   // entity. Nothing outside this file holds the bare client.

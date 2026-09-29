@@ -10,6 +10,7 @@ import { Avatar } from "@/components/ui/Avatar";
 import { Dropdown } from "@/components/ui/Dropdown";
 import { NotificationBell } from "@/components/layout/NotificationBell";
 import { cn } from "@/lib/utils";
+import { SkipLink } from "@/components/ui/SkipLink";
 
 /**
  * The client portal's frame — the third experience (CLAUDE.md §7: "clean,
@@ -42,6 +43,7 @@ export function ClientShell({
   const pathname = usePathname();
   return (
     <div className="min-h-screen bg-canvas">
+      <SkipLink />
       <header className="sticky top-0 z-20 border-b border-line bg-canvas/90 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between gap-4 px-4 sm:px-8">
           <div className="flex min-w-0 items-center gap-3">
@@ -57,8 +59,9 @@ export function ClientShell({
           </div>
 
           <div className="flex items-center gap-2">
-            <NotificationBell reportsHref="/portal/reports" allHref="/portal/notifications" />
+            <NotificationBell forClient reportsHref="/portal/reports" allHref="/portal/notifications" />
             <Dropdown
+              label={`Account menu for ${user.name}`}
               trigger={
                 <span className="flex items-center gap-2 rounded-[10px] border border-line px-2 py-1.5 transition-colors hover:bg-surface-2">
                   <Avatar name={user.name} color={user.avatarColor} size="sm" />
@@ -109,7 +112,7 @@ export function ClientShell({
         </nav>
       </header>
 
-      <main className="mx-auto w-full max-w-[1200px] px-4 py-8 sm:px-8 sm:py-10">{children}</main>
+      <main id="main" tabIndex={-1} className="mx-auto w-full max-w-[1200px] px-4 py-8 outline-none sm:px-8 sm:py-10">{children}</main>
     </div>
   );
 }

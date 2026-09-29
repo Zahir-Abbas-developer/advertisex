@@ -41,6 +41,8 @@ export const NOTIFICATION_TYPES = [
   // Phase 9 — AI employees: an agent finished work, or wants a decision.
   "AGENT_NOTICE",
   "APPROVAL_NEEDED",
+  // Phase 10 — a scheduled job failed; the founders hear about it the same day.
+  "JOB_FAILED",
 ] as const;
 
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
@@ -69,4 +71,5 @@ export const NOTIFICATION_TONE: Record<NotificationType, BadgeTone> = {
   ANNOUNCEMENT: "info",
   AGENT_NOTICE: "neutral",
   APPROVAL_NEEDED: "warning",
+  JOB_FAILED: "danger",
 };

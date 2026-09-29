@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 
@@ -8,7 +8,9 @@ import { Sidebar, type SidebarUser } from "@/components/layout/Sidebar";
 import { NotificationBell } from "@/components/layout/NotificationBell";
 import { CommandPalette } from "@/components/layout/CommandPalette";
 import { AvailabilityBanner } from "@/components/attendance/AvailabilityBanner";
-import type { NavKey, StaffExperience } from "@/lib/routes";
+import { paletteCommandsFor, type NavKey, type StaffExperience } from "@/lib/routes";
+import { SkipLink } from "@/components/ui/SkipLink";
+import { useFocusTrap } from "@/components/ui/useFocusTrap";
 
 /**
  * Fixed 240px rail on desktop; a slide-over drawer below `lg`. The drawer
@@ -38,6 +40,8 @@ export function AppShell({
   attendanceEnabled?: boolean;
 }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const drawerRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(drawerOpen, drawerRef);
   const pathname = usePathname();
 
   useEffect(() => {
@@ -55,6 +59,7 @@ export function AppShell({
 
   return (
     <div className="min-h-screen bg-canvas">
+      <SkipLink />
       {/* Desktop rail */}
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-sidebar lg:block">
         <Sidebar user={user} experience={experience} errorBadge={errorBadge} hiddenNavKeys={hiddenNavKeys} />
@@ -71,6 +76,7 @@ export function AppShell({
           </span>
         </div>
         <div className="flex items-center gap-2">
+          <CommandPalette compact commands={paletteCommandsFor(user.role, hiddenNavKeys)} />
           <NotificationBell />
           <button
             type="button"
@@ -85,14 +91,14 @@ export function AppShell({
 
       {/* Mobile drawer */}
       {drawerOpen && (
-        <div className="fixed inset-0 z-40 lg:hidden">
+        <div className="fixed inset-0 z-40 lg:hidden" role="dialog" aria-modal="true" aria-label="Navigation">
           <button
             type="button"
             aria-label="Close navigation"
             onClick={() => setDrawerOpen(false)}
             className="absolute inset-0 h-full w-full cursor-default bg-green-950/40 animate-fade-in"
           />
-          <div className="absolute inset-y-0 left-0 w-[264px] animate-fade-in">
+          <div ref={drawerRef} className="absolute inset-y-0 left-0 w-[264px] animate-fade-in">
             <Sidebar
               user={user}
               experience={experience}
@@ -117,7 +123,7 @@ export function AppShell({
         {/* Desktop top bar. Deliberately slim — it exists for the bell, and a
             heavier header would fight the editorial page headings below it. */}
         <div className="no-print sticky top-0 z-20 hidden items-center justify-end gap-2.5 border-b border-line bg-canvas/90 px-10 py-3 backdrop-blur lg:flex">
-          <CommandPalette />
+          <CommandPalette commands={paletteCommandsFor(user.role, hiddenNavKeys)} />
           <NotificationBell />
         </div>
 
@@ -125,7 +131,7 @@ export function AppShell({
             on the wrong screen. Absent entirely while attendance is parked. */}
         {attendanceEnabled && <AvailabilityBanner />}
 
-        <main className="mx-auto w-full max-w-shell px-5 py-8 sm:px-8 sm:py-10 lg:px-10 lg:py-12">
+        <main id="main" tabIndex={-1} className="mx-auto w-full max-w-shell outline-none px-5 py-8 sm:px-8 sm:py-10 lg:px-10 lg:py-12">
           {children}
         </main>
       </div>

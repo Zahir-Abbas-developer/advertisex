@@ -105,6 +105,7 @@ export function CommentComposer({
   return (
     <div className="relative">
       <textarea
+        aria-label="Comment"
         ref={inputRef}
         rows={3}
         autoFocus={autoFocus}
@@ -146,7 +147,7 @@ export function CommentComposer({
         }}
         className={cn(
           "w-full rounded-[10px] border border-line bg-surface px-3.5 py-2.5 text-sm leading-relaxed text-ink transition-colors",
-          "placeholder:text-ink/35 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/25",
+          "placeholder:text-ink-muted focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/25",
           "disabled:cursor-not-allowed disabled:bg-surface-2 disabled:text-ink/40",
         )}
       />
@@ -185,7 +186,7 @@ export function CommentComposer({
       )}
 
       <div className="mt-2 flex items-center justify-between gap-2">
-        <p className="flex items-center gap-1.5 text-[11px] text-ink/35">
+        <p className="flex items-center gap-1.5 text-[11px] text-ink-muted">
           <AtSign className="h-3 w-3" />
           Mention someone to notify them
         </p>

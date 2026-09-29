@@ -11,7 +11,12 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { StatCard } from "@/components/ui/StatCard";
 import { useToast } from "@/components/ui/Toast";
 import { KpiEntryModal } from "@/components/kpis/KpiEntryModal";
-import { KpiCharts } from "@/components/kpis/KpiCharts";
+import dynamic from "next/dynamic";
+
+/** Charts in their own chunk, fetched once there are weeks to draw (Phase 10). */
+const KpiCharts = dynamic(() => import("@/components/kpis/KpiCharts").then((m) => m.KpiCharts), {
+  loading: () => <div className="h-64 animate-pulse rounded-card bg-surface-2" aria-busy="true" aria-label="Loading charts" />,
+});
 import { formatMoney } from "@/lib/pipeline-types";
 import { formatDate } from "@/lib/date";
 import { cn } from "@/lib/utils";
@@ -227,7 +232,7 @@ export function KpiPanel({ clientId, canEdit }: { clientId: string; canEdit: boo
                       <td className="whitespace-nowrap px-4 py-3 text-[13px] text-ink">
                         {formatDate(week.weekStart)}
                         {week.enteredBy && (
-                          <span className="ml-2 text-[11px] text-ink/35">{week.enteredBy}</span>
+                          <span className="ml-2 text-[11px] text-ink-muted">{week.enteredBy}</span>
                         )}
                       </td>
                       <td className="px-4 py-3 tabular-nums text-ink-2">
@@ -240,7 +245,7 @@ export function KpiPanel({ clientId, canEdit }: { clientId: string; canEdit: boo
                         className={cn(
                           "px-4 py-3 font-medium tabular-nums",
                           week.roas === null
-                            ? "text-ink/30"
+                            ? "text-ink-muted"
                             : week.roas >= data.targetRoas
                               ? "text-brand"
                               : "text-danger",

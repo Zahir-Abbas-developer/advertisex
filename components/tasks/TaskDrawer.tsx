@@ -15,6 +15,7 @@ import { useToast } from "@/components/ui/Toast";
 import { ActivityFeed, type FeedEntry } from "@/components/team/ActivityFeed";
 import { TASK_STATUSES, TASK_STATUS_LABEL, canMove, type TaskStatus } from "@/modules/tasks/domain";
 import { formatBytes, cn } from "@/lib/utils";
+import { InlineError } from "@/components/ui/EmptyState";
 
 type Item = { id: string; label: string; done: boolean };
 type Comment = { id: string; body: string; createdAt: string; author: { id: string; name: string; avatarColor: string } | null };
@@ -51,14 +52,24 @@ export function TaskDrawer({
 
   const id = task?.id;
 
+  const [loadFailed, setLoadFailed] = useState(false);
   const load = useCallback(async () => {
     if (!id) return;
+    let failed = false;
+    const get = (url: string, empty: object) =>
+      fetch(url)
+        .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+        .catch(() => {
+          failed = true;
+          return empty;
+        });
     const [l, c, f, h] = await Promise.all([
-      fetch(`/api/tasks/${id}/checklist`).then((r) => (r.ok ? r.json() : { items: [] })),
-      fetch(`/api/tasks/${id}/comments`).then((r) => (r.ok ? r.json() : { comments: [] })),
-      fetch(`/api/tasks/${id}/files`).then((r) => (r.ok ? r.json() : { files: [] })),
-      fetch(`/api/tasks/${id}/activity`).then((r) => (r.ok ? r.json() : { entries: [] })),
+      get(`/api/tasks/${id}/checklist`, { items: [] }),
+      get(`/api/tasks/${id}/comments`, { comments: [] }),
+      get(`/api/tasks/${id}/files`, { files: [] }),
+      get(`/api/tasks/${id}/activity`, { entries: [] }),
     ]);
+    setLoadFailed(failed);
     setItems(l.items);
     setComments(c.comments);
     setFiles(f.files);
@@ -216,7 +227,7 @@ export function TaskDrawer({
                 {items.map((item) => (
                   <div key={item.id} className="flex items-start justify-between gap-2">
                     <Checkbox label={item.label} checked={item.done} onChange={(e) => void checklist("PATCH", { itemId: item.id, done: e.target.checked })} />
-                    <button type="button" aria-label={`Remove ${item.label}`} onClick={() => void checklist("DELETE", undefined, item.id)} className="rounded-[8px] p-1 text-ink/30 hover:bg-surface-2 hover:text-ink">
+                    <button type="button" aria-label={`Remove ${item.label}`} onClick={() => void checklist("DELETE", undefined, item.id)} className="rounded-[8px] p-1 text-ink-muted hover:bg-surface-2 hover:text-ink">
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
                   </div>
@@ -287,6 +298,7 @@ export function TaskDrawer({
               </div>
             ))}
 
+          {loadFailed && <InlineError message="Part of this task didn't load." onRetry={() => void load()} />}
           {tab === "history" && (history === null ? <Skeleton className="h-24" /> : <ActivityFeed entries={history} />)}
         </div>
       )}

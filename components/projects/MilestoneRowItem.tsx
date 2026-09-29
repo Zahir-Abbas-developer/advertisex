@@ -104,6 +104,7 @@ export function MilestoneRowItem({
         <div className="relative">
           {assigning ? (
             <select
+              aria-label="Assignee"
               autoFocus
               disabled={busy}
               defaultValue={milestone.assignee?.id ?? ""}

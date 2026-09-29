@@ -86,7 +86,8 @@ export const DEFAULT_SERVICES: readonly CatalogService[] = [
     description: "Organic search growth for the brand.",
     price: 1200,
     billing: "MONTHLY",
-    stages: ["Audit", "Technical fixes", "Content", "Links", "Report"],
+    // Stage names are shown to the client in the portal — their words, not ours.
+    stages: ["Audit", "Site fixes", "Content", "Links from other sites", "Report"],
     skills: ["SEO"],
   },
   {
@@ -95,7 +96,7 @@ export const DEFAULT_SERVICES: readonly CatalogService[] = [
     description: "Ranking in the map pack for every location.",
     price: 800,
     billing: "MONTHLY",
-    stages: ["Audit", "Citations", "Reviews", "Optimize", "Report"],
+    stages: ["Audit", "Directory listings", "Reviews", "Listing improvements", "Report"],
     skills: ["Local SEO"],
   },
   {

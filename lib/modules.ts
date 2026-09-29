@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import type { NavKey } from "@/lib/routes";
+import { settingsRow } from "@/lib/settings";
 
 /**
  * Parked modules — the agency features Advertise X did not request.
@@ -81,11 +82,7 @@ export const ALL_MODULES_OFF: ModuleFlags = {
  * does: a fresh database must not need a seeding step before a page can render.
  */
 export async function getModuleFlags(): Promise<ModuleFlags> {
-  const row = await prisma.settings.upsert({
-    where: { id: "singleton" },
-    update: {},
-    create: { id: "singleton" },
-  });
+  const row = await settingsRow();
 
   return {
     attendance: row.featureAttendance,

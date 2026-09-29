@@ -28,7 +28,7 @@ export function Pagination({
   const arrow =
     "inline-flex h-8 w-8 items-center justify-center rounded-[8px] border border-line text-ink-muted " +
     "transition-colors hover:bg-surface-2 hover:text-ink disabled:opacity-30 disabled:hover:bg-transparent " +
-    "focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/40";
+    "focus:outline-none focus-visible:ring-2 focus-visible:ring-brand";
 
   return (
     <nav aria-label="Pagination" className={cn("flex items-center gap-3", className)}>

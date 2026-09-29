@@ -18,7 +18,7 @@ import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card, CardHeader } from "@/components/ui/Card";
-import { EmptyState } from "@/components/ui/EmptyState";
+import { EmptyState, InlineError } from "@/components/ui/EmptyState";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Textarea } from "@/components/ui/Textarea";
 import { useToast } from "@/components/ui/Toast";
@@ -95,15 +95,18 @@ export function ActivityTimeline({
 
   const query = leadId ? `leadId=${leadId}` : `clientId=${clientId}`;
 
+  const [loadFailed, setLoadFailed] = useState(false);
   const load = useCallback(async () => {
     const suffix = filter === "ALL" ? "" : `&type=${filter}`;
     const response = await fetch(`/api/activities?${query}${suffix}`, {
       cache: "no-store",
     });
     if (!response.ok) {
+      setLoadFailed(true);
       setActivities([]);
       return;
     }
+    setLoadFailed(false);
     const body = await response.json().catch(() => ({}));
     setActivities(body.activities ?? []);
     setCounts(body.counts ?? {});
@@ -245,7 +248,7 @@ export function ActivityTimeline({
                 ? "All"
                 : (ACTIVITY_TYPE_LABEL[type as ActivityType] ?? type)}
               {type !== "ALL" && (
-                <span className="ml-1.5 text-[11px] text-ink/35">{counts[type]}</span>
+                <span className="ml-1.5 text-[11px] text-ink-muted">{counts[type]}</span>
               )}
             </button>
           ))}
@@ -253,7 +256,9 @@ export function ActivityTimeline({
       )}
 
       <div className="mt-5">
-        {activities === null ? (
+        {loadFailed ? (
+          <InlineError message="The timeline didn't load." onRetry={() => void load()} />
+        ) : activities === null ? (
           <div className="space-y-3">
             <Skeleton className="h-12" />
             <Skeleton className="h-12" />
@@ -280,7 +285,7 @@ export function ActivityTimeline({
                     className={cn(
                       "absolute -left-[27px] top-1 flex h-4 w-4 items-center justify-center rounded-full border",
                       activity.isSystem
-                        ? "border-line bg-canvas text-ink/35"
+                        ? "border-line bg-canvas text-ink-muted"
                         : "border-brand bg-brand-tint text-brand",
                     )}
                   >
@@ -300,7 +305,7 @@ export function ActivityTimeline({
                           type="button"
                           aria-label="Remove this entry"
                           onClick={() => void remove(activity.id)}
-                          className="order-last rounded p-1 text-ink/20 transition-colors hover:text-danger"
+                          className="order-last rounded p-1 text-ink-muted transition-colors hover:text-danger"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                         </button>

@@ -163,7 +163,7 @@ export function ProjectsView({ canCreate, canSeeAnalytics }: { canCreate: boolea
                   <span className="tabular-nums text-ink-muted">{items.length}</span>
                 </h2>
                 {items.length === 0 ? (
-                  <p className="rounded-card border border-dashed border-line px-4 py-6 text-center text-[12px] text-ink/35">None</p>
+                  <p className="rounded-card border border-dashed border-line px-4 py-6 text-center text-[12px] text-ink-muted">None</p>
                 ) : (
                   items.map((r) => <ProjectCard key={r.id} row={r} />)
                 )}

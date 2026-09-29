@@ -139,7 +139,7 @@ export function PerformanceProfile({
               <div className="space-y-4">
                 <TrendBlock trend={score.trend} />
                 <div>
-                  <p className="eyebrow text-ink/35">This month</p>
+                  <p className="eyebrow text-ink-muted">This month</p>
                   <p className="mt-1 text-sm text-ink-2">
                     {score.eventCount} event{score.eventCount === 1 ? "" : "s"}
                   </p>
@@ -311,7 +311,7 @@ export function PerformanceProfile({
                       {entry.reason}
                     </p>
 
-                    <p className="mt-1.5 text-[12px] text-ink/35">
+                    <p className="mt-1.5 text-[12px] text-ink-muted">
                       {SCORE_EVENT_LABEL[type]}
                       {entry.clientName && ` · ${entry.clientName}`}
                       {` · ${formatDateTime(entry.createdAt)}`}
@@ -343,7 +343,7 @@ function TrendBlock({ trend }: { trend: number | null }) {
   if (trend === null) {
     return (
       <div>
-        <p className="eyebrow text-ink/35">vs last month</p>
+        <p className="eyebrow text-ink-muted">vs last month</p>
         <p className="mt-1 text-sm text-ink-muted">No history</p>
       </div>
     );
@@ -354,7 +354,7 @@ function TrendBlock({ trend }: { trend: number | null }) {
 
   return (
     <div>
-      <p className="eyebrow text-ink/35">vs last month</p>
+      <p className="eyebrow text-ink-muted">vs last month</p>
       <p
         className={cn(
           "mt-1 flex items-center gap-1 font-display text-lg font-bold tabular-nums",

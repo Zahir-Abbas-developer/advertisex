@@ -174,6 +174,7 @@ export function MemberDepartmentsModal({
 
                   {active && (
                     <select
+                      aria-label="Role in department"
                       value={draft!.roleInDept}
                       onChange={(e) =>
                         setDrafts((prev) =>
@@ -216,7 +217,7 @@ export function MemberDepartmentsModal({
                                 ),
                               )
                             }
-                            className="text-ink/35 transition-colors hover:text-danger"
+                            className="text-ink-muted transition-colors hover:text-danger"
                           >
                             <X className="h-3 w-3" />
                           </button>
@@ -229,6 +230,7 @@ export function MemberDepartmentsModal({
 
                     <div className="mt-2 flex gap-2">
                       <Input
+                        aria-label="Add a skill"
                         value={skillInput[dept.id] ?? ""}
                         placeholder="Add a skill…"
                         onChange={(e) =>

@@ -55,7 +55,7 @@ export function LeadCard({
             {...attributes}
             {...listeners}
             aria-label={`Drag ${lead.businessName}`}
-            className="-ml-1 cursor-grab touch-none rounded p-0.5 text-ink/20 opacity-0 transition-opacity hover:text-ink-muted focus-visible:opacity-100 group-hover:opacity-100 active:cursor-grabbing"
+            className="-ml-1 cursor-grab touch-none rounded p-0.5 text-ink-muted opacity-0 transition-opacity hover:text-ink-muted focus-visible:opacity-100 group-hover:opacity-100 active:cursor-grabbing"
           >
             <GripVertical className="h-4 w-4" />
           </button>
@@ -84,7 +84,7 @@ export function LeadCard({
         ) : lead.estimatedMonthlyValue !== undefined ? (
           <span className="font-display text-sm font-bold tabular-nums text-ink">
             {formatMoney(lead.estimatedMonthlyValue, true)}
-            <span className="ml-0.5 text-[11px] font-medium text-ink/35">/mo</span>
+            <span className="ml-0.5 text-[11px] font-medium text-ink-muted">/mo</span>
           </span>
         ) : (
           <span />

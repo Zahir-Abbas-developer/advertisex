@@ -13,7 +13,7 @@ import { Modal } from "@/components/ui/Modal";
 import { Select } from "@/components/ui/Select";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useToast } from "@/components/ui/Toast";
-import { AXIS, CHART, CURSOR, TOOLTIP } from "@/components/charts/theme";
+import { AXIS, CHART, CURSOR, TOOLTIP, chartAnimation } from "@/components/charts/theme";
 import { relativeFromNow } from "@/lib/date";
 import { safeFetch } from "@/lib/safe-fetch";
 import { cn } from "@/lib/utils";
@@ -144,12 +144,12 @@ export function ClientResultsPanel({ clientId }: { clientId: string }) {
                   </div>
                   <div>
                     <p className="text-[12px] text-ink-muted">{c.headline}, six months</p>
-                    <div className="mt-2 h-40">
+                    <div role="img" aria-label={`Chart: ${c.headline} over the last six months, ${c.trend.map((t) => `${t.month}: ${t.value ?? "none"}`).join(", ")}`} className="mt-2 h-40">
                       <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={c.trend} margin={{ left: 0, right: 0, top: 8 }}>
                           <XAxis dataKey="month" tickFormatter={(m: string) => new Date(`${m}-15T12:00:00Z`).toLocaleDateString("en-US", { month: "short", timeZone: "UTC" })} {...AXIS} />
                           <Tooltip cursor={CURSOR} contentStyle={TOOLTIP} labelFormatter={(l) => monthLabel(String(l))} formatter={(v) => (v === null ? "—" : Number(v).toLocaleString())} />
-                          <Bar dataKey="value" name={c.headline} fill={CHART.data1} radius={[3, 3, 0, 0]} />
+                          <Bar isAnimationActive={chartAnimation()} dataKey="value" name={c.headline} fill={CHART.data1} radius={[3, 3, 0, 0]} />
                         </BarChart>
                       </ResponsiveContainer>
                     </div>

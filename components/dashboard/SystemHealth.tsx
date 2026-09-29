@@ -41,7 +41,7 @@ export function SystemHealth({ report }: { report: HealthReport }) {
         {ok ? (
           <>
             Everything is running.{" "}
-            <span className="text-ink/35">
+            <span className="text-ink-muted">
               {report.jobs
                 .map((job) => `${job.job} ${job.hoursSince ?? 0}h ago`)
                 .join(" · ")}

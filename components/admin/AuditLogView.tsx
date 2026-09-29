@@ -140,7 +140,7 @@ export function AuditLogView() {
                   {entry.actor ? (
                     <Avatar name={entry.actor.name} color={entry.actor.avatarColor} size="sm" />
                   ) : (
-                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-dashed border-line text-[10px] text-ink/35">
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-dashed border-line text-[10px] text-ink-muted">
                       sys
                     </span>
                   )}
@@ -166,7 +166,7 @@ export function AuditLogView() {
                       </p>
                     )}
 
-                    <p className="mt-1 text-[11px] text-ink/35">
+                    <p className="mt-1 text-[11px] text-ink-muted">
                       {AUDIT_ACTION_LABEL[entry.action as AuditAction] ?? entry.action} ·{" "}
                       {entry.entityType} · {formatDateTime(entry.createdAt)}
                     </p>

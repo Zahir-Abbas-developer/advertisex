@@ -222,7 +222,7 @@ export function DepartmentFieldsModal({
         ) : rows.length === 0 ? (
           <EmptyState
             title="No department-specific fields yet"
-            description="Add one to capture what this business line needs and no other does."
+            description="Add one to capture what this department needs and no other does."
           />
         ) : (
           <div className="space-y-3">

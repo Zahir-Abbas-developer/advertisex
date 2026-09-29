@@ -97,3 +97,21 @@ export function ErrorState({
     />
   );
 }
+
+/**
+ * The small version of ErrorState, for a panel inside a page (a timeline, a
+ * drawer tab): one line and a retry, so a failed load is never mistaken for
+ * "nothing here".
+ */
+export function InlineError({ message = "This didn't load.", onRetry }: { message?: string; onRetry?: () => void }) {
+  return (
+    <p role="alert" className="flex flex-wrap items-center gap-2 rounded-[10px] border border-line bg-surface-2 px-3 py-2.5 text-[13px] text-ink-2">
+      {message}
+      {onRetry && (
+        <button type="button" onClick={onRetry} className="font-medium text-brand underline-offset-2 hover:underline">
+          Try again
+        </button>
+      )}
+    </p>
+  );
+}

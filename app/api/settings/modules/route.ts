@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { apiError, requireAdminApi } from "@/lib/api";
 import { MODULES, getModuleFlags, type ModuleKey } from "@/lib/modules";
 import { recordAudit } from "@/lib/audit";
+import { invalidateSettings } from "@/lib/settings";
 
 const patchSchema = z.object({
   key: z.enum(MODULES.map((m) => m.key) as [ModuleKey, ...ModuleKey[]]),
@@ -45,6 +46,7 @@ export async function PATCH(request: Request) {
     update: { [mod.field]: parsed.data.enabled },
     create: { id: "singleton", [mod.field]: parsed.data.enabled },
   });
+  invalidateSettings();
 
   await recordAudit({
     actorId: user!.id,

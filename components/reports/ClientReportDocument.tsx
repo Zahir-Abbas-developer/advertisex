@@ -314,7 +314,7 @@ function Row({
 }) {
   return (
     <li className="report-row px-6 py-3.5">
-      <p className="eyebrow mb-1 text-ink/35">{module}</p>
+      <p className="eyebrow mb-1 text-ink-muted">{module}</p>
       <p className="text-sm font-medium text-ink">{title}</p>
       <p
         className={

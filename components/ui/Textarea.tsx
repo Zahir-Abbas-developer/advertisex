@@ -37,10 +37,10 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function 
         aria-describedby={describedBy}
         className={cn(
           "w-full rounded-[10px] border bg-surface px-3.5 py-2.5 text-sm leading-relaxed text-ink transition-colors",
-          "placeholder:text-ink/35",
+          "placeholder:text-ink-muted",
           "focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/25",
           "disabled:cursor-not-allowed disabled:bg-surface-2 disabled:text-ink/40",
-          error ? "border-danger focus:border-danger focus:ring-danger/20" : "border-line",
+          error ? "border-danger focus:border-danger focus:ring-danger/20" : "border-line-field",
           className,
         )}
         {...props}

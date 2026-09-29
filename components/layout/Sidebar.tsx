@@ -129,8 +129,8 @@ export function Sidebar({
         </div>
 
         {/* Navigation */}
-        <nav className="scrollbar-thin flex-1 overflow-y-auto px-3">
-          <p className="eyebrow mb-2 px-2 text-ink/30">{experience === "admin" ? "Command center" : "My work"}</p>
+        <nav aria-label="Main" className="scrollbar-thin flex-1 overflow-y-auto px-3">
+          <p className="eyebrow mb-2 px-2 text-ink-muted">{experience === "admin" ? "Command center" : "My work"}</p>
           <ul className="space-y-0.5">
             {items.map((item) => {
               const Icon = ICONS[item.key];
@@ -166,7 +166,7 @@ export function Sidebar({
                       </span>
                     )}
                     {item.comingSoon && (
-                      <span className="rounded-pill border border-ink/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-ink/30">
+                      <span className="rounded-pill border border-ink/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-ink-muted">
                         Soon
                       </span>
                     )}

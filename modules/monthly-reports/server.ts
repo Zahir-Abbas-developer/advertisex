@@ -18,6 +18,7 @@ import { notifyAccount } from "@/modules/portal/server";
 import { acceptSummary, highlightsOf, monthLabelOf, reportTitle, SUMMARY_SYSTEM, summaryPrompt, templateSummary, type ReportData } from "@/modules/monthly-reports/domain";
 import { renderReportPdf } from "@/modules/monthly-reports/pdf";
 import { emitEvent } from "@/modules/ai/agents/automations";
+import { CLIENT_CHANNEL_LABEL, clientMetricLabel } from "@/modules/client-analytics/metrics";
 
 /**
  * Monthly reports (Phase 8 scope 4): generated as a DRAFT that NEEDS_REVIEW,
@@ -44,7 +45,18 @@ export async function buildReportData(clientId: string, month: string, now = new
   const results = await resultsFor(clientId, month);
   const channels = results.channels
     .filter((c) => c.hasData)
-    .map((c) => ({ channel: c.channel, label: c.label, question: c.question, headline: c.headline, metrics: c.metrics }));
+    // In the client's words: this snapshot is what the client reads.
+    .map((c) => {
+      const metrics = c.metrics.map((m) => ({ ...m, label: clientMetricLabel(c.channel, m.key, m.label) }));
+      const headlineKey = c.metrics.find((m) => m.label === c.headline)?.key;
+      return {
+        channel: c.channel,
+        label: CLIENT_CHANNEL_LABEL[c.channel] ?? c.label,
+        question: c.question,
+        headline: headlineKey ? clientMetricLabel(c.channel, headlineKey, c.headline) : c.headline,
+        metrics,
+      };
+    });
 
   const projects = await prisma.project.findMany({
     where: { clientId, status: { not: "CANCELLED" }, startDate: { lte: new Date(`${month}-28T23:59:59Z`) } },

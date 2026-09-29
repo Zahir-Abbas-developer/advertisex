@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useId, useRef, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { useFocusTrap } from "@/components/ui/useFocusTrap";
 
 export interface DrawerProps {
   open: boolean;
@@ -31,6 +32,9 @@ export function Drawer({
   width = "lg",
 }: DrawerProps) {
   const panelRef = useRef<HTMLDivElement>(null);
+  const titleId = useId();
+  // Focus moves into the panel, stays there, and returns on close.
+  useFocusTrap(open, panelRef);
 
   useEffect(() => {
     if (!open) return;
@@ -52,7 +56,7 @@ export function Drawer({
   if (!open || typeof document === "undefined") return null;
 
   return createPortal(
-    <div className="no-print fixed inset-0 z-50" role="dialog" aria-modal="true">
+    <div className="no-print fixed inset-0 z-50" role="dialog" aria-modal="true" aria-labelledby={titleId}>
       <button
         type="button"
         aria-label="Close panel"
@@ -62,8 +66,9 @@ export function Drawer({
 
       <div
         ref={panelRef}
+        tabIndex={-1}
         className={cn(
-          "absolute inset-y-0 right-0 flex w-full flex-col border-l border-line bg-surface",
+          "absolute inset-y-0 right-0 outline-none flex w-full flex-col border-l border-line bg-surface",
           // Slides in on transform alone. Opacity is never animated here, so
           // the panel cannot end up invisible if the animation is skipped.
           "animate-slide-in-right",
@@ -73,7 +78,7 @@ export function Drawer({
         <header className="flex items-start justify-between gap-4 border-b border-line bg-surface px-5 py-4">
           <div className="min-w-0">
             {eyebrow && <p className="eyebrow mb-1.5 text-brand">{eyebrow}</p>}
-            <h2 className="break-words font-display text-lg font-bold leading-snug tracking-tight text-ink">
+            <h2 id={titleId} className="break-words font-display text-lg font-bold leading-snug tracking-tight text-ink">
               {title}
             </h2>
           </div>

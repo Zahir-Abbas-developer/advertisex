@@ -59,7 +59,7 @@ export default async function PortalInvoices() {
                   <Link href={`/portal/invoices/${inv.id}`} className="group flex min-w-0 flex-1 flex-wrap items-center gap-x-4 gap-y-1">
                     <span className="min-w-[96px] font-medium text-ink group-hover:text-brand">{inv.number}</span>
                     <span className="text-[13px] text-ink-muted">{inv.issuedAt ? formatDate(inv.issuedAt) : ""} · due {formatDate(inv.dueAt)}</span>
-                    <InvoiceStatusBadge status={inv.status} />
+                    <InvoiceStatusBadge forClient status={inv.status} />
                     <span className="ml-auto text-right tabular-nums text-ink">
                       {formatMoney(inv.totalMinor, inv.currency)}
                       {inv.balanceMinor > 0 && inv.balanceMinor !== inv.totalMinor && <span className="block text-[12px] text-ink-muted">{formatMoney(inv.balanceMinor, inv.currency)} left</span>}
@@ -68,7 +68,7 @@ export default async function PortalInvoices() {
                   <a href={`${inv.downloadUrl}?download=1`} className="rounded-lg p-2 text-ink-muted hover:bg-surface-2 hover:text-ink" aria-label={`Download ${inv.number}`}>
                     <Download className="h-4 w-4" />
                   </a>
-                  <ChevronRight className="hidden h-4 w-4 text-ink/30 sm:block" />
+                  <ChevronRight className="hidden h-4 w-4 text-ink-muted sm:block" />
                 </li>
               ))}
             </ul>

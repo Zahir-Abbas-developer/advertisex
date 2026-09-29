@@ -75,7 +75,7 @@ export default async function PortalOverview() {
           </Card>
 
           <Card padded={false}>
-            <CardHeader title="Coming up" description="The next milestones on your projects." />
+            <CardHeader title="Coming up" description="What's coming next on your projects." />
             <CardBody>
               {data.upcoming.length === 0 ? (
                 <p className="text-[13px] text-ink-muted">Nothing scheduled right now.</p>

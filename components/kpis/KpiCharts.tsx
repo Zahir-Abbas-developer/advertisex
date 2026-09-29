@@ -17,7 +17,7 @@ import {
 import { Card } from "@/components/ui/Card";
 import { formatMoney } from "@/lib/pipeline-types";
 import type { KpiWeekRow } from "@/components/kpis/KpiPanel";
-import { AXIS, CHART, CURSOR, TOOLTIP } from "@/components/charts/theme";
+import { AXIS, CHART, CURSOR, TOOLTIP, chartAnimation } from "@/components/charts/theme";
 
 /**
  * Spend against revenue, ROAS against target, and orders.
@@ -62,7 +62,7 @@ export function KpiCharts({
           title="Spend and revenue"
           description="What went in against what came back, week by week."
         />
-        <div className="mt-4 h-[240px]">
+        <div role="img" aria-label="Chart: Spend and revenue" className="mt-4 h-[240px]">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data} margin={{ top: 4, right: 8, bottom: 0, left: -12 }}>
               <CartesianGrid stroke={LINE} vertical={false} />
@@ -74,8 +74,8 @@ export function KpiCharts({
                 formatter={(value, name) => [formatMoney(Number(value ?? 0)), String(name)]}
               />
               <Legend wrapperStyle={LEGEND} />
-              <Bar dataKey="spend" name="Ad spend" fill={DATA_SECONDARY} radius={[3, 3, 0, 0]} />
-              <Bar dataKey="revenue" name="Revenue" fill={DATA_PRIMARY} radius={[3, 3, 0, 0]} />
+              <Bar isAnimationActive={chartAnimation()} dataKey="spend" name="Ad spend" fill={DATA_SECONDARY} radius={[3, 3, 0, 0]} />
+              <Bar isAnimationActive={chartAnimation()} dataKey="revenue" name="Revenue" fill={DATA_PRIMARY} radius={[3, 3, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -86,7 +86,7 @@ export function KpiCharts({
           title="ROAS against target"
           description={`The dashed line is this client's target of ${targetRoas}.`}
         />
-        <div className="mt-4 h-[220px]">
+        <div role="img" aria-label="Chart: ROAS against target" className="mt-4 h-[220px]">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={data} margin={{ top: 4, right: 8, bottom: 0, left: -20 }}>
               <CartesianGrid stroke={LINE} vertical={false} />
@@ -102,7 +102,7 @@ export function KpiCharts({
                 strokeDasharray="4 4"
                 strokeWidth={1.5}
               />
-              <Line
+              <Line isAnimationActive={chartAnimation()}
                 type="monotone"
                 dataKey="roas"
                 name="ROAS"
@@ -121,7 +121,7 @@ export function KpiCharts({
 
       <Card>
         <ChartHeading title="Orders" description="Volume, independent of basket size." />
-        <div className="mt-4 h-[220px]">
+        <div role="img" aria-label="Chart: Orders" className="mt-4 h-[220px]">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data} margin={{ top: 4, right: 8, bottom: 0, left: -24 }}>
               <CartesianGrid stroke={LINE} vertical={false} />
@@ -132,7 +132,7 @@ export function KpiCharts({
                 contentStyle={TOOLTIP}
                 formatter={(value) => [String(value ?? 0), "Orders"]}
               />
-              <Bar dataKey="orders" name="Orders" fill={DATA_PRIMARY} fillOpacity={0.75} radius={[3, 3, 0, 0]} />
+              <Bar isAnimationActive={chartAnimation()} dataKey="orders" name="Orders" fill={DATA_PRIMARY} fillOpacity={0.75} radius={[3, 3, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>

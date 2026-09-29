@@ -146,7 +146,7 @@ export function ClientsBrowser({
                 <span
                   className={cn(
                     "text-[11px] tabular-nums",
-                    active ? "text-ink-muted" : "text-ink/35",
+                    active ? "text-ink-muted" : "text-ink-muted",
                   )}
                 >
                   {count}
@@ -176,7 +176,7 @@ export function ClientsBrowser({
                 )}
               >
                 {value === "ALL" ? "All" : CLIENT_STATUS_LABEL[value]}
-                <span className={cn("text-[11px] tabular-nums", active ? "text-ink-muted" : "text-ink/35")}>
+                <span className={cn("text-[11px] tabular-nums", active ? "text-ink-muted" : "text-ink-muted")}>
                   {count}
                 </span>
               </button>

@@ -31,7 +31,7 @@ const CELL_STYLE: Record<string, string> = {
   LATE: "bg-warn-tint text-ink",
   ABSENT: "bg-danger-tint text-danger",
   LEAVE: "bg-surface-2 text-ink-muted",
-  OFF: "bg-surface-2/50 text-ink/25",
+  OFF: "bg-surface-2/50 text-ink-muted",
 };
 
 const CELL_LETTER: Record<string, string> = {

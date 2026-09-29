@@ -30,7 +30,7 @@ export async function GET(request: Request) {
   if (access.response) return access.response;
   const me = access.principal.id;
 
-  if (access.principal.role === "AI_AGENT") return apiError("Attendance doesn't apply to AI agents", 403);
+  if (access.principal.role === "AI_AGENT") return apiError("Attendance doesn't apply to AI employees", 403);
 
   const requested = new URL(request.url).searchParams.get("month");
   const now = new Date();

@@ -90,7 +90,7 @@ export function ProjectTeam({ project, viewer, onChanged }: { project: ProjectPa
                         <span className="min-w-0 flex-1">
                           <span className="flex items-center gap-1.5 text-[13px] text-ink">
                             {p.name}
-                            {p.isAgent && <Bot className="h-3.5 w-3.5 text-ink-2" aria-label="AI agent" />}
+                            {p.isAgent && <Bot className="h-3.5 w-3.5 text-ink-2" aria-label="AI employee" />}
                           </span>
                           <span className="block truncate text-[11px] text-ink-muted">{p.jobTitle ?? ""}</span>
                         </span>

@@ -20,7 +20,12 @@ import { CredentialsPanel } from "@/components/clients/CredentialsPanel";
 import { ClientProjectsPanel } from "@/components/clients/ClientProjectsPanel";
 import { ClientServicesPanel } from "@/components/clients/ClientServicesPanel";
 import { ClientInvoicesPanel } from "@/components/billing/ClientInvoicesPanel";
-import { ClientResultsPanel } from "@/components/clients/ClientResultsPanel";
+import dynamic from "next/dynamic";
+
+/** The Results tab's charts load when the tab is opened, not with the page (Phase 10). */
+const ClientResultsPanel = dynamic(() => import("@/components/clients/ClientResultsPanel").then((m) => m.ClientResultsPanel), {
+  loading: () => <div className="h-64 animate-pulse rounded-card bg-surface-2" aria-busy="true" aria-label="Loading results" />,
+});
 import { ContractsPanel } from "@/components/clients/ContractsPanel";
 import { NotesPanel } from "@/components/clients/NotesPanel";
 import { ClientReportsPanel } from "@/components/clients/ClientReportsPanel";
@@ -292,21 +297,21 @@ function Overview({ data, onOpen }: { data: ClientProfileData; onOpen: (t: Tab) 
           <CardBody className="space-y-2.5 text-[13px]">
             <p className="font-medium text-ink">{client.contactName}</p>
             <a href={`mailto:${client.email}`} className="flex items-center gap-2 text-ink-2 hover:text-ink">
-              <Mail className="h-3.5 w-3.5 text-ink/35" /> {client.email}
+              <Mail className="h-3.5 w-3.5 text-ink-muted" /> {client.email}
             </a>
             {client.phone && (
               <a href={`tel:${client.phone}`} className="flex items-center gap-2 text-ink-2 hover:text-ink">
-                <Phone className="h-3.5 w-3.5 text-ink/35" /> {client.phone}
+                <Phone className="h-3.5 w-3.5 text-ink-muted" /> {client.phone}
               </a>
             )}
             {client.website && (
               <a href={client.website.startsWith("http") ? client.website : `https://${client.website}`} target="_blank" rel="noreferrer noopener" className="flex items-center gap-2 text-ink-2 hover:text-ink">
-                <Globe className="h-3.5 w-3.5 text-ink/35" /> {client.website} <ArrowUpRight className="h-3 w-3" />
+                <Globe className="h-3.5 w-3.5 text-ink-muted" /> {client.website} <ArrowUpRight className="h-3 w-3" />
               </a>
             )}
             {(client.location || client.country) && (
               <p className="flex items-center gap-2 text-ink-2">
-                <MapPin className="h-3.5 w-3.5 text-ink/35" /> {[client.location, client.country].filter(Boolean).join(", ")}
+                <MapPin className="h-3.5 w-3.5 text-ink-muted" /> {[client.location, client.country].filter(Boolean).join(", ")}
               </p>
             )}
             <p className="pt-1 text-[12px] text-ink-muted">{client.hasPortal ? "Has a client portal login" : "No portal login yet"}</p>

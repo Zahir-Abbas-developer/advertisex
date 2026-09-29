@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useId, useRef, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { useFocusTrap } from "@/components/ui/useFocusTrap";
 
 export interface ModalProps {
   open: boolean;
@@ -49,6 +50,10 @@ export function Modal({
 }: ModalProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const scrollerRef = useRef<HTMLDivElement>(null);
+  // Unique per dialog: two open at once must not share a title id.
+  const titleId = useId();
+  // Tab stays inside; closing returns focus to whatever opened it.
+  useFocusTrap(open, panelRef);
 
   // Escape to dismiss, and lock background scroll while open.
   useEffect(() => {
@@ -107,7 +112,7 @@ export function Modal({
       className="fixed inset-0 z-50 overflow-y-auto overscroll-contain"
       role="dialog"
       aria-modal="true"
-      aria-labelledby="modal-title"
+      aria-labelledby={titleId}
     >
       <button
         type="button"
@@ -131,7 +136,7 @@ export function Modal({
                 <p className="eyebrow mb-1.5 text-brand">{eyebrow}</p>
               )}
               <h2
-                id="modal-title"
+                id={titleId}
                 className="font-display text-xl font-bold tracking-tight text-ink"
               >
                 {title}

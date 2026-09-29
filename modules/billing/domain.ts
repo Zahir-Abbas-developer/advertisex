@@ -18,6 +18,16 @@ export const INVOICE_STATUS_LABEL: Record<InvoiceStatus, string> = {
   VOID: "Void",
 };
 
+/** The same statuses in a restaurant owner's words (the portal). Drafts never reach it. */
+export const CLIENT_INVOICE_STATUS_LABEL: Record<InvoiceStatus, string> = {
+  DRAFT: "Draft",
+  SENT: "Due",
+  PARTIALLY_PAID: "Partly paid",
+  PAID: "Paid",
+  OVERDUE: "Past due",
+  VOID: "Cancelled",
+};
+
 export const INVOICE_STATUS_TONE: Record<InvoiceStatus, "neutral" | "info" | "warning" | "success" | "danger"> = {
   DRAFT: "neutral",
   SENT: "info",

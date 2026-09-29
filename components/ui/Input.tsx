@@ -22,12 +22,12 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 export const fieldClasses = (hasError?: boolean, hasIcon?: boolean) =>
   cn(
     "w-full rounded-[10px] border bg-surface text-sm text-ink transition-colors",
-    "placeholder:text-ink/35",
+    "placeholder:text-ink-muted",
     "focus:outline-none focus:ring-2 focus:ring-brand/25 focus:border-brand",
     "disabled:cursor-not-allowed disabled:bg-surface-2 disabled:text-ink/40",
     "h-11 px-3.5",
     hasIcon && "pl-10",
-    hasError ? "border-danger focus:border-danger focus:ring-danger/20" : "border-line",
+    hasError ? "border-danger focus:border-danger focus:ring-danger/20" : "border-line-field",
   );
 
 export const labelClasses = "mb-1.5 block text-[13px] font-medium text-ink/80";

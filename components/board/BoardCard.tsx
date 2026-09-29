@@ -72,7 +72,7 @@ export function BoardCard({
             {...attributes}
             {...listeners}
             aria-label={`Drag ${milestone.title}`}
-            className="-ml-1 cursor-grab touch-none rounded p-0.5 text-ink/20 opacity-0 transition-opacity hover:text-ink-muted focus-visible:opacity-100 group-hover:opacity-100 active:cursor-grabbing"
+            className="-ml-1 cursor-grab touch-none rounded p-0.5 text-ink-muted opacity-0 transition-opacity hover:text-ink-muted focus-visible:opacity-100 group-hover:opacity-100 active:cursor-grabbing"
           >
             <GripVertical className="h-4 w-4" />
           </button>
@@ -143,7 +143,7 @@ export function BoardCard({
             className="h-6 w-6 text-[9px]"
           />
         ) : (
-          <span className="rounded-pill border border-dashed border-line px-2 py-0.5 text-[10px] text-ink/35">
+          <span className="rounded-pill border border-dashed border-line px-2 py-0.5 text-[10px] text-ink-muted">
             Unassigned
           </span>
         )}

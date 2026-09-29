@@ -10,6 +10,7 @@ import { useToast } from "@/components/ui/Toast";
 import { DynamicFields } from "@/components/fields/DynamicFields";
 import { displayValue, isVisible } from "@/lib/fields";
 import type { FieldDefinitionView, FieldValueMap } from "@/lib/fields";
+import { InlineError } from "@/components/ui/EmptyState";
 
 /**
  * A record's department-specific answers, read and edited in place.
@@ -42,12 +43,15 @@ export function RecordFieldsPanel({
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
 
+  const [loadFailed, setLoadFailed] = useState(false);
   const load = useCallback(async () => {
     const response = await fetch(endpoint, { cache: "no-store" });
     if (!response.ok) {
+      setLoadFailed(true);
       setDefinitions([]);
       return;
     }
+    setLoadFailed(false);
     const body = await response.json().catch(() => ({}));
     setDefinitions(body.fields ?? []);
     setValues(body.values ?? {});
@@ -83,6 +87,7 @@ export function RecordFieldsPanel({
     }
   }
 
+  if (loadFailed) return <InlineError message="These details didn't load." onRetry={() => void load()} />;
   if (definitions === null) {
     return (
       <Card>
@@ -151,7 +156,7 @@ export function RecordFieldsPanel({
         </div>
       ) : answered.length === 0 ? (
         <p className="mt-4 text-[13px] text-ink-muted">
-          Nothing recorded yet for this business line.
+          Nothing recorded yet for this department.
         </p>
       ) : (
         <dl className="mt-5 grid gap-x-6 gap-y-4 sm:grid-cols-2">

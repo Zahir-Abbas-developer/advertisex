@@ -14,6 +14,7 @@ import { retryNotificationEmails, sendDailyDigests } from "@/lib/notifications";
 import { warmCommandCenter } from "@/modules/analytics/server";
 import { runMonthlyReports } from "@/modules/monthly-reports/server";
 import { runDueNow } from "@/modules/ai/agents/runner";
+import { beginJob } from "@/lib/ops";
 
 /**
  * The 9am follow-up call.
@@ -41,6 +42,7 @@ export async function POST(request: Request) {
   const auth = await authorizeCron(request);
   if (!auth.ok) return auth.response;
 
+  let finish: Awaited<ReturnType<typeof beginJob>> | null = null;
   try {
     const now = new Date();
     const timeZone = await companyTimezone();
@@ -59,6 +61,10 @@ export async function POST(request: Request) {
         timeZone,
       });
     }
+
+    // Stamped only when the run actually happens (not for a skipped window),
+    // so /api/health can say when the morning job last did its work.
+    finish = await beginJob("morning", now);
 
     const due = await dueFollowUps(now);
     let sent = 0;
@@ -97,6 +103,7 @@ export async function POST(request: Request) {
     // Phase 9: whatever the automations above queued, plus anything deferred, runs now.
     const agents = await runDueNow();
 
+    await finish("OK", `${sent} follow-ups · ${tasks.approaching + tasks.overdue} deadline notices · ${invoices.moved} invoices overdue · ${agents.ran} agent runs`);
     return NextResponse.json({
       status: "ok",
       timeZone,
@@ -114,7 +121,8 @@ export async function POST(request: Request) {
       // due minus sent is the dedupe working, not a failure.
       skipped: due.length - sent,
     });
-  } catch {
+  } catch (error) {
+    await finish?.("FAILED", error instanceof Error ? error.message : "The morning run failed");
     return apiError("The follow-up run failed", 500);
   }
 }

@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { getSettings } from "@/lib/settings";
+import { storedRoleValues } from "@/config/permissions";
 
 /**
  * Making silent failures loud.
@@ -14,8 +15,20 @@ import { getSettings } from "@/lib/settings";
  * So every job stamps a row here, and the health endpoint reads them.
  */
 
-export const TRACKED_JOBS = ["evaluate", "backup"] as const;
+export const TRACKED_JOBS = ["morning", "evaluate", "reports", "backup", "digest"] as const;
 export type TrackedJob = (typeof TRACKED_JOBS)[number];
+
+/**
+ * How old a job's last run may be before it counts as late, per job — a
+ * weekly digest isn't late on Tuesday. Daily jobs get 26 hours (see below);
+ * the backup follows its own setting.
+ */
+const STALE_AFTER_HOURS: Record<Exclude<TrackedJob, "backup">, number> = {
+  morning: 26,
+  evaluate: 26,
+  reports: 26,
+  digest: 8 * 24,
+};
 
 /** Marks a job started, and returns a finisher. */
 export async function beginJob(job: string, now = new Date()) {
@@ -27,6 +40,8 @@ export async function beginJob(job: string, now = new Date()) {
 
   return async (status: "OK" | "FAILED", summary: string) => {
     const finishedAt = new Date();
+    // A failed job is news the same day, not a stale row found next week.
+    if (status === "FAILED") await alertFounders(job, summary, finishedAt).catch(() => {});
     await prisma.jobRun
       .update({
         where: { job },
@@ -39,6 +54,15 @@ export async function beginJob(job: string, now = new Date()) {
       })
       .catch(() => {});
   };
+}
+
+/** Tells every founder a scheduled job failed — once per job per day. */
+async function alertFounders(job: string, summary: string, at: Date) {
+  const { notify } = await import("@/lib/notifications");
+  const founders = await prisma.user.findMany({ where: { isActive: true, role: { in: storedRoleValues("FOUNDER") } }, select: { id: true } });
+  for (const f of founders) {
+    await notify({ userId: f.id, type: "JOB_FAILED", title: `The ${job} job failed`, body: summary.slice(0, 300), href: "/admin/errors", dedupeKey: `job-failed:${job}:${at.toISOString().slice(0, 10)}:${f.id}` });
+  }
 }
 
 export type JobHealth = {
@@ -88,7 +112,7 @@ export async function jobHealth(now = new Date()): Promise<JobHealth[]> {
       hoursSince: Math.round(hoursSince * 10) / 10,
       durationMs: run.durationMs,
       summary: run.summary,
-      stale: run.status === "FAILED" || hoursSince > settings.backupWarnHours,
+      stale: run.status === "FAILED" || hoursSince > (job === "backup" ? settings.backupWarnHours : STALE_AFTER_HOURS[job]),
     };
   });
 }

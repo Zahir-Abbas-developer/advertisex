@@ -4,6 +4,7 @@ import { Compass } from "lucide-react";
 import { buttonClasses } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 
+/** Any unknown address. "/" sends each person to their own home — the team app or the client portal. */
 export default function NotFound() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-canvas px-6">
@@ -12,10 +13,10 @@ export default function NotFound() {
           icon={Compass}
           eyebrow="404"
           title="This page doesn't exist"
-          description="The link may be out of date, or the page may have moved as the platform grows."
+          description="The link may be out of date, or the page may have moved."
           action={
-            <Link href="/dashboard" className={buttonClasses("primary", "md")}>
-              Back to dashboard
+            <Link href="/" className={buttonClasses("primary", "md")}>
+              Go to your home page
             </Link>
           }
         />

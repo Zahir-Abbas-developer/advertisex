@@ -71,3 +71,10 @@ export const TOOLTIP = {
 } as const;
 
 export const CURSOR = { fill: "rgba(14,91,55,0.05)" } as const;
+
+/**
+ * Chart animation, off for people who've asked their system for less motion
+ * (WCAG 2.3.3). Recharts animates in JavaScript, so the global CSS rule can't
+ * reach it; every series passes `isAnimationActive={chartAnimation()}`.
+ */
+export const chartAnimation = () => typeof window !== "undefined" && !window.matchMedia("(prefers-reduced-motion: reduce)").matches;

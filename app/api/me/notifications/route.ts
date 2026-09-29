@@ -13,7 +13,7 @@ export async function GET() {
   const u = await prisma.user.findUniqueOrThrow({ where: { id: gate.principal.id }, select: { notificationPrefs: true } });
   const prefs = resolvePreferences(u.notificationPrefs);
   return NextResponse.json({
-    categories: categoriesFor(gate.principal.role).map((key) => ({ key, label: CATEGORY[key].label, description: CATEGORY[key].description, minimum: CATEGORY[key].minimum, level: prefs.levels[key] })),
+    categories: categoriesFor(gate.principal.role).map((key) => ({ key, label: CATEGORY[key].label, description: (gate.principal.role === "CLIENT" && CATEGORY[key].clientDescription) || CATEGORY[key].description, minimum: CATEGORY[key].minimum, level: prefs.levels[key] })),
     digest: prefs.digest,
   });
 }

@@ -182,9 +182,12 @@ export function FilesPanel({
                   {f.uploader ? ` · ${f.uploader.name}` : ""}
                 </p>
               </div>
-              <Badge tone={f.visibility === "CLIENT" ? "info" : "neutral"} size="sm">
-                {f.visibility === "CLIENT" ? "Client can see" : "Internal"}
-              </Badge>
+              {/* Who can see a file is the team's question; the client sees only what's shared. */}
+              {canUpload && (
+                <Badge tone={f.visibility === "CLIENT" ? "info" : "neutral"} size="sm">
+                  {f.visibility === "CLIENT" ? "Client can see" : "Internal"}
+                </Badge>
+              )}
               <div className="flex items-center gap-1">
                 {f.previewUrl && (
                   <button type="button" onClick={() => void open(f, "preview")} className="rounded p-1.5 text-ink-muted hover:bg-surface-2 hover:text-ink" aria-label={`Preview ${f.filename}`}>

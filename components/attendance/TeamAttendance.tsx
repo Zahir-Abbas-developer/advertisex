@@ -79,7 +79,7 @@ export function TeamAttendance() {
         <Skeleton className="h-[360px] rounded-card" />
       ) : people.length === 0 ? (
         <Card padded={false}>
-          <EmptyState title="Nobody to show" description="Attendance applies to the people on your team — AI agents have none." />
+          <EmptyState title="Nobody to show" description="Attendance applies to the people on your team — AI employees have none." />
         </Card>
       ) : (
         <TableShell>

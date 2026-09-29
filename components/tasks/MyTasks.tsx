@@ -240,7 +240,7 @@ export function MyTasks({
                 >
                   <span className="flex items-center justify-between gap-2">
                     <span className="eyebrow text-ink-muted">{task.clientName}</span>
-                    <span className="font-display text-[11px] font-bold text-ink/25">
+                    <span className="font-display text-[11px] font-bold text-ink-muted">
                       {index + 1}
                     </span>
                   </span>

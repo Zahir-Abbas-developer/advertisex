@@ -139,7 +139,7 @@ export function EmployeeProfile({ id }: { id: string }) {
               <div className="flex flex-wrap items-center gap-2">
                 <h1 className="font-display text-[28px] font-bold leading-tight tracking-[-0.02em] text-ink">{member.name}</h1>
                 {member.isAgent ? (
-                  <span className="rounded-pill border border-info/30 bg-info-tint px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-ink-2">AI agent</span>
+                  <span className="rounded-pill border border-info/30 bg-info-tint px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-ink-2">AI employee</span>
                 ) : (
                   <Badge tone={member.employmentStatus === "ACTIVE" ? "success" : member.employmentStatus === "ON_LEAVE" ? "warning" : "neutral"} size="sm">
                     {member.employmentStatus === "ACTIVE" ? "Active" : member.employmentStatus === "ON_LEAVE" ? "On leave" : "Inactive"}

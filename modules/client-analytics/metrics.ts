@@ -258,3 +258,47 @@ export function previousMonth(month: string): string {
   const [y, m] = month.split("-").map(Number);
   return m === 1 ? `${y - 1}-12` : `${y}-${String(m - 1).padStart(2, "0")}`;
 }
+
+/**
+ * The same figures in a restaurant owner's words (Phase 10) — for what the
+ * client reads: the monthly report and its PDF. The team's Results tab keeps
+ * the marketing terms it works in. Anything unlisted is already plain.
+ */
+export const CLIENT_CHANNEL_LABEL: Partial<Record<Channel, string>> = {
+  leads: "Enquiries & bookings",
+  seo: "Google search",
+  localSeo: "Your Google listing",
+};
+
+export const CLIENT_METRIC_LABEL: Record<string, string> = {
+  "googleAds.impressions": "Times your ads were shown",
+  "googleAds.clicks": "Ad clicks",
+  "googleAds.cost": "Ad spend",
+  "googleAds.conversions": "Customer actions",
+  "googleAds.conversionValue": "Value of those actions",
+  "googleAds.ctr": "% of viewers who clicked",
+  "googleAds.cpa": "Cost per customer action",
+  "googleAds.roas": "Revenue per $1 of ads",
+  "metaAds.reach": "People reached",
+  "metaAds.impressions": "Times your ads were shown",
+  "metaAds.cost": "Ad spend",
+  "metaAds.conversionValue": "Value of results",
+  "metaAds.ctr": "% of viewers who clicked",
+  "metaAds.roas": "Revenue per $1 of ads",
+  "leads.leads": "Enquiries",
+  "leads.bookingRate": "Enquiries that booked",
+  "website.sessions": "Website visits",
+  "website.engagedSessions": "Engaged visits",
+  "website.keyEvents": "Actions taken (bookings, orders, calls)",
+  "website.engagementRate": "Visits that engaged",
+  "website.conversionRate": "Visits that led to an action",
+  "seo.impressions": "Times shown in Google search",
+  "seo.clicks": "Clicks from Google search",
+  "seo.avgPosition": "Average ranking",
+  "seo.topTenKeywords": "Searches where you're on page one",
+  "seo.ctr": "% of searchers who clicked",
+  "localSeo.profileViews": "Listing views",
+  "localSeo.actionRate": "Views that led to a call, visit or click",
+};
+
+export const clientMetricLabel = (channel: Channel, key: string, label: string) => CLIENT_METRIC_LABEL[`${channel}.${key}`] ?? label;

@@ -77,7 +77,7 @@ export function StatCard({
               {value}
             </span>
             {unit && (
-              <span className={cn("font-display text-lg font-bold", hero ? "text-on-brand/60" : "text-ink/35")}>{unit}</span>
+              <span className={cn("font-display text-lg font-bold", hero ? "text-on-brand/60" : "text-ink-muted")}>{unit}</span>
             )}
           </>
         )}

@@ -52,7 +52,7 @@ export function AgentSettingsModal({ agent, capabilities, onClose, onSaved }: { 
       open
       onClose={onClose}
       eyebrow="AI employee"
-      title={agent ? `${agent.name}'s settings` : "Hire an agent"}
+      title={agent ? `${agent.name}'s settings` : "Hire an AI employee"}
       busy={busy}
       footer={
         <>

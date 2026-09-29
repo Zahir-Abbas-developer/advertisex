@@ -35,8 +35,11 @@ export function Dropdown({
   items,
   align = "end",
   className,
+  label,
 }: {
   trigger: ReactNode;
+  /** The trigger's accessible name, when its content doesn't say it (an avatar, an icon). */
+  label?: string;
   items: readonly DropdownItem[];
   align?: "start" | "end";
   className?: string;
@@ -44,6 +47,13 @@ export function Dropdown({
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const menuId = useId();
+  const triggerRef = useRef<HTMLButtonElement>(null);
+
+  // Opening puts focus on the first item, as a menu should.
+  useEffect(() => {
+    if (!open) return;
+    rootRef.current?.querySelector<HTMLButtonElement>("[role='menuitem']:not(:disabled)")?.focus();
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -52,7 +62,10 @@ export function Dropdown({
       if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
     }
     function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") setOpen(false);
+      if (event.key === "Escape") {
+        setOpen(false);
+        triggerRef.current?.focus(); // back to where the menu came from
+      }
       if (event.key === "ArrowDown" || event.key === "ArrowUp") {
         event.preventDefault();
         const options = rootRef.current?.querySelectorAll<HTMLButtonElement>(
@@ -79,12 +92,14 @@ export function Dropdown({
   return (
     <div ref={rootRef} className={cn("relative inline-flex", className)}>
       <button
+        ref={triggerRef}
         type="button"
+        aria-label={label}
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={open ? menuId : undefined}
         onClick={() => setOpen((v) => !v)}
-        className="inline-flex rounded-[8px] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
+        className="inline-flex rounded-[8px] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
       >
         {trigger}
       </button>
@@ -107,6 +122,7 @@ export function Dropdown({
               disabled={item.disabled}
               onClick={() => {
                 setOpen(false);
+                triggerRef.current?.focus();
                 item.onSelect();
               }}
               className={cn(

@@ -237,7 +237,7 @@ export function MessagesView({ audience, clientId }: { audience: "client" | "tea
                   if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) void send();
                 }}
                 placeholder="Write a message…"
-                className="min-h-[44px] flex-1 resize-y rounded-lg border border-line bg-surface px-3 py-2.5 text-[14px] text-ink placeholder:text-ink/35 focus:border-brand/60 focus:outline-none"
+                className="min-h-[44px] flex-1 resize-y rounded-lg border border-line bg-surface px-3 py-2.5 text-[14px] text-ink placeholder:text-ink-muted focus:border-brand/60 focus:outline-none"
               />
               <Button icon={<Send className="h-4 w-4" />} loading={sending} disabled={!draft.trim() && files.length === 0} onClick={() => void send()}>
                 Send

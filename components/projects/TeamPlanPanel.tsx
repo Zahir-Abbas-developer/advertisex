@@ -180,7 +180,7 @@ export function TeamPlanPanel({ projectId, onChanged }: { projectId: string; onC
                           <>
                             <UserCheck className="h-3.5 w-3.5 text-success-ink" />
                             {holder.name}
-                            {holder.role === "AI_AGENT" && <Bot className="h-3.5 w-3.5 text-ink-2" aria-label="AI agent" />}
+                            {holder.role === "AI_AGENT" && <Bot className="h-3.5 w-3.5 text-ink-2" aria-label="AI employee" />}
                           </>
                         ) : rec?.status === "DISMISSED" ? (
                           <span className="text-ink-muted">No one assigned</span>
@@ -250,7 +250,7 @@ function Breakdown({ components, weights }: { components: Record<string, number>
       {Object.entries(weights).map(([key, w]) => (
         <div key={key} className="min-w-0">
           <dt className="truncate text-[11px] text-ink-muted" title={`${w.label} — ${Math.round(w.share * 100)}% of the score`}>
-            {w.label} <span className="text-ink/30">· {Math.round(w.share * 100)}%</span>
+            {w.label} <span className="text-ink-muted">· {Math.round(w.share * 100)}%</span>
           </dt>
           <dd className="mt-1 h-1.5 overflow-hidden rounded-full bg-surface-2" aria-label={`${w.label}: ${Math.round((components[key] ?? 0) * 100)}%`}>
             <div className="h-full rounded-full bg-data-1" style={{ width: `${Math.round((components[key] ?? 0) * 100)}%` }} />

@@ -21,6 +21,7 @@ export function WeightDots({
     <span
       className={cn("inline-flex items-center gap-1", className)}
       title={`${label} — weight ${weight} of ${WEIGHT_MAX}`}
+      role="img"
       aria-label={`Weight ${weight} of ${WEIGHT_MAX}, ${label}`}
     >
       {Array.from({ length: WEIGHT_MAX }).map((_, index) => (

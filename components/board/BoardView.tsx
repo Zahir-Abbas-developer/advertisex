@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import {
   DndContext,
   DragOverlay,
+  KeyboardSensor,
   PointerSensor,
   useDroppable,
   useSensor,
@@ -12,7 +13,7 @@ import {
   type DragEndEvent,
   type DragStartEvent,
 } from "@dnd-kit/core";
-import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { KanbanSquare, Lock } from "lucide-react";
 
 import { Card } from "@/components/ui/Card";
@@ -118,6 +119,8 @@ export function BoardView({ role, userId }: { role: Role; userId: string }) {
     // A few pixels of travel before a drag starts, so a click still reads as
     // a click on a touchpad.
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    // Space to pick a card up, arrows to move it, Space to drop (WCAG 2.1.1).
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
 
   const visible = useMemo(
@@ -367,7 +370,7 @@ function Column({
     >
       <div className="mb-3 flex items-center justify-between gap-2 px-1">
         <h2 className="eyebrow text-ink-muted">{MILESTONE_STATUS_LABEL[status]}</h2>
-        <span className="font-display text-[13px] font-bold tabular-nums text-ink/35">
+        <span className="font-display text-[13px] font-bold tabular-nums text-ink-muted">
           {milestones.length}
         </span>
       </div>
@@ -378,7 +381,7 @@ function Column({
       >
         <div className="flex flex-1 flex-col gap-2.5">
           {milestones.length === 0 ? (
-            <p className="rounded-[10px] border border-dashed border-line px-3 py-6 text-center text-[12px] text-ink/35">
+            <p className="rounded-[10px] border border-dashed border-line px-3 py-6 text-center text-[12px] text-ink-muted">
               {isDragging && !canDropHere ? "Not allowed here" : "Nothing here"}
             </p>
           ) : (

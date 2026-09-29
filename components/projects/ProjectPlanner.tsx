@@ -418,7 +418,7 @@ function HeaderStat({
 }) {
   return (
     <div className="rounded-[10px] border border-ink/10 bg-ink/[0.04] px-4 py-3">
-      <p className="eyebrow text-ink/35">{label}</p>
+      <p className="eyebrow text-ink-muted">{label}</p>
       <p
         className={cn(
           "mt-1.5 font-display text-lg font-bold",

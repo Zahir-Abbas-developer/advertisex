@@ -72,7 +72,7 @@ export default async function ReportPage(props: { params: Promise<{ id: string }
         />
       )}
 
-      <p className="no-print text-center text-[12px] text-ink/35">
+      <p className="no-print text-center text-[12px] text-ink-muted">
         This {REPORT_TYPE_LABEL[report.type as ReportType].toLowerCase()} is a frozen
         snapshot taken when it was generated. Later changes to the underlying work
         do not alter it.

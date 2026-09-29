@@ -12,7 +12,7 @@ import { ProgressBar } from "@/components/ui/ProgressBar";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { StatCard } from "@/components/ui/StatCard";
 import { Table, TableShell, TBody, TD, TH, THead, TR } from "@/components/ui/Table";
-import { AXIS, CHART, CURSOR, TOOLTIP } from "@/components/charts/theme";
+import { AXIS, CHART, CURSOR, TOOLTIP, chartAnimation } from "@/components/charts/theme";
 import { ScheduleBadge } from "@/components/projects/shared/badges";
 import { formatDate } from "@/lib/date";
 import { PROJECT_STATUS_LABEL, type ProjectStatus, type Schedule } from "@/modules/projects/domain";
@@ -70,7 +70,7 @@ export function ProjectsAnalytics() {
             <Card padded={false}>
               <CardHeader title="Are we finishing as many projects as we start?" description="Projects started and completed per month" />
               <CardBody>
-                <div className="h-64">
+                <div role="img" aria-label="Chart: Are we finishing as many projects as we start?" className="h-64">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={data.trend} margin={{ left: -20, right: 8, top: 8 }}>
                       <CartesianGrid stroke={CHART.line} vertical={false} />
@@ -78,8 +78,8 @@ export function ProjectsAnalytics() {
                       <YAxis allowDecimals={false} {...AXIS} />
                       <Tooltip cursor={CURSOR} contentStyle={TOOLTIP} labelFormatter={(l) => monthLabel(String(l))} />
                       <Legend wrapperStyle={{ fontSize: 12, color: CHART.ink, opacity: 0.7 }} />
-                      <Bar dataKey="started" name="Started" fill={CHART.data2} radius={[3, 3, 0, 0]} />
-                      <Bar dataKey="completed" name="Completed" fill={CHART.data1} radius={[3, 3, 0, 0]} />
+                      <Bar isAnimationActive={chartAnimation()} dataKey="started" name="Started" fill={CHART.data2} radius={[3, 3, 0, 0]} />
+                      <Bar isAnimationActive={chartAnimation()} dataKey="completed" name="Completed" fill={CHART.data1} radius={[3, 3, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -88,14 +88,14 @@ export function ProjectsAnalytics() {
             <Card padded={false}>
               <CardHeader title="Where do projects stand?" description="Projects by status" />
               <CardBody>
-                <div className="h-64">
+                <div role="img" aria-label="Chart: Where do projects stand?" className="h-64">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={data.byStatus.map((s) => ({ ...s, label: PROJECT_STATUS_LABEL[s.status] }))} layout="vertical" margin={{ left: 10, right: 16 }}>
                       <CartesianGrid stroke={CHART.line} horizontal={false} />
                       <XAxis type="number" allowDecimals={false} {...AXIS} />
                       <YAxis type="category" dataKey="label" width={80} {...AXIS} />
                       <Tooltip cursor={CURSOR} contentStyle={TOOLTIP} />
-                      <Bar dataKey="count" name="Projects" fill={CHART.data1} radius={[0, 3, 3, 0]} />
+                      <Bar isAnimationActive={chartAnimation()} dataKey="count" name="Projects" fill={CHART.data1} radius={[0, 3, 3, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>

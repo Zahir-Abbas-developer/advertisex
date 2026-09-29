@@ -154,7 +154,7 @@ export function PushSetup() {
           type="button"
           onClick={dismiss}
           aria-label="Not now"
-          className="rounded-[9px] p-2 text-ink/35 transition-colors hover:bg-surface-2 hover:text-ink-2"
+          className="rounded-[9px] p-2 text-ink-muted transition-colors hover:bg-surface-2 hover:text-ink-2"
         >
           <X className="h-4 w-4" />
         </button>

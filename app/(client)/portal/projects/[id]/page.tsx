@@ -58,7 +58,7 @@ export default async function PortalProject(props: { params: Promise<{ id: strin
                       {s.name}
                       {s.state === "current" && <span className="sr-only">(current stage)</span>}
                     </span>
-                    {j < line.stages.length - 1 && <span className="hidden text-ink/25 sm:inline">→</span>}
+                    {j < line.stages.length - 1 && <span className="hidden text-ink-muted sm:inline">→</span>}
                   </li>
                 ))}
               </ol>
@@ -89,7 +89,7 @@ export default async function PortalProject(props: { params: Promise<{ id: strin
           <CardHeader title="Done so far" />
           <CardBody>
             {p.completedMilestones.length === 0 ? (
-              <p className="text-[13px] text-ink-muted">Milestones appear here as they&apos;re completed.</p>
+              <p className="text-[13px] text-ink-muted">Finished steps appear here as they&apos;re done.</p>
             ) : (
               <ul className="divide-y divide-line">
                 {p.completedMilestones.map((m, i) => (

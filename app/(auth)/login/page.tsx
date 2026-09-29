@@ -59,7 +59,7 @@ export default async function LoginPage(
           <div className="mt-6 flex flex-wrap gap-x-8 gap-y-3">
             {["Appetite Audit", "Growth Sprint", "Creative Studio", "Web & Retention"].map(
               (service) => (
-                <span key={service} className="eyebrow text-ink/35">
+                <span key={service} className="eyebrow text-ink-muted">
                   {service}
                 </span>
               ),

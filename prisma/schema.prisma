@@ -224,6 +224,9 @@ model TaskComment {
   author User? @relation("TaskCommentAuthor", fields: [authorId], references: [id], onDelete: SetNull)
 
   @@index([taskId, createdAt])
+
+  /// Foreign keys (Phase 10): filtered on, and scanned when the user is removed.
+  @@index([authorId])
 }
 
 /// An uploaded file, stored privately and served only through an authorized
@@ -743,6 +746,9 @@ model Dispute {
 
   @@index([status, createdAt])
   @@index([userId, createdAt])
+
+  /// Foreign keys (Phase 10): filtered on, and scanned when the user is removed.
+  @@index([resolvedById])
 }
 
 /// Evidence attached to a dispute. Separate from milestone attachments because
@@ -762,6 +768,9 @@ model DisputeFile {
   uploader User    @relation(fields: [uploaderId], references: [id], onDelete: Cascade)
 
   @@index([disputeId])
+
+  /// Foreign keys (Phase 10): filtered on, and scanned when the user is removed.
+  @@index([uploaderId])
 }
 
 /// What a run of good — or bad — months earns.
@@ -835,6 +844,9 @@ model AuditLog {
   @@index([action, createdAt])
   @@index([entityType, entityId])
   @@index([organizationId, createdAt])
+
+  /// Foreign keys (Phase 10): filtered on, and scanned when the user is removed.
+  @@index([actorId])
 }
 
 /// The last run of each scheduled job, so silent failures become loud.
@@ -1301,6 +1313,9 @@ model Module {
   milestones Milestone[]
 
   @@index([projectId])
+
+  /// Foreign keys (Phase 10): filtered on, and scanned when the user is removed.
+  @@index([serviceId])
 }
 
 /// A dated deliverable owned by one team member. The unit the scoring engine
@@ -1419,6 +1434,10 @@ model BlockPeriod {
 
   @@index([milestoneId])
   @@index([reason, startedAt])
+
+  /// Foreign keys (Phase 10): filtered on, and scanned when the user is removed.
+  @@index([createdById])
+  @@index([releasedById])
 }
 
 // ---------------------------------------------------------------------------
@@ -1459,6 +1478,10 @@ model ScoreEvent {
   @@index([userId, year, month])
   @@index([type])
   @@index([createdAt])
+
+  /// Foreign keys (Phase 10): filtered on, and scanned when the user is removed.
+  @@index([createdById])
+  @@index([milestoneId])
 }
 
 // ---------------------------------------------------------------------------
@@ -1523,6 +1546,9 @@ model Comment {
 
   @@index([milestoneId, createdAt])
   @@index([parentId])
+
+  /// Foreign keys (Phase 10): filtered on, and scanned when the user is removed.
+  @@index([userId])
 }
 
 /// Who a comment mentioned. Stored rather than re-parsed, so renaming someone
@@ -1560,6 +1586,9 @@ model Attachment {
   uploader  User      @relation(fields: [uploaderId], references: [id], onDelete: Cascade)
 
   @@index([milestoneId, createdAt])
+
+  /// Foreign keys (Phase 10): filtered on, and scanned when the user is removed.
+  @@index([uploaderId])
 }
 
 /// The audit trail: what happened, to what, and who did it.
@@ -1585,6 +1614,9 @@ model Activity {
 
   @@index([createdAt])
   @@index([milestoneId, createdAt])
+
+  /// Foreign keys (Phase 10): filtered on, and scanned when the user is removed.
+  @@index([actorId])
 }
 
 /// An in-app notification. No email yet — that's a later phase.
@@ -1713,6 +1745,9 @@ model OutageReport {
 
   @@index([userId, startsAt])
   @@index([status, createdAt])
+
+  /// Foreign keys (Phase 10): filtered on, and scanned when the user is removed.
+  @@index([reviewedById])
 }
 
 /// Protected time inside the shift: prayer, a meal, or a short personal break.
@@ -1819,6 +1854,9 @@ model Lead {
   @@index([nextFollowUpAt])
   @@index([stage, stageChangedAt])
   @@index([ownerId, stage])
+
+  /// Foreign keys (Phase 10): filtered on, and scanned when the user is removed.
+  @@index([createdById])
 }
 
 /// One recorded piece of sales work. The unit activity targets count.
@@ -1899,6 +1937,9 @@ model Task {
   @@index([departmentId, status])
   @@index([leadId])
   @@index([clientId])
+
+  /// Foreign keys (Phase 10): filtered on, and scanned when the user is removed.
+  @@index([createdById])
 }
 
 /// A standing weekly activity target for one person.
@@ -1951,6 +1992,9 @@ model ClientKpiEntry {
 
   @@unique([clientId, weekStart])
   @@index([clientId, weekStart])
+
+  /// Foreign keys (Phase 10): filtered on, and scanned when the user is removed.
+  @@index([enteredById])
 }
 
 /// Monthly recurring revenue, captured once a month.
@@ -2007,6 +2051,9 @@ model LeaveRequest {
   /// approved?" ambiguous.
   @@unique([userId, date])
   @@index([status, date])
+
+  /// Foreign keys (Phase 10): filtered on, and scanned when the user is removed.
+  @@index([reviewedById])
 }
 
 /// Agency-wide configuration, editable by the owner without a deploy.

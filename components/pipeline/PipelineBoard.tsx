@@ -391,7 +391,7 @@ export function PipelineBoard() {
           <EmptyState
             icon={Wallet}
             eyebrow="No department"
-            title="You're not in a business line yet"
+            title="You're not in a department yet"
             description="Deals belong to a department, so an admin needs to add you to one before a board can be shown."
           />
         </Card>

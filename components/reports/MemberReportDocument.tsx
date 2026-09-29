@@ -96,7 +96,7 @@ export function MemberReportDocument({
               <div className="space-y-3">
                 <Delta delta={score.delta} phrase={payload.period.phrase} />
                 <div>
-                  <p className="eyebrow text-ink/35">On-time rate</p>
+                  <p className="eyebrow text-ink-muted">On-time rate</p>
                   <p className="mt-1 font-display text-lg font-bold tabular-nums text-ink/85">
                     {payload.load && payload.load.count === 0
                       ? "—"
@@ -372,7 +372,7 @@ export function MemberReportDocument({
                     <p className="mt-1 text-[13px] leading-relaxed text-ink-muted">
                       {event.reason}
                     </p>
-                    <p className="mt-1.5 text-[12px] text-ink/35">
+                    <p className="mt-1.5 text-[12px] text-ink-muted">
                       {SCORE_EVENT_LABEL[event.type]}
                       {event.clientName && ` · ${event.clientName}`}
                       {` · ${formatDate(event.at)}`}
@@ -410,7 +410,7 @@ function Delta({ delta, phrase }: { delta: number | null; phrase: string }) {
   if (delta === null) {
     return (
       <div>
-        <p className="eyebrow text-ink/35">vs last {phrase}</p>
+        <p className="eyebrow text-ink-muted">vs last {phrase}</p>
         <p className="mt-1 text-sm text-ink-muted">No history</p>
       </div>
     );
@@ -421,7 +421,7 @@ function Delta({ delta, phrase }: { delta: number | null; phrase: string }) {
 
   return (
     <div>
-      <p className="eyebrow text-ink/35">vs last {phrase}</p>
+      <p className="eyebrow text-ink-muted">vs last {phrase}</p>
       <p
         className={cn(
           "mt-1 flex items-center gap-1 font-display text-lg font-bold tabular-nums",

@@ -114,12 +114,38 @@ export const DEFAULT_SETTINGS: AgencySettings = {
   autoAssignEnabled: true,
 };
 
-export async function getSettings(): Promise<AgencySettings> {
-  const row = await prisma.settings.upsert({
-    where: { id: "singleton" },
-    update: {},
-    create: { id: "singleton" },
+/**
+ * The settings row, read once and remembered briefly (Phase 10). Every page
+ * consults it — shell, module flags, attendance, assignment — and it was an
+ * upsert each time: ~36 reads a request, half of them taking SQLite's write
+ * lock. Now a plain read (created only if missing), memoised for a few
+ * seconds process-wide (on globalThis, so every bundle shares it) and
+ * dropped the moment settings are saved.
+ */
+type SettingsRow = NonNullable<Awaited<ReturnType<typeof prisma.settings.findUnique>>>;
+const SETTINGS_TTL_MS = 5_000;
+const memo = globalThis as unknown as { settingsMemo?: { row: Promise<SettingsRow>; at: number } };
+
+export function settingsRow(): Promise<SettingsRow> {
+  const hit = memo.settingsMemo;
+  if (hit && Date.now() - hit.at < SETTINGS_TTL_MS) return hit.row;
+  const row = (async () =>
+    (await prisma.settings.findUnique({ where: { id: "singleton" } })) ??
+    (await prisma.settings.upsert({ where: { id: "singleton" }, update: {}, create: { id: "singleton" } })))();
+  memo.settingsMemo = { row, at: Date.now() };
+  row.catch(() => {
+    if (memo.settingsMemo?.row === row) memo.settingsMemo = undefined; // never remember a failure
   });
+  return row;
+}
+
+/** Call after writing settings, so the next read sees them. */
+export function invalidateSettings() {
+  memo.settingsMemo = undefined;
+}
+
+export async function getSettings(): Promise<AgencySettings> {
+  const row = await settingsRow();
 
   return {
     shiftStartMinutes: row.shiftStartMinutes,

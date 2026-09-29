@@ -162,9 +162,9 @@ export function OutagePanel({ onChange }: { onChange?: () => void }) {
             {data.reports.slice(0, 4).map((report) => (
               <li key={report.id} className="flex items-start gap-3">
                 {report.type === "POWER" ? (
-                  <PlugZap className="mt-0.5 h-3.5 w-3.5 shrink-0 text-ink/30" />
+                  <PlugZap className="mt-0.5 h-3.5 w-3.5 shrink-0 text-ink-muted" />
                 ) : (
-                  <Wifi className="mt-0.5 h-3.5 w-3.5 shrink-0 text-ink/30" />
+                  <Wifi className="mt-0.5 h-3.5 w-3.5 shrink-0 text-ink-muted" />
                 )}
                 <div className="min-w-0 flex-1">
                   <p className="text-[13px] text-ink">

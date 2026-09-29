@@ -49,7 +49,7 @@ export function HowCalculated({ topic }: { topic: keyof typeof DEFINITIONS }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-1.5 rounded-[8px] px-2 py-1 text-[12px] text-ink-muted transition-colors hover:bg-surface-2 hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
+        className="inline-flex items-center gap-1.5 rounded-[8px] px-2 py-1 text-[12px] text-ink-muted transition-colors hover:bg-surface-2 hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
       >
         <Info className="h-3.5 w-3.5" />
         How this is calculated

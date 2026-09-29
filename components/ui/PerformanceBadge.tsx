@@ -59,10 +59,10 @@ export function PerformanceBadge({
 
       <span className={cn("tabular-nums text-ink-muted", metaSize)}>
         {onTimeRate === null ? "—" : `${onTimeRate}% on time`}
-        <span className="px-1 text-ink/25">·</span>
+        <span className="px-1 text-ink-muted">·</span>
         {load} {load === 1 ? "task" : "tasks"}
         {figures.totalWeight !== undefined && load > 0 && (
-          <span className="text-ink/35"> · weight {figures.totalWeight}</span>
+          <span className="text-ink-muted"> · weight {figures.totalWeight}</span>
         )}
       </span>
     </div>

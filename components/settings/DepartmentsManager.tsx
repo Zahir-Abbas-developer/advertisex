@@ -118,7 +118,7 @@ export function DepartmentsManager() {
       <PageHeader
         eyebrow="Settings"
         title="Departments"
-        description="The business lines this CRM is organised around. Every lead, client and deal belongs to exactly one of them, and each carries its own pipeline stages and client fields."
+        description="The departments this CRM is organised around. Every lead, client and deal belongs to exactly one of them, and each carries its own pipeline stages and client fields."
         actions={
           <Button icon={<Plus className="h-4 w-4" />} onClick={() => setCreating(true)}>
             New department
@@ -134,7 +134,7 @@ export function DepartmentsManager() {
           icon={Building2}
           eyebrow="Departments"
           title="No departments yet"
-          description="A department is a business line. Leads, clients and deals all belong to one, so at least one has to exist before the CRM can hold anything."
+          description="A department is one line of the business. Leads, clients and deals all belong to one, so at least one has to exist before the CRM can hold anything."
           action={<Button onClick={() => setCreating(true)}>Add the first one</Button>}
         />
       )}

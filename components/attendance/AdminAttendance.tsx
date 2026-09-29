@@ -268,13 +268,13 @@ export function AdminAttendance({ testTriggersEnabled }: { testTriggersEnabled: 
                             {row.breaks.usedMinutes}/{row.breaks.allowanceMinutes} min
                           </span>
                         ) : (
-                          <span className="text-[12px] text-ink/25">no breaks</span>
+                          <span className="text-[12px] text-ink-muted">no breaks</span>
                         )}
                       </div>
 
                       <div className="w-40">
                         {row.checks.total === 0 ? (
-                          <span className="text-[12px] text-ink/35">no checks</span>
+                          <span className="text-[12px] text-ink-muted">no checks</span>
                         ) : (
                           <span className="flex flex-wrap items-center gap-1.5">
                             <Badge

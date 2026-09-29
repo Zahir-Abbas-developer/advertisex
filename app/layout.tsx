@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     template: "%s · Advertise X",
   },
   description:
-    "Department-based CRM and internal business operating system for Advertise X — leads, clients, deals, tasks and follow-ups across every business line.",
+    "The operating system for Advertise X — AI marketing for restaurants: leads, clients, projects, reports and invoices in one place.",
   // Installable, so an availability check can reach a phone's notification
   // tray rather than depending on a browser tab being open.
   manifest: "/manifest.webmanifest",

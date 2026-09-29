@@ -10,7 +10,7 @@ import { ErrorState } from "@/components/ui/EmptyState";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Select } from "@/components/ui/Select";
 import { Skeleton } from "@/components/ui/Skeleton";
-import { AXIS, CHART, CURSOR, TOOLTIP } from "@/components/charts/theme";
+import { AXIS, CHART, CURSOR, TOOLTIP, chartAnimation } from "@/components/charts/theme";
 import { safeFetch } from "@/lib/safe-fetch";
 import { formatMoney } from "@/modules/billing/money";
 import { PERIOD_LABEL, PERIODS, type Period } from "@/modules/analytics/domain";
@@ -102,7 +102,7 @@ export function AnalyticsHub() {
               <Card padded={false}>
                 <CardHeader title="How late is what we're owed?" description={`${money(rec.totalMinor)} outstanding today`} />
                 <CardBody>
-                  <div className="h-56">
+                  <div role="img" aria-label="Chart: How late is what we're owed?" className="h-56">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={rec.buckets} margin={{ left: 0, right: 8, top: 8 }}>
                         <CartesianGrid stroke={CHART.line} vertical={false} />
@@ -110,7 +110,7 @@ export function AnalyticsHub() {
                         <YAxis tickFormatter={(v: number) => money(v)} width={72} {...AXIS} />
                         <Tooltip cursor={CURSOR} contentStyle={TOOLTIP} formatter={(v) => formatMoney(Number(v), rec.currency)} />
                         {/* Lateness is data, so the green scale deepens with age — no red. */}
-                        <Bar dataKey="amountMinor" name="Outstanding" fill={CHART.data4} radius={[3, 3, 0, 0]} />
+                        <Bar isAnimationActive={chartAnimation()} dataKey="amountMinor" name="Outstanding" fill={CHART.data4} radius={[3, 3, 0, 0]} />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>

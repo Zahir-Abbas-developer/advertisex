@@ -121,7 +121,7 @@ export function TargetBar({ userId }: { userId: string }) {
                 )}
               >
                 {progress.logged}
-                <span className="text-ink/35"> / {progress.target}</span>
+                <span className="text-ink-muted"> / {progress.target}</span>
               </span>
             </div>
 

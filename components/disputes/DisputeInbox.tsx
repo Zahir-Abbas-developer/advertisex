@@ -216,7 +216,7 @@ export function DisputeInbox({ isAdmin }: { isAdmin: boolean }) {
 
                     <p className="mt-2 rounded-[10px] border border-line bg-surface-2/50 px-3 py-2 text-[12px] leading-relaxed text-ink-muted">
                       The charge: {row.event.reason}
-                      <span className="ml-1 text-ink/35">· {formatDateTime(row.event.at)}</span>
+                      <span className="ml-1 text-ink-muted">· {formatDateTime(row.event.at)}</span>
                     </p>
                   </div>
 
@@ -274,7 +274,7 @@ export function DisputeInbox({ isAdmin }: { isAdmin: boolean }) {
                         {row.responseNote}
                       </p>
                     )}
-                    <p className="mt-1 text-[11px] text-ink/35">
+                    <p className="mt-1 text-[11px] text-ink-muted">
                       {row.resolvedBy ? `Decided by ${row.resolvedBy}` : "Decided"}
                       {row.resolvedAsLead && " · as Service Lead"}
                       {row.resolvedAt && ` · ${formatDateTime(row.resolvedAt)}`}

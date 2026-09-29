@@ -7,6 +7,7 @@ import { recordAudit } from "@/lib/audit";
 import { getCurrentUser } from "@/lib/session";
 import { assignmentSettings } from "@/modules/assignment/server";
 import { ASSIGNMENT_MODES, DEFAULT_WEIGHTS } from "@/modules/assignment/domain";
+import { invalidateSettings } from "@/lib/settings";
 
 /** The founder's assignment settings: mode, weights, and the weekly load of a role. */
 export async function GET() {
@@ -37,6 +38,7 @@ export async function PATCH(request: Request) {
     where: { id: "singleton" },
     data: { assignmentMode: parsed.data.mode, assignmentWeights: JSON.stringify(parsed.data.weights), assignmentRoleHours: parsed.data.roleHours },
   });
+  invalidateSettings();
   await recordAudit({
     actorId: user?.id ?? null,
     action: "SETTINGS_EDITED",

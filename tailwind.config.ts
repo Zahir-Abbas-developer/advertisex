@@ -45,7 +45,9 @@ const config: Config = {
         /** Text on brand, danger and hero fills. */
         "on-brand": v("--on-accent"),
         /** Hairlines — 8% and 14% of the darkest green. No heavy shadows. */
-        line: { DEFAULT: "rgb(var(--line) / 0.08)", strong: "rgb(var(--line) / 0.14)" },
+        // `field`: the edge of a form control, which is how you find it — so it
+        // meets 3:1 against white and mint (WCAG 1.4.11; Phase 10).
+        line: { DEFAULT: "rgb(var(--line) / 0.08)", strong: "rgb(var(--line) / 0.14)", field: "rgb(var(--line) / 0.5)" },
         /** Brand green — identity and emphasis: primary CTA, active nav, the hero KPI. */
         brand: {
           DEFAULT: v("--accent"),

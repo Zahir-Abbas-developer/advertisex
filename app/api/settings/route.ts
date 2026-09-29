@@ -7,6 +7,7 @@ import { fieldErrors } from "@/lib/validation";
 import { getSettings } from "@/lib/settings";
 import { parseWorkdays } from "@/lib/attendance-time";
 import { changedFields, recordAudit } from "@/lib/audit";
+import { invalidateSettings } from "@/lib/settings";
 
 const minuteOfDay = z.number().int().min(0).max(24 * 60);
 
@@ -145,6 +146,7 @@ export async function PATCH(request: Request) {
       update: parsed.data,
       create: { id: "singleton", ...parsed.data },
     });
+    invalidateSettings();
 
     const settings = await getSettings();
 

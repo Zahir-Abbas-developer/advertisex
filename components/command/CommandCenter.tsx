@@ -9,7 +9,7 @@ import { ErrorState } from "@/components/ui/EmptyState";
 import { Select } from "@/components/ui/Select";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Avatar } from "@/components/ui/Avatar";
-import { AXIS, CHART, CURSOR, TOOLTIP } from "@/components/charts/theme";
+import { AXIS, CHART, CURSOR, TOOLTIP, chartAnimation } from "@/components/charts/theme";
 import { safeFetch } from "@/lib/safe-fetch";
 import { formatMoney } from "@/modules/billing/money";
 import { PERIOD_LABEL, PERIODS, type Period } from "@/modules/analytics/domain";
@@ -97,7 +97,7 @@ export function CommandCenter() {
           <Card padded={false}>
             <CardHeader title="How many leads came in, and how many did we win?" description={PERIOD_LABEL[data.period]} />
             <CardBody>
-              <div className="h-64">
+              <div role="img" aria-label="Chart: How many leads came in, and how many did we win?" className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={data.leads.trend} margin={{ left: -20, right: 8, top: 8 }}>
                     <CartesianGrid stroke={CHART.line} vertical={false} />
@@ -105,8 +105,8 @@ export function CommandCenter() {
                     <YAxis allowDecimals={false} {...AXIS} />
                     <Tooltip cursor={CURSOR} contentStyle={TOOLTIP} labelFormatter={(l) => tick(String(l))} />
                     <Legend wrapperStyle={{ fontSize: 12, color: CHART.ink }} />
-                    <Bar dataKey="value" name="New leads" fill={CHART.data2} radius={[3, 3, 0, 0]} />
-                    <Bar dataKey="won" name="Won" fill={CHART.data4} radius={[3, 3, 0, 0]} />
+                    <Bar isAnimationActive={chartAnimation()} dataKey="value" name="New leads" fill={CHART.data2} radius={[3, 3, 0, 0]} />
+                    <Bar isAnimationActive={chartAnimation()} dataKey="won" name="Won" fill={CHART.data4} radius={[3, 3, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -158,14 +158,14 @@ export function CommandCenter() {
         <Card padded={false}>
           <CardHeader title="When did the money come in?" description={`Payments received · ${PERIOD_LABEL[data.period].toLowerCase()}`} />
           <CardBody>
-            <div className="h-60">
+            <div role="img" aria-label="Chart: When did the money come in?" className="h-60">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={data.revenue.trend} margin={{ left: 0, right: 8, top: 8 }}>
                   <CartesianGrid stroke={CHART.line} vertical={false} />
                   <XAxis dataKey="bucket" tickFormatter={tick} {...AXIS} minTickGap={16} />
                   <YAxis tickFormatter={(v: number) => money(v)} width={72} {...AXIS} />
                   <Tooltip cursor={CURSOR} contentStyle={TOOLTIP} labelFormatter={(l) => tick(String(l))} formatter={(v) => formatMoney(Number(v), data.revenue.currency)} />
-                  <Bar dataKey="value" name="Received" fill={CHART.data1} radius={[3, 3, 0, 0]} />
+                  <Bar isAnimationActive={chartAnimation()} dataKey="value" name="Received" fill={CHART.data1} radius={[3, 3, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>

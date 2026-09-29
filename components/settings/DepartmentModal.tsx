@@ -145,7 +145,7 @@ export function DepartmentModal({
           error={errors.description}
           onChange={(e) => setDescription(e.target.value)}
           rows={2}
-          placeholder="What this business line covers."
+          placeholder="What this department covers."
         />
 
         {department && (

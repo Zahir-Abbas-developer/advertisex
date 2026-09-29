@@ -83,7 +83,7 @@ export function ProjectPlan({ project, viewer, onChanged }: { project: ProjectPa
                   >
                     {s.name}
                   </span>
-                  {i < line.stages.length - 1 && <span className="text-ink/25">→</span>}
+                  {i < line.stages.length - 1 && <span className="text-ink-muted">→</span>}
                 </li>
               ))}
             </ol>
@@ -93,7 +93,7 @@ export function ProjectPlan({ project, viewer, onChanged }: { project: ProjectPa
                 <li key={s.id} className="rounded-[12px] border border-line p-4">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="flex items-center gap-2">
-                      {s.status === "DONE" ? <Check className="h-4 w-4 text-success-ink" /> : s.status === "ACTIVE" ? <CircleDot className="h-4 w-4 text-brand" /> : <Circle className="h-4 w-4 text-ink/30" />}
+                      {s.status === "DONE" ? <Check className="h-4 w-4 text-success-ink" /> : s.status === "ACTIVE" ? <CircleDot className="h-4 w-4 text-brand" /> : <Circle className="h-4 w-4 text-ink-muted" />}
                       <span className="text-[14px] font-medium text-ink">{s.name}</span>
                       {s.status === "ACTIVE" && <Badge size="sm" tone="info">Current</Badge>}
                       {s.completedAt && <span className="text-[12px] text-ink-muted">done {formatDate(s.completedAt)}</span>}
@@ -198,7 +198,7 @@ function MilestoneList({
             {viewer.canShape && (
               <button
                 type="button"
-                className="rounded p-1 text-ink/35 hover:text-danger"
+                className="rounded p-1 text-ink-muted hover:text-danger"
                 aria-label={`Remove ${m.title}`}
                 onClick={() => window.confirm(`Remove "${m.title}"?`) && void call(`${base}/milestones/${m.id}`, "DELETE", null, "Milestone removed")}
               >

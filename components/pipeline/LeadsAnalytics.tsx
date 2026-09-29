@@ -19,7 +19,7 @@ import { EmptyState, ErrorState } from "@/components/ui/EmptyState";
 import { Input } from "@/components/ui/Input";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { StatCard } from "@/components/ui/StatCard";
-import { AXIS, CHART, CURSOR, TOOLTIP } from "@/components/charts/theme";
+import { AXIS, CHART, CURSOR, TOOLTIP, chartAnimation } from "@/components/charts/theme";
 import { formatMoney } from "@/lib/pipeline-types";
 
 type Analytics = {
@@ -51,8 +51,8 @@ function ChartCard({ question, detail, children, empty }: { question: string; de
     <Card>
       <h3 className="font-display text-base font-semibold tracking-[-0.01em] text-ink">{question}</h3>
       <p className="mt-0.5 text-[13px] text-ink-muted">{detail}</p>
-      <div className="mt-5 h-64">
-        {empty ? <div className="flex h-full items-center justify-center text-[13px] text-ink/35">Not enough data yet</div> : children}
+      <div className="mt-5 h-64" role={empty ? undefined : "img"} aria-label={empty ? undefined : `Chart: ${question} ${detail}`}>
+        {empty ? <div className="flex h-full items-center justify-center text-[13px] text-ink-muted">Not enough data yet</div> : children}
       </div>
     </Card>
   );
@@ -122,7 +122,7 @@ export function LeadsAnalytics() {
         <StatCard label="Pipeline value" value={formatMoney(t.pipelineValue, true)} hint={`${t.openLeads.toLocaleString()} open deals`} />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div role="img" aria-label="Chart: Are we adding leads faster than we're winning them?" className="grid gap-4 lg:grid-cols-2">
         <ChartCard question="Are we adding leads faster than we're winning them?" detail="New leads and deals won, per week" empty={data.trend.every((w) => !w.created && !w.won)}>
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart data={data.trend} margin={{ top: 4, right: 8, bottom: 0, left: -20 }}>
@@ -131,8 +131,8 @@ export function LeadsAnalytics() {
               <YAxis {...AXIS} allowDecimals={false} />
               <Tooltip contentStyle={TOOLTIP} cursor={CURSOR} labelFormatter={(w) => `Week of ${w}`} />
               <Legend wrapperStyle={{ fontSize: 12, paddingTop: 8 }} />
-              <Bar dataKey="created" name="New leads" fill={CHART.data2} radius={[3, 3, 0, 0]} />
-              <Line dataKey="won" name="Won" stroke={CHART.data1} strokeWidth={2} dot={false} />
+              <Bar isAnimationActive={chartAnimation()} dataKey="created" name="New leads" fill={CHART.data2} radius={[3, 3, 0, 0]} />
+              <Line isAnimationActive={chartAnimation()} dataKey="won" name="Won" stroke={CHART.data1} strokeWidth={2} dot={false} />
             </ComposedChart>
           </ResponsiveContainer>
         </ChartCard>
@@ -145,8 +145,8 @@ export function LeadsAnalytics() {
               <YAxis type="category" dataKey="label" {...AXIS} width={110} />
               <Tooltip contentStyle={TOOLTIP} cursor={CURSOR} />
               <Legend wrapperStyle={{ fontSize: 12, paddingTop: 8 }} />
-              <Bar dataKey="created" name="Created" fill={CHART.data2} radius={[0, 3, 3, 0]} />
-              <Bar dataKey="converted" name="Converted" fill={CHART.data1} radius={[0, 3, 3, 0]} />
+              <Bar isAnimationActive={chartAnimation()} dataKey="created" name="Created" fill={CHART.data2} radius={[0, 3, 3, 0]} />
+              <Bar isAnimationActive={chartAnimation()} dataKey="converted" name="Converted" fill={CHART.data1} radius={[0, 3, 3, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
@@ -158,7 +158,7 @@ export function LeadsAnalytics() {
               <XAxis type="number" {...AXIS} allowDecimals={false} />
               <YAxis type="category" dataKey="label" {...AXIS} width={100} />
               <Tooltip contentStyle={TOOLTIP} cursor={CURSOR} />
-              <Bar dataKey="entered" name="Entered" fill={CHART.data1} radius={[0, 3, 3, 0]} />
+              <Bar isAnimationActive={chartAnimation()} dataKey="entered" name="Entered" fill={CHART.data1} radius={[0, 3, 3, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
@@ -170,7 +170,7 @@ export function LeadsAnalytics() {
               <XAxis dataKey="label" {...AXIS} />
               <YAxis {...AXIS} />
               <Tooltip contentStyle={TOOLTIP} cursor={CURSOR} formatter={(v) => [`${v} days`, "Average stay"]} />
-              <Bar dataKey="avgDays" name="Average days" fill={CHART.data2} radius={[3, 3, 0, 0]} />
+              <Bar isAnimationActive={chartAnimation()} dataKey="avgDays" name="Average days" fill={CHART.data2} radius={[3, 3, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>

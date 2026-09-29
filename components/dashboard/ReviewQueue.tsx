@@ -233,7 +233,7 @@ export function ReviewQueue() {
                   <span className="font-medium text-ink-2">
                     {formatWait(reviewer.averageMinutes)}
                   </span>{" "}
-                  <span className="text-ink/35">over {reviewer.decided}</span>
+                  <span className="text-ink-muted">over {reviewer.decided}</span>
                 </li>
               ))}
             </ul>

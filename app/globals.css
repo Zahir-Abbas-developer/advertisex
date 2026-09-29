@@ -87,9 +87,25 @@
     color: rgb(var(--c-green-950));
   }
 
-  /* Focus rings follow the brand rather than the browser default. */
+  /* Focus rings follow the brand rather than the browser default — at full
+     strength: brand green is 8:1 on mint and white, and inside the deep
+     panels the brand token re-scopes to white (WCAG 1.4.11 / 2.4.7). */
   :focus-visible {
-    @apply outline-none ring-2 ring-brand/40 ring-offset-2 ring-offset-canvas;
+    @apply outline-none ring-2 ring-brand ring-offset-2 ring-offset-canvas;
+  }
+
+  /* Motion is state change, never decoration (§7) — and none at all for
+     people who've asked their system for less (WCAG 2.3.3). The end state of
+     every animation still applies. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 
   /* Remove the number-input spinners — every numeric field here is typed. */

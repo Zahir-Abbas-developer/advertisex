@@ -11,7 +11,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Select } from "@/components/ui/Select";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { StatCard } from "@/components/ui/StatCard";
-import { AXIS, CHART, CURSOR, TOOLTIP } from "@/components/charts/theme";
+import { AXIS, CHART, CURSOR, TOOLTIP, chartAnimation } from "@/components/charts/theme";
 import { buttonClasses } from "@/components/ui/Button";
 import { safeFetch } from "@/lib/safe-fetch";
 import { RANGE_LABEL, RANGES, type Range } from "@/modules/billing/domain";
@@ -127,7 +127,7 @@ export function FinanceOverview() {
               {o.trend.every((t) => t.receivedMinor === 0 && t.invoicedMinor === 0) ? (
                 <EmptyState icon={CircleDollarSign} title="No money movement yet" description="Send an invoice and record its payment — the months fill in here." />
               ) : (
-                <div className="h-72">
+                <div role="img" aria-label="Chart: How much came in each month? Payments received against invoices issued, last 12 months" className="h-72">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={o.trend} margin={{ left: 0, right: 8, top: 8 }}>
                       <CartesianGrid stroke={CHART.line} vertical={false} />
@@ -135,8 +135,8 @@ export function FinanceOverview() {
                       <YAxis tickFormatter={(v: number) => formatMoney(v, o.currency, { whole: true }).replace(/,000$/, "k")} width={72} {...AXIS} />
                       <Tooltip cursor={CURSOR} contentStyle={TOOLTIP} labelFormatter={(l) => monthLabel(String(l))} formatter={(v) => formatMoney(Number(v), o.currency)} />
                       <Legend wrapperStyle={{ fontSize: 12, color: CHART.ink, opacity: 0.7 }} />
-                      <Bar dataKey="invoicedMinor" name="Invoiced" fill={CHART.data2} radius={[3, 3, 0, 0]} />
-                      <Bar dataKey="receivedMinor" name="Received" fill={CHART.data1} radius={[3, 3, 0, 0]} />
+                      <Bar isAnimationActive={chartAnimation()} dataKey="invoicedMinor" name="Invoiced" fill={CHART.data2} radius={[3, 3, 0, 0]} />
+                      <Bar isAnimationActive={chartAnimation()} dataKey="receivedMinor" name="Received" fill={CHART.data1} radius={[3, 3, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>

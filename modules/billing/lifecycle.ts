@@ -6,6 +6,7 @@ import { isUniqueViolation } from "@/lib/score-service";
 import { dateOnlyKey, deriveStatus, numberLabel, paymentBlocker, sendBlocker, voidBlocker, type PaymentMethod } from "@/modules/billing/domain";
 import { formatMoney } from "@/modules/billing/money";
 import { BillingError, clientOwnerIds, founderIds, keyToDate, todayKey } from "@/modules/billing/server";
+import { formatDate } from "@/lib/date";
 
 /**
  * What happens to an invoice after it is drafted. Every state change is a
@@ -206,11 +207,11 @@ export async function sweepInvoices(now = new Date()) {
     if (stamp.count !== 1) continue;
     const balance = formatMoney(inv.totalMinor - inv.paidMinor, inv.currency);
     for (const userId of await founderIds(inv.organizationId)) {
-      await notify({ userId, type: "INVOICE_OVERDUE", title: `${inv.client.businessName}: ${inv.numberLabel} is overdue`, body: `${balance} was due ${dateOnlyKey(inv.dueDate)}.`, href: `/invoices/${inv.id}`, dedupeKey: `invoice-overdue:${inv.id}:${userId}` });
+      await notify({ userId, type: "INVOICE_OVERDUE", title: `${inv.client.businessName}: ${inv.numberLabel} is overdue`, body: `${balance} was due ${formatDate(inv.dueDate)}.`, href: `/invoices/${inv.id}`, dedupeKey: `invoice-overdue:${inv.id}:${userId}` });
       notified += 1;
     }
     for (const userId of await clientOwnerIds(inv.client.clientAccountId)) {
-      await notify({ userId, type: "INVOICE_OVERDUE", title: `Invoice ${inv.numberLabel} is past due`, body: `${balance} was due ${dateOnlyKey(inv.dueDate)}. Please arrange payment.`, href: `/portal/invoices/${inv.id}`, dedupeKey: `invoice-overdue:${inv.id}:${userId}` });
+      await notify({ userId, type: "INVOICE_OVERDUE", title: `Invoice ${inv.numberLabel} is past due`, body: `${balance} was due ${formatDate(inv.dueDate)}. Please arrange payment.`, href: `/portal/invoices/${inv.id}`, dedupeKey: `invoice-overdue:${inv.id}:${userId}` });
       notified += 1;
     }
   }

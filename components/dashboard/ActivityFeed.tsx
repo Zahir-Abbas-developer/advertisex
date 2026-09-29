@@ -89,7 +89,7 @@ export function ActivityFeed({ activity }: { activity: ActivityRow[] }) {
                 </p>
               )}
 
-              <p className="mt-1 text-[11px] text-ink/35">
+              <p className="mt-1 text-[11px] text-ink-muted">
                 {entry.milestone && `${entry.milestone.clientName} · `}
                 {relativeFromNow(entry.createdAt)}
               </p>
@@ -98,7 +98,7 @@ export function ActivityFeed({ activity }: { activity: ActivityRow[] }) {
             {entry.milestone && (
               <Link
                 href={`/board?milestone=${entry.milestone.id}`}
-                className="shrink-0 self-center text-[12px] text-ink/35 transition-colors hover:text-brand"
+                className="shrink-0 self-center text-[12px] text-ink-muted transition-colors hover:text-brand"
               >
                 Open
               </Link>

@@ -245,7 +245,7 @@ export function ReportsBrowser({
                   {report.headline}
                 </p>
 
-                <p className="mt-1.5 text-[12px] text-ink/35">
+                <p className="mt-1.5 text-[12px] text-ink-muted">
                   Generated {formatDate(report.generatedAt)}
                 </p>
               </div>

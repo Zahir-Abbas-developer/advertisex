@@ -11,6 +11,9 @@ import { hasAdminPower } from "@/lib/constants";
 
 import { requireApi } from "@/modules/rbac/server";
 import { limited } from "@/lib/rate-limit";
+import { projectScopeWhere } from "@/modules/projects/server";
+import { normalizeRole } from "@/config/permissions";
+import { TASK_STATUS_LABEL, normalizeTaskStatus } from "@/modules/tasks/domain";
 /**
  * Command palette search.
  *
@@ -67,7 +70,9 @@ export async function GET(request: Request) {
   try {
     const flags = await getModuleFlags();
 
-    const [leads, clients, members, projects, milestones] = await Promise.all([
+    const principal = access.principal;
+    const projectScope = projectScopeWhere(principal);
+    const [leads, clients, members, projects, milestones, tasks, invoices] = await Promise.all([
       prisma.lead.findMany({
         where: { ...scope, OR: contactMatch },
         take: 6,
@@ -98,12 +103,11 @@ export async function GET(request: Request) {
         take: 5,
         select: { id: true, name: true, jobTitle: true, avatarColor: true, role: true },
       }),
-      // Retainer projects are a parked module. Searching them would surface a
-      // link to a page the module gate answers with "switched off", which is a
-      // worse result than no result.
-      flags.retainerProjects && isAdmin
+      // Projects, as the Projects page scopes them (Phase 10: they used to hide
+      // behind the parked retainer module's flag).
+      projectScope
         ? prisma.project.findMany({
-            where: { title: containsInsensitive(query) },
+            where: { ...projectScope, title: containsInsensitive(query) },
             take: 4,
             select: {
               id: true,
@@ -132,6 +136,27 @@ export async function GET(request: Request) {
                 },
               },
             },
+          })
+        : [],
+      // Tasks: the founder's everywhere; others', in their departments — an
+      // employee's only their own.
+      prisma.task.findMany({
+        where: {
+          title: containsInsensitive(query),
+          ...(isAdmin ? {} : { departmentId: { in: [...viewer.departmentIds] } }),
+          ...(principal.role === "EMPLOYEE" ? { OR: [{ assigneeId: user.id }, { createdById: user.id }] } : {}),
+        },
+        take: 5,
+        orderBy: { updatedAt: "desc" },
+        select: { id: true, title: true, status: true, dueAt: true, department: { select: { shortLabel: true } } },
+      }),
+      // Invoices are the founder's, by number or client.
+      principal.role === "FOUNDER"
+        ? prisma.invoice.findMany({
+            where: { OR: [{ numberLabel: containsInsensitive(query) }, { client: { businessName: containsInsensitive(query) } }] },
+            take: 4,
+            orderBy: { createdAt: "desc" },
+            select: { id: true, numberLabel: true, status: true, client: { select: { businessName: true } } },
           })
         : [],
     ]);
@@ -167,12 +192,27 @@ export async function GET(request: Request) {
           // Opens the drawer on the board rather than a dead end.
           href: `/board?milestone=${milestone.id}`,
         })),
+        ...tasks.map((task) => ({
+          kind: "task" as const,
+          id: task.id,
+          title: task.title,
+          subtitle: `${task.department.shortLabel} · ${taskStatusLabel(task.status)}`,
+          href: `/tasks?task=${task.id}`,
+        })),
+        ...invoices.map((invoice) => ({
+          kind: "invoice" as const,
+          id: invoice.id,
+          title: invoice.numberLabel ?? "Draft invoice",
+          subtitle: invoice.client.businessName,
+          href: `/invoices/${invoice.id}`,
+        })),
         ...members.map((member) => ({
-          kind: "member" as const,
+          kind: normalizeRole(member.role) === "AI_AGENT" ? ("agent" as const) : ("member" as const),
           id: member.id,
           title: member.name,
           subtitle: member.jobTitle,
-          href: isAdmin ? `/team/${member.id}` : "/my-performance",
+          // AI employees have a public work page; people's profiles are the ops view.
+          href: normalizeRole(member.role) === "AI_AGENT" ? (isAdmin ? `/team/${member.id}` : "/agents") : isAdmin ? `/team/${member.id}` : "/my-performance",
         })),
       ],
     });
@@ -180,3 +220,5 @@ export async function GET(request: Request) {
     return apiError("Search failed", 500);
   }
 }
+
+const taskStatusLabel = (status: string) => TASK_STATUS_LABEL[normalizeTaskStatus(status)];

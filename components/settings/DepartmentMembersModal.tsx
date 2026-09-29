@@ -145,7 +145,7 @@ export function DepartmentMembersModal({
         <div className="space-y-2">
           <p className="mb-3 text-[13px] leading-relaxed text-ink-muted">
             Members see only the departments they belong to. Skills are free
-            text — whatever this business line actually needs.
+            text — whatever this department actually needs.
           </p>
 
           {people.map((person) => {
@@ -179,6 +179,7 @@ export function DepartmentMembersModal({
 
                   {active && (
                     <select
+                      aria-label="Role in department"
                       value={draft!.roleInDept}
                       onChange={(e) =>
                         setDrafts((prev) =>
@@ -221,7 +222,7 @@ export function DepartmentMembersModal({
                                 ),
                               )
                             }
-                            className="text-ink/35 transition-colors hover:text-danger"
+                            className="text-ink-muted transition-colors hover:text-danger"
                           >
                             <X className="h-3 w-3" />
                           </button>
@@ -234,6 +235,7 @@ export function DepartmentMembersModal({
 
                     <div className="mt-2 flex gap-2">
                       <Input
+                        aria-label="Add a skill"
                         value={skillInput[person.id] ?? ""}
                         placeholder="Add a skill…"
                         onChange={(e) =>

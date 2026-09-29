@@ -83,7 +83,7 @@ export function ClientCard({ client }: { client: ClientSummary }) {
         </span>
         {client.country && (
           <span className="flex min-w-0 items-center gap-1.5">
-            <Globe2 aria-hidden className="h-3.5 w-3.5 shrink-0 text-ink/35" />
+            <Globe2 aria-hidden className="h-3.5 w-3.5 shrink-0 text-ink-muted" />
             <span className="truncate">{client.country}</span>
           </span>
         )}
@@ -103,7 +103,7 @@ export function ClientCard({ client }: { client: ClientSummary }) {
           )}
         </div>
       ) : (
-        <p className="mt-4 text-[13px] text-ink/35">No services purchased yet</p>
+        <p className="mt-4 text-[13px] text-ink-muted">No services purchased yet</p>
       )}
 
       <div className="mt-auto pt-5">
@@ -125,7 +125,7 @@ export function ClientCard({ client }: { client: ClientSummary }) {
             <span className="text-[13px] text-ink-muted">No open project</span>
             <ArrowUpRight
               aria-hidden
-              className="h-3.5 w-3.5 text-ink/30 transition-colors group-hover:text-brand"
+              className="h-3.5 w-3.5 text-ink-muted transition-colors group-hover:text-brand"
             />
           </div>
         )}

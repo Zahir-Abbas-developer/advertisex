@@ -576,7 +576,7 @@ export function MilestoneDrawer({
                 onClick={() => fileInput.current?.click()}
                 className="flex w-full flex-col items-center gap-2 rounded-card border border-dashed border-line px-4 py-7 text-center transition-colors hover:border-ink/25 hover:bg-surface-2/50 disabled:opacity-50"
               >
-                <Upload className="h-5 w-5 text-ink/35" />
+                <Upload className="h-5 w-5 text-ink-muted" />
                 <span className="text-[13px] font-medium text-ink-2">
                   Upload a file
                 </span>
@@ -633,7 +633,7 @@ export function MilestoneDrawer({
                           disabled={busy}
                           onClick={() => void removeAttachment(attachment.id, attachment.filename)}
                           aria-label={`Remove ${attachment.filename}`}
-                          className="rounded-[7px] p-1.5 text-ink/35 transition-colors hover:bg-danger-tint hover:text-danger"
+                          className="rounded-[7px] p-1.5 text-ink-muted transition-colors hover:bg-danger-tint hover:text-danger"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                         </button>
@@ -679,7 +679,7 @@ export function MilestoneDrawer({
                             {entry.detail}
                           </p>
                         )}
-                        <p className="mt-0.5 text-[11px] text-ink/35">
+                        <p className="mt-0.5 text-[11px] text-ink-muted">
                           {relativeFromNow(entry.createdAt)} · {formatDateTime(entry.createdAt)}
                         </p>
                       </div>
@@ -728,7 +728,7 @@ function CommentBody({
           <span className="text-[13px] font-medium text-ink">
             {comment.author.id === viewerId ? "You" : comment.author.name}
           </span>
-          <span className="text-[11px] text-ink/35">
+          <span className="text-[11px] text-ink-muted">
             {relativeFromNow(comment.createdAt)}
           </span>
         </p>

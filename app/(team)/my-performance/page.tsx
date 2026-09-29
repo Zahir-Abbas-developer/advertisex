@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
 import { prisma } from "@/lib/prisma";
+import { SESSION_ENDED_ROUTE } from "@/lib/routes";
 import { requireUser } from "@/lib/session";
 import { currentCycle, ledgerFor, onTimeRateFor, performanceContext, scoresForCycle } from "@/lib/score-service";
 import { monthlyScore, scoreBand } from "@/lib/scoring";
@@ -34,8 +36,8 @@ export default async function MyPerformancePage() {
   ]);
 
   // The session always corresponds to a real row, but a deleted account mid
-  // session shouldn't 500 the page.
-  if (!member) return null;
+  // session is signed out rather than shown a blank page.
+  if (!member) redirect(SESSION_ENDED_ROUTE);
 
   const score = scores.get(user.id) ?? {
     userId: user.id,

@@ -5,6 +5,7 @@ import { apiError } from "@/lib/api";
 import { authorizeCron } from "@/lib/cron-auth";
 import { REPORT_TYPES, generateReports, type ReportType } from "@/lib/reports";
 import { isCompanyFirstOfMonth, isCompanyMonday } from "@/lib/date";
+import { beginJob } from "@/lib/ops";
 
 const querySchema = z.object({
   /** Omit to let the calendar decide what is due today. */
@@ -42,7 +43,10 @@ export async function POST(request: Request) {
       ...(isCompanyFirstOfMonth(now) ? (["MEMBER_MONTHLY"] as const) : []),
     ];
 
+  const finish = await beginJob("reports", now);
   if (due.length === 0) {
+    // A run that found nothing due still ran — the health check must not call it late.
+    await finish("OK", "Nothing due today");
     return NextResponse.json({
       generated: 0,
       note: "Nothing due today — weeklies run on Monday, monthlies on the 1st.",
@@ -51,8 +55,10 @@ export async function POST(request: Request) {
 
   try {
     const result = await generateReports({ types: due, reference: now });
+    await finish("OK", JSON.stringify(result).slice(0, 200));
     return NextResponse.json(result);
-  } catch {
+  } catch (error) {
+    await finish("FAILED", error instanceof Error ? error.message : "Report generation failed");
     return apiError("Report generation failed", 500);
   }
 }

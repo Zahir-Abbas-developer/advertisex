@@ -650,7 +650,7 @@ function StepRail({ step }: { step: number }) {
           <span
             className={cn(
               "eyebrow",
-              index === step ? "text-brand" : index < step ? "text-ink-muted" : "text-ink/25",
+              index === step ? "text-brand" : index < step ? "text-ink-muted" : "text-ink-muted",
             )}
           >
             {label}

@@ -11,7 +11,7 @@ export default async function AttendancePage() {
   await requirePage("read", "ops");
   return (
     <div className="space-y-8">
-      <PageHeader eyebrow="Team" title="Attendance" description="Everyone's month against their own schedule. AI agents have no attendance." />
+      <PageHeader eyebrow="Team" title="Attendance" description="Everyone's month against their own schedule. AI employees have no attendance." />
       <TeamAttendance />
     </div>
   );

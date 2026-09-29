@@ -150,7 +150,7 @@ function Sparkline({ series }: { series: MrrPoint[] }) {
         />
       </svg>
 
-      <div className="mt-1.5 flex justify-between text-[10px] uppercase tracking-wider text-ink/30">
+      <div className="mt-1.5 flex justify-between text-[10px] uppercase tracking-wider text-ink-muted">
         <span>{monthLabel(series[0])}</span>
         <span>{monthLabel(series[series.length - 1])}</span>
       </div>

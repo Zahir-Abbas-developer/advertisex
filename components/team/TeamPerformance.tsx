@@ -124,7 +124,7 @@ export function TeamPerformance() {
           <div>
             <h2 className="font-display text-lg font-semibold text-ink">Delivery</h2>
             <p className="text-[13px] text-ink-muted">
-              {team.people - team.agents} people and {team.agents} AI agent{team.agents === 1 ? "" : "s"}.
+              {team.people - team.agents} people and {team.agents} AI employee{team.agents === 1 ? "" : "s"}.
             </p>
           </div>
           <HowCalculated topic="performance" />
@@ -178,7 +178,7 @@ export function TeamPerformance() {
         <div className="flex items-end justify-between gap-3">
           <div>
             <h2 className="font-display text-lg font-semibold text-ink">Attendance</h2>
-            <p className="text-[13px] text-ink-muted">People only — AI agents have no attendance.</p>
+            <p className="text-[13px] text-ink-muted">People only — AI employees have no attendance.</p>
           </div>
           <HowCalculated topic="attendance" />
         </div>

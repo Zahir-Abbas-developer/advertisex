@@ -32,7 +32,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(function Che
         type="checkbox"
         aria-invalid={error ? true : undefined}
         aria-describedby={describedBy}
-        className="mt-0.5 h-4 w-4 shrink-0 rounded border-line bg-surface text-brand focus:ring-brand/25 disabled:cursor-not-allowed disabled:opacity-50"
+        className="mt-0.5 h-4 w-4 shrink-0 rounded border-line-field bg-surface text-brand focus:ring-brand/25 disabled:cursor-not-allowed disabled:opacity-50"
         {...props}
       />
       <span>

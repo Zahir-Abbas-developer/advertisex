@@ -1,12 +1,12 @@
 import { Badge } from "@/components/ui/Badge";
-import { INVOICE_STATUS_LABEL, INVOICE_STATUS_TONE, type InvoiceStatus } from "@/modules/billing/domain";
+import { CLIENT_INVOICE_STATUS_LABEL, INVOICE_STATUS_LABEL, INVOICE_STATUS_TONE, type InvoiceStatus } from "@/modules/billing/domain";
 
 export { formatMoney } from "@/modules/billing/money";
 
-export function InvoiceStatusBadge({ status, size = "sm" }: { status: InvoiceStatus; size?: "sm" | "md" }) {
+export function InvoiceStatusBadge({ status, size = "sm", forClient = false }: { status: InvoiceStatus; size?: "sm" | "md"; forClient?: boolean }) {
   return (
     <Badge size={size} tone={INVOICE_STATUS_TONE[status]} dot={status === "OVERDUE"}>
-      {INVOICE_STATUS_LABEL[status]}
+      {(forClient ? CLIENT_INVOICE_STATUS_LABEL : INVOICE_STATUS_LABEL)[status]}
     </Badge>
   );
 }

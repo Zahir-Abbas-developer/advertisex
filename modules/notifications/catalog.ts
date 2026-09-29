@@ -22,6 +22,8 @@ const EVERYONE: readonly Role[] = ["FOUNDER", "MANAGER", "EMPLOYEE", "AI_AGENT",
 export type CategoryInfo = {
   label: string;
   description: string;
+  /** What a restaurant client reads instead, where the staff wording would be jargon to them. */
+  clientDescription?: string;
   /** Roles that may ever receive it — notify() drops anything else. */
   audience: readonly Role[];
   defaultLevel: Level;
@@ -35,12 +37,12 @@ export const CATEGORY: Record<Category, CategoryInfo> = {
   projects: { label: "Projects", description: "New projects and changes to yours", audience: STAFF, defaultLevel: "app", minimum: "off" },
   updates: { label: "Project updates", description: "Progress your team shares with you", audience: ["CLIENT"], defaultLevel: "email", minimum: "off" },
   messages: { label: "Messages", description: "New messages in your conversations", audience: EVERYONE, defaultLevel: "email", minimum: "off" },
-  reports: { label: "Reports", description: "New reports, and reports waiting for review", audience: EVERYONE, defaultLevel: "email", minimum: "off" },
+  reports: { label: "Reports", description: "New reports, and reports waiting for review", clientDescription: "New reports from your team", audience: EVERYONE, defaultLevel: "email", minimum: "off" },
   billing: { label: "Billing", description: "New invoices, payments received, payments overdue", audience: ["FOUNDER", "CLIENT"], defaultLevel: "email", minimum: "app" },
   sales: { label: "Sales", description: "Deals won and follow-ups due", audience: STAFF, defaultLevel: "app", minimum: "off" },
-  agents: { label: "AI agents", description: "Work your AI employees finished, and proposals waiting for your decision", audience: ["FOUNDER", "MANAGER", "EMPLOYEE"], defaultLevel: "app", minimum: "app" },
-  announcements: { label: "Announcements", description: "News from the founders", audience: EVERYONE, defaultLevel: "email", minimum: "app" },
-  system: { label: "Other", description: "Availability checks and review reminders", audience: STAFF, defaultLevel: "app", minimum: "app" },
+  agents: { label: "AI employees", description: "Work your AI employees finished, and proposals waiting for your decision", audience: ["FOUNDER", "MANAGER", "EMPLOYEE"], defaultLevel: "app", minimum: "app" },
+  announcements: { label: "Announcements", description: "News from the founders", clientDescription: "News from Advertise X", audience: EVERYONE, defaultLevel: "email", minimum: "app" },
+  system: { label: "Other", description: "Availability checks, review reminders and failed scheduled jobs", audience: STAFF, defaultLevel: "app", minimum: "app" },
 };
 
 export const TYPE_CATEGORY: Record<NotificationType, Category> = {
@@ -65,6 +67,7 @@ export const TYPE_CATEGORY: Record<NotificationType, Category> = {
   ANNOUNCEMENT: "announcements",
   AGENT_NOTICE: "agents",
   APPROVAL_NEEDED: "agents",
+  JOB_FAILED: "system",
   AVAILABILITY_CHECK: "system",
   REVIEW_OVERDUE: "system",
 };

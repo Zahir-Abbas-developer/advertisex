@@ -38,7 +38,10 @@ export function CardHeader({
   description,
   action,
   className,
+  as: Heading = "h2",
 }: {
+  /** Heading level; h2 under a page's h1 by default (WCAG 1.3.1). */
+  as?: "h2" | "h3";
   title: ReactNode;
   description?: ReactNode;
   action?: ReactNode;
@@ -52,9 +55,9 @@ export function CardHeader({
       )}
     >
       <div className="min-w-0">
-        <h3 className="font-display text-base font-bold tracking-tight text-ink-heading">
+        <Heading className="font-display text-base font-bold tracking-tight text-ink-heading">
           {title}
-        </h3>
+        </Heading>
         {description && (
           <p className="mt-1 text-sm text-ink-muted">{description}</p>
         )}

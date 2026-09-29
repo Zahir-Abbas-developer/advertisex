@@ -61,7 +61,7 @@ const STATUS_STYLE: Record<string, string> = {
   LATE: "border-warn/25 bg-warn-tint text-ink",
   ABSENT: "border-danger/25 bg-danger-tint text-danger",
   LEAVE: "border-line bg-surface-2 text-ink-muted",
-  OFF: "border-line bg-surface-2/60 text-ink/30",
+  OFF: "border-line bg-surface-2/60 text-ink-muted",
 };
 
 const STATUS_LABEL: Record<string, string> = {
@@ -278,7 +278,7 @@ export function MyAttendance() {
             <div className="p-5">
               <div className="mb-2 grid grid-cols-7 gap-2">
                 {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((label) => (
-                  <p key={label} className="eyebrow text-center text-ink/35">
+                  <p key={label} className="eyebrow text-center text-ink-muted">
                     {label}
                   </p>
                 ))}
@@ -303,7 +303,7 @@ export function MyAttendance() {
                         "relative flex aspect-square flex-col items-center justify-center rounded-[10px] border transition-colors",
                         style,
                         day && "hover:border-ink/30",
-                        !day && "text-ink/20",
+                        !day && "text-ink-muted",
                         selected === date && "ring-2 ring-brand/40",
                       )}
                     >

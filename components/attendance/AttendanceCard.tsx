@@ -53,7 +53,7 @@ export function AttendanceCard() {
               No availability checks, no attendance impact.
             </p>
           </div>
-          <Moon aria-hidden className="h-8 w-8 text-ink/25" />
+          <Moon aria-hidden className="h-8 w-8 text-ink-muted" />
         </div>
       </Card>
     );
@@ -78,7 +78,7 @@ export function AttendanceCard() {
             </div>
 
             <div className="text-right">
-              <p className="eyebrow text-ink/35">Availability</p>
+              <p className="eyebrow text-ink-muted">Availability</p>
               <p
                 className={cn(
                   "mt-1 font-display text-2xl font-bold tabular-nums",
@@ -136,7 +136,7 @@ export function AttendanceCard() {
 
             <div className="flex flex-col items-end gap-3">
               <div className="text-right">
-                <p className="eyebrow text-ink/35">Karachi</p>
+                <p className="eyebrow text-ink-muted">Karachi</p>
                 <p className="mt-1 font-display text-lg font-bold tabular-nums text-ink/85">
                   {formatKarachiClock(nowMinutes)}
                 </p>
@@ -203,7 +203,7 @@ export function AttendanceCard() {
 
           <div className="flex flex-col items-end gap-3">
             <div className="text-right">
-              <p className="eyebrow text-ink/35">Karachi time</p>
+              <p className="eyebrow text-ink-muted">Karachi time</p>
               <p className="mt-1 font-display text-[28px] font-bold leading-none tabular-nums text-ink">
                 {formatKarachiClock(nowMinutes)}
               </p>

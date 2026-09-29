@@ -12,7 +12,7 @@ const VARIANTS: Record<ButtonVariant, string> = {
   secondary:
     "bg-surface text-ink border border-line-strong hover:bg-surface-2 hover:border-brand/30 active:bg-surface-2 disabled:text-ink/40",
   ghost:
-    "bg-transparent text-ink-2 border border-transparent hover:bg-surface-2 hover:text-ink disabled:text-ink/30",
+    "bg-transparent text-ink-2 border border-transparent hover:bg-surface-2 hover:text-ink disabled:text-ink-muted",
   danger:
     "bg-danger-tint text-danger border border-danger/25 hover:bg-danger hover:text-on-brand hover:border-danger disabled:opacity-50",
   dark: "bg-brand-strong text-on-brand border border-brand-strong hover:bg-brand hover:border-brand disabled:opacity-50",
@@ -41,7 +41,7 @@ export const buttonClasses = (
 ) =>
   cn(
     "inline-flex items-center justify-center rounded-pill font-medium transition-colors duration-150",
-    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2 focus-visible:ring-offset-canvas",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-canvas",
     "disabled:cursor-not-allowed",
     VARIANTS[variant],
     SIZES[size],

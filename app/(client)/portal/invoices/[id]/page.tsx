@@ -43,7 +43,7 @@ export default async function PortalInvoice(
           <div>
             <div className="flex flex-wrap items-center gap-3">
               <h1 className="font-display text-[28px] font-bold tracking-[-0.02em] text-ink">Invoice {inv.numberLabel}</h1>
-              <InvoiceStatusBadge status={inv.status} size="md" />
+              <InvoiceStatusBadge forClient status={inv.status} size="md" />
             </div>
             <p className="mt-1 text-[14px] text-ink-muted">
               {inv.issueDate ? `Issued ${formatDate(inv.issueDate)} · ` : ""}due {formatDate(inv.dueDate)}

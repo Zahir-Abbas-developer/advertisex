@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 
 import { TaskBoard } from "@/components/tasks/TaskBoard";
 
@@ -7,5 +8,9 @@ export const metadata: Metadata = {
 };
 
 export default function TasksPage() {
-  return <TaskBoard />;
+  return (
+    <Suspense>
+      <TaskBoard />
+    </Suspense>
+  );
 }

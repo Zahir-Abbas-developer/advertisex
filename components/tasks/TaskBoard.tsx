@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { CheckSquare, ListTodo, Plus } from "lucide-react";
 
 import { Avatar } from "@/components/ui/Avatar";
@@ -101,6 +101,23 @@ export function TaskBoard() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  // `?task=<id>` (from search) opens that task — widening past "mine" if it
+  // belongs to someone else.
+  const focusId = useSearchParams().get("task");
+  const focused = useRef(false);
+  useEffect(() => {
+    if (!focusId || focused.current || !data) return;
+    const task = data.tasks.find((t) => t.id === focusId);
+    if (task) {
+      focused.current = true;
+      setOpenTask({ id: task.id, title: task.title, note: task.note, status: task.status, dueAt: task.dueAt });
+    } else if (mineOnly) {
+      setMineOnly(false);
+    } else {
+      focused.current = true;
+    }
+  }, [focusId, data, mineOnly]);
 
   const departments = useMemo(() => {
     const seen = new Map<string, string>();
@@ -302,7 +319,7 @@ export function TaskBoard() {
                         className="mt-1 h-4 w-4 rounded border-line text-brand focus:ring-brand/25"
                       />
                     ) : (
-                      <ListTodo aria-hidden className="mt-0.5 h-4 w-4 shrink-0 text-ink/30" />
+                      <ListTodo aria-hidden className="mt-0.5 h-4 w-4 shrink-0 text-ink-muted" />
                     )}
 
                     <div className="min-w-0 flex-1">

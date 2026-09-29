@@ -217,6 +217,24 @@ export function navItemsForRole(rawRole: unknown, hiddenKeys: readonly NavKey[] 
 }
 
 /**
+ * What the command palette can go to or start, for one role (Phase 10). Every
+ * screen the role may open — including the ones reached from elsewhere
+ * rather than the rail — minus switched-off modules, plus the few things
+ * worth starting from anywhere.
+ */
+export function paletteCommandsFor(rawRole: unknown, hiddenKeys: readonly NavKey[] = []): { id: string; label: string; href: string; kind: "go" | "new" }[] {
+  const role = normalizeRole(rawRole);
+  if (!role) return [];
+  const go = NAV_ITEMS.filter((item) => item.roles.includes(role) && !item.comingSoon && !hiddenKeys.includes(item.key)).map((item) => ({ id: item.key, label: item.label, href: item.href, kind: "go" as const }));
+  const start = [
+    ...(role === "FOUNDER" ? [{ id: "new-invoice", label: "New invoice", href: "/invoices/new", kind: "new" as const }] : []),
+    ...(role === "FOUNDER" || role === "MANAGER" ? [{ id: "agent-work", label: "Give an AI employee work", href: "/agents", kind: "new" as const }] : []),
+    ...(role === "FOUNDER" ? [{ id: "new-automation", label: "New automation", href: "/automations", kind: "new" as const }] : []),
+  ];
+  return [...start, ...go];
+}
+
+/**
  * The two staff experiences (CLAUDE.md §7, "three experiences, one system").
  * Same routes, same components — a different information architecture:
  * the command center reads top-down from the business, the team shell from

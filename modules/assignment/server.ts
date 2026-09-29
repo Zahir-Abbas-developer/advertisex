@@ -24,6 +24,7 @@ import {
   type ScoreContext,
   type Weights,
 } from "@/modules/assignment/domain";
+import { settingsRow } from "@/lib/settings";
 
 /**
  * Project assignment on the server (Phase 5): the real inputs for the pure
@@ -39,7 +40,7 @@ const HISTORY_DAYS = 180;
 export type AssignmentSettings = { mode: AssignmentMode; weights: Weights; rawWeights: Record<string, number>; roleHours: number };
 
 export async function assignmentSettings(): Promise<AssignmentSettings> {
-  const row = await prisma.settings.upsert({ where: { id: "singleton" }, update: {}, create: { id: "singleton" } });
+  const row = await settingsRow();
   let raw: Record<string, number> = {};
   try {
     raw = JSON.parse(row.assignmentWeights) as Record<string, number>;

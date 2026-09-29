@@ -94,7 +94,7 @@ export function ApproveDialog({
                 onMouseEnter={() => setHover(value)}
                 onFocus={() => setHover(value)}
                 onClick={() => setRating(value)}
-                className="rounded p-1 transition-transform hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
+                className="rounded p-1 transition-transform hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
               >
                 <Star
                   className={cn(
@@ -105,7 +105,7 @@ export function ApproveDialog({
                         : shown === 5
                           ? "fill-brand text-brand"
                           : "fill-warn text-warn"
-                      : "text-ink/20",
+                      : "text-ink-muted",
                   )}
                 />
               </button>

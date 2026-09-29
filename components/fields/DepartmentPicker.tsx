@@ -31,7 +31,7 @@ export function DepartmentPicker({
     return (
       <EmptyState
         title="You're not in a department yet"
-        description="Records belong to a business line, so an admin needs to add you to one before you can create anything."
+        description="Records belong to a department, so an admin needs to add you to one before you can create anything."
       />
     );
   }

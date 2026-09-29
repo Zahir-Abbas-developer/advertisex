@@ -394,7 +394,7 @@ export function TeamManager({ currentUserId }: { currentUserId: string }) {
                         className={cn(
                           "text-sm tabular-nums",
                           member.onTimeRate === null
-                            ? "text-ink/30"
+                            ? "text-ink-muted"
                             : member.onTimeRate >= 90
                               ? "text-brand"
                               : member.onTimeRate >= 70
@@ -411,7 +411,7 @@ export function TeamManager({ currentUserId }: { currentUserId: string }) {
                         {member.load}
                       </span>
                       {member.load > 0 && (
-                        <span className="ml-1 text-[11px] text-ink/35">
+                        <span className="ml-1 text-[11px] text-ink-muted">
                           · w{member.totalWeight}
                         </span>
                       )}

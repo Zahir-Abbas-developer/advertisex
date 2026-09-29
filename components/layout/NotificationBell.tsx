@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
+  AlertTriangle,
   AlertCircle,
   Bot,
   ShieldCheck,
@@ -30,7 +31,7 @@ import {
   UserPlus,
 } from "lucide-react";
 
-import { EmptyState } from "@/components/ui/EmptyState";
+import { EmptyState, InlineError } from "@/components/ui/EmptyState";
 import { relativeFromNow } from "@/lib/date";
 import { NOTIFICATION_TONE, type NotificationType } from "@/lib/notification-types";
 import { cn } from "@/lib/utils";
@@ -69,6 +70,7 @@ const ICONS: Record<NotificationType, typeof Bell> = {
   ANNOUNCEMENT: Megaphone,
   AGENT_NOTICE: Bot,
   APPROVAL_NEEDED: ShieldCheck,
+  JOB_FAILED: AlertTriangle,
 };
 
 const TONE_CLASSES: Record<string, string> = {
@@ -90,7 +92,10 @@ const TONE_CLASSES: Record<string, string> = {
 export function NotificationBell({
   reportsHref = "/my-reports",
   allHref = "/notifications",
+  forClient = false,
 }: {
+  /** The client portal's bell: its empty state speaks the client's language. */
+  forClient?: boolean;
   /** Footer link to the viewer's reports; null hides it. */
   reportsHref?: string | null;
   /** The full notification center (Phase 8). */
@@ -103,10 +108,15 @@ export function NotificationBell({
   const [loading, setLoading] = useState(true);
   const panelRef = useRef<HTMLDivElement>(null);
 
+  const [loadFailed, setLoadFailed] = useState(false);
   const load = useCallback(async () => {
     try {
       const response = await fetch("/api/notifications", { cache: "no-store" });
-      if (!response.ok) return;
+      if (!response.ok) {
+        setLoadFailed(true);
+        return;
+      }
+      setLoadFailed(false);
       const body = (await response.json()) as {
         notifications: NotificationRow[];
         unread: number;
@@ -204,13 +214,17 @@ export function NotificationBell({
           </div>
 
           <div className="scrollbar-thin max-h-[380px] overflow-y-auto">
-            {loading ? (
+            {loadFailed && rows.length === 0 ? (
+              <div className="p-4">
+                <InlineError message="Notifications didn't load." onRetry={() => void load()} />
+              </div>
+            ) : loading ? (
               <p className="px-4 py-8 text-center text-[13px] text-ink-muted">Loading…</p>
             ) : rows.length === 0 ? (
               <EmptyState
                 icon={Bell}
                 title="Nothing yet"
-                description="Assignments, approvals and deadline warnings will land here."
+                description={forClient ? "Updates, reports and invoices from your team will show here." : "Assignments, approvals and deadline warnings will land here."}
                 className="py-10"
               />
             ) : (
@@ -244,16 +258,16 @@ export function NotificationBell({
                               {row.title}
                             </span>
                             {!row.readAt && (
-                              <span
-                                aria-hidden
-                                className="h-1.5 w-1.5 shrink-0 rounded-pill bg-brand"
-                              />
+                              <>
+                                <span aria-hidden className="h-1.5 w-1.5 shrink-0 rounded-pill bg-brand" />
+                                <span className="sr-only">Unread</span>
+                              </>
                             )}
                           </span>
                           <span className="mt-0.5 line-clamp-2 block text-[12px] leading-relaxed text-ink-muted">
                             {row.body}
                           </span>
-                          <span className="mt-1 block text-[11px] text-ink/35">
+                          <span className="mt-1 block text-[11px] text-ink-muted">
                             {relativeFromNow(row.createdAt)}
                           </span>
                         </span>

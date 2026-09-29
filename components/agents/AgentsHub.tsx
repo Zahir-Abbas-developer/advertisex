@@ -61,7 +61,7 @@ export function AgentsHub({ canHire, canAssign }: { canHire: boolean; canAssign:
         actions={
           canHire ? (
             <Button size="sm" icon={<Plus className="h-4 w-4" />} onClick={() => setEditing("new")}>
-              Hire an agent
+              Hire an AI employee
             </Button>
           ) : undefined
         }
@@ -77,7 +77,7 @@ export function AgentsHub({ canHire, canAssign }: { canHire: boolean; canAssign:
         </div>
       ) : data.agents.length === 0 ? (
         <Card padded={false}>
-          <EmptyState icon={Bot} title="No AI employees yet" description="Hire one with a capability — lead qualification is a good first." action={canHire ? <Button onClick={() => setEditing("new")}>Hire an agent</Button> : undefined} />
+          <EmptyState icon={Bot} title="No AI employees yet" description="Hire one with a capability — lead qualification is a good first." action={canHire ? <Button onClick={() => setEditing("new")}>Hire an AI employee</Button> : undefined} />
         </Card>
       ) : (
         <>

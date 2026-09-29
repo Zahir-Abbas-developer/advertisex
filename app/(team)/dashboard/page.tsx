@@ -50,7 +50,13 @@ import { performanceContext } from "@/lib/score-service";
 import { mrrSeries, pipelineMetrics } from "@/lib/pipeline";
 import { MrrCard } from "@/components/dashboard/MrrCard";
 import { CollectionsCard } from "@/components/dashboard/CollectionsCard";
-import { CommandCenter } from "@/components/command/CommandCenter";
+import dynamic from "next/dynamic";
+import { Skeleton } from "@/components/ui/Skeleton";
+
+/** The founder's charts, in their own chunk — no one else downloads them (Phase 10). */
+const CommandCenter = dynamic(() => import("@/components/command/CommandCenter").then((m) => m.CommandCenter), {
+  loading: () => <Skeleton className="h-[480px] rounded-card" />,
+});
 import { AtRiskClients } from "@/components/dashboard/AtRiskClients";
 import { collections } from "@/lib/payments";
 import { healthReport } from "@/lib/ops";
@@ -584,7 +590,7 @@ export default async function DashboardPage(
                       href={`/team/${member.id}`}
                       className="flex items-center gap-3.5 px-5 py-3 transition-colors hover:bg-surface-2/50"
                     >
-                      <span className="w-4 shrink-0 font-display text-sm font-bold tabular-nums text-ink/30">
+                      <span className="w-4 shrink-0 font-display text-sm font-bold tabular-nums text-ink-muted">
                         {index + 1}
                       </span>
                       <Avatar name={member.name} color={member.avatarColor} size="sm" />
@@ -756,7 +762,7 @@ function lateness(overdue: boolean, days: number): string {
 function HeroStat({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-[10px] border border-ink/10 bg-ink/[0.04] px-4 py-3">
-      <p className="eyebrow text-ink/35">{label}</p>
+      <p className="eyebrow text-ink-muted">{label}</p>
       <p className="mt-1.5 text-sm font-medium text-ink/85">{value}</p>
     </div>
   );
