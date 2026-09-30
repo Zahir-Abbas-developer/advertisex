@@ -29,6 +29,7 @@ equivalent works; the notes say what to keep in mind.
 | 2.2 | `DATABASE_URL` = the **pooled** connection string; `DATABASE_URL_UNPOOLED` = the direct one (migrations need it). Neon/Supabase want `sslmode=require`; Supabase's pooler wants `pgbouncer=true`. | `vercel-build` migrates without "prepared statement" errors | ✅ |
 | 2.3 | First deploy migrates from zero. | `npx prisma migrate diff --from-url "$DATABASE_URL" --to-schema-datamodel prisma/schema.prisma` prints *an empty migration* | ✅ empty — no drift |
 | 2.4 | Create the owner once: `ADMIN_EMAIL=… ADMIN_PASSWORD=<16+ chars> ADMIN_NAME=… npm run db:seed:admin`. Never run `db:seed` / `db:seed:demo` against production. | Sign in as the owner; you're forced to keep a strong password | ✅ (demo seed used on staging only) |
+| 2.4a | **No known passwords on a live database.** The structure seed creates the team's accounts on every deploy. On a deployment (and without `SEED_PASSWORD`) they're created *locked*, with a random password nobody holds. Hand out access deliberately: `DATABASE_URL=… npm run set-passwords`, or a founder's reset. Never deploy with `SEED_PASSWORD` set to the demo value. | Signing in with `advertisex-change-me` fails | ✅ first production deploy: the six seeded accounts were rotated to private one-time passwords |
 | 2.5 | Add a second owner: `npm run promote -- someone@… ` — the day the only owner is locked out is the day you need one. | `npm run promote -- --list` shows two | — |
 
 ## 3. Scheduled jobs

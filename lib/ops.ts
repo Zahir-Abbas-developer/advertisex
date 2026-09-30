@@ -89,7 +89,10 @@ export async function jobHealth(now = new Date()): Promise<JobHealth[]> {
   const runs = await prisma.jobRun.findMany();
   const byJob = new Map(runs.map((run) => [run.job, run]));
 
-  return TRACKED_JOBS.map((job) => {
+  // With the provider's snapshots as the backup (BACKUP_DIR unset) there is
+  // no app backup job to wait for — tracking it would be permanent noise.
+  const tracked = process.env.BACKUP_DIR ? TRACKED_JOBS : TRACKED_JOBS.filter((job) => job !== "backup");
+  return tracked.map((job) => {
     const run = byJob.get(job);
     if (!run) {
       return {

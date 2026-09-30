@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { randomBytes } from "node:crypto";
 
 import { avatarColorFor, FIELD_ENTITIES } from "../lib/constants";
 import { serializeSkills } from "../lib/skills";
@@ -58,6 +59,18 @@ import { DEFAULT_SERVICES, skillWeightAt } from "../modules/services/catalog";
 const prisma = new PrismaClient();
 
 const PLACEHOLDER_PASSWORD = process.env.SEED_PASSWORD ?? "advertisex-change-me";
+
+/**
+ * A deployment builds against a live database, and the default placeholder
+ * is published in this repository — "must change at first sign-in" only
+ * protects an account if the first person to sign in is its owner (Phase 10,
+ * found on the first production deploy). So when building a deployment
+ * without an explicit SEED_PASSWORD, each new account gets an unguessable
+ * password nobody holds; access is handed out deliberately
+ * (`npm run set-passwords`, or a founder's reset) — docs/DEPLOYMENT.md.
+ */
+const DEPLOYMENT = Boolean(process.env.VERCEL_ENV) || process.env.NODE_ENV === "production";
+const LOCKED = DEPLOYMENT && !process.env.SEED_PASSWORD;
 
 /**
  * The service lines, per founder decision D2 (docs/DECISIONS.md): departments
@@ -369,6 +382,7 @@ async function seedServiceCatalog(organizationId: string) {
 
 async function main() {
   const passwordHash = await bcrypt.hash(PLACEHOLDER_PASSWORD, 10);
+  const newAccountHash = async () => (LOCKED ? bcrypt.hash(randomBytes(24).toString("base64url"), 10) : passwordHash);
 
   // Organization #1 (ADR-005): Advertise X itself. Rows that predate tenancy
   // get their organizationId backfilled — only null keys are touched, so a
@@ -532,7 +546,7 @@ async function main() {
           organizationId: org.id,
           name: person.name,
           email: person.email,
-          passwordHash,
+          passwordHash: await newAccountHash(),
           role: person.role,
           jobTitle: person.jobTitle,
           mustChangePassword: true,
@@ -587,7 +601,11 @@ async function main() {
   console.log(`  users           ${users}`);
   console.log(`  memberships     ${memberships}`);
   if (createdUsers.size > 0) {
-    console.log(`\n  New accounts use the placeholder password and must change it on first login.`);
+    console.log(
+      LOCKED
+        ? `\n  New accounts were created LOCKED (no known password) — hand out access with npm run set-passwords or a founder's reset.`
+        : `\n  New accounts use the placeholder password and must change it on first login.`,
+    );
   }
 }
 
