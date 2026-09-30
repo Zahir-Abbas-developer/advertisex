@@ -259,7 +259,14 @@ async function main() {
       check((await a.fetch(url)).status === 404, `A gets 404 for ${label} by id`);
     }
     const aPage = await (await a.fetch(`/portal/invoices/${bInvoice.id}`)).text();
-    check(!aPage.includes(`${MARK} Bao work`) && aPage.includes("This invoice isn"), "A's portal page for B's invoice is 'not available', with nothing of B in it");
+    // On a production build the whole response — HTML and the serialized
+    // payload — must be free of B. A development server's payload also carries
+    // React's DevTools debug channel (resolved server values, B's included,
+    // though the page refuses it), so there only the rendered page is judged.
+    // Production is what clients reach; the staging suite runs it strictly.
+    const devServer = aPage.includes("/_next/static/chunks/webpack.js");
+    const judged = devServer ? aPage.replace(/<script[\s\S]*?<\/script>/g, "") : aPage;
+    check(!judged.includes(`${MARK} Bao work`) && aPage.includes("This invoice isn"), `A's portal page for B's invoice is 'not available', with nothing of B in it${devServer ? " (rendered page; dev server)" : " (entire response)"}`);
     check((await b.fetch(`/api/portal/invoices/${primary.id}`)).status === 404, "and B can't open A's");
     check((await member.fetch("/api/portal/invoices")).status === 403, "a member (not the owner) sees no invoices list");
     check((await member.fetch(`/api/portal/invoices/${primary.id}`)).status === 404 && (await member.fetch(`/api/portal/invoices/${primary.id}/pdf`)).status === 404, "nor any invoice or PDF of their own account");

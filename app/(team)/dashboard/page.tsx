@@ -514,7 +514,7 @@ export default async function DashboardPage(
                     <span
                       className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-[9px] border ${
                         overdue
-                          ? "border-danger/20 bg-danger-tint text-danger"
+                          ? "border-danger/20 bg-danger-tint text-danger-ink"
                           : "border-warn/20 bg-warn-tint text-ink"
                       }`}
                     >

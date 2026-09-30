@@ -92,7 +92,7 @@ export function PortalUsersPanel({ clientId }: { clientId: string }) {
                 <Badge size="sm" tone={u.clientRole === "OWNER" ? "info" : "neutral"}>
                   {u.clientRole === "OWNER" ? "Owner" : "Member"}
                 </Badge>
-                <button type="button" onClick={() => void remove(u.id, u.name)} className="rounded p-1 text-ink-muted hover:text-danger" aria-label={`Remove ${u.name}`}>
+                <button type="button" onClick={() => void remove(u.id, u.name)} className="rounded p-1 text-ink-muted hover:text-danger-ink" aria-label={`Remove ${u.name}`}>
                   <X className="h-4 w-4" />
                 </button>
               </li>
@@ -108,7 +108,7 @@ export function PortalUsersPanel({ clientId }: { clientId: string }) {
                     {i.email} · invited as {i.clientRole === "OWNER" ? "owner" : "member"}, until {formatDate(i.expiresAt)}
                   </span>
                 </span>
-                <button type="button" onClick={() => void remove(i.id, `the invitation for ${i.name}`)} className="rounded p-1 text-ink-muted hover:text-danger" aria-label={`Withdraw invitation for ${i.name}`}>
+                <button type="button" onClick={() => void remove(i.id, `the invitation for ${i.name}`)} className="rounded p-1 text-ink-muted hover:text-danger-ink" aria-label={`Withdraw invitation for ${i.name}`}>
                   <X className="h-4 w-4" />
                 </button>
               </li>

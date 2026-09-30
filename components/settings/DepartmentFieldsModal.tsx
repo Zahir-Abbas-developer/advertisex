@@ -209,7 +209,7 @@ export function DepartmentFieldsModal({
         </p>
 
         {errors.fields && (
-          <p className="rounded-[10px] border border-danger/20 bg-danger-tint px-3.5 py-3 text-[13px] text-danger">
+          <p className="rounded-[10px] border border-danger/20 bg-danger-tint px-3.5 py-3 text-[13px] text-danger-ink">
             {errors.fields}
           </p>
         )}

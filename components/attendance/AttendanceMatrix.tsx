@@ -29,7 +29,7 @@ type Matrix = {
 const CELL_STYLE: Record<string, string> = {
   PRESENT: "bg-brand-tint text-brand",
   LATE: "bg-warn-tint text-ink",
-  ABSENT: "bg-danger-tint text-danger",
+  ABSENT: "bg-danger-tint text-danger-ink",
   LEAVE: "bg-surface-2 text-ink-muted",
   OFF: "bg-surface-2/50 text-ink-muted",
 };

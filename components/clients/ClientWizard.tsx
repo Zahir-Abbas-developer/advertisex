@@ -309,7 +309,7 @@ export function ClientWizard({
       {formError && (
         <div
           role="alert"
-          className="mb-5 flex items-start gap-2.5 rounded-[10px] border border-danger/20 bg-danger-tint px-3.5 py-3 text-[13px] leading-relaxed text-danger"
+          className="mb-5 flex items-start gap-2.5 rounded-[10px] border border-danger/20 bg-danger-tint px-3.5 py-3 text-[13px] leading-relaxed text-danger-ink"
         >
           <AlertCircle aria-hidden className="mt-0.5 h-4 w-4 shrink-0" />
           <span>{formError}</span>
@@ -320,7 +320,7 @@ export function ClientWizard({
         <div className="space-y-4">
           <div>
             <p className="mb-2 text-[13px] font-medium text-ink/80">
-              Department <span className="text-danger">*</span>
+              Department <span className="text-danger-ink">*</span>
             </p>
             {departments === null ? (
               <p className="text-[13px] text-ink-muted">Loading departments…</p>
@@ -332,7 +332,7 @@ export function ClientWizard({
               />
             )}
             {errors.departmentId && (
-              <p role="alert" className="mt-2 text-[12px] text-danger">
+              <p role="alert" className="mt-2 text-[12px] text-danger-ink">
                 {errors.departmentId}
               </p>
             )}

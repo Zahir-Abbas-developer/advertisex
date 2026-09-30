@@ -128,7 +128,7 @@ export function Dropdown({
               className={cn(
                 "flex w-full items-center gap-2.5 px-3.5 py-2 text-left text-[13px] transition-colors",
                 item.danger
-                  ? "text-danger hover:bg-danger-tint"
+                  ? "text-danger-ink hover:bg-danger-tint"
                   : "text-ink/80 hover:bg-brand-tint hover:text-ink",
                 "disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent",
               )}

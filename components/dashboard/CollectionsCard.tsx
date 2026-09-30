@@ -47,7 +47,7 @@ export function CollectionsCard({ collections }: { collections: Collections }) {
           <ul className="divide-y divide-line">
             {overdueClients.slice(0, 5).map((row) => (
               <li key={row.projectId} className="flex items-center gap-3 px-5 py-3.5">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[9px] border border-danger/20 bg-danger-tint text-danger">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[9px] border border-danger/20 bg-danger-tint text-danger-ink">
                   <AlertCircle className="h-4 w-4" />
                 </span>
 

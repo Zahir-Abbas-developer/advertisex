@@ -213,7 +213,7 @@ export function ReviewQueue() {
                       setRejecting(row);
                       setReason("");
                     }}
-                    className="hover:text-danger"
+                    className="hover:text-danger-ink"
                   >
                     Reject
                   </Button>
@@ -241,7 +241,7 @@ export function ReviewQueue() {
         )}
 
         {stats.stale > 0 && (
-          <p className="border-t border-line px-5 py-3 text-[12px] leading-relaxed text-danger">
+          <p className="border-t border-line px-5 py-3 text-[12px] leading-relaxed text-danger-ink">
             {stats.stale} {stats.stale === 1 ? "item has" : "items have"} been waiting
             over 48 hours. Review time is the reviewer&rsquo;s metric now — it no
             longer costs the member anything, but they are still blocked on the

@@ -141,9 +141,12 @@ export async function recordPayment(invoiceId: string, organizationId: string, i
     await notifyPayment(invoiceId, payment.amountMinor, payment.source);
     return { payment, replayed: false as const };
   } catch (error) {
-    // Two identical requests at once: the loser's insert hits the unique key
-    // and its transaction rolls back whole; answer with the winner's payment.
-    if (isUniqueViolation(error)) {
+    // Two identical requests at once: the loser either hits the unique key
+    // (SQLite, serialised) or finds the invoice already moved under it
+    // (Postgres, concurrent) — both roll back whole. If the winner carried the
+    // same key, answer with its payment: it's the same request (Phase 10,
+    // found on the Postgres staging run).
+    if (isUniqueViolation(error) || (error instanceof BillingError && error.status === 409)) {
       const winner = await replay();
       if (winner) return winner;
     }

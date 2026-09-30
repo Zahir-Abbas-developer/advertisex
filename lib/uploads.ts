@@ -1,11 +1,11 @@
 import "server-only";
 
-import { mkdir, readFile, unlink, writeFile } from "node:fs/promises";
-import path from "node:path";
 import { signatureMatches } from "@/lib/upload-signatures";
+import { LOCAL_DIR, isSafeName, storage } from "@/lib/storage";
 
 /**
- * Local file storage for development.
+ * Upload rules, over the configured store (lib/storage: S3-compatible in
+ * production, a local directory in development).
  *
  * Everything here is written defensively, because upload handling is where
  * this kind of app usually goes wrong:
@@ -18,14 +18,16 @@ import { signatureMatches } from "@/lib/upload-signatures";
  *     with a fixed content type plus nosniff, so an uploaded .svg or .html
  *     can't execute in the app's origin.
  *
- * Swapping this for S3 or Vercel Blob later means replacing `save` and `read`.
+ * Where the bytes go is lib/storage's business; this module decides what
+ * may be stored and under what name.
  *
  * Marked server-only: importing it from a client component would drag node:fs
  * into the browser bundle, which is exactly how this broke the first time.
  * Display helpers like formatBytes live in lib/utils.ts instead.
  */
 
-export const UPLOAD_DIR = path.join(process.cwd(), "uploads");
+/** The local driver's directory (development). */
+export const UPLOAD_DIR = LOCAL_DIR;
 
 /** 10 MB — comfortably more than a design comp, far less than a video. */
 export const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
@@ -64,47 +66,24 @@ export function extensionFor(mimeType: string): string {
 }
 
 /** Writes the bytes under a generated name and returns that name. */
-export async function save(
-  id: string,
-  mimeType: string,
-  bytes: Buffer,
-): Promise<string> {
-  await mkdir(UPLOAD_DIR, { recursive: true });
-
+export async function save(id: string, mimeType: string, bytes: Buffer): Promise<string> {
   const storedName = `${id}.${extensionFor(mimeType)}`;
-  await writeFile(path.join(UPLOAD_DIR, storedName), bytes);
-
+  await storage().put(storedName, bytes, mimeType);
   return storedName;
 }
 
 /**
- * Reads a stored file. Returns null rather than throwing when the name would
- * escape the upload directory or the file is missing.
+ * Reads a stored file. Returns null rather than throwing when the name isn't
+ * one we generate (no path structure can ever reach the store) or the file is
+ * missing.
  */
 export async function read(storedName: string): Promise<Buffer | null> {
-  // Reject anything with path structure before touching the filesystem.
-  if (storedName.includes("/") || storedName.includes("\\") || storedName.includes("..")) {
-    return null;
-  }
-
-  const target = path.resolve(UPLOAD_DIR, storedName);
-  const root = path.resolve(UPLOAD_DIR);
-
-  // Belt and braces: even after the checks above, confirm containment.
-  if (target !== root && !target.startsWith(`${root}${path.sep}`)) return null;
-
-  try {
-    return await readFile(target);
-  } catch {
-    return null;
-  }
+  if (!isSafeName(storedName)) return null;
+  return storage().get(storedName);
 }
 
 /** Deletes a stored file's bytes. Missing or unsafe names are a no-op. */
 export async function remove(storedName: string): Promise<void> {
-  if (storedName.includes("/") || storedName.includes("\\") || storedName.includes("..")) return;
-  const target = path.resolve(UPLOAD_DIR, storedName);
-  const root = path.resolve(UPLOAD_DIR);
-  if (!target.startsWith(`${root}${path.sep}`)) return;
-  await unlink(target).catch(() => undefined);
+  if (!isSafeName(storedName)) return;
+  await storage().delete(storedName);
 }

@@ -43,7 +43,7 @@ const CELL: Record<LoadBand, string> = {
   LIGHT: "bg-surface-2 text-ink-muted",
   HEALTHY: "bg-brand-tint text-brand",
   TIGHT: "bg-warn-tint text-ink",
-  OVER: "bg-danger-tint text-danger",
+  OVER: "bg-danger-tint text-danger-ink",
 };
 
 export function UtilizationGrid() {

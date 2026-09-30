@@ -28,7 +28,7 @@ export function SystemHealth({ report }: { report: HealthReport }) {
     <div
       className={cn(
         "flex flex-wrap items-center gap-2.5 rounded-card border px-4 py-2.5 text-[13px]",
-        ok ? "border-line bg-surface text-ink-muted" : "border-danger/25 bg-danger-tint text-danger",
+        ok ? "border-line bg-surface text-ink-muted" : "border-danger/25 bg-danger-tint text-danger-ink",
       )}
     >
       {ok ? (

@@ -277,7 +277,7 @@ export function PerformanceProfile({
                       "mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-[9px] border",
                       positive
                         ? "border-brand/20 bg-brand-tint text-brand"
-                        : "border-danger/20 bg-danger-tint text-danger",
+                        : "border-danger/20 bg-danger-tint text-danger-ink",
                     )}
                   >
                     <Icon className="h-4 w-4" />
@@ -324,7 +324,7 @@ export function PerformanceProfile({
                       "shrink-0 rounded-pill border px-2.5 py-1 text-[13px] font-bold tabular-nums",
                       positive
                         ? "border-brand/20 bg-brand-tint text-brand"
-                        : "border-danger/20 bg-danger-tint text-danger",
+                        : "border-danger/20 bg-danger-tint text-danger-ink",
                     )}
                   >
                     {formatPoints(entry.points)}

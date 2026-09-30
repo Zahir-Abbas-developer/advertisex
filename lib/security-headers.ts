@@ -9,7 +9,13 @@
  * same-origin; the app is never framed.
  */
 
-export function contentSecurityPolicy(nonce: string, { dev = false }: { dev?: boolean } = {}): string {
+type Options = {
+  dev?: boolean;
+  /** The request arrived over HTTPS (production always; a local staging run over http doesn't). */
+  https?: boolean;
+};
+
+export function contentSecurityPolicy(nonce: string, { dev = false, https = !dev }: Options = {}): string {
   return [
     "default-src 'self'",
     // `'unsafe-eval'` only in development: React's dev build uses eval for
@@ -27,24 +33,24 @@ export function contentSecurityPolicy(nonce: string, { dev = false }: { dev?: bo
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
-    ...(dev ? [] : ["upgrade-insecure-requests"]),
+    ...(https ? ["upgrade-insecure-requests"] : []),
   ].join("; ");
 }
 
 /** Sent on every response the middleware sees, pages and API alike. */
-export function baseSecurityHeaders({ dev = false }: { dev?: boolean } = {}): Record<string, string> {
+export function baseSecurityHeaders({ dev = false, https = !dev }: Options = {}): Record<string, string> {
   return {
     "X-Content-Type-Options": "nosniff",
     "Referrer-Policy": "strict-origin-when-cross-origin",
-    "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()",
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=()",
     "Cross-Origin-Opener-Policy": "same-origin",
-    // Two years, subdomains, preload-ready — only over HTTPS in production.
-    ...(dev ? {} : { "Strict-Transport-Security": "max-age=63072000; includeSubDomains; preload" }),
+    // Two years, subdomains, preload-ready — only on HTTPS responses.
+    ...(https ? { "Strict-Transport-Security": "max-age=63072000; includeSubDomains; preload" } : {}),
   };
 }
 
 /** Page responses (HTML) additionally: the CSP, and never framed. */
-export function pageSecurityHeaders(nonce: string, options: { dev?: boolean } = {}): Record<string, string> {
+export function pageSecurityHeaders(nonce: string, options: Options = {}): Record<string, string> {
   return {
     ...baseSecurityHeaders(options),
     "Content-Security-Policy": contentSecurityPolicy(nonce, options),

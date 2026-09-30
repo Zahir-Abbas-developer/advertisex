@@ -134,7 +134,7 @@ export function ProjectUpdates({ projectId, viewerId }: { projectId: string; vie
                     </button>
                   )}
                   {(canShare || u.author?.id === viewerId) && (
-                    <button type="button" onClick={() => void remove(u)} className="rounded p-1.5 text-ink-muted hover:bg-surface-2 hover:text-danger" aria-label={`Delete "${u.title}"`}>
+                    <button type="button" onClick={() => void remove(u)} className="rounded p-1.5 text-ink-muted hover:bg-surface-2 hover:text-danger-ink" aria-label={`Delete "${u.title}"`}>
                       <Trash2 className="h-4 w-4" />
                     </button>
                   )}

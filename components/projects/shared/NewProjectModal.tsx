@@ -157,7 +157,7 @@ export function NewProjectModal({ open, onClose, clientId }: { open: boolean; on
               );
             })}
           </div>
-          {errors.serviceIds && <p className="mt-1.5 text-[12px] text-danger">{errors.serviceIds}</p>}
+          {errors.serviceIds && <p className="mt-1.5 text-[12px] text-danger-ink">{errors.serviceIds}</p>}
         </fieldset>
 
         <div className="grid gap-4 sm:grid-cols-3">
@@ -197,7 +197,7 @@ export function NewProjectModal({ open, onClose, clientId }: { open: boolean; on
               );
             })}
           </div>
-          {errors.memberIds && <p className="mt-1.5 text-[12px] text-danger">{errors.memberIds}</p>}
+          {errors.memberIds && <p className="mt-1.5 text-[12px] text-danger-ink">{errors.memberIds}</p>}
         </fieldset>
 
         <Textarea label="Description" rows={3} value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} />

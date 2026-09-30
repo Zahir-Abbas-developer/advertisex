@@ -217,7 +217,7 @@ export function IncentiveQueue() {
                               !month.active
                                 ? "border-line bg-surface text-ink-muted"
                                 : month.score < 60
-                                  ? "border-danger/25 bg-danger-tint text-danger"
+                                  ? "border-danger/25 bg-danger-tint text-danger-ink"
                                   : "border-line bg-surface text-ink-muted",
                             )}
                           >

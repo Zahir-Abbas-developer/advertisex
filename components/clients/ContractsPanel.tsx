@@ -100,7 +100,7 @@ export function ContractsPanel({ clientId }: { clientId: string }) {
                     <button type="button" onClick={() => setEditing(c)} className="rounded p-1.5 text-ink-muted hover:bg-surface-2 hover:text-ink" aria-label={`Edit ${c.title}`}>
                       <Pencil className="h-4 w-4" />
                     </button>
-                    <button type="button" onClick={() => void remove(c)} className="rounded p-1.5 text-ink-muted hover:bg-surface-2 hover:text-danger" aria-label={`Delete ${c.title}`}>
+                    <button type="button" onClick={() => void remove(c)} className="rounded p-1.5 text-ink-muted hover:bg-surface-2 hover:text-danger-ink" aria-label={`Delete ${c.title}`}>
                       <Trash2 className="h-4 w-4" />
                     </button>
                   </span>

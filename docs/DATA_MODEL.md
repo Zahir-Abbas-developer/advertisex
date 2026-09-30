@@ -110,6 +110,17 @@ list — `Notification` already exists (in-app, per user) and is reached only
 through its owner; a `File` model lands with the storage work (P3), where its
 shape (keys, signed URLs, visibility) is decided with its first real use.
 
+### Built in Phase 10
+
+| Change | Notes |
+| --- | --- |
+| `User.passwordChangedAt` (nullable) | Set on any password change or reset. A session carries the value it was issued with (`pwv`); a mismatch ends it — a password change signs out every other device. |
+| 17 foreign-key indexes | Every foreign key now leads an index (scanned from the schema): the "who did it" columns, filtered on in the audit log, task and lead scopes, and scanned when a user is removed. |
+
+Migrations `20261003090000_session_epoch` (one nullable column) and
+`20261003100000_fk_indexes` (indexes only): additive. The full chain applies to
+an empty Postgres with no drift (Phase 10 staging).
+
 ### Built in Phase 9
 
 | Entity / change | Fields | Notes |

@@ -13,6 +13,8 @@ export interface EmptyStateProps {
   action?: ReactNode;
   tone?: "neutral" | "danger";
   className?: string;
+  /** Heading level: h2 under a page's h1 (the usual place); h3 inside a titled card. */
+  headingLevel?: 2 | 3;
 }
 
 /**
@@ -27,7 +29,9 @@ export function EmptyState({
   action,
   tone = "neutral",
   className,
+  headingLevel = 2,
 }: EmptyStateProps) {
+  const Heading = headingLevel === 3 ? "h3" : "h2";
   const danger = tone === "danger";
 
   return (
@@ -43,18 +47,18 @@ export function EmptyState({
           danger ? "border-danger/20 bg-danger-tint" : "border-line bg-surface-2",
         )}
       >
-        <Icon className={cn("h-6 w-6", danger ? "text-danger" : "text-brand")} />
+        <Icon className={cn("h-6 w-6", danger ? "text-danger-ink" : "text-brand")} />
       </div>
 
       {eyebrow && (
-        <p className={cn("eyebrow mb-2", danger ? "text-danger" : "text-brand")}>
+        <p className={cn("eyebrow mb-2", danger ? "text-danger-ink" : "text-brand")}>
           {eyebrow}
         </p>
       )}
 
-      <h3 className="font-display text-lg font-bold tracking-tight text-ink">
+      <Heading className="font-display text-lg font-bold tracking-tight text-ink">
         {title}
-      </h3>
+      </Heading>
 
       {description && (
         <p className="mt-2 max-w-sm text-sm leading-relaxed text-ink-muted">

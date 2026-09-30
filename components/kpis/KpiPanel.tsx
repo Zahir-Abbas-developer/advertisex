@@ -113,7 +113,7 @@ export function KpiPanel({ clientId, canEdit }: { clientId: string; canEdit: boo
         >
           <span className="mt-0.5 h-2 w-2 shrink-0 rounded-full bg-danger" />
           <div className="min-w-0 flex-1">
-            <p className="text-[13px] font-medium text-danger">
+            <p className="text-[13px] font-medium text-danger-ink">
               Performance attention — {data.alert.weeksBelow} weeks under target
             </p>
             <p className="mt-0.5 text-[13px] leading-relaxed text-danger/85">
@@ -248,7 +248,7 @@ export function KpiPanel({ clientId, canEdit }: { clientId: string; canEdit: boo
                             ? "text-ink-muted"
                             : week.roas >= data.targetRoas
                               ? "text-brand"
-                              : "text-danger",
+                              : "text-danger-ink",
                         )}
                       >
                         {week.roas ?? "—"}
@@ -330,7 +330,7 @@ function TrendHint({
       <span
         className={cn(
           "inline-flex items-center gap-0.5 font-medium",
-          trend.direction === "flat" ? "text-ink-muted" : good ? "text-brand" : "text-danger",
+          trend.direction === "flat" ? "text-ink-muted" : good ? "text-brand" : "text-danger-ink",
         )}
       >
         {trend.direction === "flat" ? (

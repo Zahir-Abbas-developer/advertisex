@@ -95,7 +95,8 @@ const config: Config = {
         success: { DEFAULT: v("--c-green-600"), ink: v("--c-green-800"), tint: mix("--c-green-600", 12) },
         warn: { DEFAULT: v("--c-warning"), tint: mix("--c-warning", 12) },
         /** Destructive actions and errors only — negative DATA is gray. */
-        danger: { DEFAULT: v("--c-danger"), tint: mix("--c-danger", 8) },
+        // `danger` fills and icons; `danger-ink` is its text (WCAG 1.4.3; Phase 10).
+        danger: { DEFAULT: v("--c-danger"), tint: mix("--c-danger", 8), ink: v("--c-danger-ink") },
         /** Teal — a fill and icon accent; its text is `ink-2` (teal fails as text). */
         info: { DEFAULT: v("--c-teal-500"), tint: mix("--c-teal-500", 14) },
       },

@@ -46,7 +46,7 @@ const ICONS: Record<ToastTone, typeof CheckCircle2> = {
 const TONES: Record<ToastTone, string> = {
   // Solid white so a toast never shows the page through it; the icon carries the tone.
   success: "border-brand/30 bg-surface text-ink [&>svg]:text-brand",
-  error: "border-danger/30 bg-surface text-ink [&>svg]:text-danger",
+  error: "border-danger/30 bg-surface text-ink [&>svg]:text-danger-ink",
   info: "border-info/40 bg-surface text-ink [&>svg]:text-ink-2",
 };
 

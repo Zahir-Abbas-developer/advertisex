@@ -61,7 +61,7 @@ export function RunEvaluationButton() {
       )}
 
       {error && (
-        <p className="flex items-center gap-1.5 text-right text-[12px] text-danger">
+        <p className="flex items-center gap-1.5 text-right text-[12px] text-danger-ink">
           <AlertCircle aria-hidden className="h-3.5 w-3.5" />
           {error}
         </p>

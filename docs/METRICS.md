@@ -400,6 +400,19 @@ activity for 45 days is *proposed* as lost (no response); a person decides.
   model calls are skipped and the run takes its rules path.
 - Agents have no attendance.
 
+## Added in Phase 10 — operations (`lib/ops.ts`)
+
+- **Health status** = `ok` when the database answers, file storage is
+  configured, no tracked job is late or failed, and (only when the app's own
+  backup is on) the last backup is within `backupWarnHours`; otherwise
+  `degraded`. **503** only when the database doesn't answer.
+- **A job is late** when its last run finished more than its window ago:
+  `morning`, `evaluate`, `reports` 26 hours; `digest` 8 days; `backup` the
+  Settings value. A failed run counts as late at once.
+- **Launch performance budget:** Lighthouse performance, accessibility and
+  best practices ≥ 90 on core screens; LCP < 2.5 s; INP < 200 ms (TBT is the
+  lab proxy). Baseline in `docs/phases/PHASE_10_REPORT.md`.
+
 ## To be defined at their phase gates
 
 - **P2** — per-organization aggregates (same formulas, org-scoped denominators).

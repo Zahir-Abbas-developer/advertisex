@@ -81,7 +81,7 @@ export function ApproveDialog({
         <div>
           <p className="mb-2 text-[13px] font-medium text-ink/80">
             How good was it?
-            <span className="ml-1 text-danger">*</span>
+            <span className="ml-1 text-danger-ink">*</span>
           </p>
 
           <div className="flex items-center gap-1" onMouseLeave={() => setHover(null)}>
@@ -101,7 +101,7 @@ export function ApproveDialog({
                     "h-7 w-7 transition-colors",
                     shown !== null && value <= shown
                       ? shown <= 2
-                        ? "fill-danger text-danger"
+                        ? "fill-danger text-danger-ink"
                         : shown === 5
                           ? "fill-brand text-brand"
                           : "fill-warn text-warn"
@@ -117,7 +117,7 @@ export function ApproveDialog({
                 <span
                   className={cn(
                     "block text-[12px]",
-                    shown === 5 ? "text-brand" : shown <= 2 ? "text-danger" : "text-ink-muted",
+                    shown === 5 ? "text-brand" : shown <= 2 ? "text-danger-ink" : "text-ink-muted",
                   )}
                 >
                   {IMPACT[shown]}
@@ -186,7 +186,7 @@ export function QualityStars({
           className={
             value <= rating
               ? rating <= 2
-                ? "fill-danger text-danger"
+                ? "fill-danger text-danger-ink"
                 : rating === 5
                   ? "fill-brand text-brand"
                   : "fill-warn text-warn"

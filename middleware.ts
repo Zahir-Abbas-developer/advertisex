@@ -117,7 +117,10 @@ export async function middleware(req: NextRequest) {
   const nonce = newNonce();
   const isApi = pathname.startsWith("/api/");
   const ownHeaders = OWN_HEADERS.some((re) => re.test(pathname));
-  const headers = isApi || ownHeaders ? baseSecurityHeaders({ dev: DEV }) : pageSecurityHeaders(nonce, { dev: DEV });
+  // Vercel (and any proxy) reports the original scheme; direct requests carry it in the URL.
+  const https = (req.headers.get("x-forwarded-proto") ?? req.nextUrl.protocol.replace(":", "")) === "https";
+  const options = { dev: DEV, https };
+  const headers = isApi || ownHeaders ? baseSecurityHeaders(options) : pageSecurityHeaders(nonce, options);
 
   const finish = (res: NextResponse) => {
     for (const [k, v] of Object.entries(headers)) if (!ownHeaders || !res.headers.has(k)) res.headers.set(k, v);

@@ -177,7 +177,7 @@ export function AssigneePicker({
                   className={cn(
                     "w-12 shrink-0 text-right text-[13px] tabular-nums",
                     band === "OVER"
-                      ? "font-medium text-danger"
+                      ? "font-medium text-danger-ink"
                       : band === "TIGHT"
                         ? "text-ink"
                         : "text-ink-muted",
@@ -213,8 +213,8 @@ export function AssigneePicker({
         {confirming && (
           <div className="space-y-4">
             <div className="flex items-start gap-3 rounded-card border border-danger/20 bg-danger-tint px-4 py-3">
-              <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0 text-danger" />
-              <p className="text-[13px] leading-relaxed text-danger">
+              <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0 text-danger-ink" />
+              <p className="text-[13px] leading-relaxed text-danger-ink">
                 {confirming.name.split(" ")[0]} is at{" "}
                 {Math.round((confirming.hours / Math.max(1, confirming.capacityHours)) * 100)}% for{" "}
                 {formatWeek(data.week)}. Adding {estimatedHours}h takes them to{" "}

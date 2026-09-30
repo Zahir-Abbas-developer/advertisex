@@ -215,7 +215,7 @@ export function MyTasks({
         <section>
           <div className="mb-3">
             <h2 className="flex items-center gap-2 font-display text-lg font-bold tracking-tight text-ink">
-              <Flame className="h-4 w-4 text-danger" />
+              <Flame className="h-4 w-4 text-danger-ink" />
               Focus today
             </h2>
             <p className="mt-0.5 text-[13px] text-ink-muted">
@@ -253,7 +253,7 @@ export function MyTasks({
                     <span
                       className={cn(
                         "rounded-pill border px-2 py-0.5 text-[11px]",
-                        urgency === "overdue" && "border-danger/25 bg-danger-tint font-medium text-danger",
+                        urgency === "overdue" && "border-danger/25 bg-danger-tint font-medium text-danger-ink",
                         urgency === "soon" && "border-warn/25 bg-warn-tint font-medium text-ink",
                         urgency === "normal" && "border-line bg-surface text-ink-muted",
                       )}
@@ -294,7 +294,7 @@ export function MyTasks({
                       className={cn(
                         "ml-2 rounded-pill px-2 py-0.5 text-[12px] font-medium tabular-nums",
                         group.key === "overdue"
-                          ? "bg-danger-tint text-danger"
+                          ? "bg-danger-tint text-danger-ink"
                           : "bg-surface-2 text-ink-muted",
                       )}
                     >
@@ -385,7 +385,7 @@ function TaskCard({
             <span
               className={cn(
                 "flex items-center gap-1.5 rounded-pill border px-2.5 py-1 text-[12px]",
-                urgency === "overdue" && "border-danger/25 bg-danger-tint font-medium text-danger",
+                urgency === "overdue" && "border-danger/25 bg-danger-tint font-medium text-danger-ink",
                 urgency === "soon" && "border-warn/25 bg-warn-tint font-medium text-ink",
                 urgency === "normal" && "border-line bg-surface text-ink-muted",
               )}

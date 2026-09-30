@@ -167,7 +167,8 @@ async function main() {
     const doomed = await signIn("deactivated", CLIENTS[0].email);
     await prisma.user.update({ where: { email: CLIENTS[0].email }, data: { isActive: false } });
     try {
-      check((await doomed.fetch("/api/notifications")).status === 403, "a deactivated account is refused on its next API call");
+      // 401 since Phase 10: the session itself ends with the account (it used to be a 403).
+      check((await doomed.fetch("/api/notifications")).status === 401, "a deactivated account is refused on its next API call — its session has ended");
       check((await landing(doomed, "/portal")) === "/session-ended", "and on its next page, which clears the session");
       // The loop this replaced: /login forwarded the stale token on, the page
       // sent it back to /login. Follow every hop; it must end at the form.

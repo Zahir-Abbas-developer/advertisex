@@ -14,7 +14,7 @@ const VARIANTS: Record<ButtonVariant, string> = {
   ghost:
     "bg-transparent text-ink-2 border border-transparent hover:bg-surface-2 hover:text-ink disabled:text-ink-muted",
   danger:
-    "bg-danger-tint text-danger border border-danger/25 hover:bg-danger hover:text-on-brand hover:border-danger disabled:opacity-50",
+    "bg-danger-tint text-danger-ink border border-danger/25 hover:bg-danger hover:text-on-brand hover:border-danger disabled:opacity-50",
   dark: "bg-brand-strong text-on-brand border border-brand-strong hover:bg-brand hover:border-brand disabled:opacity-50",
 };
 

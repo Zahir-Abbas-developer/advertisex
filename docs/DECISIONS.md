@@ -961,3 +961,93 @@ unique per rule and subject key). Emitting never fails the caller.
   audit paths people use.
 - Auto-executing consequential actions above a confidence threshold: the
   brief requires human approval.
+
+## ADR-020 — Phase 10: launch hardening
+
+**Date:** 2026-09-29 · **Status:** accepted
+
+**Next 15.5 and React 19, not a patched 14.** `npm audit` found 2 critical and 2
+high advisories. The worst was Next 14.2.33, with about 30 advisories
+including RSC denial of service, cache poisoning, middleware bypass and SSRF.
+The fixes only exist in 15.5.x; the 14.x line can reach 14.2.35, which closes
+two. So we upgraded:
+- Next 15.5.26, React 19.2.
+- next-auth 4.24.15. Its optional nodemailer peer is overridden to our
+  nodemailer, since the Email provider isn't used.
+- nodemailer 10.0.12.
+- Next's nested postcss, overridden to 8.5.28.
+
+The async request APIs were migrated by the official codemod, which touched
+109 files; it flagged one case, fixed by hand. `next lint` is deprecated, so
+lint is now the ESLint CLI with `--max-warnings 0`. `npm audit`: 0.
+
+**A nonce CSP, set in middleware.**
+- Scripts run only with the response's nonce plus `'strict-dynamic'`. There
+  is no `'unsafe-inline'` for scripts, and no `'unsafe-eval'` outside
+  development.
+- Styles allow inline, because React style attributes and the charts need
+  them, and injected styles can't run code.
+- To see every page, the middleware now covers all paths except static
+  files. The auth wall is unchanged: the same protected list, now checked in
+  code, with `getToken` in place of the `withAuth` wrapper so the nonce can
+  reach Next.
+- The root layout renders per request so each page has its own nonce. Almost
+  every page was per-user already.
+- HSTS and `upgrade-insecure-requests` are sent only on HTTPS requests, so a
+  plain-HTTP staging run works.
+
+**Sessions are re-checked, not trusted.**
+- `getCurrentUser()` re-reads the account on every request (cached for the
+  request). A deactivation, demotion or password change takes effect at
+  once, not when the 7-day token expires.
+- A password change ends every other session. `User.passwordChangedAt` is
+  compared with the version the token was issued with, and the person's own
+  form signs them straight back in.
+- The data layer's actor lookup reads the raw session claim. Going through
+  `getCurrentUser()` there made the query ask "who is acting?" of itself,
+  which deadlocked. The harness caught it.
+
+**Files behind a storage interface.** The local-disk store would have lost
+every upload on a serverless host.
+- `lib/storage.ts` has two drivers. The S3-compatible one signs with
+  `aws4fetch` (1 kB, MIT, no dependencies) rather than pulling in the AWS SDK.
+  The local one is for development or a server with a real disk.
+- Production with no store configured refuses uploads and reports it in
+  health, rather than defaulting.
+- `s3rver` was tried as a test double and removed: it brought 3 high
+  advisories. The harness has its own 40-line stand-in that checks SigV4.
+
+**Measured performance, then fixed.**
+- The settings row was read about 36 times per request, half of them under
+  SQLite's write lock. It is now one memoised read, shared process-wide and
+  invalidated on save.
+- The dashboard went from 102 to 49 queries and from 2.4 s to 0.9 s.
+- Seventeen foreign keys gained indexes.
+- Charts are code-split.
+- The dashboard's streaming skeleton was removed: its content renders in
+  70 ms on the server, and the skeleton delayed LCP behind hydration.
+- The unused client `SessionProvider` was removed. It fetched the session on
+  every page and nothing read it.
+
+**Reliability, small and explicit.**
+- `fetchWithRetry` retries only 429, 5xx and network errors, with jittered
+  backoff and `Retry-After`.
+- Resend calls carry an idempotency key.
+- Every scheduled job is stamped and has its own staleness window, and a
+  failed job notifies the founders.
+- Concurrent duplicate payments replay the winner. This was found only on
+  Postgres, where a loser sees the moved invoice rather than the unique key.
+
+**Staging on real Postgres.** A throwaway local Postgres 18 cluster, migrated
+from zero by `vercel-build`, with no drift. Ten acceptance suites (576
+checks), Lighthouse, a restore rehearsal and a vault-key rotation ran against
+the production build.
+
+**Alternatives rejected:**
+- Staying on Next 14: the advisories can't be fixed there.
+- A hash-based CSP on static pages: most pages are dynamic, and Next's own
+  inline scripts need a nonce.
+- The AWS SDK: about 3 MB for three calls.
+- Vercel Blob: it ties storage to one host, and S3 is the portable
+  interface.
+- Leaving local storage with a warning: data loss is not a warning.

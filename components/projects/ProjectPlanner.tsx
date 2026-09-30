@@ -248,7 +248,7 @@ export function ProjectPlanner({
                             "Workstream removed.",
                           );
                         }}
-                        className="hover:text-danger"
+                        className="hover:text-danger-ink"
                       />
                     )}
                   </div>

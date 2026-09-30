@@ -59,6 +59,8 @@ Derived in the theme file (not in the screenshot): `#3D5E4C` secondary text,
 | `data-1…5`, `data-negative`, `data-neutral`, `data-alt`, `data-track`, `data-area`, `data-baseline` | the green scale · gray-600 · gray-300 · teal · green-100 · chart-fill · gray-400 | fills only |
 | `success` / `success-ink` / `success-tint` | green-600 / green-800 / 12% | fill green-600; **text** is `success-ink` |
 | `warn`, `danger`, `info` (+`-tint`) | `#D97706`, `#DC2626`, teal | see rules |
+| `danger-ink` | `#B91C1C` | red **text** (errors, alert statuses): ≥5.4:1 on white, mint and the danger tint; `#DC2626` stays for fills, borders and icons (Phase 10) |
+| `line-field` | ink at 50% | the edge of a form control — 3.3:1 on white and mint (WCAG 1.4.11; Phase 10) |
 | `green-*`, `gray-*`, `teal-500` | the raw palette | only the listed steps exist in use (tested) |
 
 ## The rules (enforced by `tests/design-tokens.test.ts`)
@@ -73,9 +75,10 @@ Derived in the theme file (not in the screenshot): `#3D5E4C` secondary text,
    `data-negative`), `text-success`, `text-info` or `text-warn` in a class
    string. Icons are exempt: a literal that sizes an icon (`h-4 w-4 …`), plus
    the two icon-chip maps (StatCard, NotificationBell). Text uses `ink`,
-   `ink-2`, `ink-muted`, `ink-heading`, `brand` or `success-ink`. The
-   warning orange is 3.2:1 on white, so warning text is ink; the orange
-   stays on tints, borders and icons.
+   `ink-2`, `ink-muted`, `ink-heading`, `brand`, `success-ink` or
+   `danger-ink`. The warning orange is 3.2:1 on white, so warning text is ink;
+   the orange stays on tints, borders and icons. Faint ink (`ink/20`–`/35`)
+   is not text either — `ink-muted` is the lightest readable step.
 3. **One filled hero card per view:** `<StatCard variant="hero">` (brand fill,
    white text) on Finance, Leads analytics and Projects analytics.
 4. **Stacked bars run dark → light** (`STACK`: 950, 800, 600, 400, 200), with
@@ -118,3 +121,18 @@ aligned numbers, scale 12/14/16/20/24/32/40.
   white title, a mint amount panel and brand table rule.
 - **PWA icons and manifest**: white "A" on brand green; theme color brand,
   background mint.
+
+
+## Accessibility (Phase 10)
+
+- **Focus:** a 2px brand ring at full strength (8:1) on every focusable
+  element; dialogs (Modal, Drawer, the command palette, the mobile nav) trap
+  focus and return it on close; every shell starts with a *Skip to content*
+  link.
+- **Motion:** `prefers-reduced-motion` stops CSS animation and transitions,
+  and every chart series passes `isAnimationActive={chartAnimation()}`.
+- **Semantics:** Tabs use a roving tabindex with arrow keys; charts carry
+  `role="img"` and their question as the label; card and empty-state titles
+  are h2 under the page's h1 (h3 inside a titled card).
+- **Measured:** Lighthouse accessibility 100 on every core screen of all
+  three experiences (staging, 2026-09-29).

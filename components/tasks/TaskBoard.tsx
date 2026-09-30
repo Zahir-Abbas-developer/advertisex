@@ -354,7 +354,7 @@ export function TaskBoard() {
                           <span
                             className={cn(
                               "text-[12px]",
-                              task.bucket === "OVERDUE" ? "text-danger" : "text-ink-muted",
+                              task.bucket === "OVERDUE" ? "text-danger-ink" : "text-ink-muted",
                             )}
                           >
                             {task.bucket === "OVERDUE" ? "Overdue · " : ""}

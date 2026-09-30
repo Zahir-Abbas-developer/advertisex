@@ -275,3 +275,32 @@ AI employees become real operators: scoped, auditable agents that complete defin
 
 ### GATE — docs/phases/PHASE_9_REPORT.md, then STOP for "Phase 9 approved."
 
+
+---
+
+## Phase 10 — Security Hardening · Performance · Accessibility · Polish · Launch
+
+*Issued by the founder on 2026-09-29 (verbatim).*
+
+PHASE 10 — SECURITY HARDENING · PERFORMANCE · ACCESSIBILITY · POLISH · LAUNCH
+
+Prerequisite: "Phase 9 approved."
+
+### OBJECTIVE
+Production-ready. Nothing new — everything excellent.
+
+### SCOPE
+1. Security audit: authorization review of every route and action; full isolation test sweep; secrets scan; dependency audit; headers and CSP; rate limits; upload hardening; session and token review; penetration-style checks for IDOR, mass assignment, and injection. Fix everything found.
+2. Performance: query plans and indexes; N+1 sweep; caching for dashboards; bundle analysis; image optimization; Core Web Vitals targets (LCP < 2.5s, INP < 200ms).
+3. Reliability: error boundaries everywhere; retry with backoff on jobs; idempotency on money and state; graceful degradation when integrations fail; health checks; monitoring and alerts.
+4. Accessibility: keyboard navigation, visible focus states, contrast (verify gold-on-obsidian meets AA wherever used as text), screen-reader labels, reduced-motion respected.
+5. UX completeness: every screen's loading, empty, and error states reviewed; microcopy consistent and jargon-free in the portal; responsive QA at every breakpoint; command-palette coverage.
+6. Visual polish pass against §7: spacing, hierarchy, type, chart cleanliness, consistency across all three experiences.
+7. Documentation: README (setup, env, scripts), final ARCHITECTURE, runbook, deployment checklist (hosting, database, jobs, storage, email, env), backup and restore.
+8. Launch checklist executed on a staging environment; smoke E2E across admin, team, and client green.
+
+### ACCEPTANCE
+- Zero known critical or high issues; all checks green; Lighthouse ≥ 90 for performance, accessibility, and best practices on core screens.
+- The founder can run a full business cycle — lead → client → project → delivery → report → invoice → payment — without touching code.
+
+### GATE — docs/phases/PHASE_10_REPORT.md — the Launch Readiness Report.

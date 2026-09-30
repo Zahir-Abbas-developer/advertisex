@@ -237,7 +237,7 @@ export function AdminAttendance({ testTriggersEnabled }: { testTriggersEnabled: 
                             className={cn(
                               "text-[13px] font-medium",
                               row.status === "NOT_STARTED" || row.status === "ABSENT"
-                                ? "text-danger"
+                                ? "text-danger-ink"
                                 : "text-ink-muted",
                             )}
                           >
@@ -309,7 +309,7 @@ export function AdminAttendance({ testTriggersEnabled }: { testTriggersEnabled: 
                             disabled={busyId === row.id || row.checks.active === 0}
                             onClick={() => void trigger(row.id, "EXPIRE_ACTIVE")}
                             title="Testing only: expire the active check"
-                            className="hover:text-danger"
+                            className="hover:text-danger-ink"
                           >
                             Expire
                           </Button>

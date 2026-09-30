@@ -235,7 +235,7 @@ export function SettingsPanel() {
             })}
           </div>
           {errors.workdays && (
-            <p className="mt-1.5 text-[13px] text-danger">{errors.workdays}</p>
+            <p className="mt-1.5 text-[13px] text-danger-ink">{errors.workdays}</p>
           )}
         </div>
       </Card>

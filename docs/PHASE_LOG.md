@@ -5,6 +5,47 @@ phase → status → done → next → blockers.*
 
 ---
 
+## 2026-09-30 — Phase 10: DELIVERED, awaiting gate — launch ready
+
+**Phase:** 10 — Security hardening · Performance · Accessibility · Polish · Launch (prompt verbatim in `docs/PHASES.md`)
+**Status:** ✅ delivered · ⏸ **STOPPED at the gate**. Launch Readiness Report: `docs/phases/PHASE_10_REPORT.md`. Waiting for *"Phase 10 approved"*.
+**Gate note:** the founder sent the Phase 10 prompt after the Phase 9 report without the literal "Phase 9 approved"; treated as the go-ahead, as at every earlier handover.
+
+**Done:**
+- **Security audit:**
+  - The audit covered every route (IDOR, mass assignment, injection), a secrets scan of files and history, dependencies, headers, rate limits, uploads and sessions.
+  - Dependencies: Next 15.5.26 + React 19, next-auth 4.24.15, nodemailer 10, patched postcss. `npm audit` now reports 0.
+  - A nonce CSP and security headers on every response.
+  - Fixed: client KPIs had no row check; stale session roles; an open redirect; analytics money reaching employees; the audit log open to managers; lead-activity scope; push SSRF; health endpoint leaks; cron CSRF; CSV formula injection.
+  - Rate limits on the sensitive endpoints; uploads checked by file signature.
+  - A password change ends every other session.
+- **File storage:** local disk would have lost every upload on Vercel. Now an S3-compatible driver (production) plus a local driver (development); production refuses to store without a bucket.
+- **Performance:**
+  - The settings row read ~36 times per request is now memoised (dashboard 102→49 queries).
+  - 17 foreign-key indexes.
+  - Charts code-split; the dashboard skeleton and the unused session provider removed.
+  - Lighthouse: desktop 99–100, mobile 91–100, accessibility and best practices 100.
+- **Reliability:** retry with backoff (email carries an idempotency key); every job tracked with a failure alert to founders; a Postgres payment race fixed; health reports storage and backup mode honestly.
+- **Accessibility:** skip links, focus traps, a stronger focus ring, contrast fixes (new `danger-ink` and `line-field` tokens), reduced motion, tabs/menus/boards on the keyboard, labels.
+- **UX:**
+  - Command palette: every screen and quick actions, with search across tasks, invoices and AI employees.
+  - Loading, error and not-found states filled in.
+  - Portal wording in the client's words; staff terms made consistent.
+- **Docs:** README rewritten; `docs/DEPLOYMENT.md` (launch checklist); `docs/RUNBOOK.md` (operations, vault rotation, backup/restore); ADR-020; architecture final.
+- **Staging:** a production build on a fresh Postgres 18.
+  - 14 migrations, no drift.
+  - 10 suites (576 checks) green.
+  - Browser checks across three roles.
+  - Lighthouse.
+  - A restore rehearsal and a vault rotation rehearsal.
+- **New suites:** `securitytest` (39), `cycletest` (21: the founder's full business cycle), `storagetest` (15); new unit tests for headers, redirects, push, uploads and retry.
+
+**Gate:** all green: 980 unit tests, 22 HTTP suites in development (incl. securitytest 39, cycletest 21, storagetest 15), 10 suites / 576 checks on the Postgres production-build staging run, build, bundle scan, audit 0, Lighthouse ≥ 91 on every core screen. The founder's database and uploads were restored afterwards, with every password unchanged.
+
+**Needs the founder:** accounts (Vercel, Neon/Supabase, R2/S3, Resend) to deploy per `docs/DEPLOYMENT.md`; two policy calls (cross-department staffing, whether managers see pipeline value); optionally the Anthropic key and Stripe.
+
+---
+
 ## 2026-09-29 — Phase 9: DELIVERED, awaiting gate
 
 **Phase:** 9 — AI Employees · Agent Framework · Automated Workflows (prompt verbatim in `docs/PHASES.md`)

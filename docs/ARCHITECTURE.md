@@ -1,9 +1,9 @@
 # Advertise X — Architecture
 
-*Living document. Established in Phase 0 at `b50016c`; updated at the end of
-Phase 1 to separate what is **built** from what is still **target**. Every
-structural change lands here with an ADR reference. Subject to
-`docs/REQUIREMENTS.md` when it arrives — that document wins.*
+*Living document. Established in Phase 0 at `b50016c`; final for launch at
+Phase 10 — everything marked **built** is in production code and covered by a
+test or harness; what remains **target** is stated as such. Every structural
+change lands here with an ADR reference.*
 
 ## 1. Shape of the system
 
@@ -296,16 +296,60 @@ three existing modules along that line where the split was forced (ADR-009):
   `/admin/errors` are the Sentry-equivalent until an external collector is
   earned; route error boundaries per shell (the client one without internal
   jargon); designed `global-error` and `not-found` pages.
-- **Contracts (target):** Zod at every boundary (today: most routes);
-  one error envelope `{ error, fields? }`; pagination on all lists (added per
-  module as extracted); idempotency keys on money mutations (P4).
-- **Jobs (target):** `jobs/` interface over Vercel cron now, Inngest when
-  retries/fan-out are needed (ADR-004).
-- **AI / integrations (target, P5):** `modules/ai` (`complete`, `embed`,
-  `runAgentTask`) and `modules/integrations/<provider>` behind one interface;
-  mock adapters first.
-- **Files (target, P3):** S3-compatible store, signed URLs, tenant + client
-  scope, `internal|client` visibility.
+- **Contracts — built:** Zod at every route boundary (`.strict()` where a
+  body is spread into a write); one error envelope `{ error, fields? }`;
+  paginated lists; idempotency keys on money (payments) and compare-and-set
+  updates on state (invoices, approvals, agent runs).
+- **Jobs — built:** Vercel cron (daily on Hobby) calling `/api/cron/*` with a
+  bearer secret. Every job is idempotent, stamps a `JobRun` row with its own
+  staleness window (`lib/ops.ts`), and a failure notifies the founders the
+  same day. The agent queue is its own table, drained in-process and by
+  `/api/cron/agents` (ADR-019). A queue service stays deferred (ADR-004).
+- **AI / integrations — built:** `modules/ai` (provider-agnostic; Anthropic
+  over fetch with retry; a deterministic stand-in for tests) and
+  `modules/ai/agents` (Phase 9); `modules/integrations/<provider>` adapters
+  behind one interface, live sync behind `INTEGRATIONS_LIVE`. Outgoing calls
+  retry transient failures with backoff (`lib/retry.ts`).
+- **Files — built (Phase 10, ADR-020):** `lib/storage.ts` — an S3-compatible
+  driver (SigV4 via `aws4fetch`) for production and a local-disk driver for
+  development or a self-hosted server. Production without a configured store
+  refuses uploads rather than writing to a disk that vanishes. Names are
+  server-generated; access is derived from the owning record; downloads go
+  through short-lived signed links with `nosniff` and a sandbox CSP. Uploads
+  must match their declared type's signature.
+
+## 5a. Security at the edge — built (Phase 10, ADR-020)
+
+- **Headers (`middleware.ts`, `lib/security-headers.ts`):** every page gets a
+  per-request nonce CSP (`script-src 'self' 'nonce-…' 'strict-dynamic'`, no
+  inline scripts, no eval in production), `frame-ancestors 'none'` and
+  `X-Frame-Options: DENY`; every response gets `nosniff`, a referrer policy, a
+  permissions policy, COOP, and HSTS when served over HTTPS. The root layout
+  renders per request so each page carries its own nonce.
+- **The first wall:** the same middleware keeps the protected-path list,
+  redirects signed-out visitors to `/login` with a same-origin callback
+  (`safeCallbackPath`), and keeps each role in its own shell.
+- **Sessions:** a JWT is only a claim. `getCurrentUser()` re-reads the account
+  on every request — a deactivation, demotion or password change takes effect
+  at once; a password change ends every other session
+  (`User.passwordChangedAt` vs the token's `pwv`). A token whose account can
+  no longer be used is sent to `/session-ended`, which clears it.
+- **Rate limits (`lib/rate-limit.ts`):** sign-in, invitation acceptance,
+  password change, vault reveal, uploads, messages, invitations and search.
+  In-process per instance; swapping in Redis is a drop-in change.
+- **Push and fetch SSRF:** push endpoints must be the browsers' push services;
+  the research agent's fetcher reaches only public HTTP(S) addresses.
+
+## 5b. Performance — measured (Phase 10)
+
+- Queries per request measured with `PRISMA_QUERY_LOG=1` (docs/RUNBOOK.md):
+  related rows are batched (`IN` / `GROUP BY`), no N+1. The settings row is
+  memoised process-wide for 5 s and invalidated on save.
+- Every foreign key is indexed (tested by a schema scan in the Phase 10 audit).
+- Charts are code-split (`next/dynamic`) out of the pages that don't show them
+  first; the Command Center is cached for 5 minutes and warmed each morning.
+- Lighthouse on the staging build: 99–100 desktop on every core screen;
+  91–100 mobile (lab throttling). Report: `docs/phases/PHASE_10_REPORT.md`.
 
 ## 6. Migrations and deploys — built (ADR-003, ADR-008)
 

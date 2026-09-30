@@ -180,6 +180,8 @@ Light is the theme. Every value lives once in `app/globals.css` (as RGB triples)
 --data-1..5: green-600, green-400, green-200, green-800, green-950
 --data-negative: gray-600   --data-alt: teal-500   --data-track: green-100
 --success: green-600   --info: teal-500   --warning: #D97706   --danger: #DC2626
+--danger-ink: #B91C1C (red as TEXT, ≥5.4:1 everywhere)   --line-field: ink/50 (form-control edges, 3.3:1)
+Focus ring: brand at full strength (8:1); prefers-reduced-motion stops all motion
 ```
 **Rules (tested — `tests/design-tokens.test.ts`):**
 - **Negative data is gray, never red.** `--danger` is for destructive actions and errors (and alert *statuses* like an "Overdue" badge) — never for a number, a bar or a delta.
@@ -294,6 +296,7 @@ npm run billingtest    # invoices → payments → overdue → overview reconcil
 npm run analyticstest  # command center & analytics hub equal the database; cache; client results; access
 npm run reporttest     # monthly report: generate → review → approve → portal; PDF; isolation; the job
 npm run agenttest      # AI employees end to end: automation → run → audit → approval; limits; grants; new capability
+npm run cycletest      # the founder's full business cycle: lead → client → project → delivery → report → invoice → payment
 npm run securitytest   # every Phase 10 audit finding proven fixed: headers/CSP, IDOR, redirects, SSRF, sessions
 npm run notifytest     # every listed notification fires to the right people; prefs; email via Resend stand-in
 npm run bundlescan     # after build: no vault, AI/payment provider or PDF engine in the browser bundle

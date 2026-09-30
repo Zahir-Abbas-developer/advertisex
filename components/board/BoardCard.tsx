@@ -117,7 +117,7 @@ export function BoardCard({
           <span
             className={cn(
               "whitespace-nowrap rounded-pill border px-2 py-0.5 text-[11px] tabular-nums",
-              urgency === "overdue" && "border-danger/25 bg-danger-tint font-medium text-danger",
+              urgency === "overdue" && "border-danger/25 bg-danger-tint font-medium text-danger-ink",
               urgency === "soon" && "border-warn/25 bg-warn-tint font-medium text-ink",
               urgency === "normal" && "border-line bg-surface text-ink-muted",
             )}

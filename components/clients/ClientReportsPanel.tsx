@@ -153,7 +153,7 @@ export function ClientReportsPanel({ clientId }: { clientId: string }) {
               <Button size="sm" variant="secondary" icon={<Upload className="h-4 w-4" />} onClick={() => input.current?.click()}>
                 {file ? file.name : "Choose file"}
               </Button>
-              {errors.file && <span className="text-[12px] text-danger">{errors.file}</span>}
+              {errors.file && <span className="text-[12px] text-danger-ink">{errors.file}</span>}
               <label className="flex items-center gap-2 text-[13px] text-ink-2">
                 <input type="checkbox" className="accent-brand" checked={form.publish} onChange={(e) => setForm({ ...form, publish: e.target.checked })} />
                 Publish to the client now
@@ -203,7 +203,7 @@ export function ClientReportsPanel({ clientId }: { clientId: string }) {
                           {r.status === "PUBLISHED" ? "Withdraw" : "Publish"}
                         </Button>
                       )}
-                      <button type="button" onClick={() => void remove(r)} className="rounded p-1.5 text-ink-muted hover:text-danger" aria-label={`Delete ${r.title}`}>
+                      <button type="button" onClick={() => void remove(r)} className="rounded p-1.5 text-ink-muted hover:text-danger-ink" aria-label={`Delete ${r.title}`}>
                         <Trash2 className="h-4 w-4" />
                       </button>
                     </>

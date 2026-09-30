@@ -154,7 +154,7 @@ export function BlockControl({
                     setOpen("veto");
                   }}
                   icon={<ShieldAlert className="h-3.5 w-3.5" />}
-                  className="hover:text-danger"
+                  className="hover:text-danger-ink"
                 >
                   Overrule
                 </Button>

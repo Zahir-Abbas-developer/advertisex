@@ -137,7 +137,7 @@ function ApprovalCard({ row: r, focused, onDecided }: { row: ApprovalRow; focuse
         <div className="space-y-3">
           <Textarea label="Note (optional)" rows={2} maxLength={500} value={note} onChange={(e) => setNote(e.target.value)} />
           {error && (
-            <p role="alert" className="text-[13px] text-danger">
+            <p role="alert" className="text-[13px] text-danger-ink">
               {error}
             </p>
           )}

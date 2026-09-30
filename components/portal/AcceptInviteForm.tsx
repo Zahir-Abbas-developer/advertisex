@@ -40,7 +40,7 @@ export function AcceptInviteForm({ token, email, name: initialName }: { token: s
       <Input label="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} error={errors.password} hint="At least 10 characters" autoComplete="new-password" />
       <Input label="Repeat the password" type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} error={errors.confirm} autoComplete="new-password" />
       {formError && (
-        <p role="alert" className="text-[13px] text-danger">
+        <p role="alert" className="text-[13px] text-danger-ink">
           {formError}
         </p>
       )}

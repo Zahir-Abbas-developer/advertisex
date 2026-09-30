@@ -107,7 +107,7 @@ export function GiveWorkModal({ agent, onClose, onStarted }: { agent: AgentRow; 
         )}
         <Textarea label="Brief (optional)" hint="Anything it should know. It's treated as instructions from you." rows={3} maxLength={2000} value={brief} onChange={(e) => setBrief(e.target.value)} />
         {error && (
-          <p role="alert" className="text-[13px] text-danger">
+          <p role="alert" className="text-[13px] text-danger-ink">
             {error}
           </p>
         )}

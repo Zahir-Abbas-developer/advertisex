@@ -158,7 +158,7 @@ export function MilestoneRowItem({
         <span
           className={cn(
             "whitespace-nowrap rounded-pill border px-2.5 py-1 text-[12px] tabular-nums",
-            urgency === "overdue" && "border-danger/25 bg-danger-tint font-medium text-danger",
+            urgency === "overdue" && "border-danger/25 bg-danger-tint font-medium text-danger-ink",
             urgency === "soon" && "border-warn/25 bg-warn-tint font-medium text-ink",
             urgency === "normal" && "border-line bg-surface text-ink-muted",
           )}
@@ -194,7 +194,7 @@ export function MilestoneRowItem({
               "rounded-pill border px-2 py-0.5 text-[11px] font-bold tabular-nums",
               milestone.scoreImpact > 0
                 ? "border-brand/20 bg-brand-tint text-brand"
-                : "border-danger/20 bg-danger-tint text-danger",
+                : "border-danger/20 bg-danger-tint text-danger-ink",
             )}
             title="Points applied to the assignee's score"
           >
@@ -223,7 +223,7 @@ export function MilestoneRowItem({
                 disabled={busy}
                 onClick={onReject}
                 icon={<Undo2 className="h-3.5 w-3.5" />}
-                className="text-danger hover:bg-danger-tint"
+                className="text-danger-ink hover:bg-danger-tint"
                 title="Send back for rework"
               >
                 Reject
@@ -279,7 +279,7 @@ function IconButton({
       className={cn(
         "rounded-[7px] p-1.5 transition-colors disabled:opacity-30",
         tone === "danger"
-          ? "text-ink-muted hover:bg-danger-tint hover:text-danger"
+          ? "text-ink-muted hover:bg-danger-tint hover:text-danger-ink"
           : "text-ink-muted hover:bg-surface-2 hover:text-ink",
       )}
     >

@@ -205,7 +205,7 @@ export function ProjectDetail({ projectId, viewerId }: { projectId: string; view
                             <Badge size="sm">{w.kind === "MILESTONE" ? "Milestone" : "Task"}</Badge>
                             <span className="truncate text-ink">{w.title}</span>
                           </span>
-                          <span className={late ? "shrink-0 tabular-nums text-danger" : "shrink-0 tabular-nums text-ink-muted"}>
+                          <span className={late ? "shrink-0 tabular-nums text-danger-ink" : "shrink-0 tabular-nums text-ink-muted"}>
                             <CalendarClock className="mr-1 inline h-3.5 w-3.5" />
                             {w.dueAt ? formatDate(w.dueAt) : "—"}
                           </span>

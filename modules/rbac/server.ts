@@ -8,8 +8,8 @@ import {
   type Resource,
 } from "@/config/permissions";
 import { prisma } from "@/lib/prisma";
-import { getCurrentUser } from "@/lib/session";
-import { DEFAULT_LANDING, LOGIN_ROUTE, SESSION_ENDED_ROUTE } from "@/lib/routes";
+import { getCurrentUser, signedOutDestination } from "@/lib/session";
+import { DEFAULT_LANDING, SESSION_ENDED_ROUTE } from "@/lib/routes";
 import { authorize, grantKey, type Principal } from "@/modules/rbac/authorize";
 
 /**
@@ -144,7 +144,7 @@ export async function requireApi(
  */
 export async function requireStaffPage(): Promise<Principal> {
   const user = await getCurrentUser();
-  if (!user) redirect(LOGIN_ROUTE);
+  if (!user) redirect(await signedOutDestination());
 
   const principal = await principalFor(user);
   if (!principal) redirect(SESSION_ENDED_ROUTE);
@@ -168,7 +168,7 @@ export async function requirePage(action: Action, resource: Resource): Promise<P
 /** Page guard for the client portal — the (client) shell. */
 export async function requireClientPage(): Promise<Principal> {
   const user = await getCurrentUser();
-  if (!user) redirect(LOGIN_ROUTE);
+  if (!user) redirect(await signedOutDestination());
 
   const principal = await principalFor(user);
   if (!principal) redirect(SESSION_ENDED_ROUTE);

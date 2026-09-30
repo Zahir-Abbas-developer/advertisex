@@ -132,7 +132,7 @@ export function ImportLeadsModal({
               {preview.rows
                 .filter((r) => !r.ok || r.duplicateOf)
                 .map((r) => (
-                  <li key={r.line} className={r.ok ? "text-ink" : "text-danger"}>
+                  <li key={r.line} className={r.ok ? "text-ink" : "text-danger-ink"}>
                     Line {r.line}: {r.ok ? `${r.businessName} — duplicate of ${r.duplicateOf}` : r.errors.join("; ")}
                   </li>
                 ))}

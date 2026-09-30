@@ -110,7 +110,7 @@ export function ClientReportDocument({
             </div>
 
             {payload.kpis.alertFiring && (
-              <span className="rounded-pill border border-danger/25 bg-danger-tint px-2.5 py-1 text-[11px] font-medium text-danger">
+              <span className="rounded-pill border border-danger/25 bg-danger-tint px-2.5 py-1 text-[11px] font-medium text-danger-ink">
                 Under target
               </span>
             )}
@@ -239,7 +239,7 @@ function KpiCell({
       <p
         className={cn(
           "mt-2.5 font-display text-2xl font-bold tabular-nums",
-          tone === "good" ? "text-brand" : tone === "bad" ? "text-danger" : "text-ink",
+          tone === "good" ? "text-brand" : tone === "bad" ? "text-danger-ink" : "text-ink",
         )}
       >
         {value}
@@ -248,7 +248,7 @@ function KpiCell({
         <p
           className={cn(
             "mt-1.5 inline-flex items-center gap-1 text-[12px] font-medium",
-            trend.direction === "flat" ? "text-ink-muted" : good ? "text-brand" : "text-danger",
+            trend.direction === "flat" ? "text-ink-muted" : good ? "text-brand" : "text-danger-ink",
           )}
         >
           {trend.direction === "flat" ? (
@@ -284,7 +284,7 @@ function Section({
     <section className="report-section rounded-card border border-line bg-surface">
       <div className="flex items-center justify-between gap-3 border-b border-line px-6 py-4">
         <h2 className="flex items-center gap-2.5 font-display text-base font-bold tracking-tight text-ink">
-          <Icon className={tone === "bad" ? "h-4 w-4 text-danger" : "h-4 w-4 text-brand"} />
+          <Icon className={tone === "bad" ? "h-4 w-4 text-danger-ink" : "h-4 w-4 text-brand"} />
           {title}
         </h2>
         <span className="font-display text-sm font-bold tabular-nums text-ink-muted">
@@ -319,7 +319,7 @@ function Row({
       <p
         className={
           tone === "bad"
-            ? "mt-0.5 text-[12px] text-danger"
+            ? "mt-0.5 text-[12px] text-danger-ink"
             : "mt-0.5 text-[12px] text-ink-muted"
         }
       >

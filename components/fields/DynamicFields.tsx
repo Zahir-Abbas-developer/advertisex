@@ -114,7 +114,7 @@ function DynamicField({
         <div>
           <p className="mb-2 text-[13px] font-medium text-ink/80">
             {definition.label}
-            {definition.required && <span className="ml-0.5 text-danger">*</span>}
+            {definition.required && <span className="ml-0.5 text-danger-ink">*</span>}
             {definition.helpText && (
               <span className="ml-2 font-normal text-ink-muted">{definition.helpText}</span>
             )}
@@ -154,7 +154,7 @@ function DynamicField({
               );
             })}
           </div>
-          {error && <p className="mt-1.5 text-[12px] text-danger">{error}</p>}
+          {error && <p className="mt-1.5 text-[12px] text-danger-ink">{error}</p>}
         </div>
       );
     }
@@ -174,7 +174,7 @@ function DynamicField({
             {definition.helpText && (
               <span className="ml-2 text-ink-muted">{definition.helpText}</span>
             )}
-            {error && <span className="mt-1 block text-[12px] text-danger">{error}</span>}
+            {error && <span className="mt-1 block text-[12px] text-danger-ink">{error}</span>}
           </span>
         </label>
       );

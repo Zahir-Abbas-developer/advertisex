@@ -385,7 +385,7 @@ export function MilestoneDrawer({
                   className={cn(
                     "rounded-pill border px-2.5 py-1 text-[12px]",
                     dueUrgency(milestone.dueDate) === "overdue" && milestone.status !== "COMPLETED"
-                      ? "border-danger/25 bg-danger-tint font-medium text-danger"
+                      ? "border-danger/25 bg-danger-tint font-medium text-danger-ink"
                       : dueUrgency(milestone.dueDate) === "soon" && milestone.status !== "COMPLETED"
                         ? "border-warn/25 bg-warn-tint font-medium text-ink"
                         : "border-line bg-surface text-ink-muted",
@@ -399,7 +399,7 @@ export function MilestoneDrawer({
                       "rounded-pill border px-2 py-0.5 text-[11px] font-bold tabular-nums",
                       milestone.scoreImpact > 0
                         ? "border-brand/20 bg-brand-tint text-brand"
-                        : "border-danger/20 bg-danger-tint text-danger",
+                        : "border-danger/20 bg-danger-tint text-danger-ink",
                     )}
                   >
                     {formatPoints(milestone.scoreImpact)}
@@ -633,7 +633,7 @@ export function MilestoneDrawer({
                           disabled={busy}
                           onClick={() => void removeAttachment(attachment.id, attachment.filename)}
                           aria-label={`Remove ${attachment.filename}`}
-                          className="rounded-[7px] p-1.5 text-ink-muted transition-colors hover:bg-danger-tint hover:text-danger"
+                          className="rounded-[7px] p-1.5 text-ink-muted transition-colors hover:bg-danger-tint hover:text-danger-ink"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                         </button>

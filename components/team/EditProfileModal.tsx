@@ -143,7 +143,7 @@ export function EditProfileModal({
 
         <div>
           <p className="mb-2 text-[13px] font-medium text-ink/80">Skills</p>
-          {errors.skills && <p className="mb-2 text-[13px] text-danger">{errors.skills}</p>}
+          {errors.skills && <p className="mb-2 text-[13px] text-danger-ink">{errors.skills}</p>}
           <div className="space-y-2">
             {form.skills.map((held) => (
               <div key={held.skillId} className="flex items-center justify-between gap-3 rounded-[10px] border border-line px-3 py-2">

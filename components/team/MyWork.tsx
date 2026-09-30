@@ -47,7 +47,7 @@ function TaskList({ items, empty }: { items: Item[]; empty: string }) {
           </div>
           <div className="flex shrink-0 items-center gap-2">
             {t.dueAt && (
-              <span className={t.state === "OVERDUE" ? "text-[12px] tabular-nums text-danger" : "text-[12px] tabular-nums text-ink-muted"}>
+              <span className={t.state === "OVERDUE" ? "text-[12px] tabular-nums text-danger-ink" : "text-[12px] tabular-nums text-ink-muted"}>
                 {t.dueAt.toISOString().slice(5, 10).replace("-", "/")}
               </span>
             )}

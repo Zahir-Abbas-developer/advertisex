@@ -207,7 +207,7 @@ export function MessagesView({ audience, clientId }: { audience: "client" | "tea
                 {files.map((f, i) => (
                   <li key={`${f.name}-${i}`} className="flex items-center gap-1.5 rounded-pill border border-line px-2.5 py-1 text-[12px] text-ink-2">
                     {f.name}
-                    <button type="button" aria-label={`Remove ${f.name}`} onClick={() => setFiles((fs) => fs.filter((_, j) => j !== i))} className="text-ink-muted hover:text-danger">
+                    <button type="button" aria-label={`Remove ${f.name}`} onClick={() => setFiles((fs) => fs.filter((_, j) => j !== i))} className="text-ink-muted hover:text-danger-ink">
                       <X className="h-3 w-3" />
                     </button>
                   </li>

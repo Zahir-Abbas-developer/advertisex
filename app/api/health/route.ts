@@ -36,7 +36,8 @@ function publicView(report: HealthReport) {
     status: report.status,
     checkedAt: report.checkedAt,
     database: { ok: report.database.ok, latencyMs: report.database.latencyMs },
+    storage: { configured: report.storage.configured },
     jobs: report.jobs.map((j) => ({ job: j.job, status: j.status, lastRunAt: j.lastRunAt, stale: j.stale })),
-    backup: { lastAt: report.backup.lastAt, stale: report.backup.stale },
+    backup: { mode: report.backup.mode, lastAt: report.backup.lastAt, stale: report.backup.stale },
   };
 }

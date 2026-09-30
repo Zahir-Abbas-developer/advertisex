@@ -116,7 +116,7 @@ export function TargetBar({ userId }: { userId: string }) {
                   progress.met
                     ? "text-brand"
                     : progress.missed
-                      ? "text-danger"
+                      ? "text-danger-ink"
                       : "text-ink-muted",
                 )}
               >

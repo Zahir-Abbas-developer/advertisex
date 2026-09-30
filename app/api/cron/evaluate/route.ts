@@ -26,6 +26,9 @@ export async function POST(request: Request) {
   // keeps rendering for one.
   const flags = await getModuleFlags();
   if (!flags.scoring && !flags.attendance && !flags.retainerProjects) {
+    // Still stamped: the scheduler ran it and it rightly had nothing to do —
+    // health must not call a working schedule late.
+    await (await beginJob("evaluate"))("OK", "Nothing to do: its modules are switched off");
     return NextResponse.json({
       status: "skipped",
       reason: "scoring, attendance and retainer projects are all disabled",

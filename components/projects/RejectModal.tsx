@@ -76,7 +76,7 @@ export function RejectModal({
                 Assigned to {milestone.assignee?.name ?? "nobody"}
               </span>
             </div>
-            <span className="rounded-pill border border-danger/20 bg-danger-tint px-2 py-0.5 text-[11px] font-bold tabular-nums text-danger">
+            <span className="rounded-pill border border-danger/20 bg-danger-tint px-2 py-0.5 text-[11px] font-bold tabular-nums text-danger-ink">
               {formatPoints(cost)}
             </span>
           </div>

@@ -208,7 +208,7 @@ export function FilesPanel({
                   </button>
                 )}
                 {canUpload && (canChangeVisibility || (viewerId && f.uploader?.id === viewerId)) && (
-                  <button type="button" onClick={() => void remove(f)} className="rounded p-1.5 text-ink-muted hover:bg-surface-2 hover:text-danger" aria-label={`Remove ${f.filename}`}>
+                  <button type="button" onClick={() => void remove(f)} className="rounded p-1.5 text-ink-muted hover:bg-surface-2 hover:text-danger-ink" aria-label={`Remove ${f.filename}`}>
                     <Trash2 className="h-4 w-4" />
                   </button>
                 )}

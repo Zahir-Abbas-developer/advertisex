@@ -51,7 +51,7 @@ export function RunLog({ run, canDecide }: { run: RunDetail; canDecide: boolean 
 
       {run.status === "FAILED" && run.error && (
         <Card className="flex items-start gap-3">
-          <CircleAlert className="mt-0.5 h-5 w-5 shrink-0 text-danger" aria-hidden />
+          <CircleAlert className="mt-0.5 h-5 w-5 shrink-0 text-danger-ink" aria-hidden />
           <div>
             <p className="font-medium text-ink">It didn&apos;t finish</p>
             <p className="text-[13px] text-ink-2">{run.error}</p>
@@ -118,7 +118,7 @@ export function RunLog({ run, canDecide }: { run: RunDetail; canDecide: boolean 
                         <div className="space-y-2 border-t border-line px-3 py-3 text-[12px]">
                           <StepJson label="In" value={s.input} />
                           {s.output && <StepJson label="Out" value={s.output} />}
-                          {s.error && <p className="text-danger">{s.error}</p>}
+                          {s.error && <p className="text-danger-ink">{s.error}</p>}
                         </div>
                       </details>
                     </li>

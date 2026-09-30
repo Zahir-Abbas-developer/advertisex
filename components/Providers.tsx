@@ -1,15 +1,16 @@
 "use client";
 
-import { SessionProvider } from "next-auth/react";
 import type { ReactNode } from "react";
 
 import { ToastProvider } from "@/components/ui/Toast";
 
-/** Client-side session context and the toast surface every mutation reports to. */
+/**
+ * The toast surface every mutation reports to.
+ *
+ * No next-auth SessionProvider (Phase 10): nothing reads the session on the
+ * client — pages get the user on the server, and signIn/signOut work without
+ * it — and it fetched /api/auth/session on every page load for no reader.
+ */
 export function Providers({ children }: { children: ReactNode }) {
-  return (
-    <SessionProvider>
-      <ToastProvider>{children}</ToastProvider>
-    </SessionProvider>
-  );
+  return <ToastProvider>{children}</ToastProvider>;
 }

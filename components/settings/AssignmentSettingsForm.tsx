@@ -102,7 +102,7 @@ export function AssignmentSettingsForm() {
               <span className="text-right text-[13px] tabular-nums text-ink-muted">{total ? Math.round((form.weights[k] / total) * 100) : 0}%</span>
             </div>
           ))}
-          {total === 0 && <p className="text-[13px] text-danger">At least one weight must be above zero.</p>}
+          {total === 0 && <p className="text-[13px] text-danger-ink">At least one weight must be above zero.</p>}
         </CardBody>
       </Card>
 

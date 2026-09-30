@@ -84,7 +84,7 @@ export function AgentSettingsModal({ agent, capabilities, onClose, onSaved }: { 
           </>
         )}
         {error && (
-          <p role="alert" className="text-[13px] text-danger">
+          <p role="alert" className="text-[13px] text-danger-ink">
             {error}
           </p>
         )}

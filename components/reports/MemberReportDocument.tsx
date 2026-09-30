@@ -359,7 +359,7 @@ export function MemberReportDocument({
                       "mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-[9px] border",
                       positive
                         ? "border-brand/20 bg-brand-tint text-brand"
-                        : "border-danger/20 bg-danger-tint text-danger",
+                        : "border-danger/20 bg-danger-tint text-danger-ink",
                     )}
                   >
                     <Icon className="h-4 w-4" />
@@ -384,7 +384,7 @@ export function MemberReportDocument({
                       "shrink-0 rounded-pill border px-2.5 py-1 text-[13px] font-bold tabular-nums",
                       positive
                         ? "border-brand/20 bg-brand-tint text-brand"
-                        : "border-danger/20 bg-danger-tint text-danger",
+                        : "border-danger/20 bg-danger-tint text-danger-ink",
                     )}
                   >
                     {formatPoints(event.points)}
@@ -456,7 +456,7 @@ function Figure({
         className={cn(
           "mt-4 font-display text-[32px] font-bold leading-none tracking-[-0.03em] tabular-nums",
           tone === "good" && "text-brand",
-          tone === "bad" && "text-danger",
+          tone === "bad" && "text-danger-ink",
           !tone && "text-ink",
         )}
       >
@@ -511,7 +511,7 @@ function PointsCell({
       <p
         className={cn(
           "mt-3 font-display text-2xl font-bold tabular-nums",
-          value === 0 ? "text-ink-muted" : tone === "good" ? "text-brand" : "text-danger",
+          value === 0 ? "text-ink-muted" : tone === "good" ? "text-brand" : "text-danger-ink",
         )}
       >
         {value === 0 ? "0.0" : formatPoints(value)}

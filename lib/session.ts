@@ -43,13 +43,23 @@ export const getCurrentUser = cache(async () => {
 });
 
 /**
+ * Where a request with no usable user goes: a token whose account can no
+ * longer be used (deactivated, deleted, password changed) is an ended
+ * session — /session-ended clears its cookie; no token at all is simply
+ * signed out.
+ */
+export async function signedOutDestination(): Promise<string> {
+  return (await sessionClaim()) ? SESSION_ENDED_ROUTE : LOGIN_ROUTE;
+}
+
+/**
  * Server-component guard. Middleware already blocks unauthenticated traffic;
  * this is the second line of defence so a page can never render with a null
  * user just because a matcher was mis-typed.
  */
 export async function requireUser() {
   const user = await getCurrentUser();
-  if (!user) redirect(LOGIN_ROUTE);
+  if (!user) redirect(await signedOutDestination());
   // The token outlives its account: a deleted, deactivated or unrecognised
   // account is signed out rather than shown a half-empty page.
   const account = await prisma.user.findUnique({ where: { id: user.id }, select: { isActive: true, role: true } });

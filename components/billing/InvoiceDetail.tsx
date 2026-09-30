@@ -218,7 +218,7 @@ export function InvoiceDetail({ id }: { id: string }) {
                       <div className="flex items-center justify-between gap-2">
                         <span className={cn("font-medium tabular-nums text-ink", p.reversedAt && "line-through")}>{m(p.amountMinor)}</span>
                         {!p.reversedAt && (
-                          <button type="button" onClick={() => setDialog({ kind: "reverse", paymentId: p.id, amount: m(p.amountMinor) })} className="inline-flex items-center gap-1 text-[12px] text-ink-muted hover:text-danger">
+                          <button type="button" onClick={() => setDialog({ kind: "reverse", paymentId: p.id, amount: m(p.amountMinor) })} className="inline-flex items-center gap-1 text-[12px] text-ink-muted hover:text-danger-ink">
                             <Undo2 className="h-3.5 w-3.5" /> Reverse
                           </button>
                         )}

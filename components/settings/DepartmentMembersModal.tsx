@@ -222,7 +222,7 @@ export function DepartmentMembersModal({
                                 ),
                               )
                             }
-                            className="text-ink-muted transition-colors hover:text-danger"
+                            className="text-ink-muted transition-colors hover:text-danger-ink"
                           >
                             <X className="h-3 w-3" />
                           </button>

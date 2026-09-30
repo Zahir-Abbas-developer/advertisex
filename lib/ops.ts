@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { getSettings } from "@/lib/settings";
 import { storedRoleValues } from "@/config/permissions";
+import { storageFor } from "@/lib/storage";
 
 /**
  * Making silent failures loud.
@@ -121,8 +122,12 @@ export type HealthReport = {
   status: "ok" | "degraded";
   checkedAt: string;
   database: { ok: boolean; latencyMs: number | null; error?: string };
+  /** Where files go. `configured: false` in production means uploads will fail. */
+  storage: { driver: "local" | "s3" | null; configured: boolean };
   jobs: JobHealth[];
   backup: {
+    /** "provider": the database host's snapshots are the backup; "app": the nightly pg_dump. */
+    mode: "app" | "provider";
     lastAt: string | null;
     hoursSince: number | null;
     status: string | null;
@@ -167,19 +172,28 @@ export async function healthReport(now = new Date()): Promise<HealthReport> {
     ? (now.getTime() - lastBackup.finishedAt.getTime()) / 3_600_000
     : null;
 
+  // With BACKUP_DIR unset the database provider's snapshots are the backup
+  // (README, docs/RUNBOOK.md) and the app's own copy is off by design — not a
+  // standing warning that would teach everyone to ignore the health check.
+  const appBackups = Boolean(process.env.BACKUP_DIR);
   const backup = {
+    mode: appBackups ? ("app" as const) : ("provider" as const),
     lastAt: lastBackup?.finishedAt?.toISOString() ?? null,
     hoursSince: backupHours === null ? null : Math.round(backupHours * 10) / 10,
     status: lastBackup?.status ?? null,
-    stale: backupHours === null || backupHours > settings.backupWarnHours,
+    stale: appBackups && (backupHours === null || backupHours > settings.backupWarnHours),
     warnAfterHours: settings.backupWarnHours,
   };
 
+  const store = storageFor();
+  const storage = { driver: store?.driver ?? null, configured: store !== null };
+
   return {
     status:
-      database.ok && !backup.stale && jobs.every((job) => !job.stale) ? "ok" : "degraded",
+      database.ok && storage.configured && !backup.stale && jobs.every((job) => !job.stale) ? "ok" : "degraded",
     checkedAt: now.toISOString(),
     database,
+    storage,
     jobs,
     backup,
   };

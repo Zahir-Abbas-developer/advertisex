@@ -121,7 +121,7 @@ export function ProjectPlan({ project, viewer, onChanged }: { project: ProjectPa
                           </Button>
                           <button
                             type="button"
-                            className="rounded p-1.5 text-ink-muted hover:bg-surface-2 hover:text-danger"
+                            className="rounded p-1.5 text-ink-muted hover:bg-surface-2 hover:text-danger-ink"
                             aria-label={`Remove stage ${s.name}`}
                             onClick={() => window.confirm(`Remove the stage "${s.name}"? Its milestones stay, unstaged.`) && void call(`${base}/stages/${s.id}`, "DELETE", null, "Stage removed")}
                           >
@@ -193,12 +193,12 @@ function MilestoneList({
             <span className="text-[11px] tabular-nums text-ink-muted" title="Weight: how much of the project this represents">
               ×{m.weight}
             </span>
-            {m.dueDate && <span className={cn("text-[12px] tabular-nums", late ? "text-danger" : "text-ink-muted")}>{formatDate(m.dueDate)}</span>}
+            {m.dueDate && <span className={cn("text-[12px] tabular-nums", late ? "text-danger-ink" : "text-ink-muted")}>{formatDate(m.dueDate)}</span>}
             {m.assignee && <Avatar name={m.assignee.name} color={m.assignee.avatarColor} size="sm" />}
             {viewer.canShape && (
               <button
                 type="button"
-                className="rounded p-1 text-ink-muted hover:text-danger"
+                className="rounded p-1 text-ink-muted hover:text-danger-ink"
                 aria-label={`Remove ${m.title}`}
                 onClick={() => window.confirm(`Remove "${m.title}"?`) && void call(`${base}/milestones/${m.id}`, "DELETE", null, "Milestone removed")}
               >

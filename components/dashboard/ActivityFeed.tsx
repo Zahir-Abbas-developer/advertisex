@@ -31,7 +31,7 @@ const TONES: Record<ActivityType, string> = {
   STATUS_CHANGED: "border-info/20 bg-info-tint text-ink-2",
   REASSIGNED: "border-info/20 bg-info-tint text-ink-2",
   DUE_DATE_CHANGED: "border-warn/20 bg-warn-tint text-ink",
-  SCORE_EVENT: "border-danger/20 bg-danger-tint text-danger",
+  SCORE_EVENT: "border-danger/20 bg-danger-tint text-danger-ink",
   COMMENT_ADDED: "border-line bg-surface-2 text-ink-muted",
   ATTACHMENT_ADDED: "border-line bg-surface-2 text-ink-muted",
 };

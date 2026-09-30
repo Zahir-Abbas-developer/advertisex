@@ -65,14 +65,14 @@ export function AvailabilityBanner() {
       <div className="mx-auto flex max-w-shell flex-wrap items-center gap-x-4 gap-y-2 px-5 py-3 sm:px-8 lg:px-10">
         <ShieldAlert
           aria-hidden
-          className={critical ? "h-4 w-4 shrink-0 text-danger" : "h-4 w-4 shrink-0 text-warn"}
+          className={critical ? "h-4 w-4 shrink-0 text-danger-ink" : "h-4 w-4 shrink-0 text-warn"}
         />
 
         <div className="min-w-0 flex-1">
           <p
             className={cn(
               "text-[13px] font-medium",
-              critical ? "text-danger" : "text-ink",
+              critical ? "text-danger-ink" : "text-ink",
             )}
           >
             Availability check — confirm you&rsquo;re at work

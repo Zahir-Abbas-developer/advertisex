@@ -27,6 +27,9 @@ describe("security headers", () => {
     assert.match(prod["Permissions-Policy"], /camera=\(\)/);
     assert.match(prod["Strict-Transport-Security"], /max-age=63072000/);
     assert.equal(baseSecurityHeaders({ dev: true })["Strict-Transport-Security"], undefined);
+    // A production build served over plain http (a local staging run): no HSTS, no upgrade.
+    assert.equal(baseSecurityHeaders({ https: false })["Strict-Transport-Security"], undefined);
+    assert.doesNotMatch(contentSecurityPolicy("n", { https: false }), /upgrade-insecure-requests/);
   });
 
   it("pages add the CSP and frame denial", () => {

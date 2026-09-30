@@ -35,7 +35,7 @@ export function ClientCard({ client }: { client: ClientSummary }) {
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <h3 className="flex items-center gap-2 truncate font-display text-[17px] font-bold tracking-tight text-ink">
+          <h2 className="flex items-center gap-2 truncate font-display text-[17px] font-bold tracking-tight text-ink">
             {/* Computed health, never entered. A dot rather than a number:
                 the card is a glance, and the number is on the client page. */}
             <span
@@ -44,7 +44,7 @@ export function ClientCard({ client }: { client: ClientSummary }) {
               title={`${HEALTH_LABEL[client.health.band]}${client.health.reasons[0] ? ` — ${client.health.reasons[0]}` : ""}`}
             />
             <span className="truncate">{client.businessName}</span>
-          </h3>
+          </h2>
           <p className="mt-1 truncate text-[13px] text-ink-muted">
             {client.industry ?? "Industry not set"}
           </p>

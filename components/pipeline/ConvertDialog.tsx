@@ -138,7 +138,7 @@ export function ConvertDialog({
 
         <div>
           <p className="mb-2 text-[13px] font-medium text-ink/80">First project covers</p>
-          {errors.serviceIds && <p className="mb-2 text-[13px] text-danger">{errors.serviceIds}</p>}
+          {errors.serviceIds && <p className="mb-2 text-[13px] text-danger-ink">{errors.serviceIds}</p>}
           <div className="flex flex-wrap gap-1.5">
             {services.filter((s) => s.id).map((s) => {
               const on = selected.includes(s.id!);

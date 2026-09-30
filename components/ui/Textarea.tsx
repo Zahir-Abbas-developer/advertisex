@@ -25,7 +25,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function 
       {label && (
         <label htmlFor={fieldId} className={labelClasses}>
           {label}
-          {requiredMark && <span className="ml-0.5 text-danger">*</span>}
+          {requiredMark && <span className="ml-0.5 text-danger-ink">*</span>}
         </label>
       )}
 
@@ -47,7 +47,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function 
       />
 
       {error ? (
-        <p id={`${fieldId}-error`} className="mt-1.5 text-[13px] text-danger">
+        <p id={`${fieldId}-error`} className="mt-1.5 text-[13px] text-danger-ink">
           {error}
         </p>
       ) : hint ? (

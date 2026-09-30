@@ -149,7 +149,7 @@ export function PortalSettings() {
                     {u.clientRole === "OWNER" ? "Owner" : "Member"}
                   </Badge>
                   {people.viewer.isOwner && u.clientRole !== "OWNER" && u.id !== people.viewer.id && (
-                    <button type="button" onClick={() => void remove(u.id, u.name)} className="rounded p-1 text-ink-muted hover:text-danger" aria-label={`Remove ${u.name}`}>
+                    <button type="button" onClick={() => void remove(u.id, u.name)} className="rounded p-1 text-ink-muted hover:text-danger-ink" aria-label={`Remove ${u.name}`}>
                       <X className="h-4 w-4" />
                     </button>
                   )}
@@ -167,7 +167,7 @@ export function PortalSettings() {
                     </span>
                   </span>
                   {people.viewer.isOwner && (
-                    <button type="button" onClick={() => void remove(i.id, `the invitation for ${i.name}`)} className="rounded p-1 text-ink-muted hover:text-danger" aria-label={`Withdraw invitation for ${i.name}`}>
+                    <button type="button" onClick={() => void remove(i.id, `the invitation for ${i.name}`)} className="rounded p-1 text-ink-muted hover:text-danger-ink" aria-label={`Withdraw invitation for ${i.name}`}>
                       <X className="h-4 w-4" />
                     </button>
                   )}

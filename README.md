@@ -1,359 +1,112 @@
 # Advertise X
 
-AI marketing operations platform for food & drink brands — and the internal
-system that runs Advertise X itself: leads, clients, per-service pipelines,
-tasks, follow-ups and team performance in one place.
+AI marketing for restaurants — and the operating system that runs the agency
+behind it. One codebase, one data model, three experiences:
 
-Built from a department-based CRM and evolving into a multi-tenant SaaS
-(see `CLAUDE.md` and `docs/` — the assessment, architecture, data model and
-phase plan live there and are kept current).
+| Experience | Who | What |
+| --- | --- | --- |
+| **Command center** | Founder, managers | Leads and pipeline, clients and projects, finance and invoices, analytics, the team, AI employees, approvals and automations |
+| **Team OS** | Employees (human and AI) | Today's tasks, the pipeline, projects, attendance, performance |
+| **Client portal** | Each restaurant | Its own projects, reports, invoices, files and a conversation with the team — nothing internal |
 
----
-
-## What it does
-
-| Area | |
-| --- | --- |
-| **Service lines** | Admin-editable departments, each with its own pipeline stages, its own lead/client field definitions, and its own team with skills |
-| **Pipeline** | Per-service kanban with deal values, loss reasons, win side-effects and commissions — one stage-move path for every surface |
-| **Leads & clients** | Department-first creation with dynamic fields, skill-ranked assignment, automatic routing when no assignee is chosen |
-| **Tasks & follow-ups** | Today / Upcoming / Overdue on the company clock (DST-correct); follow-ups project from the record itself and can never be silently cleared |
-| **Activity** | One timeline per record — human entries and system entries marked apart, system entries undeletable |
-| **Search** | ⌘K across leads, clients and people, with partial phone/email matching, permission-scoped |
-| **Analytics** | A scoped metric layer where every number traces to a query (`lib/analytics.ts`, `docs/METRICS.md`) |
-| **Parked modules** | Attendance, scoring, retainer cycles and client KPIs from the fork — feature-flagged off, invisible until enabled |
+The founder's brief and every phase prompt are in `docs/PHASES.md`; how it is built is
+in `docs/ARCHITECTURE.md`, `docs/DATA_MODEL.md` and `docs/DECISIONS.md`; every
+number's formula is in `docs/METRICS.md`. Running it in production is
+`docs/DEPLOYMENT.md` (the launch checklist) and `docs/RUNBOOK.md` (day-to-day
+operations, incidents, backup and restore).
 
 ---
 
 ## Requirements
 
-- Node 18.17+ (developed on 24)
-- npm
-- A Postgres database for production; SQLite is fine locally
-
----
+- **Node 20.9+** (developed on 24; CI runs 22) and npm
+- **Postgres** in production (Neon or Supabase). SQLite locally.
+- **S3-compatible storage** in production (Cloudflare R2, AWS S3, Supabase
+  Storage). A local folder in development.
 
 ## Local setup
 
 ```bash
-git clone <your-repo> advertisex && cd advertisex
 npm install
-
 cp .env.example .env
-# Set NEXTAUTH_SECRET — openssl rand -base64 32
-# Leave DATABASE_URL as file:./dev.db for SQLite
+# Required: NEXTAUTH_SECRET — openssl rand -base64 32
+# Leave DATABASE_URL as file:./dev.db (SQLite)
 
-npm run db:push     # creates the SQLite database from the schema
-npm run db:seed     # service lines, stages, field definitions, the team — no fake business data
-npm run dev
+npm run db:push     # create the local database from the schema
+npm run db:seed     # structure + a demo tenant: staff, AI employees, three restaurants
+npm run dev         # http://localhost:3000
 ```
 
-Open <http://localhost:3000>. Seeded accounts share one placeholder password
-(printed by the seed) and **every account must change it on first sign-in** —
-placeholder credentials never survive first contact with a real user. To issue a
-distinct password per person instead, run `npm run set-passwords`.
+Demo accounts share the password in `SEED_PASSWORD` (default
+`advertisex-change-me`) and must change it at first sign-in:
 
-### Everyday commands
+| Account | Role |
+| --- | --- |
+| `coachd@bwm.local` | Founder |
+| `rajazain@bwm.local` | Manager |
+| `cam@bwm.local`, `maya@advertisex.example`, … | Employees |
+| `marco@osterianonna.example`, `jenny@baosociety.example`, `sam@grindcoffee.example` | Restaurant clients (portal) |
+
+`npm run set-passwords` issues a distinct password per account instead.
+
+## Environment
+
+`.env.example` documents every variable with its purpose. In short:
+
+| Group | Variables | |
+| --- | --- | --- |
+| Database | `DATABASE_URL` (+ `DATABASE_URL_UNPOOLED` for migrations on a pooled host) | required |
+| Auth | `NEXTAUTH_SECRET`, `NEXTAUTH_URL` (the exact public origin) | required |
+| Vault | `VAULT_KEY` (32 bytes, base64), `VAULT_KEY_PREVIOUS` when rotating | required in production |
+| Jobs | `CRON_SECRET` | required in production |
+| Files | `S3_BUCKET`, `S3_REGION`, `S3_ENDPOINT`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` — or `STORAGE_DRIVER=local` + `UPLOAD_DIR` on a server with a persistent disk | required in production |
+| Email | `EMAIL_FROM` + `RESEND_API_KEY` (or `SMTP_*`) | optional — without it email is skipped and in-app notifications still work |
+| AI | `ANTHROPIC_API_KEY`, `AI_MODEL`, `AI_PRICE_*` | optional — every AI feature has a rules-based path |
+| Payments | `STRIPE_*` with `STRIPE_ENABLED=true` | optional, off by default |
+| Push / WhatsApp / integrations | `VAPID_*`, `WHATSAPP_*`, `INTEGRATIONS_LIVE`, provider app keys | optional |
+| Development only | `AI_PROVIDER=fake`, `AGENT_FETCH_ALLOW_PRIVATE`, `AGENT_WORKER=off`, `PRISMA_QUERY_LOG=1` | refused or meaningless in production |
+
+## Scripts
 
 | Command | |
 | --- | --- |
-| `npm run dev` | Development server |
-| `npm run build` / `npm start` | Production build and serve |
-| `npm test` | Unit tests (scoring, narratives, mentions) |
-| `npm run typecheck` | `tsc --noEmit` |
-| `npm run lint` | ESLint |
-| `npm run db:push` | Sync the schema without a migration (local only) |
-| `npm run db:migrate` | Create a migration (Postgres) |
-| `npm run db:deploy` | Apply migrations (production) |
-| `npm run db:seed` | Demo data — **never** in production |
-| `npm run db:seed:admin` | Owner account + service catalogue only |
-| `npm run db:studio` | Prisma Studio |
+| `npm run dev` · `npm run build` · `npm start` | Develop · build · serve the production build |
+| `npm run typecheck` · `npm run lint` · `npm test` | Static checks and the unit suite (~990 tests) |
+| `npm run db:push` · `db:seed` · `db:reset` | Local database: sync, seed, wipe-and-reseed |
+| `npm run db:deploy` | Apply migrations (production; also run by `vercel-build`) |
+| `npm run db:seed:admin` | Create the production owner (once) |
+| `npm run promote -- <email>` | Make someone an owner (or `--demote`, `--list`) |
+| `npm run bundlescan` | After a build: no secret-handling code in the browser bundle |
+| `npm run storagetest` | File storage drivers, with no server running |
 
----
+**HTTP acceptance suites** run against a server (`SMOKE_BASE=http://localhost:3000`):
+`smoke`, `smoke:empty`, `permtest`, `leaks`, `fieldtest`, `journeytest`,
+`shelltest`, `tenanttest`, `daytest`, `leadtest`, `outreachtest`, `projecttest`,
+`assigntest`, `portaltest`, `billingtest`, `analyticstest`, `reporttest`,
+`notifytest`, `agenttest`, `securitytest`, `cycletest` (the founder's whole
+business cycle). `CLAUDE.md` §11 says what each proves; CI
+(`.github/workflows/ci.yml`) runs them all.
 
 ## How the database provider is chosen
 
-Prisma rejects `provider = env("DATABASE_PROVIDER")` outright:
-
-```
-error: A datasource must not use the env() function in the provider argument.
-```
-
-So the provider has to be a literal in `prisma/schema.prisma`. Rather than ask
-anyone to remember to edit it, `scripts/sync-db-provider.mjs` derives it from
-the connection string and rewrites the line:
-
-| `DATABASE_URL` | provider |
-| --- | --- |
-| `file:./dev.db` | `sqlite` |
-| `postgresql://…` | `postgresql` |
-
-It runs automatically before `dev`, `build`, `db:push`, `db:migrate` and both
-seeds, so the schema always matches the database you are pointed at.
-Committing the SQLite variant by accident is harmless — the next production
-build derives `postgresql` and rewrites it again.
-
-**Migrations are Postgres-only.** The SQL in `prisma/migrations/` is generated
-for Postgres, which is the deployment target. Locally, SQLite uses
-`npm run db:push`, which needs no migration history.
-
----
-
-## Deployment — Vercel + Neon or Supabase
-
-### 1. Create the database
-
-Neon or Supabase; copy the connection string. Both want `sslmode=require`, and
-Supabase's pooled connection also wants `pgbouncer=true`.
-
-### 2. Environment variables
-
-Set these in the Vercel project (all environments):
-
-| Variable | Notes |
-| --- | --- |
-| `DATABASE_URL` | The Postgres connection string |
-| `NEXTAUTH_SECRET` | `openssl rand -base64 32` |
-| `NEXTAUTH_URL` | The deployed origin, exactly |
-| `CRON_SECRET` | `openssl rand -hex 32` — without it the schedule does nothing |
-| `SMTP_*`, `EMAIL_FROM` | Optional; email is skipped and logged when unset |
-| `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` | Optional; web push is skipped when unset |
-| `WHATSAPP_*` | Optional; the WhatsApp channel is skipped when unset |
-| `BACKUP_DIR` | Optional; where `pg_dump` writes. Unset means the provider's snapshots are the only backup |
-
-`.env.example` documents every one of them.
-
-#### Web push (optional)
-
-Availability checks are time-critical and the in-app banner only reaches
-someone with a tab open, so the app can push to a phone instead. Generate a
-key pair once:
-
-```bash
-npx web-push generate-vapid-keys
-```
-
-Set `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` and `VAPID_SUBJECT` (a
-`mailto:you@advertisex.example` URL). With any of them unset, `/api/push` reports
-`configured: false`, members are never prompted, and every other part of the
-app behaves normally.
-
-#### WhatsApp (optional)
-
-If the team already lives in WhatsApp, check triggers can also go out as a
-template message through the Meta WhatsApp Cloud API. It fires for availability
-checks only — pushing reports and assignments down a channel people read at 2am
-trains them to mute it, and a muted channel reaches nobody.
-
-| Variable | Notes |
-| --- | --- |
-| `WHATSAPP_TOKEN` | A permanent system-user access token |
-| `WHATSAPP_PHONE_NUMBER_ID` | From the WhatsApp > API setup panel |
-| `WHATSAPP_TEMPLATE_NAME` | An approved template with one body variable (the deadline time) |
-| `WHATSAPP_TEMPLATE_LANG` | Defaults to `en` |
-
-Members need a `phone` in E.164 (`+923001234567`) on their user record. With
-the variables unset the call is a silent no-op — there is no degraded mode to
-worry about.
-
-### 3. Deploy and migrate
-
-Vercel runs `npm run build`, which syncs the provider and generates the client.
-Apply migrations once against production:
-
-```bash
-DATABASE_URL="<production-url>" npm run db:deploy
-```
-
-### 4. Create the owner
-
-```bash
-DATABASE_URL="<production-url>" \
-ADMIN_EMAIL="you@advertisex.example" \
-ADMIN_PASSWORD="<16+ characters>" \
-ADMIN_NAME="Your Name" \
-  npm run db:seed:admin
-```
-
-This creates the owner and the service catalogue — no demo business data. It
-refuses passwords under 12 characters and known defaults like `admin123`. Sign
-in, then add your team from `/team`; each member gets a welcome email with
-their credentials if SMTP is configured.
-
-### 5. Backups and restore
-
-**The provider's own snapshots are the primary backup.** Neon has
-point-in-time restore; Supabase takes daily backups. Both are continuous,
-off-host, and maintained by someone whose job that is. Turn one of them on
-before anything else:
-
-- **Neon** — Branches → *Restore*. Point-in-time is on by default; the
-  retention window is set per project.
-- **Supabase** — Database → Backups. Daily on the free tier, PITR on Pro.
-
-The app runs a *second* copy nightly and, more importantly, records whether it
-happened. Set `BACKUP_DIR` to a writable path and schedule
-`/api/cron/backup`. On Vercel there is no `pg_dump` and no persistent disk, so
-the run records itself as **SKIPPED** — which is the honest outcome. A backup
-system that reports success when it did nothing is worse than none.
-
-Settings shows the last successful backup, and warns after
-`backupWarnHours` (26 by default).
-
-#### Restoring
-
-Test this before you need it. A backup nobody has restored from is a
-hypothesis.
-
-```bash
-# 1. Stop writes — put the app in maintenance or pause the deployment.
-
-# 2. Restore into a NEW database first, never over the live one.
-createdb advertisex_restore
-pg_restore --no-owner --no-privileges --dbname=advertisex_restore backup.dump
-
-# 3. Check it's the database you think it is.
-psql advertisex_restore -c 'select count(*) from "ScoreEvent";'
-psql advertisex_restore -c 'select max("createdAt") from "AuditLog";'
-
-# 4. Point DATABASE_URL at the restored database and redeploy.
-```
-
-From a provider snapshot, restore to a new branch or project and repoint
-`DATABASE_URL` — same rule: never restore in place.
-
-After any restore, run the evaluation pass once manually. It is idempotent, so
-it will settle anything the missing window should have done without
-double-charging:
-
-```bash
-curl -X POST https://your-app.vercel.app/api/cron/evaluate \
-  -H "Authorization: Bearer $CRON_SECRET"
-```
-
-### 6. Health and monitoring
-
-`GET /api/health` is unauthenticated and returns JSON:
-
-```json
-{ "status": "ok", "database": { "ok": true }, "jobs": [...], "backup": {...} }
-```
-
-It answers **503 only when the database is unreachable**. A late backup or a
-job that hasn't run is `200` with `"status": "degraded"` — those are real
-problems but they are not "the app is down", and paging someone as though they
-were is how alerts get muted.
-
-Point an uptime monitor at it. The owner's dashboard carries the same
-information as a one-line widget.
-
-### 7. A second owner
-
-The situation you most need a backup owner in is the one where the only
-existing owner cannot sign in — so promotion is a script, not just a button:
-
-```bash
-npm run promote -- --list
-npm run promote -- someone@example.com
-npm run promote -- someone@example.com --demote
-```
-
-It refuses to remove the last active owner, and records the change in the audit
-log like any other role change.
-
-### 8. Scheduled jobs
-
-`vercel.json` registers three crons. Vercel schedules in **UTC**; the company
-works in Asia/Karachi (UTC+5):
-
-| Path | Schedule (UTC) | Karachi | |
-| --- | --- | --- | --- |
-| `/api/cron/evaluate` | `0 19 * * *` | 00:00 daily | Deadline notices, scoring catch-up, project close-out, overdue alert |
-| `/api/cron/reports` | `30 19 * * *` | 00:30 daily | Generates whatever the calendar says is due |
-| `/api/cron/digest` | `0 3 * * 1` | 08:00 Monday | Weekly digest to each member |
-
-`evaluate` runs at midnight Karachi because a milestone's deadline is the end
-of its due day in that timezone — running then catches the day's misses
-immediately. `reports` runs daily and decides for itself what is due (weeklies
-on Monday, monthlies on the 1st), so the calendar logic lives in code rather
-than in a cron expression.
-
-Every job is idempotent. A retry, a duplicate invocation or a manual run
-produces no double-charges and no duplicate reports.
-
----
-
-## Security
-
-- **Authorization is server-side on every route.** The client never decides a
-  role. Middleware gates page routes, `requireUser`/`requireAdmin` re-check in
-  each server component, and every API handler checks again. Hiding a button is
-  not access control.
-- **Passwords** are bcrypt-hashed (cost 10 for seeded accounts, 12 for the
-  production owner). No plaintext is ever stored; the welcome email is the one
-  moment a generated password exists, in the request that created it.
-- **Login is rate limited**, with a sliding window and two buckets sized
-  differently, because they defend against different things. Per account: 8
-  attempts per 10 minutes — that is one person's own typing, and the real
-  defence against guessing one password. Per source address: 60, because an
-  address is not a person. A whole office behind one NAT arrives as a single
-  IP, so a limit sized for one person locks out everybody who shares the
-  connection the moment two colleagues fumble a password. A request that
-  arrives with no proxy header to identify it skips the address bucket
-  entirely, rather than sharing a placeholder one with every other visitor.
-  Being throttled is reported as such, not disguised as a wrong password: an
-  attacker can measure it by timing anyway, and hiding it left real users
-  retyping a correct password and extending their own lockout. The counters
-  are in-process, so each serverless instance keeps its own; swapping
-  `lib/rate-limit.ts` for Upstash/Redis is a drop-in change if you need a
-  global limit.
-- **Every mutation validates its body with zod** before touching the database.
-- **Uploads** are limited to 10 MB and an allowlist of types. SVG is refused
-  deliberately — it is script-capable. Stored filenames are server-generated
-  and are the only thing used to build a path, so a hostile original filename
-  is just a label. Files are served through an authenticated route with
-  `nosniff` and a sandbox CSP, never as static assets.
-- **Failures are vague on purpose.** A wrong password, an unknown account, a
-  deactivated account and a throttled attempt all return the same thing, so the
-  login form cannot be used to enumerate staff.
-
----
-
-## Architecture notes
-
-- **The score is never stored.** `ScoreEvent` is an append-only ledger and a
-  score is always `100 + sum(that month's events)`, clamped to 0–100. There is
-  no mutable score column anywhere in the schema.
-- **Reports are frozen snapshots.** The whole document is serialized at
-  generation time, so reopening a milestone in October cannot rewrite what
-  August's report said.
-- **Idempotency is a database guarantee**, not a convention — unique dedupe
-  keys on score events, reports and notifications mean re-running any job is a
-  no-op.
-- **All dates go through `lib/date.ts`** (Asia/Karachi). Date-only fields are
-  stored at UTC midnight; a deadline is the end of that day in company time.
-- **`lib/scoring.ts`, `lib/narrative.ts` and `lib/mentions.ts` are pure** — no
-  database, no clock — which is what makes them exhaustively testable.
-
-`PROGRESS.md` records what each phase built and why, including the bugs found
-while verifying them.
-
----
-
-## Tests
-
-```bash
-npm test          # 75 unit tests
-npm run typecheck
-npm run lint
-```
-
-The unit tests cover the scoring rules, the report narratives and the mention
-parser. Beyond them, each phase has an HTTP acceptance suite run against a
-production build covering permissions, idempotency and the security
-boundaries — 381 checks in total.
-
----
+Prisma won't read the provider from an environment variable, so
+`scripts/sync-db-provider.mjs` rewrites `prisma/schema.prisma` from
+`DATABASE_URL` before every dev, build, push, migrate and seed: `file:` →
+SQLite, `postgresql://` → Postgres. Migrations (`prisma/migrations/`) are
+generated for Postgres, the deployment target; locally, SQLite uses
+`db:push`. The full chain was applied to an empty Postgres on the Phase 10
+staging run with no drift.
+
+## Security in one paragraph
+
+Every route checks permissions on the server against one matrix
+(`config/permissions.ts`), and a data-layer extension scopes every query to
+the caller's organization and audits every change. Sessions are re-checked
+against the account on every request. Pages carry a nonce-based CSP, frame
+denial and the usual hardening headers; uploads are type- and
+content-checked; secrets live in an AES-256-GCM vault; login, password
+changes, uploads, messages, invitations and search are rate-limited. Details
+and the Phase 10 audit: `docs/phases/PHASE_10_REPORT.md`.
 
 ## License
 

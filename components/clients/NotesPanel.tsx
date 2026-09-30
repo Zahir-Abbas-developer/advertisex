@@ -110,7 +110,7 @@ export function NotesPanel({ clientId, canEdit, viewerId, isManager }: { clientI
                       {n.pinned ? <PinOff className="h-4 w-4" /> : <Pin className="h-4 w-4" />}
                     </button>
                     {(isManager || n.author?.id === viewerId) && (
-                      <button type="button" onClick={() => void remove(n)} className="rounded p-1.5 text-ink-muted hover:bg-surface-2 hover:text-danger" aria-label="Delete note">
+                      <button type="button" onClick={() => void remove(n)} className="rounded p-1.5 text-ink-muted hover:bg-surface-2 hover:text-danger-ink" aria-label="Delete note">
                         <Trash2 className="h-4 w-4" />
                       </button>
                     )}

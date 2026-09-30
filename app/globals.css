@@ -40,6 +40,7 @@
     --c-accent-hover: 22 106 65; /* #166A41 */
     --c-warning: 217 119 6; /* #D97706 */
     --c-danger: 220 38 38; /* #DC2626 · destructive actions and errors only */
+    --c-danger-ink: 185 28 28; /* #B91C1C · red as TEXT: ≥5.4:1 on every surface (#DC2626 is 4.0–4.3 on mint and its tint) */
 
     /* Role tokens */
     --bg: var(--c-green-50);

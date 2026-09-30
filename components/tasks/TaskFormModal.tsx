@@ -176,7 +176,7 @@ export function TaskFormModal({
           />
         )}
         {errors.assigneeId && (
-          <p className="text-[12px] text-danger">{errors.assigneeId}</p>
+          <p className="text-[12px] text-danger-ink">{errors.assigneeId}</p>
         )}
 
         <div className="flex justify-end gap-2">

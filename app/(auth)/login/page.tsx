@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
-import { getCurrentUser } from "@/lib/session";
+import { getCurrentUser, sessionClaim } from "@/lib/session";
 import { DEFAULT_LANDING, SESSION_ENDED_ROUTE, safeCallbackPath } from "@/lib/routes";
 import { principalFor } from "@/modules/rbac/server";
 import { LoginForm } from "@/components/auth/LoginForm";
@@ -19,9 +19,9 @@ export default async function LoginPage(
   // A token is only a claim: forward it on only if its account still exists
   // and may sign in. Otherwise clear it — once; if the cookie survived the
   // clearing, show the form rather than bounce again.
-  const user = await getCurrentUser();
-  if (user) {
-    if (await principalFor(user)) redirect(DEFAULT_LANDING);
+  if (await sessionClaim()) {
+    const user = await getCurrentUser();
+    if (user && (await principalFor(user))) redirect(DEFAULT_LANDING);
     if (!searchParams.ended) redirect(SESSION_ENDED_ROUTE);
   }
 

@@ -55,7 +55,7 @@ export function DropColumn({
           <p
             className={cn(
               "truncate text-[13px] font-medium",
-              tone === "success" ? "text-brand" : tone === "danger" ? "text-danger" : "text-ink",
+              tone === "success" ? "text-brand" : tone === "danger" ? "text-danger-ink" : "text-ink",
             )}
           >
             {title}

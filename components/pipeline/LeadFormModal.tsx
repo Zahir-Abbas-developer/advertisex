@@ -588,7 +588,7 @@ export function LeadFormModal({
                   "This lead will be yours. Only an admin can assign it to someone else."}
               </p>
             )}
-            {errors.ownerId && <p className="text-[12px] text-danger">{errors.ownerId}</p>}
+            {errors.ownerId && <p className="text-[12px] text-danger-ink">{errors.ownerId}</p>}
 
             <div className="flex justify-between gap-2">
               <Button variant="ghost" onClick={() => setStep(1)}>

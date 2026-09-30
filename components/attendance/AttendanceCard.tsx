@@ -237,7 +237,7 @@ export function AttendanceCard() {
         {state.tally.resolved > 0 && (
           <div className="mt-5 flex items-center gap-2 border-t border-ink/10 pt-4">
             {state.tally.missed > 0 ? (
-              <XCircle aria-hidden className="h-3.5 w-3.5 text-danger" />
+              <XCircle aria-hidden className="h-3.5 w-3.5 text-danger-ink" />
             ) : (
               <CheckCircle2 aria-hidden className="h-3.5 w-3.5 text-brand" />
             )}

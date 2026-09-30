@@ -199,7 +199,7 @@ export function DisputeInbox({ isAdmin }: { isAdmin: boolean }) {
                       <span
                         className={cn(
                           "rounded-pill border px-2 py-0.5 text-[11px] font-medium tabular-nums",
-                          "border-danger/25 bg-danger-tint text-danger",
+                          "border-danger/25 bg-danger-tint text-danger-ink",
                         )}
                       >
                         {formatPoints(row.event.points)}{" "}

@@ -178,7 +178,7 @@ export function InvoiceEditor({ initial, presetClientId }: { initial?: EditorIni
       <Card padded={false}>
         <CardHeader title="Lines" description="Quantity × rate, rounded to the cent. A negative rate makes a discount line." />
         <CardBody className="space-y-4">
-          {errors.lines && <p className="text-[13px] text-danger">{errors.lines}</p>}
+          {errors.lines && <p className="text-[13px] text-danger-ink">{errors.lines}</p>}
           {lines.map((l, i) => (
             <div key={l.key} className="grid gap-3 border-b border-line pb-4 last:border-0 sm:grid-cols-[minmax(0,1.2fr)_minmax(0,2fr)_90px_130px_120px_36px] sm:items-start">
               <Select
@@ -201,7 +201,7 @@ export function InvoiceEditor({ initial, presetClientId }: { initial?: EditorIni
                 <button
                   type="button"
                   onClick={() => setLines((ls) => (ls.length === 1 ? [blank()] : ls.filter((_, j) => j !== i)))}
-                  className="flex h-10 w-9 items-center justify-center rounded-lg text-ink-muted hover:bg-surface-2 hover:text-danger"
+                  className="flex h-10 w-9 items-center justify-center rounded-lg text-ink-muted hover:bg-surface-2 hover:text-danger-ink"
                   aria-label={`Remove line ${i + 1}`}
                 >
                   <Trash2 className="h-4 w-4" />

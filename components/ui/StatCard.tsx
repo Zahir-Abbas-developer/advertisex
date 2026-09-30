@@ -8,7 +8,7 @@ const ICON_TONES: Record<StatTone, string> = {
   neutral: "bg-surface-2 text-ink-muted border-line",
   success: "bg-brand-tint text-brand border-brand/15",
   warning: "bg-warn-tint text-warn border-warn/15",
-  danger: "bg-danger-tint text-danger border-danger/15",
+  danger: "bg-danger-tint text-danger-ink border-danger/15",
   info: "bg-info-tint text-info border-info/15",
 };
 

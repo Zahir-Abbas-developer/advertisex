@@ -49,7 +49,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
       {label && (
         <label htmlFor={inputId} className={labelClasses}>
           {label}
-          {requiredMark && <span className="ml-0.5 text-danger">*</span>}
+          {requiredMark && <span className="ml-0.5 text-danger-ink">*</span>}
         </label>
       )}
 
@@ -76,7 +76,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
       </div>
 
       {error ? (
-        <p id={`${inputId}-error`} className="mt-1.5 text-[13px] text-danger">
+        <p id={`${inputId}-error`} className="mt-1.5 text-[13px] text-danger-ink">
           {error}
         </p>
       ) : hint ? (

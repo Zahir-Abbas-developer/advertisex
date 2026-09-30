@@ -77,7 +77,7 @@ const TONE_CLASSES: Record<string, string> = {
   // Icon chips: the hue is carried by the icon, which may use any palette color.
   info: "border-info/25 bg-info-tint text-info",
   warning: "border-warn/20 bg-warn-tint text-warn",
-  danger: "border-danger/20 bg-danger-tint text-danger",
+  danger: "border-danger/20 bg-danger-tint text-danger-ink",
   success: "border-success/25 bg-success-tint text-success-ink",
   neutral: "border-line bg-surface-2 text-ink-muted",
 };

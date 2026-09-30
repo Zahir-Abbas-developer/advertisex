@@ -38,7 +38,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(function Che
       <span>
         {label}
         {error ? (
-          <span id={`${inputId}-error`} className="mt-0.5 block text-[12px] text-danger">
+          <span id={`${inputId}-error`} className="mt-0.5 block text-[12px] text-danger-ink">
             {error}
           </span>
         ) : hint ? (

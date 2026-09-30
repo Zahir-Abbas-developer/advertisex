@@ -305,7 +305,7 @@ export function ActivityTimeline({
                           type="button"
                           aria-label="Remove this entry"
                           onClick={() => void remove(activity.id)}
-                          className="order-last rounded p-1 text-ink-muted transition-colors hover:text-danger"
+                          className="order-last rounded p-1 text-ink-muted transition-colors hover:text-danger-ink"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                         </button>

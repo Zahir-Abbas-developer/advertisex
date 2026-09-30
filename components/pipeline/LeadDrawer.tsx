@@ -294,7 +294,7 @@ export function LeadDrawer({
 
             {lost && lead.lostReason && (
               <div className="mt-3 rounded-[10px] border border-danger/20 bg-danger-tint px-3 py-2.5">
-                <p className="text-[13px] font-medium text-danger">
+                <p className="text-[13px] font-medium text-danger-ink">
                   {LOST_REASON_LABEL[lead.lostReason as LostReason] ?? lead.lostReason}
                 </p>
                 {lead.lostNote && (

@@ -399,7 +399,7 @@ export function TeamManager({ currentUserId }: { currentUserId: string }) {
                               ? "text-brand"
                               : member.onTimeRate >= 70
                                 ? "text-ink-2"
-                                : "text-danger",
+                                : "text-danger-ink",
                         )}
                       >
                         {member.onTimeRate === null ? "—" : `${member.onTimeRate}%`}
@@ -481,7 +481,7 @@ export function TeamManager({ currentUserId }: { currentUserId: string }) {
                             }
                             onClick={() => setStatusTarget(member)}
                             aria-label={`${member.isActive ? "Deactivate" : "Restore"} ${member.name}`}
-                            className={member.isActive ? "hover:text-danger" : "hover:text-brand"}
+                            className={member.isActive ? "hover:text-danger-ink" : "hover:text-brand"}
                           >
                             <span className="hidden sm:inline">
                               {member.isActive ? "Deactivate" : "Restore"}

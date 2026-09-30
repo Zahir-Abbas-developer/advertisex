@@ -59,7 +59,7 @@ type MonthPayload = {
 const STATUS_STYLE: Record<string, string> = {
   PRESENT: "border-brand/25 bg-brand-tint text-brand",
   LATE: "border-warn/25 bg-warn-tint text-ink",
-  ABSENT: "border-danger/25 bg-danger-tint text-danger",
+  ABSENT: "border-danger/25 bg-danger-tint text-danger-ink",
   LEAVE: "border-line bg-surface-2 text-ink-muted",
   OFF: "border-line bg-surface-2/60 text-ink-muted",
 };
